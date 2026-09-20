@@ -369,7 +369,7 @@ Optional entry includes:
 - advice;
 - follow-up information.
 
-Clinical decision functions remain within the Doctor role even though the interface itself is designed to be simple.
+Clinical decision functions remain within the Doctor role even though the interface itself is designed to be simple. In the current pilot, the clinic owner is also the only doctor, so that owner-doctor is the sole clinical finalization/approval authority.
 
 If a completed consultation needs correction, only a Doctor-role user may create an amendment/new revision. The original content remains preserved; amendment reason, actor, and timestamp are recorded.
 
@@ -602,13 +602,14 @@ Reception does not receive general access to diagnosis or clinical notes. Limite
 Doctor access includes:
 
 - doctor-specific queue;
-- patient clinical history needed for care;
+- the patient's longitudinal visit/archive history needed for care;
 - current consultation record;
 - diagnosis and notes;
 - prescribing;
 - payment/queue status;
 - direct demographic edits and approval of reception demographic-change requests;
-- inventory-upkeep approval;
+- complete inventory oversight and inventory-upkeep approval;
+- stock movement/adjustment audit visibility;
 - substitution approval;
 - consultation waiver approval/initiation;
 - visit cancellation with reason.
@@ -719,10 +720,11 @@ Per-doctor patient count is not required for the current single-doctor pilot.
 
 # 19. Remaining Genuine Open Areas
 
-The current workflow itself is substantially defined. Remaining items requiring clinic policy, external validation, or downstream technical design are:
+The current workflow itself is substantially defined. In this pilot, reception/pharmacy staff are operational users and the owner-doctor is the sole clinical decision/finalization authority.
 
-1. whether any non-doctor/lower-knowledge staff may only assist with data entry or are expected to perform clinical decision/finalization actions;
-2. clinic-defined consultation and pharmacy payment methods/status conventions;
+Remaining items requiring clinic policy, external validation, or downstream technical design are:
+
+1. clinic-defined consultation and pharmacy payment methods/status conventions;
 3. consultation fee and pharmacy billing policy details;
 4. pharmacy partial-payment/refund/cancellation policy;
 5. legal/privacy/compliance and retention requirements;
