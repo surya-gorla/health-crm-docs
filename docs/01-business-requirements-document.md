@@ -52,7 +52,7 @@ Allow pharmacy staff to retrieve the visit prescription, identify available and 
 Maintain auditability for clinically and financially important records and avoid silent destructive changes.
 
 **BO-08 — Reduce hidden pharmacy inventory loss.**  
-Give the owner-doctor full visibility into stock, dispensing, stock adjustments, damage/loss entries, and the staff actions that change inventory so unexplained stock reductions cannot be performed silently.
+Give the clinic Owner full visibility into stock, dispensing, stock adjustments, damage/loss entries, and the staff actions that change inventory so unexplained stock reductions cannot be performed silently.
 
 **BO-09 — Maintain a longitudinal patient archive.**  
 Preserve patient visit history, consultation records, diagnoses, prescriptions, and relevant corrections over time so the doctor can retrieve a patient's historical record across visits.
@@ -494,7 +494,7 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.3 Clinical Documentation
 
-5. No remaining V1 clinical-authority decision: the owner-doctor is the sole clinical decision/finalization authority; non-doctor staff are operational users only.
+5. No remaining V1 clinical-authority decision: clinical decision/finalization actions require the Doctor role. In the current pilot the Owner is also the only Doctor; if more doctors are added, each receives Doctor permissions independently.
 
 ## 9.4 Prescription
 
@@ -503,7 +503,7 @@ The following items remain unresolved and must not be inferred.
 ## 9.5 Pharmacy and Inventory
 
 7. Initial low-stock and near-expiry threshold values are operational configuration, not BRD decisions.
-8. Whether pharmacy medicine price changes use the same pharmacist-request -> doctor-approval workflow is to be confirmed only if the clinic expects pharmacists to propose price changes.
+8. Pharmacy-proposed medicine price changes use the same pharmacist-request -> Owner-approval workflow as other non-dispensing inventory changes.
 9. Non-prescription retail remains future/out of V1.
 
 ## 9.6 Payments
@@ -587,10 +587,10 @@ The accepted initial module set is:
 | Prescription | Minimal structure and immutability confirmed; naming/dosage-form/correction details remain open |
 | Pharmacy availability | Confirmed |
 | Pharmacy dispensing | Partial dispensing, substitution approval, no-return V1, and over-dispense prevention confirmed |
-| Inventory controls | Multi-unit tracking, batch/expiry/pricing fields, alerts, and doctor-approved non-dispensing changes confirmed |
+| Inventory controls | Multi-unit tracking, batch/expiry/pricing fields, alerts, Owner-approved non-dispensing changes, and multi-pharmacy ledgers/transfers confirmed |
 | Consultation payment | Status recording only; no CRM processing, no partial payment, no refund |
 | Pharmacy payment | Status recording only; detailed payment/refund rules remain open |
-| Roles | Group-based permissions with individual accounts confirmed; Admin details remain open |
+| Roles | Owner, Doctor, Reception, Pharmacist, and Admin roles with multi-role individual accounts confirmed |
 | Authentication | Individual login/password + reset confirmed; no MFA in V1 |
 | Audit history | Confirmed |
 | Analytics/reporting | Confirmed report set; formulas/platform remain open |
@@ -605,8 +605,9 @@ The accepted initial module set is:
 Confirmed for the current pilot:
 
 1. Single clinic branch.
-2. Clinic owner is also the doctor managing the clinic.
+2. Clinic owner is currently also the only doctor.
 3. Clinic has a separate pharmacy operation.
+4. The role/unit design supports adding multiple doctors, receptionists, and pharmacy units within the same clinic without changing the core permission model.
 4. Product is web-based.
 5. V1 requires internet connectivity; offline mode is not required.
 6. Printing uses normal A4 printing for consultation/prescription outputs.
