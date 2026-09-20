@@ -81,7 +81,7 @@ Maintain auditability for clinically and financially important records and avoid
 24. Pharmacy communication of medicines that must be obtained outside.
 25. Pharmacy billing.
 26. Pharmacy payment recording.
-27. Receipt/transaction records for consultation and pharmacy payments.
+27. Consultation and pharmacy payment-status/information recording; payment processing itself is not part of V1.
 28. Role-based access for Administrator, Receptionist, Doctor, and Pharmacist.
 29. Audit history for important clinical and financial changes.
 30. Cancellation/void behavior that preserves history rather than silently deleting important records.
@@ -99,6 +99,10 @@ The following were explicitly accepted as items not to include in the initial MV
 4. Ambulance management.
 5. HR/payroll.
 6. Full purchasing/supplier management for pharmacy stock.
+7. In-CRM payment processing/payment-gateway integration for V1.
+8. Medicine returns in V1.
+9. Offline operation in V1.
+10. Thermal receipt printing in V1.
 
 ## 3.3 Future / Later-Phase Candidates
 
@@ -192,10 +196,10 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 | ID | Functional Requirement | Priority | Primary Systems | Primary KPI |
 | --- | --- | --- | --- | --- |
-| FR-011 | Receptionist shall be able to create a consultation charge/payment record for the visit. | TBD | Hospital CRM | TBD |
-| FR-012 | Consultation payment shall be represented as a transaction/record rather than only as a boolean checkbox. | TBD | Hospital CRM | TBD |
-| FR-013 | Consultation payment records shall represent at minimum Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported. | TBD | Hospital CRM | TBD |
-| FR-014 | The system shall retain a receipt/reference record for a consultation payment. Receipt numbering/format is TBD. | TBD | Hospital CRM | TBD |
+| FR-011 | Receptionist shall be able to record the consultation fee/payment status information for the visit after payment activity occurs outside the CRM. | TBD | Hospital CRM | TBD |
+| FR-012 | V1 shall not process consultation payments. It shall retain the consultation payment status/information required by the clinic for queue eligibility and reporting. | TBD | Hospital CRM | TBD |
+| FR-013 | Consultation payment shall support Paid and Unpaid status for the normal flow. Partial consultation payment is not supported, and consultation payments are non-refundable in V1. Waiver is handled through the separate doctor-controlled waiver workflow. | TBD | Hospital CRM | TBD |
+| FR-014 | Consultation receipt/reference behavior is TBD pending clinic confirmation; V1 does not require a payment-processing integration or thermal receipt workflow. | TBD | Hospital CRM | TBD |
 | FR-015 | A consultation-fee waiver may be initiated either by reception or directly by the doctor. A reception-initiated waiver request shall be presented to the doctor for approval, and reception cannot grant the waiver independently. A doctor-initiated waiver shall be treated as approved immediately and shall update the visit/payment status accordingly without a separate approval step. | TBD | Hospital CRM | TBD |
 | FR-016 | A Paid visit is eligible to enter the doctor queue. An Unpaid visit shall not enter the doctor queue unless its consultation-fee waiver request has been approved by the doctor. A pending or unapproved waiver request does not make the visit queue-eligible. | TBD | Hospital CRM | TBD |
 
@@ -382,7 +386,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-019** — Consultation and pharmacy payment are separate financial events.
 
-**BR-020** — Financial events must be stored as transactions/records with explicit status.
+**BR-020** — V1 stores payment status/information records for consultation and pharmacy events but does not process the underlying payment.
 
 **BR-021** — Consultation payment is recorded as status/information only. Partial consultation payment is not supported, and consultation payments are non-refundable in V1.
 
