@@ -193,10 +193,10 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | --- | --- | --- | --- | --- |
 | FR-011 | Receptionist shall be able to create a consultation charge/payment record for the visit. | TBD | Hospital CRM | TBD |
 | FR-012 | Consultation payment shall be represented as a transaction/record rather than only as a boolean checkbox. | TBD | Hospital CRM | TBD |
-| FR-013 | Payment records shall be capable of representing Paid, Unpaid, Partial, Refunded, and Cancelled states. Rules for when each state is permitted are TBD. | TBD | Hospital CRM | TBD |
+| FR-013 | Consultation payment records shall represent at minimum Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported. | TBD | Hospital CRM | TBD |
 | FR-014 | The system shall retain a receipt/reference record for a consultation payment. Receipt numbering/format is TBD. | TBD | Hospital CRM | TBD |
 | FR-015 | The system shall support an explicitly waived consultation-payment scenario. Authorization and audit rules for waivers are TBD. | TBD | Hospital CRM | TBD |
-| FR-016 | Eligibility for entering the doctor queue after Paid, Partial, Unpaid, or Waived consultation status requires final business-rule confirmation. Until then this is an Open Decision. | TBD | Hospital CRM | TBD |
+| FR-016 | A visit shall not enter the doctor queue while consultation payment is Unpaid. Paid consultation status is eligible for queue entry. Waived-consultation behavior remains an Open Decision. | TBD | Hospital CRM | TBD |
 
 ## 6.4 Consultation Queue
 
@@ -329,7 +329,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-009** — The doctor selects/calls patients through the queue, with reception informed of the call.
 
-**BR-010** — The rule determining when a visit is eligible to enter the queue based on consultation payment state is still unresolved.
+**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported. Waived-consultation behavior remains unresolved.
 
 ## 7.3 Clinical Record Rules
 
@@ -357,7 +357,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-020** — Financial events must be stored as transactions/records with explicit status.
 
-**BR-021** — Paid, Unpaid, Partial, Refunded, and Cancelled states must be representable.
+**BR-021** — Consultation payment must support Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported.
 
 **BR-022** — Exact payment methods, authorization rules, refund rules, and reconciliation rules are not yet confirmed.
 
@@ -403,8 +403,8 @@ The following items require explicit decisions before the BRD can be considered 
 
 ## 9.2 Visit and Queue
 
-7. Exact condition for adding a visit to the consultation queue.
-8. Whether Paid, Partial, Unpaid, or Waived visits may enter the queue.
+7. Waived-consultation behavior for queue eligibility.
+8. Whether a waived consultation should be represented as a payment state, a separate exemption/authorization record, or another confirmed business status.
 9. Rules for urgent patients and out-of-order queue handling.
 10. Behavior when a patient leaves before consultation.
 11. Behavior when a patient does not respond when called.
