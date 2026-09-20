@@ -18,6 +18,8 @@
 
 This BRD defines the confirmed business requirements for a clinic-focused Hospital CRM covering the operational journey from patient identification/registration through reception payment, consultation queue, doctor consultation and clinical notes, prescription creation, pharmacy dispensing, and pharmacy payment.
 
+The initial product is being designed for one real clinic operated by its owner, who is also the clinic's only doctor. Two of the primary operating needs are (a) maintaining a reliable longitudinal archive of patients and visits and (b) giving the owner-doctor strong visibility and control over pharmacy inventory because inventory loss/theft is an existing operational concern.
+
 The document is intended to provide a common scope baseline for product, engineering, QA, clinic operations, and future solution-design work.
 
 The journey currently begins when a patient arrives at reception and ends when the applicable clinic/pharmacy activities for that visit have been completed.
@@ -48,6 +50,12 @@ Allow pharmacy staff to retrieve the visit prescription, identify available and 
 
 **BO-07 — Preserve accountability of important records.**  
 Maintain auditability for clinically and financially important records and avoid silent destructive changes.
+
+**BO-08 — Reduce hidden pharmacy inventory loss.**  
+Give the owner-doctor full visibility into stock, dispensing, stock adjustments, damage/loss entries, and the staff actions that change inventory so unexplained stock reductions cannot be performed silently.
+
+**BO-09 — Maintain a longitudinal patient archive.**  
+Preserve patient visit history, consultation records, diagnoses, prescriptions, and relevant corrections over time so the doctor can retrieve a patient's historical record across visits.
 
 ---
 
@@ -139,7 +147,17 @@ Only confirmed assumptions are listed here.
 2. Changes to important records require attributable audit history.
 3. Cancellation or correction must preserve historical evidence of the prior record where applicable.
 
-## 4.4 Existing systems
+## 4.4 Pilot operating context
+
+1. The current V1 pilot is for a single clinic.
+2. The clinic owner is also the clinic's only doctor.
+3. Reception and pharmacy staff are operational users; they are not clinical decision-makers in the V1 pilot.
+4. Diagnosis, prescription finalization, clinical amendments, consultation cancellation, waiver approval, substitution approval, and controlled inventory-adjustment approval remain Doctor-role actions.
+5. The owner-doctor requires full visibility into pharmacy inventory, dispensing, inventory-adjustment requests, approvals/rejections, and audit history.
+6. Inventory accountability is a core business goal because stock loss/theft is an existing clinic problem.
+7. Patient history is intended to function as a durable longitudinal archive across visits.
+
+## 4.5 Existing systems
 
 No existing clinic software platform, external EMR/EHR, billing platform, pharmacy platform, payment gateway, identity provider, or other system has yet been confirmed.
 
@@ -315,6 +333,8 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-087 | Inventory records shall support batch/lot number, expiry date, manufacturer, purchase price, and selling price. | TBD | Hospital CRM | TBD |
 | FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Doctor/Admin role rather than fixed global values. | TBD | Hospital CRM | TBD |
 | FR-089 | Expired stock shall be blocked from dispensing. The doctor shall be notified, and removal/adjustment of expired, damaged, lost, or otherwise unavailable quantity shall use the doctor-approved inventory-adjustment workflow with category, reason, quantity, actor, and time logged. Physical disposal is outside the CRM V1 workflow. | TBD | Hospital CRM | TBD |
+| FR-090 | The owner-doctor shall have complete inventory oversight, including current stock, package/base-unit quantities, dispensing history, stock additions, adjustments, damage/loss entries, expiry-related removals, request originator, approval/rejection, reason, and timestamp. | TBD | Hospital CRM | TBD |
+| FR-091 | The doctor shall be able to retrieve the patient's longitudinal archive across visits, including historical consultations, diagnoses, prescriptions, and preserved amendments/superseded records according to role permissions. | TBD | Hospital CRM | TBD |
 
 ---
 
@@ -361,6 +381,12 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 **BR-034** — Administrator permission alone does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, clinical amendments, and doctor approvals require Doctor-group permission.
 
 **BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every staff member uses an individual username/password account; password reset is owner/admin-assisted in V1.
+
+**BR-036** — In the V1 pilot, the owner is the clinic's sole Doctor-role clinical authority. Reception and pharmacy staff may perform their permitted operational/data-entry workflows but may not independently diagnose, prescribe, finalize clinical records, or perform Doctor-approval actions.
+
+**BR-037** — Inventory changes must be attributable. Normal prescription dispensing is automatically recorded; all non-dispensing stock additions/reductions/corrections require the controlled request/approval flow so the owner-doctor can review unexplained inventory movement.
+
+**BR-038** — Patient records form a longitudinal archive: historical visits and superseded/amended material records are preserved rather than replaced by only the latest state.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the doctor. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
@@ -447,7 +473,7 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.3 Clinical Documentation
 
-5. Confirm who is permitted to perform clinical decision-making/finalization if the clinic intends lower-knowledge or non-doctor staff to use the consultation interface.
+5. No remaining V1 clinical-authority decision: the owner-doctor is the sole clinical decision/finalization authority; non-doctor staff are operational users only.
 
 ## 9.4 Prescription
 
