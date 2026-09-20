@@ -195,8 +195,8 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-012 | Consultation payment shall be represented as a transaction/record rather than only as a boolean checkbox. | TBD | Hospital CRM | TBD |
 | FR-013 | Consultation payment records shall represent at minimum Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported. | TBD | Hospital CRM | TBD |
 | FR-014 | The system shall retain a receipt/reference record for a consultation payment. Receipt numbering/format is TBD. | TBD | Hospital CRM | TBD |
-| FR-015 | The system shall support an explicitly waived consultation-payment scenario. Authorization and audit rules for waivers are TBD. | TBD | Hospital CRM | TBD |
-| FR-016 | A visit shall not enter the doctor queue while consultation payment is Unpaid. Paid consultation status is eligible for queue entry. Waived-consultation behavior remains an Open Decision. | TBD | Hospital CRM | TBD |
+| FR-015 | Receptionist shall be able to raise a consultation-fee waiver request for a visit. The request shall be presented to the doctor for approval. Reception cannot grant the waiver independently. | TBD | Hospital CRM | TBD |
+| FR-016 | A Paid visit is eligible to enter the doctor queue. An Unpaid visit shall not enter the doctor queue unless its consultation-fee waiver request has been approved by the doctor. A pending or unapproved waiver request does not make the visit queue-eligible. | TBD | Hospital CRM | TBD |
 
 ## 6.4 Consultation Queue
 
@@ -329,7 +329,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-009** — The doctor selects/calls patients through the queue, with reception informed of the call.
 
-**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported. Waived-consultation behavior remains unresolved.
+**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the doctor. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
 ## 7.3 Clinical Record Rules
 
@@ -359,7 +359,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-021** — Consultation payment must support Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported.
 
-**BR-022** — Exact payment methods, authorization rules, refund rules, and reconciliation rules are not yet confirmed.
+**BR-022** — A consultation-fee waiver is an exception requiring doctor approval. Reception may request the waiver but may not approve it. Exact payment methods, refund rules, reconciliation rules, and any required waiver-reason format remain unconfirmed.
 
 ## 7.6 Audit Rules
 
@@ -403,8 +403,9 @@ The following items require explicit decisions before the BRD can be considered 
 
 ## 9.2 Visit and Queue
 
-7. Waived-consultation behavior for queue eligibility.
-8. Whether a waived consultation should be represented as a payment state, a separate exemption/authorization record, or another confirmed business status.
+7. How an approved waiver is represented in the financial record (payment state, exemption/authorization record, or another confirmed model).
+8. Whether a reason is mandatory when reception submits a waiver request.
+9. Whether the doctor must provide a reason when rejecting or declining a waiver request.
 9. Rules for urgent patients and out-of-order queue handling.
 10. Behavior when a patient leaves before consultation.
 11. Behavior when a patient does not respond when called.
@@ -532,7 +533,7 @@ The accepted initial module set is:
 | --- | --- |
 | Patient identity model | Confirmed at high level |
 | Visit identity model | Confirmed |
-| Reception workflow | Confirmed at high level; payment/queue rules partly open |
+| Reception workflow | Confirmed at high level; waiver-record representation remains open |
 | Doctor queue | Confirmed at high level; exception rules open |
 | Clinical notes | Confirmed at high level; data structure open |
 | Prescription | Confirmed at high level; medication model and edit rules open |
