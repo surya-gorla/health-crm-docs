@@ -266,11 +266,21 @@ Confirmed queue rule:
 
 Waived consultation flow is confirmed at a high level:
 
+### Reception-initiated waiver
+
 1. reception raises a waiver request;
 2. the request is shown to the doctor;
 3. reception cannot approve the waiver;
 4. if the doctor approves, the visit becomes eligible for the doctor queue despite no consultation payment;
 5. while the waiver is pending or not approved, the visit remains ineligible for the queue.
+
+### Doctor-initiated waiver
+
+1. the doctor may initiate the consultation-fee waiver directly;
+2. because the doctor is the approving authority, no second approval step is required;
+3. the waiver is treated as approved immediately;
+4. the visit/payment status is updated automatically;
+5. the visit becomes eligible for the doctor queue.
 
 The exact financial-record representation and reason requirements for the waiver remain TBD.
 
