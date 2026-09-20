@@ -41,8 +41,10 @@ The BRD authoring method follows the supplied zero-assumption rule:
 | Each visit should have separate Visit ID | CONFIRMED | FR-008 to FR-010, BR-003, BR-006 |
 | Consultation payment handled at reception | CONFIRMED | FR-011 to FR-016 |
 | Payment should be a transaction, not only a checkbox | CONFIRMED | FR-012, BR-020 |
-| Payment status model should support Paid/Unpaid/Partial/Refunded/Cancelled | CONFIRMED | FR-013, FR-061, BR-021 |
-| Patient goes into queue after reception workflow | CONFIRMED at high level | FR-017; eligibility rule remains OD-004/OD-005 |
+| Consultation payment supports Paid/Unpaid/Refunded/Cancelled; partial consultation payment is not supported | CONFIRMED | FR-013, BR-021 |
+| Paid consultation may enter doctor queue; unpaid consultation may not | CONFIRMED | FR-016, BR-010, OD-004 |
+| Waived-consultation queue behavior | OPEN | FR-015, OD-005 |
+| Patient goes into queue after reception workflow | CONFIRMED subject to payment eligibility | FR-017, FR-016 |
 | Doctor sees queue | CONFIRMED | FR-018, FR-020 |
 | Queue states should be explicit | CONFIRMED | FR-019, BR-008 |
 | Doctor calls patient through reception | CONFIRMED | FR-021, FR-022, BR-009 |
@@ -151,7 +153,7 @@ The baseline is strong enough to establish:
 The baseline is **not yet implementation-final** because material decisions remain open around:
 
 - remaining patient-field implementation details and duplicate fallback/merge behavior;
-- payment/queue eligibility;
+- waived-consultation handling;
 - multi-doctor routing;
 - clinical field structure;
 - medicine master/catalogue;
