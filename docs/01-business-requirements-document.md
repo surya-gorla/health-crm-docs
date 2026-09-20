@@ -332,8 +332,12 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-072 | Important clinical and financial records shall not be permanently removed from normal workflow through an unaudited hard-delete action. | TBD | Hospital CRM | TBD |
 | FR-073 | Where a prescription, payment, or other important record is cancelled/voided, the record shall preserve the fact of cancellation. | TBD | Hospital CRM | TBD |
 | FR-074 | Doctor cancellation of a consultation and consultation-fee waiver decisions shall include a reason and shall be logged with the responsible actor. | TBD | Hospital CRM | TBD |
-| FR-084 | Every staff member shall authenticate using an individual login under the clinic/hospital context. V1 shall use login credentials and password, and a password-reset capability is required. | TBD | Hospital CRM | TBD |
-| FR-085 | V1 shall not require 2FA/MFA. | TBD | Hospital CRM | TBD |
+| FR-084 | Every staff member shall authenticate using an individual login under the clinic context. V1 shall use individual login credentials and password. | TBD | Hospital CRM | TBD |
+| FR-085 | Any account holding the Owner role shall require two-factor authentication (2FA) in addition to the account password before login is completed. A user who holds Owner + Doctor or Owner + another role remains subject to Owner 2FA because the account has Owner privileges. | TBD | Hospital CRM | TBD |
+| FR-100 | Non-Owner staff accounts, including Doctor-only, Reception, Pharmacist, and Administrator-only accounts, shall not require 2FA in V1. | TBD | Hospital CRM | TBD |
+| FR-101 | A non-Owner staff member who selects Forgot Password shall submit a password-reset request to the Owner. Staff shall not be able to self-reset the password without Owner action in V1. | TBD | Hospital CRM | TBD |
+| FR-102 | The Owner shall be able to review a staff password-reset request and set a new/temporary password. The system shall never reveal the staff member's existing password to the Owner or any other user. | TBD | Hospital CRM | TBD |
+| FR-103 | After an Owner resets a staff password, the affected staff member shall be required to change that temporary/reset password after the next successful login. Password-reset request, Owner action, target account, and timestamp shall be logged. | TBD | Hospital CRM | TBD |
 | FR-086 | Pharmacy inventory shall support a medicine-specific base stock/dispensing unit plus configured higher package levels and conversion factors. Inventory movements shall normalize to the base unit while allowing entry/display in configured package units. | TBD | Hospital CRM | TBD |
 | FR-087 | Inventory records shall support batch/lot number, expiry date, manufacturer, purchase price, and selling price. | TBD | Hospital CRM | TBD |
 | FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Owner/Admin role rather than fixed global values. | TBD | Hospital CRM | TBD |
@@ -393,7 +397,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-034** — Administrator permission alone does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, clinical amendments, and doctor approvals require Doctor-group permission.
 
-**BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every staff member uses an individual username/password account; password reset is owner/admin-assisted in V1.
+**BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every user uses an individual username/password account. Staff forgotten-password recovery is Owner-controlled in V1.
 
 **BR-036** — Ownership and clinical authority are separate permissions. Reception and pharmacy staff may perform their permitted operational/data-entry workflows but may not independently diagnose, prescribe, finalize clinical records, or perform Doctor-only clinical approvals. A clinic owner who also practices medicine receives those clinical permissions through a separate Doctor role on the same account.
 
@@ -408,6 +412,12 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 **BR-041** — Inventory transfer between pharmacy units is a linked, auditable movement and cannot be represented as unrelated manual source/destination adjustments.
 
 **BR-042** — Owner role is the default approval authority for financial waiver approval and non-dispensing inventory control. Doctor role remains the authority for clinical decisions such as prescriptions and medicine substitutions.
+
+**BR-043** — Owner privilege is security-sensitive: every account containing the Owner role requires 2FA. Non-Owner staff accounts do not require 2FA in V1.
+
+**BR-044** — Staff forgotten-password recovery is a request/Owner-reset workflow. The Owner may replace the password but may never view or retrieve the existing password.
+
+**BR-045** — An Owner-performed staff password reset creates a temporary/reset credential that the staff member must replace after the next successful login. The reset action is auditable.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
@@ -591,7 +601,7 @@ The accepted initial module set is:
 | Consultation payment | Status recording only; no CRM processing, no partial payment, no refund |
 | Pharmacy payment | Status recording only; detailed payment/refund rules remain open |
 | Roles | Owner, Doctor, Reception, Pharmacist, and Admin roles with multi-role individual accounts confirmed |
-| Authentication | Individual login/password + reset confirmed; no MFA in V1 |
+| Authentication | Individual login/password confirmed; Owner accounts require 2FA; non-Owner staff do not; staff password reset is Owner-controlled |
 | Audit history | Confirmed |
 | Analytics/reporting | Confirmed report set; formulas/platform remain open |
 | Deployment | Single-branch web/online-only pilot; A4 printing; hosting TBD |
