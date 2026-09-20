@@ -209,7 +209,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-021 | The doctor shall be able to initiate a "call patient" action for a queued patient. | TBD | Hospital CRM | TBD |
 | FR-022 | A doctor-initiated call shall be visible to reception so the receptionist can physically call/direct the patient. | TBD | Hospital CRM | TBD |
 | FR-023 | The system shall show the current queue state of each visit to authorized roles. Exact role-specific visibility beyond doctor/reception is TBD. | TBD | Hospital CRM | TBD |
-| FR-024 | Rules for urgent/out-of-order queue handling are not yet confirmed and shall remain an Open Decision. | TBD | Hospital CRM | TBD |
+| FR-024 | The system shall not implement a priority flag, priority-request workflow, or automated priority reordering for urgent patients. If an urgent case arises, the receptionist shall communicate it directly to the doctor outside the CRM workflow. | TBD | Hospital CRM | TBD |
 | FR-025 | Rules for patients who leave, skip, or fail to respond when called are not yet confirmed and shall remain an Open Decision. | TBD | Hospital CRM | TBD |
 
 ## 6.5 Doctor Consultation and Clinical Record
@@ -330,6 +330,8 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 **BR-009** — The doctor selects/calls patients through the queue, with reception informed of the call.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the doctor. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
+
+**BR-026** — Urgent-patient handling does not use a CRM priority mechanism. The receptionist communicates the urgent situation directly to the doctor outside the software; no priority flag, approval request, or automated priority reordering is required in the CRM.
 
 ## 7.3 Clinical Record Rules
 
