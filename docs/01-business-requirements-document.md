@@ -314,7 +314,11 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-105 | Pharmacy staff may request cancellation/void of a pharmacy bill only by entering a specific free-text reason. The request shall be sent to the Owner and shall not alter the active bill until the Owner approves it. | TBD | Hospital CRM | TBD |
 | FR-106 | The Owner may approve or reject a pharmacy-bill cancellation request. If approved, the bill is removed from the active billing workflow and marked Cancelled/Voided while the original bill, payment state, requester, exact reason, Owner decision, and timestamps remain preserved in history/audit. If rejected, the active bill remains unchanged and the rejection is logged. | TBD | Hospital CRM | TBD |
 | FR-107 | Cancellation/void is not a refund. If a pharmacy bill was already recorded as Paid, an approved cancellation shall not create or imply a refund in V1; the historical paid state remains auditable. | TBD | Hospital CRM | TBD |
-| FR-108 | Consultation and pharmacy payment-method values shall be Owner-configurable so each clinic can record the methods it actually accepts without changing application code. Payment-method recording is informational/reconciliation data only and does not initiate payment processing. | TBD | Hospital CRM | TBD |
+| FR-108 | The default V1 payment-method choices shall be UPI, Cash, Card, and Other. Bank Transfer shall not be a separate default choice; if used, it may be recorded through Other. Payment-method recording is informational/reconciliation data only and does not initiate payment processing. | TBD | Hospital CRM | TBD |
+| FR-109 | When Other is selected as the payment method, the user shall be required to enter a short free-text description of the actual payment method before the payment record can be saved. | TBD | Hospital CRM | TBD |
+| FR-110 | Consultation and pharmacy payment recording shall support an optional external payment/reference number. The reference shall never be mandatory for marking a payment Paid in V1. | TBD | Hospital CRM | TBD |
+| FR-111 | V1 payment processing shall remain external to the CRM. Cash is physically collected outside the system; UPI is completed using the clinic's external UPI/QR/payment app; Card is completed on the clinic's external card/POS terminal; Other is completed through the externally described method. Staff then record the result in the CRM. | TBD | Hospital CRM | TBD |
+| FR-112 | The high-velocity reception payment interaction shall minimize steps: amount is prefilled where known, the user selects one of the four payment-method choices, optionally enters a reference, and confirms the payment. The system shall not require unnecessary reference-entry or gateway-wait steps before queue entry. | TBD | Hospital CRM | TBD |
 
 ## 6.11 Roles and Access
 
@@ -434,7 +438,11 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-050** — Cancellation/void is distinct from refund. A paid consultation or paid pharmacy bill is not refunded by approving cancellation under V1.
 
-**BR-051** — Payment methods recorded by the CRM are clinic configuration values controlled by the Owner. They describe how an external payment occurred and do not initiate or settle the payment.
+**BR-051** — The default V1 payment-method set is UPI, Cash, Card, and Other. Selecting Other requires a description of the actual method. The CRM records how an external payment occurred and does not initiate or settle the payment.
+
+**BR-052** — Payment reference/transaction ID is optional in V1 for both consultation and pharmacy payments.
+
+**BR-053** — V1 keeps payment processing outside the CRM so reception/pharmacy workflows are not blocked by payment-gateway latency or availability. Staff confirm successful external payment and then record Paid status in the CRM.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
@@ -534,7 +542,7 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.6 Payments
 
-20. Payment-method values are Owner-configurable at clinic setup; the exact initial labels are a go-live configuration choice, not an unresolved BRD policy.
+20. Default payment methods are UPI, Cash, Card, and Other; Other requires a description. Payment reference is optional.
 21. Consultation fee determination/configuration remains clinic-supplied.
 22. Any formal receipt/reference format remains clinic-configurable.
 23. Pharmacy pricing/tax requirements remain clinic-supplied where applicable.
@@ -612,7 +620,7 @@ The accepted initial module set is:
 | Pharmacy dispensing | Partial dispensing, substitution approval, no-return V1, and over-dispense prevention confirmed |
 | Inventory controls | Multi-unit tracking, batch/expiry/pricing fields, alerts, Owner-approved non-dispensing changes, and multi-pharmacy ledgers/transfers confirmed |
 | Consultation payment | Status recording only; no CRM processing, no partial payment, no refund |
-| Pharmacy payment | Status recording only; no partial payment, no refunds; Owner-controlled cancellation/void confirmed; payment methods Owner-configurable |
+| Pharmacy payment | Status recording only; no partial payment, no refunds; Owner-controlled cancellation/void confirmed; UPI/Cash/Card/Other default methods; optional reference |
 | Roles | Owner, Doctor, Reception, Pharmacist, and Admin roles with multi-role individual accounts confirmed |
 | Authentication | Individual login/password confirmed; Owner accounts require 2FA; non-Owner staff do not; staff password reset is Owner-controlled |
 | Audit history | Confirmed |
