@@ -1,10 +1,13 @@
 # Hospital CRM — Requirements Traceability
 
+**Status:** V1 Traceability — LOCKED  
+**Lock date:** 2026-09-20
+
 ## 1. Purpose
 
 This document maps the confirmed discovery decisions, explicitly delegated product decisions, and derived control decisions to the BRD requirements/business rules and canonical decision register.
 
-The current pre-lock baseline is v0.3.
+The current locked baseline is v1.0.
 
 ---
 
@@ -165,7 +168,7 @@ These are configuration, technical architecture, or external compliance dependen
 
 # 7. Completeness Assessment
 
-The v0.3 pre-lock baseline establishes:
+The locked v1.0 baseline establishes:
 
 - patient identity and duplicate-fallback model;
 - longitudinal patient archive;
