@@ -154,7 +154,7 @@ Only confirmed assumptions are listed here.
 3. The system distinguishes **Owner**, **Doctor**, **Reception**, **Pharmacist**, and **Administrator** authority instead of assuming that ownership and medical practice are the same role.
 4. A single staff account may hold multiple roles. Therefore, an owner who also practices medicine uses one account with both Owner and Doctor permissions.
 5. Reception and pharmacy staff are operational users; they are not clinical decision-makers.
-6. Diagnosis, prescription finalization, clinical amendments, consultation cancellation, and medicine-substitution approval remain Doctor-role actions.
+6. Diagnosis, prescription finalization, clinical amendments, consultation-cancellation requests, and medicine-substitution approval remain Doctor-role actions; cancellation approval remains Owner authority.
 7. Financial/ownership controls such as consultation-fee waiver approval and non-dispensing pharmacy inventory adjustments belong to the Owner role, not to every Doctor role.
 8. The Owner requires clinic-wide visibility into pharmacy inventory, dispensing, stock transfers, inventory-adjustment requests, approvals/rejections, and audit history across all pharmacy units.
 9. Inventory accountability is a core business goal because stock loss/theft is an existing clinic problem.
@@ -394,75 +394,19 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 
 **BR-009** — The doctor selects/calls patients through that doctor's assigned queue, with reception informed of the call.
 
+**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
+
+**BR-026** — Urgent-patient handling does not use a CRM priority mechanism. The receptionist communicates the urgent situation directly to the doctor outside the software; no priority flag, approval request, or automated priority reordering is required in the CRM.
+
 **BR-027** — Consultation queues are doctor-specific. Reception assigns each eligible visit to a specific doctor before the visit enters the queue. A doctor sees the patients assigned to that doctor's queue rather than a shared clinic-wide queue.
 
 **BR-028** — Reception may reassign a queued visit between doctor-specific queues; every reassignment is audited.
 
 **BR-029** — Reception cannot cancel visits. A Doctor may request visit/consultation cancellation with a specific reason, but only the Owner can approve or reject the cancellation. Approved cancellation removes the visit from active workflow while preserving the cancelled/voided record and full audit history.
 
-**BR-030** — Finalized prescriptions are immutable in place. Correction requires a doctor-issued replacement linked to a preserved Superseded prescription. Pharmacists cannot edit prescriptions.
-
-**BR-031** — Non-dispensing inventory adjustments initiated by pharmacy require Owner approval and audit logging. Prescription-linked dispensing deducts actual dispensed quantity automatically.
-
-**BR-032** — Expired inventory is not dispensable. Owner approval controls the inventory disposition/adjustment record, not permission to dispense expired stock.
-
-**BR-033** — V1 records payment status/information but does not process consultation or pharmacy payments.
-
-**BR-034** — Administrator permission alone does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, clinical amendments, and doctor approvals require Doctor-group permission.
-
-**BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every user uses an individual username/password account. Staff forgotten-password recovery is Owner-controlled in V1.
-
-**BR-036** — Ownership and clinical authority are separate permissions. Reception and pharmacy staff may perform their permitted operational/data-entry workflows but may not independently diagnose, prescribe, finalize clinical records, or perform Doctor-only clinical approvals. A clinic owner who also practices medicine receives those clinical permissions through a separate Doctor role on the same account.
-
-**BR-037** — Inventory changes must be attributable. Normal prescription dispensing is automatically recorded; all non-dispensing stock additions/reductions/corrections and inter-pharmacy transfers require the controlled Owner-approval flow so unexplained inventory movement cannot be hidden.
-
-**BR-038** — Patient records form a longitudinal archive: historical visits and superseded/amended material records are preserved rather than replaced by only the latest state.
-
-**BR-039** — One individual account may hold multiple roles. Role combination adds the permissions of those roles but does not convert one role into another; for example, Owner+Doctor has both workspaces, while Doctor-only does not gain Owner controls.
-
-**BR-040** — Multiple pharmacy units maintain separate stock ledgers. Clinic-wide totals are derived from those ledgers and must not replace unit-level accountability.
-
-**BR-041** — Inventory transfer between pharmacy units is a linked, auditable movement and cannot be represented as unrelated manual source/destination adjustments.
-
-**BR-042** — Owner role is the default approval authority for financial waiver approval and non-dispensing inventory control. Doctor role remains the authority for clinical decisions such as prescriptions and medicine substitutions.
-
-**BR-043** — Owner privilege is security-sensitive: every account containing the Owner role requires Google Authenticator-compatible TOTP 2FA. Non-Owner staff accounts do not require 2FA in V1.
-
-**BR-044** — Staff forgotten-password recovery is a request/Owner-reset workflow. The Owner may replace the password but may never view or retrieve the existing password.
-
-**BR-045** — An Owner-performed staff password reset creates a temporary/reset credential that the staff member must replace after the next successful login. The reset action is auditable.
-
-**BR-046** — Owner TOTP enrollment generates one-time recovery codes. Recovery codes are emergency credentials, are not visible again after enrollment/regeneration, and each code is invalid after use. If the Owner loses password/authenticator access and has no valid recovery code, recovery requires a controlled technical recovery process rather than an in-app bypass.
-
-**BR-047** — Pharmacy bills do not support partial payment or refunds in V1.
-
-**BR-048** — Pharmacy-bill cancellation is an Owner-controlled void workflow. Pharmacist requests with a specific reason; Owner approves/rejects; approval removes the bill from active billing but never deletes its historical/audit record.
-
 **BR-049** — Consultation/visit cancellation is an Owner-controlled workflow. Doctor requests with a specific reason; Owner approves/rejects; approval removes the visit from active operational workflow but preserves the cancelled record.
 
-**BR-050** — Cancellation/void is distinct from refund. A paid consultation or paid pharmacy bill is not refunded by approving cancellation under V1.
-
-**BR-051** — The default V1 payment-method set is UPI, Cash, Card, and Other. Selecting Other requires a description of the actual method. The CRM records how an external payment occurred and does not initiate or settle the payment.
-
-**BR-052** — Payment reference/transaction ID is optional in V1 for both consultation and pharmacy payments.
-
-**BR-053** — V1 keeps payment processing outside the CRM so reception/pharmacy workflows are not blocked by payment-gateway latency or availability. Staff confirm successful external payment and then record Paid status in the CRM.
-
-**BR-054** — Owner/Admin operational authority does not automatically grant access to full clinical content; clinical record content requires Doctor-role authority.
-
-**BR-055** — Payment-status corrections are Owner-controlled and audited; staff may request a correction but may not silently rewrite a recorded payment.
-
-**BR-056** — Pharmacy-bill cancellation/void never reverses physical dispensing automatically. Stock correction, when legitimate, is a separate Owner-approved inventory adjustment.
-
-**BR-057** — Administrator cannot grant/revoke Owner authority or disable Owner accounts. Owner-role lifecycle changes require Owner authority and audit history.
-
-**BR-058** — In a multi-pharmacy clinic, prescribing availability is visible at both clinic-wide and pharmacy-unit levels; inventory control remains with pharmacy/Owner workflows.
-
-**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
-
-**BR-026** — Urgent-patient handling does not use a CRM priority mechanism. The receptionist communicates the urgent situation directly to the doctor outside the software; no priority flag, approval request, or automated priority reordering is required in the CRM.
-
-## 7.3 Clinical Record Rules
+## 7.3 Clinical Record and Archive Rules
 
 **BR-011** — Clinical notes, diagnosis, and prescription are recorded against the current Visit ID and linked Patient ID.
 
@@ -470,7 +414,9 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 
 **BR-013** — Pharmacy access does not automatically grant access to the doctor's full clinical notes.
 
-## 7.4 Prescription and Pharmacy Rules
+**BR-038** — Patient records form a longitudinal archive: historical visits and superseded/amended material records are preserved rather than replaced by only the latest state.
+
+## 7.4 Prescription, Pharmacy, and Inventory Rules
 
 **BR-014** — Pharmacy availability is informative to the doctor and does not by itself prohibit prescribing an unavailable medicine.
 
@@ -482,7 +428,23 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 
 **BR-018** — Medicines not dispensed by the clinic pharmacy must not be billed as dispensed items.
 
-## 7.5 Payment Rules
+**BR-030** — Finalized prescriptions are immutable in place. Correction requires a doctor-issued replacement linked to a preserved Superseded prescription. Pharmacists cannot edit prescriptions.
+
+**BR-031** — Non-dispensing inventory adjustments initiated by pharmacy require Owner approval and audit logging. Prescription-linked dispensing deducts actual dispensed quantity automatically.
+
+**BR-032** — Expired inventory is not dispensable. Owner approval controls the inventory disposition/adjustment record, not permission to dispense expired stock.
+
+**BR-037** — Inventory changes must be attributable. Normal prescription dispensing is automatically recorded; all non-dispensing stock additions/reductions/corrections and inter-pharmacy transfers require the controlled Owner-approval flow so unexplained inventory movement cannot be hidden.
+
+**BR-040** — Multiple pharmacy units maintain separate stock ledgers. Clinic-wide totals are derived from those ledgers and must not replace unit-level accountability.
+
+**BR-041** — Inventory transfer between pharmacy units is a linked, auditable movement and cannot be represented as unrelated manual source/destination adjustments.
+
+**BR-056** — Pharmacy-bill cancellation/void never reverses physical dispensing automatically. Stock correction, when legitimate, is a separate Owner-approved inventory adjustment.
+
+**BR-058** — In a multi-pharmacy clinic, prescribing availability is visible at both clinic-wide and pharmacy-unit levels; inventory control remains with pharmacy/Owner workflows.
+
+## 7.5 Payment and Financial-Control Rules
 
 **BR-019** — Consultation and pharmacy payment are separate financial events.
 
@@ -492,7 +454,47 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 
 **BR-022** — A consultation-fee waiver is an ownership/financial exception controlled by the Owner. Reception or a Doctor may request the waiver but may not approve it unless that same user also holds the Owner role. The Owner may approve a request or initiate the waiver directly. Every waiver requires a reason and is logged.
 
-## 7.6 Audit Rules
+**BR-033** — V1 records payment status/information but does not process consultation or pharmacy payments.
+
+**BR-047** — Pharmacy bills do not support partial payment or refunds in V1.
+
+**BR-048** — Pharmacy-bill cancellation is an Owner-controlled void workflow. Pharmacist requests with a specific reason; Owner approves/rejects; approval removes the bill from active billing but never deletes its historical/audit record.
+
+**BR-050** — Cancellation/void is distinct from refund. A paid consultation or paid pharmacy bill is not refunded by approving cancellation under V1.
+
+**BR-051** — The default V1 payment-method set is UPI, Cash, Card, and Other. Selecting Other requires a description of the actual method. The CRM records how an external payment occurred and does not initiate or settle the payment.
+
+**BR-052** — Payment reference/transaction ID is optional in V1 for both consultation and pharmacy payments.
+
+**BR-053** — V1 keeps payment processing outside the CRM so reception/pharmacy workflows are not blocked by payment-gateway latency or availability. Staff confirm successful external payment and then record Paid status in the CRM.
+
+**BR-055** — Payment-status corrections are Owner-controlled and audited; staff may request a correction but may not silently rewrite a recorded payment.
+
+## 7.6 Roles, Access, and Authentication Rules
+
+**BR-034** — Administrator permission alone does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, clinical amendments, and doctor approvals require Doctor-group permission.
+
+**BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every user uses an individual username/password account. Staff forgotten-password recovery is Owner-controlled in V1.
+
+**BR-036** — Ownership and clinical authority are separate permissions. Reception and pharmacy staff may perform their permitted operational/data-entry workflows but may not independently diagnose, prescribe, finalize clinical records, or perform Doctor-only clinical approvals. A clinic owner who also practices medicine receives those clinical permissions through a separate Doctor role on the same account.
+
+**BR-039** — One individual account may hold multiple roles. Role combination adds the permissions of those roles but does not convert one role into another; for example, Owner+Doctor has both workspaces, while Doctor-only does not gain Owner controls.
+
+**BR-042** — Owner role is the default approval authority for financial waiver approval and non-dispensing inventory control. Doctor role remains the authority for clinical decisions such as prescriptions and medicine substitutions.
+
+**BR-043** — Owner privilege is security-sensitive: every account containing the Owner role requires Google Authenticator-compatible TOTP 2FA. Non-Owner staff accounts do not require 2FA in V1.
+
+**BR-044** — Staff forgotten-password recovery is a request/Owner-reset workflow. The Owner may replace the password but may never view or retrieve the existing password.
+
+**BR-045** — An Owner-performed staff password reset creates a temporary/reset credential that the staff member must replace after the next successful login. The reset action is auditable.
+
+**BR-046** — Owner TOTP enrollment generates one-time recovery codes. Recovery codes are emergency credentials, are not visible again after enrollment/regeneration, and each code is invalid after use. If the Owner loses password/authenticator access and has no valid recovery code, recovery requires a controlled technical recovery process rather than an in-app bypass.
+
+**BR-054** — Owner/Admin operational authority does not automatically grant access to full clinical content; clinical record content requires Doctor-role authority.
+
+**BR-057** — Administrator cannot grant/revoke Owner authority or disable Owner accounts. Owner-role lifecycle changes require Owner authority and audit history.
+
+## 7.7 Audit and Record-Preservation Rules
 
 **BR-023** — Important clinical and financial records must not disappear through silent overwrite or unaudited hard deletion.
 
