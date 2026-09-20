@@ -50,7 +50,7 @@ Documentation rule:
 | Consultation payment is non-refundable in V1 | CONFIRMED | BR-021, BR-050, OD-019 |
 | Pharmacy payment has no partial payment and no refunds in V1 | CONFIRMED | FR-061, BR-047, BR-050, OD-019 |
 | Pharmacy bill cancellation/void requires Pharmacist request + specific reason + Owner approval/rejection | CONFIRMED | FR-105 to FR-107, BR-048, OD-019 |
-| Payment-method labels are Owner-configurable clinic values; CRM records but does not process payment | CONFIRMED | FR-063, FR-108, BR-051, OD-018 |
+| Default payment methods are UPI/Cash/Card/Other; Other requires description; reference is optional; CRM records but does not process payment | CONFIRMED | FR-063, FR-108 to FR-112, BR-051 to BR-053, OD-018 |
 | Reception-requested waiver requires doctor approval | CONFIRMED | FR-015, FR-016, BR-022, OD-005 |
 | Doctor can initiate waiver directly | CONFIRMED | FR-015, BR-022, OD-005 |
 | Waiver requires reason and audit log | CONFIRMED | FR-074, BR-022, OD-005 |
@@ -123,7 +123,7 @@ Documentation rule:
 | Printed Prescription | FR-041 — FR-044 |
 | Pharmacy Prescription Retrieval and Access | FR-045 — FR-048 |
 | Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096 |
-| Pharmacy Billing and Payment Status | FR-057 — FR-063, FR-105 — FR-108 |
+| Pharmacy Billing and Payment Status | FR-057 — FR-063, FR-105 — FR-112 |
 | Roles and Access | FR-064 — FR-069, FR-097 — FR-099 |
 | Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085, FR-100 — FR-104 |
 
