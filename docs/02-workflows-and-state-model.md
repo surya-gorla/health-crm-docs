@@ -250,28 +250,21 @@ The operational process for locating/replacing the physical file remains TBD.
 
 Consultation payment must be recorded as a transaction, not only as a checkbox.
 
-Supported payment states:
+Supported consultation payment states:
 
 - Paid
 - Unpaid
-- Partial
 - Refunded
 - Cancelled
 
-A waived consultation scenario is also accepted.
+Partial consultation payment is not supported.
 
-## 6.1 Open Rule
+Confirmed queue rule:
 
-The following requires explicit confirmation:
+- **Paid** -> eligible to enter the doctor queue.
+- **Unpaid** -> must not enter the doctor queue.
 
-> Which consultation payment states allow a visit to enter or remain in the doctor queue?
-
-This includes:
-
-- Paid
-- Partial
-- Unpaid
-- Waived
+A waived consultation scenario remains a separate open decision.
 
 ---
 
