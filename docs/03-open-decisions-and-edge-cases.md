@@ -25,8 +25,8 @@ Items in this file are **not automatically requirements**. They remain open unti
 | OD-001 | Registration | Patient registration field classification | CONFIRMED; two implementation details remain open |
 | OD-002 | Patient matching | Duplicate detection/confirmation workflow | OPEN — partially resolved |
 | OD-003 | Patient matching | Whether family members may share one phone number | CONFIRMED |
-| OD-004 | Visit/queue | Exact condition for entering consultation queue | CONFIRMED for Paid/Unpaid; waiver remains open |
-| OD-005 | Visit/queue | Treatment of consultation payment exceptions | OPEN — waiver behavior only |
+| OD-004 | Visit/queue | Exact condition for entering consultation queue | CONFIRMED |
+| OD-005 | Visit/queue | Consultation-fee waiver workflow | CONFIRMED at workflow level; record/reason details remain open |
 | OD-006 | Queue | Urgent/out-of-order queue rule | OPEN |
 | OD-007 | Queue | Multiple doctors and queue-assignment model | OPEN |
 | OD-008 | Clinical record | Required structure of symptoms/history/diagnosis/notes | OPEN |
@@ -142,21 +142,29 @@ Confirmed:
 - **Unpaid consultation** -> patient/visit must not enter the doctor queue.
 - **Partial consultation payment** -> not supported.
 
-Remaining open dependency:
+Confirmed exception:
 
-- waived-consultation behavior.
+- an unpaid visit may become queue-eligible only through an approved consultation-fee waiver.
 
 ## OD-005 — Waived Consultation Handling
 
-**Status: OPEN.**
+**Status: CONFIRMED at workflow level; record/reason details remain open.**
 
-Need to define:
+Confirmed:
 
-- whether consultation-fee waiver is supported at all;
-- who may authorize a waiver;
-- whether a waived visit may enter the queue;
-- whether a reason is mandatory;
-- how the waiver is represented in the financial/audit record.
+1. Consultation-fee waiver is supported.
+2. Reception may raise the waiver request.
+3. Reception cannot approve the waiver.
+4. The waiver request is shown to the doctor.
+5. The doctor is the approver.
+6. Until doctor approval is received, the visit remains ineligible for the doctor queue.
+7. If the doctor approves the waiver, the visit becomes eligible for the doctor queue without consultation payment.
+
+Still open:
+
+- whether reception must provide a reason when submitting the waiver request;
+- whether the doctor must provide a reason when declining/rejecting a request;
+- how the approved waiver is represented in the financial record and audit history.
 
 ## OD-006 — Urgent Patient Rule
 
