@@ -456,25 +456,36 @@ Derived V1 handling:
 
 # 10. Payments and Billing
 
-## OD-018 — Payment Methods
+## OD-018 — Payment Methods and Processing
 
-**Status: CONFIRMED AT BUSINESS LEVEL**
+**Status: CONFIRMED**
 
-The CRM does not process payments. It records how an external payment occurred.
+The CRM does not process payments in V1. It records the result of payment completed outside the CRM.
 
-Payment-method values are Owner-configurable clinic settings rather than hard-coded BRD values.
+Default V1 payment-method choices:
 
-Examples of payment-method labels a clinic may enable include:
+- **UPI**
+- **Cash**
+- **Card**
+- **Other**
 
-- Cash;
-- UPI;
-- Card;
-- Bank Transfer;
-- Other.
+Rules:
 
-The clinic can enable only the methods it actually uses.
+1. Bank Transfer is not a separate default button; it may be entered through **Other** if the clinic uses it.
+2. Selecting **Other** requires the user to type a short description of the actual method.
+3. Payment/reference number is optional.
+4. UPI payment is completed externally using the clinic's UPI/QR/payment application.
+5. Card payment is completed externally on the clinic's POS/card terminal.
+6. Cash is collected physically.
+7. Staff verify payment success and then mark the CRM payment record Paid.
+8. V1 does not wait for a payment-gateway API before allowing the normal high-velocity clinic workflow to proceed.
 
-A payment-method record is for reconciliation/reporting and does not trigger a gateway transaction.
+High-velocity UI principle:
+
+- prefill amount where known;
+- expose UPI/Cash/Card/Other directly;
+- do not force transaction-reference typing;
+- keep the final Paid confirmation explicit to reduce accidental payment marking.
 
 ## OD-019 — Refund and Cancellation / Void
 
