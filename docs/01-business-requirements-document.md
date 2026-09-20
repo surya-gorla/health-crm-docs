@@ -6,11 +6,11 @@
 | --- | --- |
 | Document | Business Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.3 |
-| Status | Baseline with open decisions |
+| Version | 1.0 |
+| Status | V1 Business Requirements — LOCKED |
 | Date | 2026-09-20 |
-| Scope stage | Initial clinic MVP |
-| Requirement confidence | Confirmed requirements plus explicitly identified TBDs |
+| Scope stage | V1 clinic scope — LOCKED |
+| Requirement confidence | Locked business behavior; configuration, technical, compliance, and future dependencies separated |
 
 ---
 
@@ -665,8 +665,18 @@ Confirmed for the current pilot:
 
 # 14. Finalization Status
 
-The core V1 business workflow and product behavior are substantially defined and are suitable for BRD lock after the remaining clinic-supplied payment/billing policy items are either provided or explicitly marked as post-lock configuration dependencies.
+**V1 BUSINESS REQUIREMENTS — LOCKED on 2026-09-20.**
 
-Items such as hosting, backup/recovery targets, legal/privacy/compliance validation, audit-retention duration, and low-level security implementation remain downstream technical/compliance dependencies rather than reasons to reopen the core clinic workflow.
+The core V1 business workflow, role/authority model, patient/visit lifecycle, queue behavior, clinical-record lifecycle, prescription/pharmacy behavior, inventory-accountability controls, payment-recording rules, cancellation/void controls, authentication model, and reporting definitions are locked.
 
-No unconfirmed third-party vendor, payment method, compliance regime, hosting architecture, or low-level technical design is asserted as fact in this version.
+Section 9 contains only post-lock configuration and delivery dependencies. Those items do not authorize implementation teams to invent or alter business behavior.
+
+Any behavioral change after this lock must follow formal change control:
+
+1. identify the requested business change;
+2. identify affected FR/BR/OD IDs;
+3. document the reason and impact;
+4. update the BRD, workflow/state model, decision register, and traceability together;
+5. preserve superseded history rather than silently replacing the locked requirement.
+
+No unconfirmed third-party vendor, compliance regime, hosting architecture, fee value, price/tax value, or low-level technical design is asserted as part of the locked business requirements.
