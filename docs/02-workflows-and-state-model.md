@@ -116,21 +116,21 @@ Required registration information:
 - full name;
 - phone number;
 - date of birth;
-- age;
 - gender;
 - address;
 - email.
+
+Age is calculated from date of birth rather than independently maintained.
 
 Optional registration information:
 
 - emergency contact;
 - blood group;
 - known allergies;
-- guardian/parent details.
+- guardian/parent details;
+- Government ID.
 
-Government ID is not required. Whether it may be captured optionally remains TBD.
-
-How age is entered or derived relative to date of birth remains TBD.
+Government ID is not required.
 
 ## 3.4 Duplicate Handling
 
@@ -143,11 +143,12 @@ When similar existing records are found:
 3. prior visit history and the remembered purpose of a previous visit may be used to help confirmation;
 4. if the patient confirms the candidate, reception uses the existing patient profile.
 
+If the patient cannot confidently confirm any candidate, reception may create a new patient profile and the system marks it **Possible Duplicate**. That profile remains usable like a normal patient profile.
+
 Still TBD:
 
 - the system matching criteria used to surface similar records;
-- what happens when the patient cannot confidently confirm any candidate;
-- whether duplicate records can later be merged and by whom.
+- whether duplicate records can be merged in a later update and by whom.
 
 ---
 
@@ -250,14 +251,15 @@ The operational process for locating/replacing the physical file remains TBD.
 
 Consultation payment must be recorded as a transaction, not only as a checkbox.
 
-Supported consultation payment states:
+V1 does not process consultation payments. Reception records payment status/information after payment occurs outside the CRM.
 
-- Paid
-- Unpaid
-- Refunded
-- Cancelled
+Confirmed consultation rules:
 
-Partial consultation payment is not supported.
+- Paid -> eligible to enter the doctor queue.
+- Unpaid -> must not enter the doctor queue unless an approved waiver applies.
+- Partial consultation payment is not supported.
+- Consultation payment is non-refundable in V1.
+- If a paid consultation is cancelled, only the doctor may cancel it and a reason is required; the payment is not refunded.
 
 Confirmed queue rule:
 
@@ -320,12 +322,20 @@ If an urgent situation occurs:
 1. the receptionist directly informs the doctor outside the software;
 2. the CRM does not create a priority request, priority flag, or automated priority reorder for that situation.
 
+Confirmed additional queue behavior:
+
+- reception may reassign a queued visit from one doctor to another doctor-specific queue;
+- every doctor reassignment is logged;
+- if a called patient does not respond, reception marks the visit **Unresponded** and the system moves it five queue positions downward;
+- if a paid patient leaves before consultation, reception moves the visit toward the end of that doctor's queue;
+- reception cannot cancel a visit;
+- the doctor may cancel a visit with a reason;
+- cancelled visits remain visible in history.
+
 Still unresolved:
 
-- whether reception may reassign an already queued visit from one doctor to another;
-- skipped patient behavior;
-- patient-does-not-respond behavior;
-- patient-left-after-payment behavior.
+- boundary behavior when fewer than five later queue slots remain;
+- exact slot interpretation of "toward the end" for a patient who leaves before consultation.
 
 ---
 
@@ -344,13 +354,24 @@ The doctor can access:
 
 ## 8.2 Clinical Documentation
 
-The doctor can record:
+The V1 consultation interface is intentionally low-complexity and guided so it can be operated without requiring complex medical-software knowledge.
 
-- chief complaint/symptoms/history;
-- diagnosis;
-- clinical notes.
+The doctor-facing record uses plain labels with limited mandatory entry:
 
-Exact field models remain TBD.
+- chief complaint / patient problem;
+- clinical assessment / diagnosis.
+
+Optional entry includes:
+
+- symptoms/history details;
+- examination findings;
+- clinical notes;
+- advice;
+- follow-up information.
+
+Clinical decision functions remain within the Doctor role even though the interface itself is designed to be simple.
+
+Post-completion edit/amendment rules remain TBD.
 
 ## 8.3 Auditability
 
@@ -370,13 +391,14 @@ Exact versioning/display rules remain TBD.
 
 ## 9.1 Medicine Entry
 
-Doctor can:
+The doctor primarily identifies medicines by:
 
-- search medicines;
-- select medicines;
-- type medicine information where allowed.
+- medicine name;
+- strength ("power").
 
-The exact relationship between free-text and controlled medicine catalogue remains TBD.
+Manufacturer information is stored for pharmacy/inventory context.
+
+Whether dosage form is mandatory remains TBD. Whether the clinic's medicine naming is explicitly brand-based, generic/molecule-based, or clinic-defined remains TBD.
 
 ## 9.2 Availability Status
 
@@ -390,11 +412,23 @@ Medicine availability must support:
 
 Clinic-pharmacy availability informs the doctor but does not automatically prohibit prescribing an unavailable medicine.
 
-## 9.4 Prescription Finalization
+## 9.4 Prescription Instructions and Finalization
 
-The doctor can finalize a prescription with medication directions such as dose/frequency/duration where applicable.
+Prescription entry is deliberately minimal because detailed verbal explanation is expected during consultation.
 
-Exact mandatory fields and quantity-derivation rules remain TBD.
+For each medicine, V1 captures:
+
+- medicine name;
+- strength;
+- dose amount;
+- frequency;
+- duration.
+
+Short timing/food/extra instructions may be added when needed.
+
+Where quantity can be deterministically calculated from dose, frequency, duration, and stock unit, the system calculates it automatically; otherwise the doctor enters quantity.
+
+After finalization, the prescription cannot be edited in place. Pharmacy cannot edit it either. The correction/replacement process for a finalized prescription containing an error remains TBD.
 
 ---
 
@@ -465,30 +499,62 @@ Check clinic pharmacy status
 
 ## 13.1 Partial Availability
 
-If prescribed quantity exceeds available stock, the system must support the scenario.
+If prescribed quantity exceeds available stock:
 
-Exact behavior remains TBD, including:
+1. pharmacy may dispense the quantity actually available;
+2. the actual supplied quantity is recorded;
+3. inventory decreases only by the supplied quantity;
+4. billing includes only the supplied quantity;
+5. the remaining quantity is identified to the patient as not supplied by the clinic pharmacy and should be obtained outside;
+6. V1 does not maintain a back-order/collect-later workflow.
 
-- whether partial quantity can be dispensed;
-- how remaining quantity is represented;
-- how billing is handled;
-- how the printed/digital prescription reflects the partial fulfilment.
+The system tracks cumulative dispensed quantity and must prevent dispensing more than the prescribed amount.
 
-## 13.2 Inventory Deduction
+## 13.2 Substitution
 
-Inventory decreases by the quantity actually dispensed, not merely by the quantity prescribed.
+Pharmacy cannot independently substitute a prescribed medicine.
 
-## 13.3 Open Inventory Rules
+If pharmacy proposes an alternative:
 
-Still unresolved:
+1. pharmacist raises a substitution request;
+2. doctor approves or rejects it;
+3. the request and decision are logged;
+4. only an approved substitution may be dispensed.
 
-- inventory unit model;
-- batch tracking;
-- expiry tracking;
-- return/reversal rules;
-- low-stock alerts;
-- substitute-brand rules;
-- price ownership.
+## 13.3 Returns and Non-Prescription Sales
+
+Medicine returns are not supported in V1.
+
+V1 CRM dispensing requires a current finalized prescription. Non-prescription/pharmacy-only retail is outside the confirmed V1 workflow.
+
+## 13.4 Inventory Tracking and Controlled Adjustments
+
+Inventory is tracked from the lowest dispensable unit through higher packaging levels where applicable.
+
+Inventory records support:
+
+- batch/lot number;
+- expiry date;
+- manufacturer;
+- purchase price;
+- selling price.
+
+The system provides:
+
+- low-stock notifications;
+- near-expiry notifications.
+
+Normal prescription dispensing automatically deducts actual dispensed quantity.
+
+For pharmacy inventory upkeep or non-dispensing changes (for example stock additions, damage, loss, or corrections):
+
+1. pharmacist submits an inventory-change request;
+2. the request includes the proposed change and reason;
+3. doctor reviews it;
+4. inventory changes only after doctor approval;
+5. request, decision, actor, reason, and resulting change are logged.
+
+Expired stock is blocked from dispensing. The doctor is notified, and doctor action/approval controls the inventory disposition/adjustment record.
 
 ---
 
@@ -500,15 +566,9 @@ Still unresolved:
 4. Patient is informed which medicines must be obtained outside.
 5. Pharmacy payment is recorded as a transaction.
 
-Supported pharmacy payment states:
+V1 does not process pharmacy payments. Pharmacy staff record the payment status/information after payment occurs outside the CRM.
 
-- Paid
-- Unpaid
-- Partial
-- Refunded
-- Cancelled
-
-Payment methods and refund authorization rules remain TBD.
+Pharmacy payment methods, partial-payment behavior, refund/cancellation behavior, and receipt requirements remain TBD pending clinic confirmation.
 
 ---
 
@@ -516,46 +576,67 @@ Payment methods and refund authorization rules remain TBD.
 
 ## 15.1 Receptionist
 
-Primary workflow responsibility:
+Reception is limited to:
 
-- patient search;
-- patient registration;
-- Visit ID creation;
-- consultation payment record;
-- queue coordination;
-- doctor-call coordination.
+- patient intake/retrieval;
+- confirming demographic information;
+- recording consultation payment status;
+- assigning/reassigning the doctor queue;
+- queue operations;
+- submitting demographic-change requests.
+
+Reception cannot directly modify existing patient demographics after registration; a change request is sent to the doctor.
+
+Reception does not receive general access to diagnosis or clinical notes. Limited previous-visit information used for identity confirmation remains permitted only to support patient matching.
 
 ## 15.2 Doctor
 
-Primary workflow responsibility:
+Doctor access includes:
 
-- review queue;
-- call patient;
-- consultation;
-- clinical documentation;
-- diagnosis;
-- prescription;
-- prescription finalization/printing.
+- doctor-specific queue;
+- patient clinical history needed for care;
+- current consultation record;
+- diagnosis and notes;
+- prescribing;
+- payment/queue status;
+- direct demographic edits and approval of reception demographic-change requests;
+- inventory-upkeep approval;
+- substitution approval;
+- consultation waiver approval/initiation;
+- visit cancellation with reason.
 
 ## 15.3 Pharmacist
 
-Primary workflow responsibility:
+Pharmacist access includes:
 
-- prescription retrieval;
-- medicine availability review;
+- current prescription;
+- previous prescriptions;
+- known allergies;
 - dispensing;
-- inventory deduction;
-- pharmacy billing;
-- pharmacy payment.
+- pharmacy bill/payment-status functions;
+- inventory-upkeep request entry.
+
+Pharmacists cannot edit a doctor prescription directly.
+
+Non-dispensing inventory changes submitted by pharmacy require doctor approval.
 
 ## 15.4 Administrator
 
-Primary responsibility:
+Detailed Administrator privileges remain TBD.
 
-- staff/access management;
-- system-level operational configuration.
+## 15.5 Group-Based Access
 
-Exact administrator permission scope remains TBD.
+Every staff member has an individual account.
+
+Users belong to privilege groups such as:
+
+- Doctor;
+- Reception;
+- Pharmacist.
+
+Group membership determines role privileges.
+
+V1 uses login credentials/password and requires password reset. 2FA/MFA is not required in V1.
 
 ---
 
@@ -579,7 +660,45 @@ Correction or cancellation must preserve appropriate historical evidence.
 
 ---
 
-# 17. Open Workflow Scenarios
+# 17. Pilot Operating Model
+
+Confirmed for the current pilot:
+
+- one clinic branch;
+- clinic owner is also the doctor managing the clinic;
+- separate pharmacy operation;
+- web application;
+- internet-dependent operation;
+- no offline mode in V1;
+- normal A4 printing;
+- no thermal receipt printer requirement;
+- hosting/deployment provider remains TBD.
+
+# 18. Confirmed Reporting Set
+
+V1 reporting includes:
+
+- patients seen per day;
+- average waiting time;
+- consultation revenue;
+- pharmacy revenue;
+- daily total revenue;
+- medicine sales;
+- current stock;
+- low-stock medicines;
+- out-of-stock medicines;
+- expiring medicines;
+- most-prescribed medicines;
+- waivers;
+- cancellations;
+- returning patients;
+- audit activity.
+
+Per-doctor patient count is not required for the current single-doctor pilot.
+
+---
+
+# 19. Open Workflow Scenarios
 
 The following require explicit future workflow decisions:
 
