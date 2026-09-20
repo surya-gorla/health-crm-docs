@@ -28,7 +28,12 @@ The BRD authoring method follows the supplied zero-assumption rule:
 
 | Discovery Decision / Requirement Source | Classification | BRD Mapping |
 | --- | --- | --- |
-| Reception captures patient details | CONFIRMED | FR-001 to FR-007 |
+| Reception captures patient details | CONFIRMED | FR-001 to FR-007, FR-075 to FR-078 |
+| Registration requires full name, phone, DOB, age, gender, address, and email | CONFIRMED | FR-075 |
+| Emergency contact, blood group, known allergies, and guardian/parent details are optional | CONFIRMED | FR-076 |
+| Government ID is not required | CONFIRMED | FR-077 |
+| Multiple patients may share one phone number | CONFIRMED | FR-078, BR-025 |
+| Suspected duplicate candidates are reviewed with the patient; prior visit history/purpose may help confirmation | CONFIRMED | FR-004, BR-005 |
 | System generates unique Patient ID | CONFIRMED | FR-002, FR-003 |
 | Patient ID remains permanent | CONFIRMED | FR-003, BR-001 |
 | Patient searchable by Patient ID, phone, and name | CONFIRMED | FR-001, BR-002 |
@@ -63,7 +68,7 @@ The BRD authoring method follows the supplied zero-assumption rule:
 | Important records should not be silently hard-deleted | CONFIRMED | FR-072, FR-073 |
 | Prescription reprint required | CONFIRMED | FR-044 |
 | Patient-detail correction required | CONFIRMED | FR-006 |
-| Duplicate registration is an important scenario | CONFIRMED scenario, rule open | FR-004, OD-002 |
+| Duplicate registration is an important scenario | PARTIALLY CONFIRMED; fallback remains open | FR-004, BR-005, OD-002 |
 | Multiple doctors is an important scenario | CONFIRMED scenario, rule open | FR-024/OD-007 |
 | Urgent queue override is an important scenario | CONFIRMED scenario, rule open | FR-024, OD-006 |
 | Patient leaves after payment | CONFIRMED scenario, rule open | FR-025 |
@@ -73,7 +78,7 @@ The BRD authoring method follows the supplied zero-assumption rule:
 | Medicine return/refund | CONFIRMED scenario, rule open | FR-056, OD-017 |
 | Consultation payment waiver | CONFIRMED scenario, exact rule open | FR-015, OD-005 |
 | Pharmacy-only visit | CONFIRMED scenario, rule open | Open Decisions |
-| Shared family phone number | CONFIRMED scenario, rule open | OD-003 |
+| Shared family phone number | CONFIRMED | FR-078, BR-025, OD-003 |
 | QR/barcode patient-file identifier | FUTURE | BRD 3.3 |
 | Pharmacy supplier/purchasing management | FUTURE / OUT OF MVP | BRD 3.2 and 3.3 |
 | Laboratory management | OUT OF MVP | BRD 3.2 |
@@ -145,7 +150,7 @@ The baseline is strong enough to establish:
 
 The baseline is **not yet implementation-final** because material decisions remain open around:
 
-- patient fields and deduplication;
+- remaining patient-field implementation details and duplicate fallback/merge behavior;
 - payment/queue eligibility;
 - multi-doctor routing;
 - clinical field structure;
