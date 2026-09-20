@@ -288,14 +288,20 @@ The exact financial-record representation and reason requirements for the waiver
 
 # 7. Queue and Calling Workflow
 
-## 7.1 Doctor Queue View
+## 7.1 Doctor-Specific Queue Model
 
-The doctor must be able to:
+Consultation queues are doctor-specific.
 
-- see waiting visits;
-- identify queue order;
+Reception selects the doctor for an eligible visit before queue entry. The visit is then placed into that doctor's queue.
+
+Each doctor must be able to:
+
+- see waiting visits assigned to that doctor;
+- identify queue order within that doctor's queue;
 - identify current status;
 - call the next or selected patient.
+
+A doctor does not use a shared clinic-wide queue in the confirmed model.
 
 ## 7.2 Reception Call Coordination
 
@@ -316,10 +322,10 @@ If an urgent situation occurs:
 
 Still unresolved:
 
+- whether reception may reassign an already queued visit from one doctor to another;
 - skipped patient behavior;
 - patient-does-not-respond behavior;
-- patient-left-after-payment behavior;
-- multiple doctors and multiple simultaneous queues.
+- patient-left-after-payment behavior.
 
 ---
 
@@ -578,7 +584,7 @@ Correction or cancellation must preserve appropriate historical evidence.
 The following require explicit future workflow decisions:
 
 1. Duplicate patient detected after multiple visits already exist.
-2. Multiple doctors consult simultaneously.
+2. Reassignment of a patient from one doctor's queue to another after initial assignment.
 3. Patient does not respond when called.
 5. Patient leaves after paying but before consultation.
 6. Doctor edits prescription after pharmacy retrieval.
