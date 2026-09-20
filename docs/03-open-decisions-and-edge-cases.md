@@ -561,6 +561,8 @@ Limited previous-visit information may be used for identity confirmation.
 
 ### Doctor
 
+In the current pilot, the owner is the only Doctor-role user and is the sole clinical decision/finalization authority.
+
 Can:
 
 - see doctor-specific queue;
@@ -574,6 +576,8 @@ Can:
 - initiate consultation waiver;
 - approve/reject substitution request;
 - approve/reject non-dispensing inventory-change requests;
+- inspect complete inventory movement/adjustment history;
+- view all current stock and relevant pharmacy/inventory reports;
 - cancel visit with reason.
 
 ### Pharmacist
@@ -644,8 +648,11 @@ Still requires external policy/compliance validation:
 Current pilot:
 
 - single clinic branch;
-- owner is also the doctor managing the clinic;
-- clinic has a separate pharmacy operation.
+- the clinic owner is also the clinic's only doctor;
+- clinic has a separate pharmacy operation;
+- reception and pharmacy staff support operations but are not independent clinical decision-makers;
+- owner-doctor requires complete inventory visibility because inventory loss/theft is an existing operational problem;
+- the system also serves as the patient's longitudinal clinic archive across visits.
 
 Exact staff/workstation counts remain operational details to confirm when needed.
 
