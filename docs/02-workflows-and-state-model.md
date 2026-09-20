@@ -554,15 +554,36 @@ The system provides:
 
 Normal prescription dispensing automatically deducts actual dispensed quantity.
 
-For pharmacy inventory upkeep or non-dispensing changes (for example stock additions, damage, loss, or corrections):
+For pharmacy inventory upkeep or non-dispensing changes (for example stock additions, damage, loss, corrections, or price changes):
 
 1. pharmacist submits an inventory-change request;
 2. the request includes the proposed change and reason;
-3. doctor reviews it;
-4. inventory changes only after doctor approval;
+3. Owner reviews it;
+4. inventory changes only after Owner approval;
 5. request, decision, actor, reason, and resulting change are logged.
 
-Expired stock is blocked from dispensing. The doctor is notified, and doctor action/approval controls the inventory disposition/adjustment record.
+Expired stock is blocked from dispensing. The Owner is notified, and Owner action/approval controls the inventory disposition/adjustment record.
+
+## 13.5 Multiple Pharmacy Units
+
+A clinic may operate more than one pharmacy unit.
+
+For each pharmacy unit:
+
+- stock ledger is independent;
+- dispensing is recorded against that pharmacy unit;
+- pharmacy staff can be scoped to one or more pharmacy units;
+- Owner can see both unit-level and consolidated inventory.
+
+A prescription may be dispensed from different clinic pharmacy units if operationally needed, but cumulative dispensing across all units must not exceed the active prescription quantity.
+
+A stock transfer between pharmacy units uses one linked transfer record:
+
+1. source pharmacy requests/records transfer;
+2. Owner approves;
+3. source stock decreases;
+4. destination stock increases;
+5. both sides retain the same transfer reference and audit history.
 
 ---
 
@@ -602,17 +623,16 @@ Reception does not receive general access to diagnosis or clinical notes. Limite
 Doctor access includes:
 
 - doctor-specific queue;
-- the patient's longitudinal visit/archive history needed for care;
+- the patient's longitudinal visit/archive history needed for care when clinically authorized;
 - current consultation record;
 - diagnosis and notes;
 - prescribing;
 - payment/queue status;
 - direct demographic edits and approval of reception demographic-change requests;
-- complete inventory oversight and inventory-upkeep approval;
-- stock movement/adjustment audit visibility;
 - substitution approval;
-- consultation waiver approval/initiation;
 - visit cancellation with reason.
+
+Doctor role alone does not grant Owner-only inventory-control, financial-waiver, staff-management, or clinic-wide oversight privileges.
 
 ## 15.3 Pharmacist
 
@@ -629,7 +649,23 @@ Pharmacists cannot edit a doctor prescription directly.
 
 Non-dispensing inventory changes submitted by pharmacy require doctor approval.
 
-## 15.4 Administrator
+## 15.4 Owner
+
+Owner access includes:
+
+- clinic-wide operational dashboard;
+- all pharmacy-unit inventory views and consolidated inventory;
+- inventory-adjustment and stock-transfer approval;
+- consultation-fee waiver approval;
+- clinic-wide financial-status/revenue reporting;
+- staff/account/group oversight;
+- audit-log visibility.
+
+Owner role alone does not allow diagnosis, prescription authoring, or clinical amendments. If the owner is also a practicing doctor, the same account also receives Doctor-role permission.
+
+For a multi-role user, Owner and Doctor workspaces/modes should be visibly separated.
+
+## 15.5 Administrator
 
 Administrator responsibilities include:
 
@@ -644,15 +680,19 @@ Administrator permission by itself does not grant clinical-authoring authority. 
 
 Staff accounts are disabled rather than deleted when a staff member leaves, preserving historical audit references.
 
-## 15.5 Group-Based Access
+## 15.6 Group-Based Access
 
 Every staff member has an individual account.
 
-Users belong to privilege groups such as:
+Users may belong to one or more privilege groups such as:
 
+- Owner;
 - Doctor;
 - Reception;
-- Pharmacist.
+- Pharmacist;
+- Administrator.
+
+A user holding Owner + Doctor uses one individual account and gains both permission sets without creating a second identity.
 
 Group membership determines role privileges.
 
@@ -680,13 +720,20 @@ Correction or cancellation must preserve appropriate historical evidence.
 
 ---
 
-# 17. Pilot Operating Model
+# 17. Pilot Operating Model and Scale Flexibility
 
-Confirmed for the current pilot:
+Current pilot:
 
 - one clinic branch;
-- clinic owner is also the doctor managing the clinic;
-- separate pharmacy operation;
+- clinic owner is also the only doctor;
+- separate pharmacy operation.
+
+The same clinic model must also support growth to:
+
+- multiple doctors with separate doctor queues;
+- multiple receptionists sharing reception operations through individual accounts;
+- multiple pharmacy units with separate inventory ledgers;
+- an owner who may or may not also hold the Doctor role;
 - web application;
 - internet-dependent operation;
 - no offline mode in V1;
