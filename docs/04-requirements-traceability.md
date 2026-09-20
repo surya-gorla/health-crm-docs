@@ -94,7 +94,7 @@ Documentation rule:
 | Pharmacist limited to prescriptions, allergies, dispensing/payment status, inventory requests | CONFIRMED | FR-067, FR-068, OD-022 |
 | Individual user accounts in fixed clinic context | CONFIRMED | FR-069, FR-084, BR-035, OD-021, OD-022 |
 | Group-based privileges including Owner/Doctor/Reception/Pharmacist/Admin | CONFIRMED | FR-064, FR-069, OD-022 |
-| Owner-role accounts require password + 2FA, including Owner + Doctor accounts | CONFIRMED | FR-085, BR-043, OD-021 |
+| Owner-role accounts require password + Google Authenticator-compatible TOTP 2FA, including Owner + Doctor accounts | CONFIRMED | FR-085, BR-043, OD-021 |
 | Non-Owner staff accounts do not require 2FA in V1 | CONFIRMED | FR-100, BR-043, OD-021 |
 | Staff Forgot Password creates Owner reset request; Owner sets reset credential; old password is never exposed | CONFIRMED | FR-101, FR-102, BR-044, OD-021 |
 | Staff must replace Owner-reset temporary password after next login; reset is audited | DERIVED SAFE V1 DESIGN | FR-103, BR-045, OD-021 |
