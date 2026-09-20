@@ -22,9 +22,9 @@ Items in this file are **not automatically requirements**. They remain open unti
 
 | ID | Area | Decision Required | Status |
 | --- | --- | --- | --- |
-| OD-001 | Registration | Mandatory patient fields beyond name and phone | OPEN |
-| OD-002 | Patient matching | Duplicate detection/matching rule | OPEN |
-| OD-003 | Patient matching | Whether family members may share one phone number | OPEN |
+| OD-001 | Registration | Patient registration field classification | CONFIRMED; two implementation details remain open |
+| OD-002 | Patient matching | Duplicate detection/confirmation workflow | OPEN — partially resolved |
+| OD-003 | Patient matching | Whether family members may share one phone number | CONFIRMED |
 | OD-004 | Visit/queue | Exact condition for entering consultation queue | OPEN |
 | OD-005 | Visit/queue | Treatment of Paid, Partial, Unpaid, and Waived consultation states | OPEN |
 | OD-006 | Queue | Urgent/out-of-order queue rule | OPEN |
@@ -52,47 +52,81 @@ Items in this file are **not automatically requirements**. They remain open unti
 
 # 4. Registration Decisions
 
-## OD-001 — Mandatory Patient Fields
+## OD-001 — Patient Registration Fields
 
-Currently confirmed:
+**Status: CONFIRMED at business-field level.**
 
-- patient name;
+Required:
+
+- full name;
 - phone number;
-- Patient ID is system-generated.
-
-Not yet confirmed:
-
 - date of birth;
 - age;
 - gender;
 - address;
+- email.
+
+Optional:
+
 - emergency contact;
-- guardian information;
-- email;
-- government ID;
 - blood group;
-- allergy field;
-- other clinical demographics.
+- known allergies;
+- guardian/parent details.
 
-No additional field should be treated as mandatory until explicitly approved.
+Not required:
 
-## OD-002 — Duplicate Detection
+- Government ID.
 
-Need to decide:
+System-generated:
 
-- exact-match vs fuzzy-match behavior;
-- whether phone + name is sufficient for warning;
-- how receptionist resolves a suspected duplicate;
-- who may merge duplicate records;
-- whether record merge is required in MVP.
+- Patient ID.
+
+Still open:
+
+- whether age is entered independently or derived from date of birth;
+- whether Government ID may be captured optionally even though it is not required.
+
+## OD-002 — Duplicate Detection and Confirmation
+
+**Status: OPEN — partially resolved.**
+
+Confirmed workflow:
+
+1. When similar existing patient records are found, reception reviews the candidate details with the patient.
+2. Reception asks the patient to confirm whether one of the candidates is their existing profile.
+3. Prior visit history and the remembered purpose of previous visits may be used to help the patient confirm the record.
+4. If the patient confirms an existing record, reception uses that existing Patient ID/profile rather than creating a new one.
+
+Still open:
+
+- exact system criteria for deciding that records are similar enough to surface;
+- fallback when the patient cannot confidently confirm any candidate;
+- whether a newly created fallback record should be flagged as a possible duplicate;
+- whether record merge is required;
+- who may merge duplicate records if merge is supported.
+
+### Proposed fallback — not yet confirmed
+
+To avoid holding up reception while also reducing fragmented patient histories:
+
+- after a brief reasonable confirmation attempt, allow reception to create a new profile when no candidate can be confidently confirmed;
+- mark the new record as a **Possible Duplicate** and retain links to the candidate record(s) that triggered the warning;
+- allow an authorized role to review/resolve the possible duplicate later.
+
+This proposal is not yet a confirmed requirement.
 
 ## OD-003 — Shared Phone Number
 
-Scenario:
+**Status: CONFIRMED.**
 
-> Multiple family members may use the same phone number.
+Multiple patients may share the same phone number, including members of the same family.
 
-Need to decide whether phone number can be non-unique and what additional fields distinguish patients.
+Therefore:
+
+- phone number is not globally unique;
+- phone number remains a patient-search and matching attribute;
+- Patient ID remains the unique patient identifier;
+- a phone match alone must not automatically identify two records as the same patient.
 
 ---
 
