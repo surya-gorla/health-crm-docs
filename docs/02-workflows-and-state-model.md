@@ -107,11 +107,47 @@ Reception must be able to search using:
 
 Phone number and name are matching/search attributes. They are not unique patient identifiers by themselves.
 
-## 3.3 Duplicate Handling
+Multiple patients may intentionally share the same phone number, including members of the same family.
+
+## 3.3 Registration Information
+
+Required registration information:
+
+- full name;
+- phone number;
+- date of birth;
+- age;
+- gender;
+- address;
+- email.
+
+Optional registration information:
+
+- emergency contact;
+- blood group;
+- known allergies;
+- guardian/parent details.
+
+Government ID is not required. Whether it may be captured optionally remains TBD.
+
+How age is entered or derived relative to date of birth remains TBD.
+
+## 3.4 Duplicate Handling
 
 The system must help prevent or detect accidental duplicate registration.
 
-The exact duplicate-match policy remains TBD.
+When similar existing records are found:
+
+1. reception reviews the candidate details with the patient;
+2. reception asks the patient to confirm whether a candidate is their existing profile;
+3. prior visit history and the remembered purpose of a previous visit may be used to help confirmation;
+4. if the patient confirms the candidate, reception uses the existing patient profile.
+
+Still TBD:
+
+- the system matching criteria used to surface similar records;
+- what happens when the patient cannot confidently confirm any candidate;
+- whether duplicate records can later be merged and by whom.
 
 ---
 
@@ -539,4 +575,4 @@ The following require explicit future workflow decisions:
 12. Pharmacy-only visit.
 13. Prescription reprint.
 14. Patient demographic correction.
-15. Multiple patients sharing one phone number.
+15. Duplicate-profile fallback when the patient cannot confidently confirm an existing candidate.
