@@ -605,8 +605,11 @@ Confirmed pharmacy payment rules:
 - no partial pharmacy payments;
 - no pharmacy refunds;
 - normal payment state is Unpaid or Paid;
+- default payment methods are **UPI**, **Cash**, **Card**, and **Other**;
+- selecting **Other** requires a short description of the actual method;
+- payment/reference number is optional;
 - payment method is recorded for reconciliation/information;
-- payment-method labels are Owner-configurable.
+- V1 does not process the payment itself.
 
 ## 14.1 Pharmacy Bill Cancellation / Void
 
@@ -643,6 +646,25 @@ For a consultation/visit cancellation:
 6. request/decision history is retained.
 
 Even if the same person holds Owner + Doctor, the action should be recorded as a Doctor-side request followed by an Owner-authority decision so the two authorities remain explicit in audit history.
+
+## 14.3 High-Velocity Payment Capture
+
+V1 keeps actual payment execution outside the CRM:
+
+- **UPI:** patient pays using the clinic's external UPI/QR/payment app; staff verify success externally and then mark Paid.
+- **Cash:** staff physically collect cash and then mark Paid.
+- **Card:** payment is completed on the external POS/card terminal; staff verify success and then mark Paid.
+- **Other:** staff complete the external method, select Other, and type the method name/description.
+
+Reception/pharmacy capture should be short:
+
+1. amount is prefilled where the applicable consultation fee or pharmacy bill is known;
+2. user selects UPI / Cash / Card / Other;
+3. if Other, method description is required;
+4. optional reference/transaction number may be entered;
+5. user confirms the payment record.
+
+Payment APIs/gateways are not in the V1 critical workflow.
 
 ---
 
