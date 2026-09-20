@@ -338,6 +338,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-101 | A non-Owner staff member who selects Forgot Password shall submit a password-reset request to the Owner. Staff shall not be able to self-reset the password without Owner action in V1. | TBD | Hospital CRM | TBD |
 | FR-102 | The Owner shall be able to review a staff password-reset request and set a new/temporary password. The system shall never reveal the staff member's existing password to the Owner or any other user. | TBD | Hospital CRM | TBD |
 | FR-103 | After an Owner resets a staff password, the affected staff member shall be required to change that temporary/reset password after the next successful login. Password-reset request, Owner action, target account, and timestamp shall be logged. | TBD | Hospital CRM | TBD |
+| FR-104 | When Owner TOTP 2FA is enrolled, the system shall generate one-time recovery codes for emergency access recovery. Recovery codes shall be shown only at enrollment/regeneration, stored securely, and become invalid after use. Regenerating recovery codes invalidates the previous set. | TBD | Hospital CRM | TBD |
 | FR-086 | Pharmacy inventory shall support a medicine-specific base stock/dispensing unit plus configured higher package levels and conversion factors. Inventory movements shall normalize to the base unit while allowing entry/display in configured package units. | TBD | Hospital CRM | TBD |
 | FR-087 | Inventory records shall support batch/lot number, expiry date, manufacturer, purchase price, and selling price. | TBD | Hospital CRM | TBD |
 | FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Owner/Admin role rather than fixed global values. | TBD | Hospital CRM | TBD |
@@ -419,6 +420,8 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-045** — An Owner-performed staff password reset creates a temporary/reset credential that the staff member must replace after the next successful login. The reset action is auditable.
 
+**BR-046** — Owner TOTP enrollment generates one-time recovery codes. Recovery codes are emergency credentials, are not visible again after enrollment/regeneration, and each code is invalid after use. If the Owner loses password/authenticator access and has no valid recovery code, recovery requires a controlled technical recovery process rather than an in-app bypass.
+
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
 **BR-026** — Urgent-patient handling does not use a CRM priority mechanism. The receptionist communicates the urgent situation directly to the doctor outside the software; no priority flag, approval request, or automated priority reordering is required in the CRM.
@@ -493,10 +496,9 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.1 Patient Registration
 
-1. Exact algorithm/criteria used to surface possible duplicate candidates.
-2. Whether duplicate-record merge is introduced in a later update and who may perform it.
-3. Patient-ID format and whether it carries semantic meaning.
-4. QR/barcode launch timing.
+1. Duplicate-record merge is a later-phase evaluation and is not a V1 blocker.
+2. QR/barcode launch timing is a later-phase decision.
+3. Patient matching thresholds and internal ID implementation are solution-design details, not remaining BRD policy decisions.
 
 ## 9.2 Visit and Queue
 
@@ -554,15 +556,15 @@ Confirmed edge behavior now includes:
 2. Multiple doctors -> doctor-specific queues; reception may reassign and reassignment is logged.
 3. Urgent case -> reception informs the doctor outside the CRM; no priority feature.
 4. Called patient does not respond -> mark Unresponded and move five queue positions down.
-5. Paid patient leaves before consultation -> move visit toward the end of the queue.
+5. Paid patient leaves before consultation -> move visit to the end of the assigned doctor's queue.
 6. Reception cannot cancel a visit; doctor may cancel with reason; cancelled visits remain in history.
 7. Finalized prescription -> immutable in place.
 8. Partial medicine availability -> dispense available quantity, bill/deduct only supplied quantity, and identify the remainder for outside purchase.
 9. Substitution -> pharmacist requests; doctor approves/rejects; decision is logged.
 10. Medicine returns -> not supported in V1.
 11. Pharmacy-only/non-prescription dispensing -> outside confirmed V1 workflow.
-12. Non-dispensing inventory changes -> pharmacist request; doctor approval; audit log.
-13. Expired stock -> non-dispensable; doctor notified for disposition/adjustment; action logged.
+12. Non-dispensing inventory changes -> pharmacist request; Owner approval; audit log.
+13. Expired stock -> non-dispensable; Owner notified for disposition/adjustment; action logged.
 
 Remaining edge details are retained in Section 9.
 
@@ -589,12 +591,12 @@ The accepted initial module set is:
 
 | Category | Status |
 | --- | --- |
-| Patient identity model | Confirmed; matching algorithm and future merge remain open |
+| Patient identity model | Confirmed for V1; duplicate merge is future and matching thresholds are solution design |
 | Visit identity model | Confirmed |
 | Reception workflow | Confirmed at high level |
-| Doctor queue | Doctor-specific queues and reassignment confirmed; boundary details remain open |
-| Clinical notes | Guided low-complexity V1 model confirmed; post-completion edit rules remain open |
-| Prescription | Minimal structure and immutability confirmed; naming/dosage-form/correction details remain open |
+| Doctor queue | Confirmed, including reassignment and non-response/leave boundary behavior |
+| Clinical notes | Confirmed, including Doctor-only amendment/revision workflow |
+| Prescription | Confirmed for V1, including medicine identity, immutable finalization, and supersede/replace correction |
 | Pharmacy availability | Confirmed |
 | Pharmacy dispensing | Partial dispensing, substitution approval, no-return V1, and over-dispense prevention confirmed |
 | Inventory controls | Multi-unit tracking, batch/expiry/pricing fields, alerts, Owner-approved non-dispensing changes, and multi-pharmacy ledgers/transfers confirmed |
@@ -603,7 +605,7 @@ The accepted initial module set is:
 | Roles | Owner, Doctor, Reception, Pharmacist, and Admin roles with multi-role individual accounts confirmed |
 | Authentication | Individual login/password confirmed; Owner accounts require 2FA; non-Owner staff do not; staff password reset is Owner-controlled |
 | Audit history | Confirmed |
-| Analytics/reporting | Confirmed report set; formulas/platform remain open |
+| Analytics/reporting | V1 report set and business definitions confirmed; implementation platform remains technical design |
 | Deployment | Single-branch web/online-only pilot; A4 printing; hosting TBD |
 | Third-party integrations | None confirmed |
 | Legal/privacy/compliance details | Not yet confirmed |
@@ -628,8 +630,8 @@ Confirmed for the current pilot:
 
 # 14. Finalization Status
 
-This document is a structured requirements baseline, not a claim that discovery is complete.
+The core V1 business workflow and product behavior are substantially defined and are suitable for BRD lock after the remaining clinic-supplied payment/billing policy items are either provided or explicitly marked as post-lock configuration dependencies.
 
-It is suitable for continued product discovery and early solution planning, but remaining implementation-significant open decisions in Section 9 must be resolved progressively before the BRD can be treated as final implementation scope.
+Items such as hosting, backup/recovery targets, legal/privacy/compliance validation, audit-retention duration, and low-level security implementation remain downstream technical/compliance dependencies rather than reasons to reopen the core clinic workflow.
 
 No unconfirmed third-party vendor, payment method, compliance regime, hosting architecture, or low-level technical design is asserted as fact in this version.
