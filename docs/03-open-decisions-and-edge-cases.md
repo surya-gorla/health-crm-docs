@@ -517,7 +517,7 @@ Confirmed:
 
 - every user has an individual account;
 - login + password is used in V1;
-- any account holding the **Owner** role requires 2FA;
+- any account holding the **Owner** role requires Google Authenticator-compatible TOTP 2FA;
 - an Owner + Doctor account still requires 2FA because Owner privilege is present;
 - Doctor-only, Reception, Pharmacist, and Administrator-only accounts do not require 2FA in V1;
 - non-Owner staff cannot self-reset forgotten passwords;
@@ -534,10 +534,13 @@ Derived V1 design:
 
 Still deferred to security design:
 
-- exact Owner second-factor mechanism;
-- Owner recovery when password or second factor is lost;
+- Owner recovery when password is lost or authenticator access is lost;
 - inactivity/session timeout;
 - password-strength rules.
+
+Confirmed second factor:
+
+- Google Authenticator-compatible TOTP.
 
 ## OD-022 — Role / Group Permissions
 
