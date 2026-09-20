@@ -1,4 +1,7 @@
-# Hospital CRM — Open Decisions and Edge Cases
+# Hospital CRM — V1 Decision Register and Edge Cases
+
+**Status:** V1 Decision Register — LOCKED  
+**Lock date:** 2026-09-20
 
 ## 1. Purpose
 
@@ -930,7 +933,7 @@ Already identified as later-phase candidates:
 
 # 17. Decision Closure Rule
 
-When an open item is resolved:
+When a post-lock dependency is resolved or a future behavioral change is approved:
 
 1. record the explicit decision here;
 2. update BRD requirement/business rule;
