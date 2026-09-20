@@ -447,8 +447,10 @@ If a finalized prescription contains an error:
 The printed prescription must:
 
 - contain the prescribed medicines;
-- mark unavailable or unsupplied items/quantities with **;
-- include a legend explaining that ** means the clinic pharmacy did not supply that medicine/quantity and the patient should obtain it outside.
+- at doctor finalization/printing time, mark medicines with clinic-wide status **Out of Stock** or **Not Stocked** using **;
+- include a legend explaining that ** means the medicine was unavailable from the clinic pharmacy when the prescription was finalized and should be obtained externally.
+
+A partial quantity discovered later during dispensing does not retroactively alter the original prescription. The pharmacy dispensing/billing summary records the actual supplied quantity and any unsupplied remainder.
 
 Prescription reprinting must not silently create an unrelated new prescription record.
 
@@ -596,6 +598,17 @@ When more than one pharmacy unit exists, the Doctor prescribing view shows:
 
 This is view-only for the Doctor. Pharmacy/Owner inventory controls remain unchanged.
 
+## 13.7 Multi-Pharmacy Dispensing and Billing
+
+Every dispensing transaction belongs to the pharmacy unit that physically dispensed the medicine.
+
+If one prescription is fulfilled by more than one clinic pharmacy unit:
+
+- each unit records only the quantity it dispenses;
+- each unit bills only the medicines/quantity it dispenses;
+- cumulative dispensing across all units cannot exceed the active prescription quantity;
+- Owner reporting may consolidate the unit-level activity without replacing the unit-level audit trail.
+
 ---
 
 # 14. Pharmacy Billing and Payment Workflow
@@ -646,12 +659,14 @@ If Owner rejects:
 
 For a consultation/visit cancellation:
 
-1. Doctor submits cancellation request;
+1. Doctor may submit a request while the visit is active: Waiting, Called, Unresponded, With Doctor, Consultation Completed, or Sent to Pharmacy;
 2. Doctor enters a specific free-text reason;
 3. Owner approves or rejects;
 4. approved cancellation removes the visit from active operational workflow and marks it Cancelled/Voided;
-5. rejected cancellation leaves the visit active;
-6. request/decision history is retained.
+5. all clinical, prescription, dispensing, and financial history already created remains intact;
+6. a Completed visit is not cancelled through this flow; later corrections use the applicable amendment/correction workflow;
+7. rejected cancellation leaves the visit active;
+8. request/decision history is retained.
 
 Even if the same person holds Owner + Doctor, the action should be recorded as a Doctor-side request followed by an Owner-authority decision so the two authorities remain explicit in audit history.
 
