@@ -329,8 +329,11 @@ Confirmed additional queue behavior:
 - if a called patient does not respond, reception marks the visit **Unresponded** and the system moves it five queue positions downward;
 - if a paid patient leaves before consultation, reception moves the visit toward the end of that doctor's queue;
 - reception cannot cancel a visit;
-- the doctor may cancel a visit with a reason;
-- cancelled visits remain visible in history.
+- a doctor may submit a consultation/visit cancellation request with a specific reason;
+- the Owner approves or rejects the request;
+- approved cancellation removes the visit from the active queue/workflow and marks it Cancelled/Voided;
+- cancelled/voided visits remain visible in history/audit;
+- rejected requests leave the active visit unchanged and are logged.
 
 Boundary rules:
 
@@ -593,11 +596,53 @@ A stock transfer between pharmacy units uses one linked transfer record:
 2. Bill contains the medicines being supplied by the clinic pharmacy.
 3. Medicines not supplied by the clinic pharmacy are not billed as dispensed items.
 4. Patient is informed which medicines must be obtained outside.
-5. Pharmacy payment is recorded as a transaction.
+5. Pharmacy records the externally completed payment status and payment method.
 
-V1 does not process pharmacy payments. Pharmacy staff record the payment status/information after payment occurs outside the CRM.
+V1 does not process pharmacy payments.
 
-Pharmacy payment methods, partial-payment behavior, refund/cancellation behavior, and receipt requirements remain TBD pending clinic confirmation.
+Confirmed pharmacy payment rules:
+
+- no partial pharmacy payments;
+- no pharmacy refunds;
+- normal payment state is Unpaid or Paid;
+- payment method is recorded for reconciliation/information;
+- payment-method labels are Owner-configurable.
+
+## 14.1 Pharmacy Bill Cancellation / Void
+
+If pharmacy needs a bill cancelled:
+
+1. pharmacist selects **Request Cancellation/Void**;
+2. pharmacist must enter a specific free-text reason;
+3. request is sent to Owner;
+4. bill remains active while the request is pending;
+5. Owner approves or rejects.
+
+If Owner approves:
+
+- bill disappears from the active billing workflow;
+- bill is marked **Cancelled/Voided**;
+- original bill and any recorded payment state remain in history;
+- requester, exact reason, Owner, decision, and timestamps are retained;
+- approval does not create a refund.
+
+If Owner rejects:
+
+- bill remains active and unchanged;
+- request and rejection remain in audit history.
+
+## 14.2 Doctor-Side Cancellation
+
+For a consultation/visit cancellation:
+
+1. Doctor submits cancellation request;
+2. Doctor enters a specific free-text reason;
+3. Owner approves or rejects;
+4. approved cancellation removes the visit from active operational workflow and marks it Cancelled/Voided;
+5. rejected cancellation leaves the visit active;
+6. request/decision history is retained.
+
+Even if the same person holds Owner + Doctor, the action should be recorded as a Doctor-side request followed by an Owner-authority decision so the two authorities remain explicit in audit history.
 
 ---
 
@@ -630,7 +675,7 @@ Doctor access includes:
 - payment/queue status;
 - direct demographic edits and approval of reception demographic-change requests;
 - substitution approval;
-- visit cancellation with reason.
+- submission of consultation/visit cancellation requests with a specific reason.
 
 Doctor role alone does not grant Owner-only inventory-control, financial-waiver, staff-management, or clinic-wide oversight privileges.
 
@@ -657,6 +702,8 @@ Owner access includes:
 - all pharmacy-unit inventory views and consolidated inventory;
 - inventory-adjustment and stock-transfer approval;
 - consultation-fee waiver approval;
+- consultation/visit cancellation approval;
+- pharmacy-bill cancellation/void approval;
 - clinic-wide financial-status/revenue reporting;
 - staff/account/group oversight;
 - staff password-reset request handling;
