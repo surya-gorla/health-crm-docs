@@ -85,13 +85,18 @@ Documentation rule:
 | Reception limited to intake, demographics confirmation, payment status, queue | CONFIRMED | FR-065, OD-022 |
 | Reception demographic correction becomes doctor approval request | CONFIRMED | FR-065, FR-066, OD-022 |
 | Doctor can edit demographics and approve changes | CONFIRMED | FR-066, OD-022 |
-| Owner-doctor is sole clinical authority and has complete inventory oversight/approval visibility | CONFIRMED | FR-066, FR-090, BR-036, BR-037, OD-022, OD-023 |
+| Owner and Doctor are separate roles; one user may hold both | CONFIRMED | FR-064, FR-097 to FR-099, BR-036, BR-039, OD-022, OD-023 |
+| Owner has clinic-wide inventory oversight and approves non-dispensing stock changes/transfers | CONFIRMED | FR-068, FR-090, FR-096, FR-097, BR-031, BR-037, BR-041, BR-042 |
+| Doctor-only users retain clinical authority but do not inherit Owner controls | CONFIRMED | FR-066, FR-099, BR-034, BR-039, BR-042 |
+| Multiple doctors use separate doctor-specific queues | CONFIRMED | FR-092, BR-027, OD-007, OD-023 |
+| Multiple receptionists use individual accounts in a shared reception workspace | CONFIRMED | FR-093, OD-023 |
+| Multiple pharmacy units maintain separate stock ledgers with Owner consolidated view | CONFIRMED | FR-094 to FR-096, BR-040, BR-041, OD-023 |
 | Pharmacist limited to prescriptions, allergies, dispensing/payment status, inventory requests | CONFIRMED | FR-067, FR-068, OD-022 |
 | Individual staff accounts; fixed clinic context; owner/admin-assisted reset | CONFIRMED + DERIVED V1 DESIGN | FR-069, FR-084, BR-035, OD-021, OD-022 |
 | Group-based privileges (Doctor/Reception/Pharmacist) | CONFIRMED | FR-069, OD-022 |
 | Login/password plus password reset | CONFIRMED | FR-084, OD-021 |
 | No 2FA/MFA in V1 | CONFIRMED | FR-085, OD-021 |
-| Single-branch pilot; clinic owner is the only doctor; separate pharmacy operation | CONFIRMED | BRD Sections 4.4/13, BR-036, OD-023 |
+| Current pilot is single-branch/one owner-doctor, but the same clinic model supports additional doctors, receptionists, and pharmacy units | CONFIRMED | FR-092 to FR-099, BR-039 to BR-042, OD-023 |
 | Web app, internet-dependent, no offline V1 | CONFIRMED | BRD Section 13, OD-024 |
 | A4 printing; no thermal printer requirement | CONFIRMED | BRD Section 13, OD-020, OD-024 |
 | Hosting decision deferred | OPEN | BRD Section 9.8, OD-024 |
@@ -106,14 +111,14 @@ Documentation rule:
 | Patient Registration and Retrieval | FR-001 — FR-007, FR-075 — FR-079 |
 | Visit Creation | FR-008 — FR-010 |
 | Reception and Consultation Payment | FR-011 — FR-016 |
-| Consultation Queue | FR-017 — FR-025, FR-080 — FR-081 |
+| Consultation Queue | FR-017 — FR-025, FR-080 — FR-081, FR-092 — FR-093 |
 | Doctor Consultation and Clinical Record | FR-026 — FR-032 |
 | Prescription Authoring and Medicine Availability | FR-033 — FR-040 |
 | Printed Prescription | FR-041 — FR-044 |
 | Pharmacy Prescription Retrieval and Access | FR-045 — FR-048 |
-| Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-089 |
+| Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096 |
 | Pharmacy Billing and Payment Status | FR-057 — FR-063 |
-| Roles and Access | FR-064 — FR-069 |
+| Roles and Access | FR-064 — FR-069, FR-097 — FR-099 |
 | Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085 |
 
 ---
