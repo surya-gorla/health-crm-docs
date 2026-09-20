@@ -52,7 +52,7 @@ Existing references that were already used for core patient, queue, clinical, pr
 | OD-020 | Payment | Receipt/reference requirements | CONFIRMED for V1 outputs; payment receipt detail remains clinic-dependent |
 | OD-021 | Security | Authentication | CONFIRMED at V1 business level |
 | OD-022 | Security | Role/group permissions | CONFIRMED at V1 business level |
-| OD-023 | Deployment | Pilot clinic topology | CONFIRMED |
+| OD-023 | Deployment | Single-clinic topology with multi-doctor/reception/pharmacy scalability | CONFIRMED |
 | OD-024 | Deployment | Client/device model confirmed; hosting deferred to technical design |
 | OD-025 | Operations | Backup and recovery | OPEN |
 | OD-026 | Billing | Consultation fee determination | OPEN |
@@ -425,8 +425,8 @@ For non-dispensing inventory upkeep/changes, including stock addition, damage, l
 
 1. pharmacist submits a requested inventory change;
 2. request includes change and reason;
-3. doctor reviews it;
-4. inventory changes only after doctor approval;
+3. Owner reviews it;
+4. inventory changes only after Owner approval;
 5. request, actor, reason, decision, and resulting change are logged.
 
 This control is intended to make non-dispensing inventory losses/adjustments visible to the doctor rather than allowing unreviewed manual stock reductions.
@@ -439,9 +439,9 @@ Medicine selling-price or purchase-price changes proposed by pharmacy use the sa
 
 Expired stock is blocked from dispensing.
 
-The doctor is notified.
+The Owner is notified.
 
-Doctor response controls the inventory disposition/adjustment record, and the action is logged.
+Owner response controls the inventory disposition/adjustment record, and the action is logged.
 
 The doctor-approval step does not provide a path to dispense expired stock.
 
@@ -572,13 +572,26 @@ Can:
 - see queue/payment status;
 - directly edit demographics;
 - approve/reject reception demographic-change requests;
-- approve/reject consultation waiver;
-- initiate consultation waiver;
 - approve/reject substitution request;
-- approve/reject non-dispensing inventory-change requests;
-- inspect complete inventory movement/adjustment history;
-- view all current stock and relevant pharmacy/inventory reports;
 - cancel visit with reason.
+
+Doctor role alone does not grant clinic-owner financial, inventory-control, staff-management, or clinic-wide audit privileges.
+
+### Owner
+
+Can:
+
+- see clinic-wide operational/revenue/inventory dashboards;
+- see all pharmacy units individually and in consolidated view;
+- approve/reject consultation-fee waiver requests;
+- approve/reject non-dispensing inventory changes;
+- approve/reject pharmacy-to-pharmacy stock transfers;
+- inspect complete inventory movement/adjustment history;
+- manage/oversee staff accounts and group assignment subject to Admin design.
+
+Owner role alone does not grant clinical-authoring authority.
+
+A user who is both Owner and Doctor has one account with both roles.
 
 ### Pharmacist
 
@@ -597,7 +610,7 @@ Can:
 Cannot:
 
 - directly edit doctor prescription;
-- directly apply non-dispensing inventory changes without doctor approval.
+- directly apply non-dispensing inventory changes without Owner approval.
 
 ### Administrator
 
@@ -641,20 +654,36 @@ Still requires external policy/compliance validation:
 
 # 12. Pilot Deployment
 
-## OD-023 — Pilot Clinic Topology
+## OD-023 — Single-Clinic Topology with Role/Unit Scaling
 
 **Status: CONFIRMED**
 
 Current pilot:
 
 - single clinic branch;
-- the clinic owner is also the clinic's only doctor;
-- clinic has a separate pharmacy operation;
-- reception and pharmacy staff support operations but are not independent clinical decision-makers;
-- owner-doctor requires complete inventory visibility because inventory loss/theft is an existing operational problem;
-- the system also serves as the patient's longitudinal clinic archive across visits.
+- clinic owner is also the clinic's only doctor;
+- clinic has a separate pharmacy operation.
 
-Exact staff/workstation counts remain operational details to confirm when needed.
+The design must also support the same clinic growing to:
+
+- multiple doctors;
+- multiple receptionists;
+- multiple pharmacy units.
+
+Rules:
+
+1. Owner is a distinct role from Doctor.
+2. A user may hold both Owner and Doctor on one account.
+3. Every doctor retains an individual account and doctor-specific queue.
+4. Multiple receptionists use individual accounts while sharing the reception operating view.
+5. Each pharmacy unit has an independent stock ledger.
+6. Owner sees unit-level and consolidated inventory.
+7. Non-dispensing inventory adjustments and pharmacy-to-pharmacy stock transfers require Owner approval.
+8. Clinical actions remain Doctor permissions; Owner role alone does not grant clinical-authoring authority.
+9. A doctor who is not Owner does not inherit Owner inventory/financial/staff privileges.
+10. Reception has no Owner privileges.
+
+The system continues to serve as the clinic's longitudinal patient archive across visits.
 
 ## OD-024 — Client / Device / Hosting Model
 
