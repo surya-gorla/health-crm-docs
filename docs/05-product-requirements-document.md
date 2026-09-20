@@ -6,12 +6,12 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.1 |
+| Version | 0.2 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
 | Working branch | `prd/v1-product-requirements` |
-| Product stage | V1 product definition |
+| Product stage | V1 product definition — screen and interaction detailing in progress |
 
 ---
 
@@ -1261,3 +1261,23 @@ During PRD iteration:
 - accepted PRD changes should preserve P-IDs once they become implementation references.
 
 PRD lock will occur only after product behavior, interaction requirements, acceptance criteria, and BRD traceability have been reviewed and reconciled.
+
+
+---
+
+# 33. Companion Product Specifications
+
+The following documents are normative companions to this PRD while the PRD remains in DRAFT:
+
+1. **Document 06 — PRD Acceptance and Traceability**  
+   Defines end-to-end acceptance, role/authority acceptance, negative release blockers, and BRD lineage.
+
+2. **Document 07 — Information Architecture and Screen Specification**  
+   Defines the V1 screen inventory, role navigation, screen-level contracts, entry conditions, visible data, primary/secondary actions, states, and transitions.
+
+3. **Document 08 — Interaction and Form Behavior Specification**  
+   Defines reusable product interaction rules for search, forms, payment capture, reason capture, approvals, queue operations, medicine selection, dispensing, inventory, tables, status language, errors, and unsaved/stale state handling.
+
+These companion specifications may add **DERIVED PRODUCT DESIGN** detail but may not alter locked BRD business behavior.
+
+If a companion document conflicts with this PRD, the PRD controls unless the PRD itself conflicts with the locked BRD, in which case the BRD controls.

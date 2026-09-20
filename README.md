@@ -20,6 +20,8 @@ The V1 core business workflow is locked. Remaining items are explicitly classifi
 | [04 — Requirements Traceability](docs/04-requirements-traceability.md) | Maps confirmed product decisions to BRD requirements and identifies future/out-of-scope items. |
 | [05 — Product Requirements Document](docs/05-product-requirements-document.md) | DRAFT product specification derived from the locked BRD: users, workspaces, interaction behavior, feature requirements, product states, and release scope. |
 | [06 — PRD Acceptance & Traceability](docs/06-prd-traceability-and-acceptance.md) | DRAFT product-level acceptance scenarios and traceability from PRD behavior back to the locked BRD. |
+| [07 — Information Architecture & Screen Specification](docs/07-information-architecture-and-screen-specification.md) | DRAFT screen inventory, role navigation, screen contracts, visible states, actions, and transitions. |
+| [08 — Interaction & Form Behavior Specification](docs/08-interaction-and-form-behavior-specification.md) | DRAFT interaction rules for forms, tables, queues, approvals, payments, inventory, errors, and common UI states. |
 
 ## Product boundary
 
