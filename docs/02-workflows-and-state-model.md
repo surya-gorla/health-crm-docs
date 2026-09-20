@@ -659,6 +659,7 @@ Owner access includes:
 - consultation-fee waiver approval;
 - clinic-wide financial-status/revenue reporting;
 - staff/account/group oversight;
+- staff password-reset request handling;
 - audit-log visibility.
 
 Owner role alone does not allow diagnosis, prescription authoring, or clinical amendments. If the owner is also a practicing doctor, the same account also receives Doctor-role permission.
@@ -696,7 +697,28 @@ A user holding Owner + Doctor uses one individual account and gains both permiss
 
 Group membership determines role privileges.
 
-V1 uses individual username/login + password accounts within the fixed single-clinic context. Password reset is owner/admin-assisted. 2FA/MFA is not required in V1.
+V1 uses individual username/login + password accounts within the fixed single-clinic context.
+
+Authentication rules:
+
+- any account with the **Owner** role requires password + 2FA before login completes;
+- this also applies when the same account is Owner + Doctor or Owner + another role;
+- Doctor-only, Reception, Pharmacist, and Administrator-only accounts do not require 2FA in V1.
+
+### Staff Forgot-Password Workflow
+
+For a non-Owner staff account:
+
+1. staff member selects **Forgot Password**;
+2. system creates a reset request for the Owner;
+3. Owner sees the request in the Owner workspace;
+4. Owner may set a new/temporary password for that staff account;
+5. the existing password is never displayed or retrievable;
+6. staff signs in using the reset credential;
+7. system requires the staff member to choose a new password before continuing normal use;
+8. reset request and Owner reset action are logged.
+
+The exact second-factor technology for Owner 2FA and the secure Owner-account recovery process remain technical/security-design items.
 
 ---
 
