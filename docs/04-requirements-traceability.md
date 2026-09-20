@@ -33,6 +33,8 @@ Documentation rule:
 | --- | --- | --- |
 | Permanent Patient ID | CONFIRMED | FR-002, FR-003, BR-001 |
 | Search by Patient ID, phone, and name | CONFIRMED | FR-001, BR-002 |
+| Longitudinal patient archive across visits is a core product need | CONFIRMED | FR-027, FR-091, BR-038, BO-09 |
+| Inventory-loss/theft visibility and prevention is a core business need | CONFIRMED | FR-068, FR-090, BR-031, BR-037, BO-08 |
 | DOB is entered; age is derived | CONFIRMED | FR-075, OD-001 |
 | Full name, phone, DOB, gender, address, email required | CONFIRMED | FR-075, OD-001 |
 | Emergency contact, blood group, allergies, guardian/parent optional | CONFIRMED | FR-076, OD-001 |
@@ -83,13 +85,13 @@ Documentation rule:
 | Reception limited to intake, demographics confirmation, payment status, queue | CONFIRMED | FR-065, OD-022 |
 | Reception demographic correction becomes doctor approval request | CONFIRMED | FR-065, FR-066, OD-022 |
 | Doctor can edit demographics and approve changes | CONFIRMED | FR-066, OD-022 |
-| Doctor can see queue/payment status and handle inventory approvals | CONFIRMED | FR-066, OD-022 |
+| Owner-doctor is sole clinical authority and has complete inventory oversight/approval visibility | CONFIRMED | FR-066, FR-090, BR-036, BR-037, OD-022, OD-023 |
 | Pharmacist limited to prescriptions, allergies, dispensing/payment status, inventory requests | CONFIRMED | FR-067, FR-068, OD-022 |
 | Individual staff accounts; fixed clinic context; owner/admin-assisted reset | CONFIRMED + DERIVED V1 DESIGN | FR-069, FR-084, BR-035, OD-021, OD-022 |
 | Group-based privileges (Doctor/Reception/Pharmacist) | CONFIRMED | FR-069, OD-022 |
 | Login/password plus password reset | CONFIRMED | FR-084, OD-021 |
 | No 2FA/MFA in V1 | CONFIRMED | FR-085, OD-021 |
-| Single-branch pilot; owner is doctor; separate pharmacy | CONFIRMED | BRD Section 13, OD-023 |
+| Single-branch pilot; clinic owner is the only doctor; separate pharmacy operation | CONFIRMED | BRD Sections 4.4/13, BR-036, OD-023 |
 | Web app, internet-dependent, no offline V1 | CONFIRMED | BRD Section 13, OD-024 |
 | A4 printing; no thermal printer requirement | CONFIRMED | BRD Section 13, OD-020, OD-024 |
 | Hosting decision deferred | OPEN | BRD Section 9.8, OD-024 |
@@ -139,7 +141,6 @@ v0.2 explicitly corrects numbering inconsistencies that existed in the initial v
 
 Key genuinely open areas are now limited to:
 
-- clinical authority for any lower-knowledge/non-doctor staff who may use the consultation interface;
 - OD-018 — clinic-defined payment methods/status conventions to record;
 - OD-019 — pharmacy partial-payment/refund/cancellation policy;
 - OD-026 — consultation fee/billing policy supplied by the clinic;
