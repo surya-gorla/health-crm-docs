@@ -203,12 +203,12 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | ID | Functional Requirement | Priority | Primary Systems | Primary KPI |
 | --- | --- | --- | --- | --- |
 | FR-017 | Eligible visits shall be added to a consultation queue. | TBD | Hospital CRM | TBD |
-| FR-018 | The queue shall preserve an explicit consultation order visible to the doctor. | TBD | Hospital CRM | TBD |
+| FR-018 | The queue shall preserve an explicit consultation order within the queue assigned to the selected doctor. Each doctor shall have a doctor-specific queue. | TBD | Hospital CRM | TBD |
 | FR-019 | Queue entries shall support the states Waiting, Called, With Doctor, Consultation Completed, Sent to Pharmacy, Completed, and Cancelled. | TBD | Hospital CRM | TBD |
-| FR-020 | The doctor shall be able to see waiting patients and identify the next patient according to the queue order. | TBD | Hospital CRM | TBD |
+| FR-020 | The doctor shall be able to see the waiting patients assigned to that doctor's queue and identify the next patient according to the queue order. | TBD | Hospital CRM | TBD |
 | FR-021 | The doctor shall be able to initiate a "call patient" action for a queued patient. | TBD | Hospital CRM | TBD |
 | FR-022 | A doctor-initiated call shall be visible to reception so the receptionist can physically call/direct the patient. | TBD | Hospital CRM | TBD |
-| FR-023 | The system shall show the current queue state of each visit to authorized roles. Exact role-specific visibility beyond doctor/reception is TBD. | TBD | Hospital CRM | TBD |
+| FR-023 | Reception shall assign the visit to a specific doctor before queue entry. The system shall show the current queue state of each visit to authorized roles. Exact role-specific visibility beyond doctor/reception is TBD. | TBD | Hospital CRM | TBD |
 | FR-024 | The system shall not implement a priority flag, priority-request workflow, or automated priority reordering for urgent patients. If an urgent case arises, the receptionist shall communicate it directly to the doctor outside the CRM workflow. | TBD | Hospital CRM | TBD |
 | FR-025 | Rules for patients who leave, skip, or fail to respond when called are not yet confirmed and shall remain an Open Decision. | TBD | Hospital CRM | TBD |
 
@@ -327,7 +327,9 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-008** — Queue state must be explicit and persisted.
 
-**BR-009** — The doctor selects/calls patients through the queue, with reception informed of the call.
+**BR-009** — The doctor selects/calls patients through that doctor's assigned queue, with reception informed of the call.
+
+**BR-027** — Consultation queues are doctor-specific. Reception assigns each eligible visit to a specific doctor before the visit enters the queue. A doctor sees the patients assigned to that doctor's queue rather than a shared clinic-wide queue.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the doctor. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
@@ -411,7 +413,7 @@ The following items require explicit decisions before the BRD can be considered 
 9. Rules for urgent patients and out-of-order queue handling.
 10. Behavior when a patient leaves before consultation.
 11. Behavior when a patient does not respond when called.
-12. Whether multiple doctors/queues exist and how patients are assigned between them.
+12. Whether reception may reassign a queued visit from one doctor to another after initial assignment, and under what conditions.
 
 ## 9.3 Clinical Documentation
 
