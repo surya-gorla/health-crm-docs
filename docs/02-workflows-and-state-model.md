@@ -145,10 +145,10 @@ When similar existing records are found:
 
 If the patient cannot confidently confirm any candidate, reception may create a new patient profile and the system marks it **Possible Duplicate**. That profile remains usable like a normal patient profile.
 
-Still TBD:
+Implementation/future notes:
 
-- the system matching criteria used to surface similar records;
-- whether duplicate records can be merged in a later update and by whom.
+- exact similarity-scoring thresholds are solution-design details; the system may surface candidates but never auto-merge or auto-select solely from a similarity score;
+- duplicate-record merge is not part of V1 and may be evaluated in a later version.
 
 ---
 
