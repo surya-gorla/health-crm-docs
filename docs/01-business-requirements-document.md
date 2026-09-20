@@ -215,7 +215,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-022 | A doctor-initiated call shall be visible to reception so the receptionist can physically call/direct the patient. | TBD | Hospital CRM | TBD |
 | FR-023 | Reception shall assign the visit to a specific doctor before queue entry. The system shall show the current queue state of each visit to authorized roles. Exact role-specific visibility beyond doctor/reception is TBD. | TBD | Hospital CRM | TBD |
 | FR-024 | The system shall not implement a priority flag, priority-request workflow, or automated priority reordering for urgent patients. If an urgent case arises, the receptionist shall communicate it directly to the doctor outside the CRM workflow. | TBD | Hospital CRM | TBD |
-| FR-025 | When a called patient does not respond, reception shall mark the visit as Unresponded and the system shall move that visit five queue positions downward within the assigned doctor's queue. If a paid patient leaves before consultation, reception shall move the visit toward the end of the assigned doctor's queue. Exact boundary behavior remains TBD when fewer than five later slots remain or when "toward the end" needs a precise slot rule. | TBD | Hospital CRM | TBD |
+| FR-025 | When a called patient does not respond, reception shall mark the visit as Unresponded and the system shall move that visit five queue positions downward within the assigned doctor's queue; if fewer than five later positions exist, the visit moves to the end. If a paid patient leaves before consultation, reception shall move the visit to the end of the assigned doctor's queue. | TBD | Hospital CRM | TBD |
 | FR-080 | Reception shall be able to reassign a queued visit from one doctor-specific queue to another doctor-specific queue. Every reassignment shall be logged. | TBD | Hospital CRM | TBD |
 | FR-081 | Reception shall not be permitted to cancel a visit. A doctor may cancel a visit, a cancellation reason shall be recorded, and the cancelled visit shall remain visible in history. | TBD | Hospital CRM | TBD |
 
@@ -229,19 +229,19 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-029 | The doctor shall be able to record a clinical assessment/diagnosis for the current visit using a simple doctor-facing entry field. | TBD | Hospital CRM | TBD |
 | FR-030 | The doctor shall be able to add optional clinical notes, examination findings, advice, and follow-up information without requiring complex coding or extensive structured entry in V1. | TBD | Hospital CRM | TBD |
 | FR-031 | Clinical information shall remain linked to the correct Patient ID and Visit ID. | TBD | Hospital CRM | TBD |
-| FR-032 | Material edits to clinical notes, diagnosis, or prescription shall retain auditable information identifying the change, actor, and time. Exact revision/versioning UX remains TBD. | TBD | Hospital CRM | TBD |
+| FR-032 | A completed consultation shall not be destructively edited. If correction is required, only a Doctor-role user may create an amendment/new revision. The original content shall remain preserved, an amendment reason is mandatory, and actor/time shall be recorded. | TBD | Hospital CRM | TBD |
 
 ## 6.6 Prescription Authoring and Medicine Availability
 
 | ID | Functional Requirement | Priority | Primary Systems | Primary KPI |
 | --- | --- | --- | --- | --- |
-| FR-033 | The doctor shall be able to search/select a medicine primarily by medicine name and strength ("power"). Manufacturer information shall be stored for inventory/pharmacy context. Whether dosage form is mandatory remains TBD. | TBD | Hospital CRM | TBD |
+| FR-033 | The doctor shall be able to search/select a medicine by medicine/display name, strength ("power"), and dosage form. Manufacturer information shall be stored. Generic/molecule name may be stored as an additional searchable attribute, while the clinic catalogue display name remains the primary selection label. | TBD | Hospital CRM | TBD |
 | FR-034 | While prescribing, the doctor shall be shown the clinic pharmacy availability status for medicines known to the clinic pharmacy inventory. | TBD | Hospital CRM | TBD |
 | FR-035 | Pharmacy availability shall distinguish at minimum: In Stock, Out of Stock, and Not Stocked. | TBD | Hospital CRM | TBD |
 | FR-036 | A medicine's clinic-pharmacy unavailability shall not automatically prevent the doctor from prescribing it. | TBD | Hospital CRM | TBD |
 | FR-037 | Prescription entry shall remain minimal because detailed verbal explanation is expected during consultation. For each medicine, V1 shall capture medicine name, strength, dose amount, frequency, and duration; short timing/food/extra instructions may be added when needed. | TBD | Hospital CRM | TBD |
 | FR-038 | Where required quantity can be deterministically calculated from dose/frequency/duration and the inventory unit, the system shall calculate it automatically; otherwise the doctor shall enter the quantity. | TBD | Hospital CRM | TBD |
-| FR-039 | The system shall allow the doctor to finalize a prescription for the visit. Once finalized, the prescription shall not be editable in place. | TBD | Hospital CRM | TBD |
+| FR-039 | The system shall allow the doctor to finalize a prescription for the visit. Once finalized, it shall not be editable in place. If correction is required, the doctor shall issue a replacement prescription; the previous prescription shall be marked Superseded, preserved in history, and linked to the replacement with a mandatory correction reason. | TBD | Hospital CRM | TBD |
 | FR-040 | A finalized prescription shall remain associated with its Patient ID and Visit ID and be retrievable by authorized pharmacy staff. Pharmacy access shall not make the prescription editable. | TBD | Hospital CRM | TBD |
 
 ## 6.7 Printed Prescription
@@ -249,8 +249,8 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | ID | Functional Requirement | Priority | Primary Systems | Primary KPI |
 | --- | --- | --- | --- | --- |
 | FR-041 | The doctor shall be able to print the finalized prescription. | TBD | Hospital CRM + printer | TBD |
-| FR-042 | Medicines unavailable from the clinic pharmacy shall be visibly marked on the printed prescription. The exact symbol/visual treatment remains TBD. | TBD | Hospital CRM + printer | TBD |
-| FR-043 | The printed prescription shall include an explanation indicating that marked medicines are not currently available from the clinic pharmacy and must be obtained externally. Exact wording is TBD. | TBD | Hospital CRM + printer | TBD |
+| FR-042 | Medicines or remaining quantities unavailable from the clinic pharmacy shall be visibly marked on the printed prescription using a clear double-asterisk (**) marker. | TBD | Hospital CRM + printer | TBD |
+| FR-043 | The printed prescription shall include a legend explaining that items marked ** are not supplied in full by the clinic pharmacy and the patient should obtain the unsupplied medicine/quantity outside. | TBD | Hospital CRM + printer | TBD |
 | FR-044 | The system shall support reprinting a prescription without silently creating a new prescription version. | TBD | Hospital CRM + printer | TBD |
 
 ## 6.8 Pharmacy Prescription Retrieval and Access
@@ -311,10 +311,10 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-074 | Doctor cancellation of a consultation and consultation-fee waiver decisions shall include a reason and shall be logged with the responsible actor. | TBD | Hospital CRM | TBD |
 | FR-084 | Every staff member shall authenticate using an individual login under the clinic/hospital context. V1 shall use login credentials and password, and a password-reset capability is required. | TBD | Hospital CRM | TBD |
 | FR-085 | V1 shall not require 2FA/MFA. | TBD | Hospital CRM | TBD |
-| FR-086 | Pharmacy inventory shall support tracking from the lowest dispensable unit through higher packaging levels where applicable, with unit relationships sufficient to maintain stock accurately. | TBD | Hospital CRM | TBD |
+| FR-086 | Pharmacy inventory shall support a medicine-specific base stock/dispensing unit plus configured higher package levels and conversion factors. Inventory movements shall normalize to the base unit while allowing entry/display in configured package units. | TBD | Hospital CRM | TBD |
 | FR-087 | Inventory records shall support batch/lot number, expiry date, manufacturer, purchase price, and selling price. | TBD | Hospital CRM | TBD |
-| FR-088 | The system shall provide low-stock and near-expiry notifications. | TBD | Hospital CRM | TBD |
-| FR-089 | Expired stock shall be blocked from dispensing. The doctor shall be notified, and subsequent inventory disposition/adjustment shall require doctor action/approval and shall be logged. | TBD | Hospital CRM | TBD |
+| FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Doctor/Admin role rather than fixed global values. | TBD | Hospital CRM | TBD |
+| FR-089 | Expired stock shall be blocked from dispensing. The doctor shall be notified, and removal/adjustment of expired, damaged, lost, or otherwise unavailable quantity shall use the doctor-approved inventory-adjustment workflow with category, reason, quantity, actor, and time logged. Physical disposal is outside the CRM V1 workflow. | TBD | Hospital CRM | TBD |
 
 ---
 
@@ -350,13 +350,17 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-029** — Reception cannot cancel visits. The doctor may cancel a visit with a recorded reason, and cancelled visits remain in history.
 
-**BR-030** — Finalized prescriptions are immutable in place. Pharmacists cannot edit them.
+**BR-030** — Finalized prescriptions are immutable in place. Correction requires a doctor-issued replacement linked to a preserved Superseded prescription. Pharmacists cannot edit prescriptions.
 
 **BR-031** — Non-dispensing inventory adjustments initiated by pharmacy require doctor approval and audit logging. Prescription-linked dispensing deducts actual dispensed quantity automatically.
 
 **BR-032** — Expired inventory is not dispensable. Doctor response controls inventory disposition/adjustment, not permission to dispense expired stock.
 
 **BR-033** — V1 records payment status/information but does not process consultation or pharmacy payments.
+
+**BR-034** — Administrator permission alone does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, clinical amendments, and doctor approvals require Doctor-group permission.
+
+**BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every staff member uses an individual username/password account; password reset is owner/admin-assisted in V1.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the doctor. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
@@ -366,7 +370,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-011** — Clinical notes, diagnosis, and prescription are recorded against the current Visit ID and linked Patient ID.
 
-**BR-012** — Material clinical changes must remain auditable.
+**BR-012** — Completed clinical records are amended through a doctor-authored revision rather than destructive editing. Original content is retained, amendment reason is mandatory, and actor/time are audited.
 
 **BR-013** — Pharmacy access does not automatically grant access to the doctor's full clinical notes.
 
@@ -439,30 +443,21 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.2 Visit and Queue
 
-5. How an approved consultation-fee waiver is represented in the financial record.
-6. Boundary behavior for the five-slot Unresponded move when fewer than five later slots remain.
-7. Exact position rule for a paid patient moved toward the end after leaving before consultation.
+4. No remaining queue-policy decision is required for the current V1 baseline.
 
 ## 9.3 Clinical Documentation
 
-8. Rules for editing/amending a completed consultation record.
-9. Whether a reason is mandatory for post-completion clinical amendments if such amendments are supported.
+5. Confirm who is permitted to perform clinical decision-making/finalization if the clinic intends lower-knowledge or non-doctor staff to use the consultation interface.
 
 ## 9.4 Prescription
 
-10. Whether dosage form is required or optional.
-11. Whether medicine naming is explicitly brand-based, generic/molecule-based, or a clinic-defined medicine name.
-12. Correction/replacement workflow when a finalized immutable prescription contains an error.
-13. Exact visual marker/text for clinic-unavailable medicines.
+6. No remaining prescription-lifecycle decision is required for V1 beyond clinic validation of the medicine catalogue data it wants to preload.
 
 ## 9.5 Pharmacy and Inventory
 
-14. Exact unit-conversion rules between lowest dispensable units and higher package levels.
-15. Low-stock threshold configuration.
-16. Near-expiry threshold configuration.
-17. Price-change approval/ownership behavior.
-18. Detailed expired/damaged-stock disposition choices after doctor review.
-19. Whether non-prescription retail is introduced in a future version.
+7. Initial low-stock and near-expiry threshold values are operational configuration, not BRD decisions.
+8. Whether pharmacy medicine price changes use the same pharmacist-request -> doctor-approval workflow is to be confirmed only if the clinic expects pharmacists to propose price changes.
+9. Non-prescription retail remains future/out of V1.
 
 ## 9.6 Payments
 
@@ -477,31 +472,20 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.7 Roles, Security, and Operations
 
-28. Detailed Administrator capabilities.
-29. Staff onboarding/offboarding.
-30. Session timeout/security requirements.
-31. Exact password-reset flow.
-32. Data backup/recovery requirements.
-33. Legal/privacy/compliance requirements applicable to the clinic.
-34. Data retention requirements.
-35. Audit-log retention and access.
+17. Staff onboarding/offboarding procedure.
+18. Data backup/recovery requirements are to be finalized in technical architecture.
+19. Legal/privacy/compliance and data-retention requirements require external validation.
+20. Audit-retention duration requires compliance/policy validation.
 
 ## 9.8 Deployment and Architecture
 
-36. Hosting/deployment model.
-37. Supported browser/computer requirements.
-38. Number of reception/pharmacy workstations and expected concurrent users.
-39. Performance expectations.
-40. Existing data migration, if any.
-41. External integrations, if any.
+21. Hosting/deployment model is intentionally deferred to technical architecture.
+22. Existing data migration, if the pilot has historical digital data to import.
+23. Any external integrations requested by the clinic.
 
 ## 9.9 Analytics and Reporting
 
-42. Exact formulas/definitions for confirmed reports.
-43. Analytics/reporting platform.
-44. Event model, if event tracking is required.
-45. Report access permissions.
-46. Data-retention period for reports.
+24. Analytics/reporting technology and report-retention duration are technical/policy items, not remaining business-discovery questions.
 
 ---
 
