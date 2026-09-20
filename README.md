@@ -4,7 +4,7 @@ This repository contains the business and product documentation for the clinic-f
 
 ## Documentation status
 
-**Baseline version:** v0.2  
+**Baseline version:** v0.3  
 **Status:** Expanded requirements baseline with confirmed operational controls and remaining open decisions  
 **Date:** 2026-09-20
 
@@ -23,12 +23,15 @@ The current documentation captures the workflow and requirements explicitly conf
 
 The product currently covers the clinic journey from patient registration/retrieval through consultation, prescription, pharmacy dispensing, and payment recording.
 
-The initial roles are:
+The primary roles are:
 
+- Owner
 - Administrator
 - Receptionist
 - Doctor
 - Pharmacist
+
+One individual account may hold multiple roles, such as Owner + Doctor.
 
 The initial product does **not** include laboratory management, inpatient/bed management, insurance processing, ambulance management, or HR/payroll.
 
