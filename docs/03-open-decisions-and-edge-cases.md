@@ -31,7 +31,7 @@ Existing references that were already used for core patient, queue, clinical, pr
 | ID | Area | Decision | Status |
 | --- | --- | --- | --- |
 | OD-001 | Registration | Patient registration fields | CONFIRMED |
-| OD-002 | Patient matching | Duplicate detection and fallback | CONFIRMED at BRD level; matching implementation belongs to solution design |
+| OD-002 | Patient matching | Duplicate detection and fallback | CONFIRMED for V1; merge future, matching thresholds solution design |
 | OD-003 | Patient matching | Shared family phone number | CONFIRMED |
 | OD-004 | Queue | Consultation payment gate | CONFIRMED |
 | OD-005 | Queue/Payment | Consultation-fee waiver | CONFIRMED |
@@ -48,7 +48,7 @@ Existing references that were already used for core patient, queue, clinical, pr
 | OD-016 | Inventory | Batch/expiry/pricing metadata and alerts | CONFIRMED — thresholds configurable |
 | OD-017 | Pharmacy | Medicine returns | CONFIRMED — not supported in V1 |
 | OD-018 | Payment | Payment methods recorded by CRM | OPEN |
-| OD-019 | Payment | Refund/cancellation rules | PARTIALLY CONFIRMED |
+| OD-019 | Payment | Refund/cancellation rules | PARTIALLY CONFIRMED — consultation fixed; pharmacy clinic policy pending |
 | OD-020 | Payment | Receipt/reference requirements | CONFIRMED for V1 outputs; payment receipt detail remains clinic-dependent |
 | OD-021 | Security | Authentication | CONFIRMED at V1 business level |
 | OD-022 | Security | Role/group permissions | CONFIRMED at V1 business level |
@@ -56,9 +56,9 @@ Existing references that were already used for core patient, queue, clinical, pr
 | OD-024 | Deployment | Client/device model confirmed; hosting deferred to technical design |
 | OD-025 | Operations | Backup and recovery | OPEN |
 | OD-026 | Billing | Consultation fee determination | OPEN |
-| OD-027 | Audit | Audit retention and access | OPEN |
-| OD-028 | Compliance | Legal/privacy/compliance requirements | OPEN |
-| OD-029 | Reporting | CONFIRMED at V1 business level; implementation details belong to reporting design |
+| OD-027 | Audit | Audit access confirmed; retention/export requires compliance policy |
+| OD-028 | Compliance | EXTERNAL VALIDATION REQUIRED — not a core workflow decision |
+| OD-029 | Reporting | CONFIRMED at V1 business level |
 | OD-030 | Inventory control | Pharmacist inventory-change approval | CONFIRMED |
 | OD-031 | Inventory safety | Expired-stock handling | CONFIRMED |
 | OD-032 | Pharmacy scope | Non-prescription/pharmacy-only CRM dispensing | OUT OF V1 |
@@ -525,7 +525,10 @@ Confirmed:
 - Owner can reset/set a new temporary password;
 - Owner cannot see or retrieve the old password;
 - staff must change the reset password after the next successful login;
-- password-reset request and Owner reset action are logged.
+- password-reset request and Owner reset action are logged;
+- Owner TOTP enrollment generates one-time recovery codes;
+- recovery codes are shown only at enrollment/regeneration and become invalid after use;
+- regenerating recovery codes invalidates the previous set.
 
 Derived V1 design:
 
@@ -534,7 +537,7 @@ Derived V1 design:
 
 Still deferred to security design:
 
-- Owner recovery when password is lost or authenticator access is lost;
+- controlled catastrophic Owner recovery if password/authenticator access and all recovery codes are unavailable;
 - inactivity/session timeout;
 - password-strength rules.
 
@@ -574,7 +577,7 @@ Limited previous-visit information may be used for identity confirmation.
 
 ### Doctor
 
-In the current pilot, the owner is the only Doctor-role user and is the sole clinical decision/finalization authority.
+In the current pilot, the Owner also holds the only Doctor role. The role model nevertheless supports additional Doctor-only users; clinical decision/finalization authority comes from the Doctor role, not from ownership.
 
 Can:
 
@@ -655,8 +658,8 @@ Admin permission by itself does **not** grant authority to create/edit doctor cl
 
 Derived V1 access:
 
-- Doctor/Owner and Admin may view audit logs;
-- pharmacist/reception users do not receive unrestricted audit-log access;
+- Owner and authorized Admin may view clinic-wide audit logs;
+- Doctor-only, Pharmacist, and Reception users do not receive unrestricted clinic-wide audit-log access merely from those roles;
 - inventory-adjustment audit is filterable as part of the audit log;
 - audit events are not deletable through normal application UI.
 
