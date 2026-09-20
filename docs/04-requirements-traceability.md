@@ -59,7 +59,7 @@ Documentation rules:
 | Unresponded -> move five positions; if unavailable, move to end | CONFIRMED + DERIVED BOUNDARY | FR-019, FR-025, OD-007 |
 | Paid patient leaves before consultation -> move to end | CONFIRMED + DERIVED BOUNDARY | FR-025, OD-007 |
 | Doctor requests consultation cancellation; Owner approves/rejects | CONFIRMED | FR-074, FR-081, BR-029, BR-049, OD-019 |
-| Approved cancellation/void preserves history and does not refund | CONFIRMED | FR-073, FR-081, BR-024, BR-050, OD-019 |
+| Active visit cancellation: Doctor request + reason -> Owner decision; approved void preserves all existing history and does not refund | CONFIRMED | FR-073, FR-081, BR-024, BR-049, BR-050, OD-019 |
 | Guided low-complexity clinical entry | DELEGATED DESIGN | FR-028 to FR-030, OD-008 |
 | Completed consultation corrected by Doctor amendment/revision; original retained | DERIVED FROM AUDIT MODEL | FR-032, BR-012, OD-009 |
 | Clinical authority comes from Doctor role | CONFIRMED | FR-066, BR-034, BR-036, OD-008, OD-022 |
@@ -69,6 +69,7 @@ Documentation rules:
 | Finalized prescription immutable; correction supersedes/replaces | CONFIRMED + DERIVED AUDIT MODEL | FR-039, BR-030, OD-012 |
 | Pharmacist cannot edit prescription | CONFIRMED | FR-040, FR-067, BR-030, OD-012 |
 | Doctor sees pharmacy availability while prescribing | CONFIRMED | FR-034 to FR-036, BR-014, BR-015 |
+| Printed ** marker reflects Out of Stock/Not Stocked status known at prescription finalization; later partial remainder belongs to dispensing summary | SOURCE-FIDELITY CLARIFICATION | FR-042, FR-043, OD-012 |
 | Multi-pharmacy view shows clinic total + unit availability | DERIVED FROM CONFIRMED MULTI-PHARMACY MODEL | FR-116, BR-058, OD-037 |
 | Partial medicine fulfilment allowed | DELEGATED V1 DESIGN | FR-052 to FR-054, OD-013 |
 | No back-order/collect-later workflow | DELEGATED V1 DESIGN | FR-052, OD-013 |
@@ -84,6 +85,7 @@ Documentation rules:
 | Expired stock blocked; Owner controls disposition adjustment | CONFIRMED | FR-089, BR-032, OD-031 |
 | Bill void does not restore dispensed stock | DERIVED FROM INVENTORY-ACCOUNTABILITY MODEL | FR-115, BR-056, OD-034 |
 | Multiple pharmacy units keep separate ledgers | CONFIRMED | FR-094 to FR-096, BR-040, BR-041, OD-023 |
+| Multi-pharmacy dispensing/billing remains unit-specific while cumulative prescription quantity is enforced clinic-wide | DERIVED FROM UNIT-LEDGER MODEL | FR-095, FR-118, OD-037 |
 | Owner sees unit-level and consolidated inventory | CONFIRMED | FR-090, FR-097, OD-023 |
 | Reception limited to intake/payment-status/queue operations | CONFIRMED | FR-065, OD-022 |
 | Pharmacist visibility limited to current/previous prescriptions + allergies | CONFIRMED | FR-048, FR-067, BR-013, OD-022 |
@@ -120,8 +122,8 @@ Documentation rules:
 | Prescription Authoring and Availability | FR-033 — FR-040, FR-116 |
 | Printed Prescription | FR-041 — FR-044 |
 | Pharmacy Prescription Retrieval and Access | FR-045 — FR-048 |
-| Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096, FR-115 — FR-116 |
-| Pharmacy Billing and Payment | FR-057 — FR-063, FR-105 — FR-115 |
+| Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096, FR-115 — FR-116, FR-118 |
+| Pharmacy Billing and Payment | FR-057 — FR-063, FR-105 — FR-115, FR-118 |
 | Roles and Access | FR-064 — FR-069, FR-097 — FR-100, FR-113, FR-117 |
 | Audit, Cancellation, and Authentication | FR-070 — FR-074, FR-084 — FR-085, FR-100 — FR-104, FR-114 — FR-117 |
 
