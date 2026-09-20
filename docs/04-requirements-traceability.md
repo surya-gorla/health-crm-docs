@@ -71,8 +71,8 @@ The BRD authoring method follows the supplied zero-assumption rule:
 | Prescription reprint required | CONFIRMED | FR-044 |
 | Patient-detail correction required | CONFIRMED | FR-006 |
 | Duplicate registration is an important scenario | PARTIALLY CONFIRMED; fallback remains open | FR-004, BR-005, OD-002 |
-| Multiple doctors is an important scenario | CONFIRMED scenario, rule open | FR-024/OD-007 |
-| Urgent queue override is an important scenario | CONFIRMED scenario, rule open | FR-024, OD-006 |
+| Multiple doctors is an important scenario | CONFIRMED scenario, rule open | OD-007 |
+| Urgent cases are handled by receptionist informing the doctor directly; no CRM priority workflow is required | CONFIRMED | FR-024, BR-026, OD-006 |
 | Patient leaves after payment | CONFIRMED scenario, rule open | FR-025 |
 | Prescription changed after reaching pharmacy | CONFIRMED scenario, rule open | OD-012 |
 | Partial pharmacy availability | CONFIRMED scenario, rule open | FR-052, OD-013 |
