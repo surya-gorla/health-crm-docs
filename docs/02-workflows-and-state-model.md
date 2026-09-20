@@ -718,7 +718,7 @@ For a non-Owner staff account:
 7. system requires the staff member to choose a new password before continuing normal use;
 8. reset request and Owner reset action are logged.
 
-Owner 2FA uses Google Authenticator-compatible TOTP. The secure Owner-account recovery process remains a technical/security-design item.
+Owner 2FA uses Google Authenticator-compatible TOTP. TOTP enrollment generates one-time recovery codes that are shown only at enrollment/regeneration and are invalidated after use. If password/authenticator access and all recovery codes are unavailable, recovery requires a controlled technical recovery process.
 
 ---
 
