@@ -43,7 +43,7 @@ The BRD authoring method follows the supplied zero-assumption rule:
 | Payment should be a transaction, not only a checkbox | CONFIRMED | FR-012, BR-020 |
 | Consultation payment supports Paid/Unpaid/Refunded/Cancelled; partial consultation payment is not supported | CONFIRMED | FR-013, BR-021 |
 | Paid consultation may enter doctor queue; unpaid consultation may not | CONFIRMED | FR-016, BR-010, OD-004 |
-| Reception may request consultation-fee waiver; doctor must approve; approved waiver permits queue entry | CONFIRMED | FR-015, FR-016, BR-010, BR-022, OD-005 |
+| Reception may request consultation-fee waiver; doctor approves. Doctor may also initiate a waiver directly, which is immediately approved and updates visit/payment status automatically. Approved waiver permits queue entry. | CONFIRMED | FR-015, FR-016, BR-010, BR-022, OD-005 |
 | Patient goes into queue after reception workflow | CONFIRMED subject to payment eligibility | FR-017, FR-016 |
 | Doctor sees queue | CONFIRMED | FR-018, FR-020 |
 | Queue states should be explicit | CONFIRMED | FR-019, BR-008 |
