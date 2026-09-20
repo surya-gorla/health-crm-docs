@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Business Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.2 |
+| Version | 0.3 |
 | Status | Baseline with open decisions |
 | Date | 2026-09-20 |
 | Scope stage | Initial clinic MVP |
@@ -18,7 +18,7 @@
 
 This BRD defines the confirmed business requirements for a clinic-focused Hospital CRM covering the operational journey from patient identification/registration through reception payment, consultation queue, doctor consultation and clinical notes, prescription creation, pharmacy dispensing, and pharmacy payment.
 
-The initial product is being designed for one real clinic operated by its owner, who is also the clinic's only doctor. Two of the primary operating needs are (a) maintaining a reliable longitudinal archive of patients and visits and (b) giving the owner-doctor strong visibility and control over pharmacy inventory because inventory loss/theft is an existing operational concern.
+The initial product is being designed around one real clinic where the owner is currently also the only doctor. However, the V1 role and operational model shall remain flexible enough for the same clinic to add multiple doctors, multiple receptionists, and multiple pharmacy units without redesigning the core permission model. Two primary operating needs remain (a) maintaining a reliable longitudinal archive of patients and visits and (b) giving the clinic owner strong visibility and control over pharmacy inventory because inventory loss/theft is an existing operational concern.
 
 The document is intended to provide a common scope baseline for product, engineering, QA, clinic operations, and future solution-design work.
 
@@ -151,11 +151,16 @@ Only confirmed assumptions are listed here.
 
 1. The current V1 pilot is for a single clinic.
 2. The clinic owner is also the clinic's only doctor.
-3. Reception and pharmacy staff are operational users; they are not clinical decision-makers in the V1 pilot.
-4. Diagnosis, prescription finalization, clinical amendments, consultation cancellation, waiver approval, substitution approval, and controlled inventory-adjustment approval remain Doctor-role actions.
-5. The owner-doctor requires full visibility into pharmacy inventory, dispensing, inventory-adjustment requests, approvals/rejections, and audit history.
-6. Inventory accountability is a core business goal because stock loss/theft is an existing clinic problem.
-7. Patient history is intended to function as a durable longitudinal archive across visits.
+3. The system distinguishes **Owner**, **Doctor**, **Reception**, **Pharmacist**, and **Administrator** authority instead of assuming that ownership and medical practice are the same role.
+4. A single staff account may hold multiple roles. Therefore, an owner who also practices medicine uses one account with both Owner and Doctor permissions.
+5. Reception and pharmacy staff are operational users; they are not clinical decision-makers.
+6. Diagnosis, prescription finalization, clinical amendments, consultation cancellation, and medicine-substitution approval remain Doctor-role actions.
+7. Financial/ownership controls such as consultation-fee waiver approval and non-dispensing pharmacy inventory adjustments belong to the Owner role, not to every Doctor role.
+8. The Owner requires clinic-wide visibility into pharmacy inventory, dispensing, stock transfers, inventory-adjustment requests, approvals/rejections, and audit history across all pharmacy units.
+9. Inventory accountability is a core business goal because stock loss/theft is an existing clinic problem.
+10. Patient history is intended to function as a durable longitudinal archive across visits.
+11. Each doctor retains a doctor-specific queue even when several doctors work in the clinic.
+12. Each pharmacy unit maintains its own stock ledger while contributing to an Owner-level consolidated inventory view.
 
 ## 4.5 Existing systems
 
@@ -218,8 +223,8 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-012 | V1 shall not process consultation payments. It shall retain the consultation payment status/information required by the clinic for queue eligibility and reporting. | TBD | Hospital CRM | TBD |
 | FR-013 | Consultation payment shall support Paid and Unpaid status for the normal flow. Partial consultation payment is not supported, and consultation payments are non-refundable in V1. Waiver is handled through the separate doctor-controlled waiver workflow. | TBD | Hospital CRM | TBD |
 | FR-014 | Consultation receipt/reference behavior is TBD pending clinic confirmation; V1 does not require a payment-processing integration or thermal receipt workflow. | TBD | Hospital CRM | TBD |
-| FR-015 | A consultation-fee waiver may be initiated either by reception or directly by the doctor. A reception-initiated waiver request shall be presented to the doctor for approval, and reception cannot grant the waiver independently. A doctor-initiated waiver shall be treated as approved immediately and shall update the visit/payment status accordingly without a separate approval step. | TBD | Hospital CRM | TBD |
-| FR-016 | A Paid visit is eligible to enter the doctor queue. An Unpaid visit shall not enter the doctor queue unless its consultation-fee waiver request has been approved by the doctor. A pending or unapproved waiver request does not make the visit queue-eligible. | TBD | Hospital CRM | TBD |
+| FR-015 | A consultation-fee waiver may be requested from reception or a doctor, but only the Owner may approve it. If the Owner initiates the waiver directly, it is immediately approved without a second approval step. Every waiver requires a reason and audit record. | TBD | Hospital CRM | TBD |
+| FR-016 | A Paid visit is eligible to enter the doctor queue. An Unpaid visit shall not enter the doctor queue unless its consultation-fee waiver request has been approved by the Owner. A pending or unapproved waiver request does not make the visit queue-eligible. | TBD | Hospital CRM | TBD |
 
 ## 6.4 Consultation Queue
 
@@ -311,11 +316,11 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 | ID | Functional Requirement | Priority | Primary Systems | Primary KPI |
 | --- | --- | --- | --- | --- |
-| FR-064 | The initial product shall support the roles Administrator, Receptionist, Doctor, and Pharmacist. | TBD | Hospital CRM | TBD |
+| FR-064 | The product shall support Owner, Administrator, Receptionist, Doctor, and Pharmacist roles. A user may hold more than one role on the same individual account. | TBD | Hospital CRM | TBD |
 | FR-065 | Receptionist access shall be limited to patient intake/retrieval, confirming demographic information, recording consultation payment status, selecting/reassigning the doctor queue, and queue operations required for reception duties. Reception shall not directly alter clinical information or directly apply demographic corrections after creation; a demographic-change request shall be sent to the doctor for approval. | TBD | Hospital CRM | TBD |
 | FR-066 | Doctor access shall include patient clinical history needed for care, current consultation record, diagnosis, clinical notes, prescriptions, queue/payment status, demographic-change approval/editing, and inventory-control approvals. The doctor may directly edit patient demographics. | TBD | Hospital CRM | TBD |
 | FR-067 | Pharmacist access shall be limited to current and previous prescriptions, known allergies, dispensing/billing/payment-status functions, and inventory-upkeep request entry. Pharmacists shall not directly edit a doctor's prescription. | TBD | Hospital CRM | TBD |
-| FR-068 | Pharmacists may submit inventory-upkeep/change requests such as stock additions or non-dispensing stock adjustments. Such changes shall not alter inventory until approved by the doctor; the request, decision, actor, reason, and resulting change shall be logged. Normal prescription dispensing remains an automatic stock deduction and does not require a separate doctor approval. | TBD | Hospital CRM | TBD |
+| FR-068 | Pharmacists may submit inventory-upkeep/change requests such as stock additions or non-dispensing stock adjustments. Such changes shall not alter inventory until approved by the Owner; the request, decision, actor, reason, and resulting change shall be logged. Normal prescription dispensing remains an automatic stock deduction and does not require separate approval. | TBD | Hospital CRM | TBD |
 | FR-069 | Access shall be group-based (e.g., Doctor, Reception, Pharmacist groups) with privileges assigned to each group, while every staff member retains an individual account. Detailed Administrator privileges remain TBD. | TBD | Hospital CRM | TBD |
 
 ## 6.12 Audit, Correction, Cancellation, and Reprint
@@ -331,10 +336,18 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-085 | V1 shall not require 2FA/MFA. | TBD | Hospital CRM | TBD |
 | FR-086 | Pharmacy inventory shall support a medicine-specific base stock/dispensing unit plus configured higher package levels and conversion factors. Inventory movements shall normalize to the base unit while allowing entry/display in configured package units. | TBD | Hospital CRM | TBD |
 | FR-087 | Inventory records shall support batch/lot number, expiry date, manufacturer, purchase price, and selling price. | TBD | Hospital CRM | TBD |
-| FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Doctor/Admin role rather than fixed global values. | TBD | Hospital CRM | TBD |
-| FR-089 | Expired stock shall be blocked from dispensing. The doctor shall be notified, and removal/adjustment of expired, damaged, lost, or otherwise unavailable quantity shall use the doctor-approved inventory-adjustment workflow with category, reason, quantity, actor, and time logged. Physical disposal is outside the CRM V1 workflow. | TBD | Hospital CRM | TBD |
-| FR-090 | The owner-doctor shall have complete inventory oversight, including current stock, package/base-unit quantities, dispensing history, stock additions, adjustments, damage/loss entries, expiry-related removals, request originator, approval/rejection, reason, and timestamp. | TBD | Hospital CRM | TBD |
-| FR-091 | The doctor shall be able to retrieve the patient's longitudinal archive across visits, including historical consultations, diagnoses, prescriptions, and preserved amendments/superseded records according to role permissions. | TBD | Hospital CRM | TBD |
+| FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Owner/Admin role rather than fixed global values. | TBD | Hospital CRM | TBD |
+| FR-089 | Expired stock shall be blocked from dispensing. The doctor shall be notified, and removal/adjustment of expired, damaged, lost, or otherwise unavailable quantity shall use the Owner-approved inventory-adjustment workflow with category, reason, quantity, actor, and time logged. Physical disposal is outside the CRM V1 workflow. | TBD | Hospital CRM | TBD |
+| FR-090 | The Owner shall have complete clinic-wide inventory oversight, including current stock by pharmacy unit, consolidated stock, package/base-unit quantities, dispensing history, stock additions, transfers, adjustments, damage/loss entries, expiry-related removals, request originator, approval/rejection, reason, and timestamp. | TBD | Hospital CRM | TBD |
+| FR-091 | A Doctor shall be able to retrieve the patient's longitudinal archive across visits when the patient is assigned to that doctor or the doctor otherwise has authorized clinical access, including historical consultations, diagnoses, prescriptions, and preserved amendments/superseded records. | TBD | Hospital CRM | TBD |
+| FR-092 | The system shall support multiple doctors within one clinic, each with a separate doctor-specific queue and individual account. Reception shall assign/reassign visits to a doctor without exposing one doctor's queue actions to another doctor's queue. | TBD | Hospital CRM | TBD |
+| FR-093 | The system shall support multiple receptionists through individual accounts in the Reception group. Receptionists may share the same operational queue workspace while every action remains attributable to the individual staff account. | TBD | Hospital CRM | TBD |
+| FR-094 | The system shall support multiple pharmacy units within one clinic. Each pharmacy unit shall maintain its own stock ledger, dispensing history, and pharmacy staff scope. | TBD | Hospital CRM | TBD |
+| FR-095 | Every dispensing action shall be associated with a specific pharmacy unit. Dispensing across one or more pharmacy units shall not permit cumulative dispensed quantity to exceed the active prescription quantity. | TBD | Hospital CRM | TBD |
+| FR-096 | Pharmacy-to-pharmacy stock transfer shall be represented as one controlled transfer transaction: source decrease and destination increase shall be linked, attributable, and Owner-approved before completion. | TBD | Hospital CRM | TBD |
+| FR-097 | The Owner shall have an Owner Dashboard with clinic-wide operational, inventory, financial-status, staff, approval, and audit visibility. Owner role alone shall not grant clinical-authoring authority. | TBD | Hospital CRM | TBD |
+| FR-098 | A user holding both Owner and Doctor roles shall use one account and shall have clearly separated Owner and Doctor workspaces/modes so elevated operational controls are not silently mixed into routine clinical actions. | TBD | Hospital CRM | TBD |
+| FR-099 | A Doctor who is not the Owner shall not receive Owner-only inventory-adjustment, stock-transfer, staff-management, or financial-oversight privileges merely because that user has Doctor permission. | TBD | Hospital CRM | TBD |
 
 ---
 
@@ -372,9 +385,9 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-030** — Finalized prescriptions are immutable in place. Correction requires a doctor-issued replacement linked to a preserved Superseded prescription. Pharmacists cannot edit prescriptions.
 
-**BR-031** — Non-dispensing inventory adjustments initiated by pharmacy require doctor approval and audit logging. Prescription-linked dispensing deducts actual dispensed quantity automatically.
+**BR-031** — Non-dispensing inventory adjustments initiated by pharmacy require Owner approval and audit logging. Prescription-linked dispensing deducts actual dispensed quantity automatically.
 
-**BR-032** — Expired inventory is not dispensable. Doctor response controls inventory disposition/adjustment, not permission to dispense expired stock.
+**BR-032** — Expired inventory is not dispensable. Owner approval controls the inventory disposition/adjustment record, not permission to dispense expired stock.
 
 **BR-033** — V1 records payment status/information but does not process consultation or pharmacy payments.
 
@@ -382,13 +395,21 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-035** — The single-clinic pilot uses a fixed clinic context at login. Every staff member uses an individual username/password account; password reset is owner/admin-assisted in V1.
 
-**BR-036** — In the V1 pilot, the owner is the clinic's sole Doctor-role clinical authority. Reception and pharmacy staff may perform their permitted operational/data-entry workflows but may not independently diagnose, prescribe, finalize clinical records, or perform Doctor-approval actions.
+**BR-036** — Ownership and clinical authority are separate permissions. Reception and pharmacy staff may perform their permitted operational/data-entry workflows but may not independently diagnose, prescribe, finalize clinical records, or perform Doctor-only clinical approvals. A clinic owner who also practices medicine receives those clinical permissions through a separate Doctor role on the same account.
 
-**BR-037** — Inventory changes must be attributable. Normal prescription dispensing is automatically recorded; all non-dispensing stock additions/reductions/corrections require the controlled request/approval flow so the owner-doctor can review unexplained inventory movement.
+**BR-037** — Inventory changes must be attributable. Normal prescription dispensing is automatically recorded; all non-dispensing stock additions/reductions/corrections and inter-pharmacy transfers require the controlled Owner-approval flow so unexplained inventory movement cannot be hidden.
 
 **BR-038** — Patient records form a longitudinal archive: historical visits and superseded/amended material records are preserved rather than replaced by only the latest state.
 
-**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the doctor. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
+**BR-039** — One individual account may hold multiple roles. Role combination adds the permissions of those roles but does not convert one role into another; for example, Owner+Doctor has both workspaces, while Doctor-only does not gain Owner controls.
+
+**BR-040** — Multiple pharmacy units maintain separate stock ledgers. Clinic-wide totals are derived from those ledgers and must not replace unit-level accountability.
+
+**BR-041** — Inventory transfer between pharmacy units is a linked, auditable movement and cannot be represented as unrelated manual source/destination adjustments.
+
+**BR-042** — Owner role is the default approval authority for financial waiver approval and non-dispensing inventory control. Doctor role remains the authority for clinical decisions such as prescriptions and medicine substitutions.
+
+**BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
 **BR-026** — Urgent-patient handling does not use a CRM priority mechanism. The receptionist communicates the urgent situation directly to the doctor outside the software; no priority flag, approval request, or automated priority reordering is required in the CRM.
 
@@ -420,7 +441,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-021** — Consultation payment is recorded as status/information only. Partial consultation payment is not supported, and consultation payments are non-refundable in V1.
 
-**BR-022** — A consultation-fee waiver is an exception controlled by the doctor. Reception may request the waiver but may not approve it. The doctor may either approve a reception-initiated request or initiate the waiver directly. Every waiver requires a reason and is logged. Exact external payment methods remain clinic-defined/TBD.
+**BR-022** — A consultation-fee waiver is an ownership/financial exception controlled by the Owner. Reception or a Doctor may request the waiver but may not approve it unless that same user also holds the Owner role. The Owner may approve a request or initiate the waiver directly. Every waiver requires a reason and is logged. Exact external payment methods remain clinic-defined/TBD.
 
 ## 7.6 Audit Rules
 
