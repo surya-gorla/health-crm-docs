@@ -166,7 +166,7 @@ Only confirmed assumptions are listed here.
 
 No existing clinic software platform, external EMR/EHR, billing platform, pharmacy platform, payment gateway, identity provider, or other system has yet been confirmed.
 
-The source-of-truth boundaries inside the final technical architecture therefore remain an open solution-design item. This BRD specifies required business behavior, not an unconfirmed technical architecture.
+Source-of-truth boundaries inside the final technical architecture are intentionally deferred to solution design. This BRD locks required business behavior without inventing an unconfirmed technical architecture.
 
 ---
 
@@ -176,7 +176,7 @@ No third-party integration has been confirmed.
 
 | Platform / Partner | Role | Scope / Status |
 | --- | --- | --- |
-| Hospital CRM application | Primary business application being defined | Confirmed product scope; exact architecture is TBD |
+| Hospital CRM application | Primary business application being defined | Confirmed product scope; exact architecture deferred to solution design |
 | External payment provider | None required for V1 | Payment execution remains external to the CRM |
 | External pharmacy/catalogue provider | None required for V1 | Clinic-managed medicine catalogue/inventory |
 | External messaging/notification provider | None required for V1 | No messaging integration in confirmed V1 scope |
@@ -238,7 +238,7 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 | FR-024 | The system shall not implement a priority flag, priority-request workflow, or automated priority reordering for urgent patients. If an urgent case arises, the receptionist shall communicate it directly to the doctor outside the CRM workflow. | Hospital CRM |
 | FR-025 | When a called patient does not respond, reception shall mark the visit as Unresponded and the system shall move that visit five queue positions downward within the assigned doctor's queue; if fewer than five later positions exist, the visit moves to the end. If a paid patient leaves before consultation, reception shall move the visit to the end of the assigned doctor's queue. | Hospital CRM |
 | FR-080 | Reception shall be able to reassign a queued visit from one doctor-specific queue to another doctor-specific queue. Every reassignment shall be logged. | Hospital CRM |
-| FR-081 | Reception shall not be permitted to cancel a visit. A Doctor may request cancellation of a consultation/visit, but the cancellation shall not take effect until the Owner approves it. The Doctor must enter a specific free-text reason. If approved, the visit is removed from the active operational queue/view, marked Cancelled/Voided, and retained in history with requester, reason, Owner decision, and timestamps. If rejected, the visit remains active and the rejection is logged. | Hospital CRM |
+| FR-081 | Reception shall not be permitted to cancel a visit. A Doctor may request cancellation while the visit is still active (Waiting, Called, Unresponded, With Doctor, Consultation Completed, or Sent to Pharmacy); the request requires a specific free-text reason and Owner approval. If approved, the visit is removed from active workflow and marked Cancelled/Voided while all already-created clinical, prescription, dispensing, and financial history remains intact. A Completed visit is not cancelled through this flow; later corrections use the applicable amendment/correction process. If rejected, the active visit remains unchanged and the rejection is logged. | Hospital CRM |
 
 ## 6.5 Doctor Consultation and Clinical Record
 
@@ -270,8 +270,8 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 | ID | Functional Requirement | Primary Systems |
 | --- | --- | --- |
 | FR-041 | The doctor shall be able to print the finalized prescription. | Hospital CRM + printer |
-| FR-042 | Medicines or remaining quantities unavailable from the clinic pharmacy shall be visibly marked on the printed prescription using a clear double-asterisk (**) marker. | Hospital CRM + printer |
-| FR-043 | The printed prescription shall include a legend explaining that items marked ** are not supplied in full by the clinic pharmacy and the patient should obtain the unsupplied medicine/quantity outside. | Hospital CRM + printer |
+| FR-042 | At doctor finalization/printing time, medicines whose clinic-wide status is Out of Stock or Not Stocked shall be visibly marked on the printed prescription using a clear double-asterisk (**) marker. A partial quantity discovered later during pharmacy dispensing shall not retroactively alter the original prescription. | Hospital CRM + printer |
+| FR-043 | The printed prescription shall include a legend explaining that medicines marked ** were unavailable from the clinic pharmacy at prescription finalization and should be obtained externally. Any later partial-dispensing remainder is communicated and recorded in the pharmacy dispensing/billing summary. | Hospital CRM + printer |
 | FR-044 | The system shall support reprinting a prescription without silently creating a new prescription version. | Hospital CRM + printer |
 
 ## 6.8 Pharmacy Prescription Retrieval and Access
@@ -322,6 +322,7 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 | FR-115 | Approving cancellation/void of a pharmacy bill shall not automatically restore dispensed inventory. Dispensing history and stock deduction remain intact; any genuine stock correction requires a separate Owner-approved inventory-adjustment request. | Hospital CRM |
 | FR-116 | When multiple pharmacy units exist, the Doctor prescribing view shall show clinic-wide availability plus per-pharmacy-unit availability where inventory is known, without allowing the Doctor to alter pharmacy stock. | Hospital CRM |
 | FR-117 | Administrator may not grant, revoke, or modify Owner role authority or disable an Owner account. Owner-role lifecycle and Owner-level authority changes require Owner authority and shall be audited. | Hospital CRM |
+| FR-118 | In a clinic with multiple pharmacy units, each dispensing/billing transaction shall belong to the pharmacy unit that actually dispensed the medicines. If one prescription is fulfilled by more than one pharmacy unit, each unit records/bills only what it dispensed, while cumulative dispensing across units remains capped by the active prescription. | Hospital CRM |
 
 ## 6.11 Roles and Access
 
@@ -355,7 +356,7 @@ Requirement-by-requirement priority scoring is intentionally omitted because no 
 | FR-088 | The system shall provide low-stock and near-expiry notifications using medicine/inventory thresholds configurable by an authorized Owner/Admin role rather than fixed global values. | Hospital CRM |
 | FR-089 | Expired stock shall be blocked from dispensing. The Owner shall be notified, and removal/adjustment of expired, damaged, lost, or otherwise unavailable quantity shall use the Owner-approved inventory-adjustment workflow with category, reason, quantity, actor, and time logged. Physical disposal is outside the CRM V1 workflow. | Hospital CRM |
 | FR-090 | The Owner shall have complete clinic-wide inventory oversight, including current stock by pharmacy unit, consolidated stock, package/base-unit quantities, dispensing history, stock additions, transfers, adjustments, damage/loss entries, expiry-related removals, request originator, approval/rejection, reason, and timestamp. | Hospital CRM |
-| FR-091 | A Doctor shall be able to retrieve the patient's longitudinal archive across visits when the patient is assigned to that doctor or the doctor otherwise has authorized clinical access, including historical consultations, diagnoses, prescriptions, and preserved amendments/superseded records. | Hospital CRM |
+| FR-091 | A Doctor assigned to the current visit shall be able to retrieve the patient's longitudinal archive across visits, including historical consultations, diagnoses, prescriptions, and preserved amendments/superseded records needed for care. | Hospital CRM |
 | FR-092 | The system shall support multiple doctors within one clinic, each with a separate doctor-specific queue and individual account. Reception shall assign/reassign visits to a doctor without exposing one doctor's queue actions to another doctor's queue. | Hospital CRM |
 | FR-093 | The system shall support multiple receptionists through individual accounts in the Reception group. Receptionists may share the same operational queue workspace while every action remains attributable to the individual staff account. | Hospital CRM |
 | FR-094 | The system shall support multiple pharmacy units within one clinic. Each pharmacy unit shall maintain its own stock ledger, dispensing history, and pharmacy staff scope. | Hospital CRM |
@@ -638,9 +639,9 @@ The accepted initial module set is:
 | Authentication | Individual login/password confirmed; Owner accounts require 2FA; non-Owner staff do not; staff password reset is Owner-controlled |
 | Audit history | Confirmed at business level; retention duration remains compliance policy |
 | Analytics/reporting | V1 report set and business definitions confirmed; implementation platform remains technical design |
-| Deployment | Single-branch web/online-only pilot; A4 printing; hosting TBD |
+| Deployment | Single-branch web/online-only pilot; A4 printing; hosting deferred to technical architecture |
 | Third-party integrations | None confirmed |
-| Legal/privacy/compliance details | Not yet confirmed |
+| Legal/privacy/compliance details | External validation dependency; not a core workflow decision |
 
 ---
 
