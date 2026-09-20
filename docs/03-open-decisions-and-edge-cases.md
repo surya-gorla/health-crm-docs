@@ -98,6 +98,12 @@ System-generated:
 
 Government ID is not required.
 
+### Human-readable ID format — derived V1 decision
+
+The displayed Patient ID and Visit ID should be simple, stable, non-semantic identifiers. They must not encode phone number, DOB, diagnosis, or other personal/clinical meaning.
+
+V1 display convention may use forms such as `PAT-000001` and `VIS-000001`. Exact database/internal key implementation belongs to technical design.
+
 ## OD-002 — Duplicate Detection and Fallback
 
 **Status: PARTIALLY CONFIRMED**
@@ -425,6 +431,8 @@ For non-dispensing inventory upkeep/changes, including stock addition, damage, l
 
 This control is intended to make non-dispensing inventory losses/adjustments visible to the doctor rather than allowing unreviewed manual stock reductions.
 
+Medicine selling-price or purchase-price changes proposed by pharmacy use the same request -> doctor-approval -> logged-change workflow.
+
 ## OD-031 — Expired Stock
 
 **Status: CONFIRMED**
@@ -600,6 +608,15 @@ Derived V1 Admin privileges:
 
 Admin permission by itself does **not** grant authority to create/edit doctor clinical notes, diagnosis, prescriptions, waiver approvals, or clinical amendments. A person who is both owner/admin and doctor receives those clinical permissions through the Doctor group.
 
+### Staff lifecycle — derived V1 decision
+
+- Admin/Owner creates each staff account.
+- Admin/Owner assigns one or more permission groups.
+- Role/group changes are logged.
+- When a staff member leaves, the account is **disabled**, not deleted, so historical audit references remain valid.
+- Disabled users cannot sign in.
+- Re-enabling an account is an Admin/Owner action and is logged.
+
 ## OD-027 — Audit Retention and Access
 
 **Status: PARTIALLY CONFIRMED**
@@ -651,6 +668,8 @@ Derived V1 client scope:
 - target current mainstream browsers used by the clinic.
 
 Hosting provider, concrete infrastructure, and performance targets belong to downstream technical architecture and remain intentionally deferred.
+
+No historical-system migration is assumed for V1 unless the clinic later supplies a specific digital data source for import. No third-party integration is required in initial V1 unless explicitly added later.
 
 ## OD-025 — Backup and Recovery
 
