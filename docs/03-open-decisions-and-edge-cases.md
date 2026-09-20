@@ -47,8 +47,8 @@ Existing references that were already used for core patient, queue, clinical, pr
 | OD-015 | Inventory | Unit hierarchy | CONFIRMED at business level; conversions are medicine configuration |
 | OD-016 | Inventory | Batch/expiry/pricing metadata and alerts | CONFIRMED — thresholds configurable |
 | OD-017 | Pharmacy | Medicine returns | CONFIRMED — not supported in V1 |
-| OD-018 | Payment | Payment methods recorded by CRM | OPEN |
-| OD-019 | Payment | Refund/cancellation rules | PARTIALLY CONFIRMED — consultation fixed; pharmacy clinic policy pending |
+| OD-018 | Payment | Payment methods recorded by CRM | CONFIRMED as Owner-configurable clinic values |
+| OD-019 | Payment | Refund/cancellation rules | CONFIRMED — no refunds/partial payments; Owner-controlled cancellation/void |
 | OD-020 | Payment | Receipt/reference requirements | CONFIRMED for V1 outputs; payment receipt detail remains clinic-dependent |
 | OD-021 | Security | Authentication | CONFIRMED at V1 business level |
 | OD-022 | Security | Role/group permissions | CONFIRMED at V1 business level |
@@ -458,32 +458,54 @@ Derived V1 handling:
 
 ## OD-018 — Payment Methods
 
-**Status: OPEN**
+**Status: CONFIRMED AT BUSINESS LEVEL**
 
-The CRM does not process payments in V1.
+The CRM does not process payments. It records how an external payment occurred.
 
-Clinic will later provide the payment methods/status information that should be recorded.
+Payment-method values are Owner-configurable clinic settings rather than hard-coded BRD values.
 
-Open for:
+Examples of payment-method labels a clinic may enable include:
 
-- consultation payment methods to record;
-- pharmacy payment methods to record.
+- Cash;
+- UPI;
+- Card;
+- Bank Transfer;
+- Other.
 
-## OD-019 — Refund and Cancellation
+The clinic can enable only the methods it actually uses.
 
-**Status: PARTIALLY CONFIRMED**
+A payment-method record is for reconciliation/reporting and does not trigger a gateway transaction.
 
-Consultation:
+## OD-019 — Refund and Cancellation / Void
 
-- consultation payment cannot be refunded in V1;
-- if a paid consultation must be cancelled, only the doctor can cancel;
-- doctor must provide a reason;
-- cancellation is logged;
-- payment is not refunded.
+**Status: CONFIRMED**
 
-Pharmacy:
+### Consultation
 
-- refund/cancellation rules remain TBD.
+- no partial consultation payment;
+- no consultation refund;
+- Doctor may request consultation/visit cancellation;
+- a specific free-text reason is mandatory;
+- Owner approves or rejects;
+- approved cancellation removes the visit from the active operational workflow and marks it Cancelled/Voided;
+- rejected request leaves the visit active;
+- cancellation does not refund a recorded payment;
+- request, reason, decision, actors, and timestamps are retained.
+
+### Pharmacy
+
+- no partial pharmacy payment;
+- no pharmacy refund;
+- Pharmacist may request bill cancellation/void;
+- a specific free-text reason is mandatory;
+- Owner approves or rejects;
+- bill remains active while request is pending;
+- approved cancellation removes the bill from active billing and marks it Cancelled/Voided;
+- rejected request leaves the bill active;
+- if the bill was already Paid, approval does not create a refund;
+- original bill/payment state and full request/decision history remain auditable.
+
+Cancellation/void means removal from active workflow, not deletion of history.
 
 ## OD-020 — Printable Outputs / Payment Reference
 
@@ -600,6 +622,8 @@ Can:
 - see clinic-wide operational/revenue/inventory dashboards;
 - see all pharmacy units individually and in consolidated view;
 - approve/reject consultation-fee waiver requests;
+- approve/reject Doctor consultation/visit cancellation requests;
+- approve/reject Pharmacist bill cancellation/void requests;
 - approve/reject non-dispensing inventory changes;
 - approve/reject pharmacy-to-pharmacy stock transfers;
 - inspect complete inventory movement/adjustment history;
