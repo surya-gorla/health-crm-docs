@@ -195,7 +195,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-012 | Consultation payment shall be represented as a transaction/record rather than only as a boolean checkbox. | TBD | Hospital CRM | TBD |
 | FR-013 | Consultation payment records shall represent at minimum Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported. | TBD | Hospital CRM | TBD |
 | FR-014 | The system shall retain a receipt/reference record for a consultation payment. Receipt numbering/format is TBD. | TBD | Hospital CRM | TBD |
-| FR-015 | Receptionist shall be able to raise a consultation-fee waiver request for a visit. The request shall be presented to the doctor for approval. Reception cannot grant the waiver independently. | TBD | Hospital CRM | TBD |
+| FR-015 | A consultation-fee waiver may be initiated either by reception or directly by the doctor. A reception-initiated waiver request shall be presented to the doctor for approval, and reception cannot grant the waiver independently. A doctor-initiated waiver shall be treated as approved immediately and shall update the visit/payment status accordingly without a separate approval step. | TBD | Hospital CRM | TBD |
 | FR-016 | A Paid visit is eligible to enter the doctor queue. An Unpaid visit shall not enter the doctor queue unless its consultation-fee waiver request has been approved by the doctor. A pending or unapproved waiver request does not make the visit queue-eligible. | TBD | Hospital CRM | TBD |
 
 ## 6.4 Consultation Queue
@@ -359,7 +359,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-021** — Consultation payment must support Paid, Unpaid, Refunded, and Cancelled states. Partial consultation payment is not supported.
 
-**BR-022** — A consultation-fee waiver is an exception requiring doctor approval. Reception may request the waiver but may not approve it. Exact payment methods, refund rules, reconciliation rules, and any required waiver-reason format remain unconfirmed.
+**BR-022** — A consultation-fee waiver is an exception controlled by the doctor. Reception may request the waiver but may not approve it. The doctor may either approve a reception-initiated request or initiate the waiver directly; a doctor-initiated waiver is immediately treated as approved and updates the visit/payment status without a second approval step. Exact payment methods, refund rules, reconciliation rules, and any required waiver-reason format remain unconfirmed.
 
 ## 7.6 Audit Rules
 
