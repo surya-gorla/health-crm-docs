@@ -31,34 +31,34 @@ Existing references that were already used for core patient, queue, clinical, pr
 | ID | Area | Decision | Status |
 | --- | --- | --- | --- |
 | OD-001 | Registration | Patient registration fields | CONFIRMED |
-| OD-002 | Patient matching | Duplicate detection and fallback | PARTIALLY CONFIRMED |
+| OD-002 | Patient matching | Duplicate detection and fallback | CONFIRMED at BRD level; matching implementation belongs to solution design |
 | OD-003 | Patient matching | Shared family phone number | CONFIRMED |
 | OD-004 | Queue | Consultation payment gate | CONFIRMED |
-| OD-005 | Queue/Payment | Consultation-fee waiver | PARTIALLY CONFIRMED |
+| OD-005 | Queue/Payment | Consultation-fee waiver | CONFIRMED |
 | OD-006 | Queue | Urgent-patient priority handling | CONFIRMED — outside CRM |
 | OD-007 | Queue | Multiple doctors / reassignment | CONFIRMED |
 | OD-008 | Clinical | V1 clinical-entry structure | CONFIRMED |
-| OD-009 | Clinical | Editing completed consultation | OPEN |
-| OD-010 | Prescription | Medicine catalogue identity | PARTIALLY CONFIRMED |
+| OD-009 | Clinical | Editing completed consultation | CONFIRMED — doctor amendment model |
+| OD-010 | Prescription | Medicine catalogue identity | CONFIRMED |
 | OD-011 | Prescription | Minimal prescription structure | CONFIRMED |
-| OD-012 | Prescription | Finalized prescription correction | PARTIALLY CONFIRMED |
+| OD-012 | Prescription | Finalized prescription correction | CONFIRMED — supersede/replace model |
 | OD-013 | Pharmacy | Partial dispensing | CONFIRMED |
 | OD-014 | Pharmacy | Medicine substitution | CONFIRMED |
-| OD-015 | Inventory | Unit hierarchy | PARTIALLY CONFIRMED |
-| OD-016 | Inventory | Batch/expiry/pricing metadata and alerts | CONFIRMED |
+| OD-015 | Inventory | Unit hierarchy | CONFIRMED at business level; conversions are medicine configuration |
+| OD-016 | Inventory | Batch/expiry/pricing metadata and alerts | CONFIRMED — thresholds configurable |
 | OD-017 | Pharmacy | Medicine returns | CONFIRMED — not supported in V1 |
 | OD-018 | Payment | Payment methods recorded by CRM | OPEN |
 | OD-019 | Payment | Refund/cancellation rules | PARTIALLY CONFIRMED |
-| OD-020 | Payment | Receipt/reference requirements | OPEN |
-| OD-021 | Security | Authentication | PARTIALLY CONFIRMED |
-| OD-022 | Security | Role/group permissions | PARTIALLY CONFIRMED |
+| OD-020 | Payment | Receipt/reference requirements | CONFIRMED for V1 outputs; payment receipt detail remains clinic-dependent |
+| OD-021 | Security | Authentication | CONFIRMED at V1 business level |
+| OD-022 | Security | Role/group permissions | CONFIRMED at V1 business level |
 | OD-023 | Deployment | Pilot clinic topology | CONFIRMED |
-| OD-024 | Deployment | Client/device/hosting model | PARTIALLY CONFIRMED |
+| OD-024 | Deployment | Client/device model confirmed; hosting deferred to technical design |
 | OD-025 | Operations | Backup and recovery | OPEN |
 | OD-026 | Billing | Consultation fee determination | OPEN |
 | OD-027 | Audit | Audit retention and access | OPEN |
 | OD-028 | Compliance | Legal/privacy/compliance requirements | OPEN |
-| OD-029 | Reporting | V1 reports and metric definitions | PARTIALLY CONFIRMED |
+| OD-029 | Reporting | CONFIRMED at V1 business level; implementation details belong to reporting design |
 | OD-030 | Inventory control | Pharmacist inventory-change approval | CONFIRMED |
 | OD-031 | Inventory safety | Expired-stock handling | CONFIRMED |
 | OD-032 | Pharmacy scope | Non-prescription/pharmacy-only CRM dispensing | OUT OF V1 |
@@ -112,13 +112,14 @@ Confirmed:
 6. The newly created profile is marked **Possible Duplicate**.
 7. A Possible Duplicate record remains usable as a normal patient profile.
 
-Open:
+Business-level V1 decision:
 
-- exact algorithm/criteria for surfacing possible matches;
-- whether duplicate-record merge is added in a later update;
-- who would be allowed to merge if that feature is introduced.
+- candidate matching uses the confirmed identifying attributes available to the system, including Patient ID, name, phone number, and date of birth;
+- the system may use exact and similarity matching to surface candidates but shall never auto-merge or auto-select a patient solely from a similarity score;
+- the final identity confirmation remains a receptionist + patient decision;
+- exact scoring/fuzzy-matching thresholds are solution-design details, not an unresolved BRD decision.
 
-Current V1 does not require duplicate merge.
+Current V1 does not include duplicate merge. A merge capability may be evaluated later.
 
 ## OD-003 — Shared Phone Number
 
@@ -165,9 +166,12 @@ Confirmed:
 9. Every waiver requires a reason.
 10. Waiver action, actor, reason, and decision are logged.
 
-Open:
+Derived V1 representation:
 
-- how an approved waiver is represented in the financial/status model.
+- normal consultation payment status remains **Paid** or **Unpaid**;
+- an approved waiver is stored as a separate **Waived** consultation financial outcome, not falsely represented as Paid;
+- the waiver retains approver, reason, and timestamp;
+- **Waived** is queue-eligible.
 
 ## OD-006 — Urgent Patient Handling
 
@@ -204,10 +208,11 @@ Confirmed:
 - Cancelled visit remains in history.
 - Consultation payment is non-refundable in V1 even when the doctor cancels the paid consultation.
 
-Open:
+Derived V1 boundary rules:
 
-- if fewer than five later positions exist, exact Unresponded destination;
-- exact slot definition of "toward the end" for a paid patient who leaves.
+- **Unresponded:** move five positions down; if fewer than five later positions exist, move to the end of the current queue.
+- **Paid patient leaves before consultation:** move the visit to the end of the current doctor-specific queue.
+- A later call can use the normal call workflow again.
 
 ---
 
@@ -238,15 +243,20 @@ Clinical decision functions remain within the Doctor role even though the interf
 
 ## OD-009 — Editing a Completed Consultation
 
-**Status: OPEN**
+**Status: CONFIRMED — DERIVED FROM THE AUDIT MODEL**
 
-Need to decide:
+Completed clinical records are not edited destructively.
 
-- whether completed clinical notes/diagnosis can be amended;
-- who may amend;
-- whether amendments create a new version;
-- whether original content remains visible;
-- whether reason-for-change is mandatory.
+If correction is required:
+
+1. only a Doctor-role user may amend the completed consultation;
+2. the original completed content remains preserved;
+3. the doctor creates an amendment/new revision;
+4. reason for amendment is mandatory;
+5. actor and timestamp are recorded;
+6. the current view shows the latest effective record while retaining access to prior history.
+
+This follows the already-confirmed rule that material clinical information cannot be silently overwritten.
 
 ---
 
@@ -254,18 +264,18 @@ Need to decide:
 
 ## OD-010 — Medicine Catalogue Identity
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED — DERIVED V1 MODEL**
 
-Confirmed:
+The medicine catalogue identifies a medicine using:
 
-- medicine name is a primary search/selection field;
-- medicine strength ("power") is stored;
-- manufacturer is stored.
+- display/medicine name;
+- strength ("power");
+- dosage form;
+- manufacturer.
 
-Open:
+Dosage form is required because the same medicine/strength can exist in materially different forms.
 
-- whether dosage form is required or optional;
-- whether the clinic's medicine name is explicitly a brand name, generic/molecule name, or a clinic-defined catalogue name.
+An optional generic/molecule name may be stored as an additional searchable attribute. V1 does not require the doctor to prescribe by generic name; the clinic catalogue display name remains the primary selection label.
 
 ## OD-011 — Minimal Prescription Structure
 
@@ -293,18 +303,21 @@ Quantity behavior:
 
 ## OD-012 — Finalized Prescription Changes
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED — DERIVED FROM IMMUTABILITY/AUDIT RULES**
 
-Confirmed:
+A finalized prescription is never edited in place.
 
-- doctor cannot edit a finalized prescription in place;
-- pharmacist cannot edit the finalized prescription;
-- pharmacy opening the prescription does not change this rule.
+If the doctor discovers an error:
 
-Open:
+1. doctor creates a replacement prescription;
+2. the previous prescription is marked **Superseded** rather than deleted;
+3. correction reason is mandatory;
+4. actor and timestamp are logged;
+5. pharmacy is shown only the latest active prescription as the default dispensing source, with a clear warning that an earlier prescription was superseded;
+6. if any quantity was already dispensed from the superseded prescription, that dispensing history remains intact and cannot be erased;
+7. subsequent dispensing is limited by the active corrected prescription and recorded prior dispensing history.
 
-- correction/replacement workflow when the finalized prescription contains an error;
-- whether old prescription is cancelled and replaced, superseded, or handled through another explicit amendment model.
+Pharmacist cannot perform this correction.
 
 ---
 
@@ -372,9 +385,13 @@ Inventory must be trackable:
 
 Examples may include tablet/capsule, strip, bottle, pack, vial, etc., depending on medicine.
 
-Open:
+Derived V1 model:
 
-- exact conversion rules and unit relationships for each medicine type.
+- each medicine defines a **base stock/dispensing unit**;
+- each higher package level stores its conversion into the next lower/base unit (for example, a strip may contain a configured number of tablets);
+- inventory calculations normalize movements to the configured base unit while allowing staff to enter/view higher package quantities.
+
+The actual conversion value is medicine-specific configuration, not a new business-policy decision.
 
 ## OD-016 — Inventory Metadata and Alerts
 
@@ -390,7 +407,7 @@ Inventory supports:
 - low-stock alert;
 - near-expiry alert.
 
-Threshold values/configuration remain open.
+Low-stock and near-expiry thresholds are configurable by an authorized Doctor/Admin role rather than hard-coded globally. Initial values are operational configuration, not a BRD decision.
 
 ## OD-030 — Pharmacist Inventory-Change Approval
 
@@ -420,11 +437,13 @@ Doctor response controls the inventory disposition/adjustment record, and the ac
 
 The doctor-approval step does not provide a path to dispense expired stock.
 
-Open:
+Derived V1 handling:
 
-- final disposition choices after doctor review;
-- near-expiry threshold;
-- whether disposition includes destruction/return-to-supplier/other clinic-defined categories.
+- expired/damaged/lost quantities are removed from **available** stock only through the doctor-approved adjustment workflow;
+- the adjustment records a reason/category and quantity;
+- the CRM does not prescribe the clinic's physical disposal process in V1;
+- supplier-return/procurement workflows remain outside V1;
+- near-expiry threshold is configurable.
 
 ---
 
@@ -459,17 +478,15 @@ Pharmacy:
 
 - refund/cancellation rules remain TBD.
 
-## OD-020 — Receipt / Payment Reference
+## OD-020 — Printable Outputs / Payment Reference
 
-**Status: OPEN**
+**Status: CONFIRMED AT V1 BUSINESS LEVEL**
 
-Need to decide:
+V1 supports A4 printing for clinic outputs already in scope, including prescription and pharmacy bill/dispensing summary where needed.
 
-- whether CRM generates any consultation payment acknowledgement/reference;
-- whether pharmacy requires a CRM receipt/reference;
-- exact A4 output requirements if any.
+The CRM does not require thermal printing and does not require payment-gateway receipts because it does not process payments.
 
-Thermal receipt printing is not required in V1.
+If the clinic later requires a formal payment receipt/reference format, that can be configured after the clinic supplies its billing requirements.
 
 ## OD-026 — Consultation Fee Determination
 
@@ -497,12 +514,12 @@ Confirmed:
 - password-reset capability is required;
 - 2FA/MFA is not required in V1.
 
-Open:
+Derived V1 design:
 
-- exact clinic identifier/login-screen behavior;
-- session timeout;
-- password-reset mechanism;
-- password policy.
+- because the pilot is a single clinic, no clinic/tenant selector is required at login;
+- staff use individual username/login + password accounts within the fixed clinic context;
+- password reset is administrator/owner-assisted in V1 rather than requiring email/SMS infrastructure;
+- inactivity timeout and password-strength rules are security configuration to be finalized during technical/security design, not remaining business-discovery questions.
 
 ## OD-022 — Role / Group Permissions
 
@@ -572,18 +589,32 @@ Cannot:
 
 ### Administrator
 
-Detailed Administrator privileges remain OPEN.
+Derived V1 Admin privileges:
+
+- create/disable staff accounts;
+- assign users to permission groups;
+- manage clinic-level non-clinical configuration;
+- manage medicine catalogue/inventory configuration where allowed;
+- view operational/revenue/inventory reports;
+- view audit logs.
+
+Admin permission by itself does **not** grant authority to create/edit doctor clinical notes, diagnosis, prescriptions, waiver approvals, or clinical amendments. A person who is both owner/admin and doctor receives those clinical permissions through the Doctor group.
 
 ## OD-027 — Audit Retention and Access
 
-**Status: OPEN**
+**Status: PARTIALLY CONFIRMED**
 
-Need to decide:
+Derived V1 access:
 
-- who can view audit logs;
-- how long audit history is retained;
-- filtering/export requirements;
-- whether doctor/owner sees inventory-control audit separately.
+- Doctor/Owner and Admin may view audit logs;
+- pharmacist/reception users do not receive unrestricted audit-log access;
+- inventory-adjustment audit is filterable as part of the audit log;
+- audit events are not deletable through normal application UI.
+
+Still requires external policy/compliance validation:
+
+- minimum/maximum retention period;
+- export/archive requirements.
 
 ---
 
@@ -613,11 +644,13 @@ Confirmed:
 - normal A4 printing;
 - no thermal receipt printer requirement.
 
-Open:
+Derived V1 client scope:
 
-- hosting/deployment provider;
-- supported browsers/computers;
-- performance/concurrency targets.
+- desktop/laptop web browser is the primary client;
+- responsive support for tablet-sized screens may be provided, but a separate mobile app is not required;
+- target current mainstream browsers used by the clinic.
+
+Hosting provider, concrete infrastructure, and performance targets belong to downstream technical architecture and remain intentionally deferred.
 
 ## OD-025 — Backup and Recovery
 
@@ -680,15 +713,26 @@ Confirmed V1 report/measurement set:
 
 Per-doctor patient count is not required for the current single-doctor pilot.
 
-Open:
+Derived V1 definitions:
 
-- exact formulas;
-- report date/time boundaries;
-- access permissions;
-- export requirements;
-- analytics/reporting platform;
-- retention;
-- refund reporting if a future pharmacy refund flow is introduced.
+- **patients seen per day** = visits reaching consultation-completed state during the clinic's local calendar day;
+- **average waiting time** = average time from queue entry to With Doctor;
+- **consultation revenue** = sum of recorded Paid consultation fees; Waived is excluded;
+- **pharmacy revenue** = sum of recorded pharmacy bill amounts treated as paid under the clinic's recorded payment status;
+- **daily total revenue** = consultation revenue + pharmacy revenue;
+- **medicine sales** = quantities and value actually dispensed, not prescribed;
+- **current stock** = available stock after approved adjustments and dispensing;
+- **low/out-of-stock/expiring** = inventory state based on configured thresholds and expiry;
+- **most prescribed medicines** = prescription-item count/quantity over the selected period;
+- **waivers/cancellations/returning patients/audit activity** use the corresponding recorded system events.
+
+Access:
+
+- Doctor/Owner and Admin may view all V1 reports;
+- Pharmacist may view pharmacy/inventory reports;
+- Reception may view reception/queue operational information required for its work, but not unrestricted clinical reporting.
+
+Exact chart layout, export format, analytics technology, and data-retention duration are implementation/policy details rather than remaining business questions.
 
 ---
 
