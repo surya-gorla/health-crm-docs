@@ -71,7 +71,7 @@ The BRD authoring method follows the supplied zero-assumption rule:
 | Prescription reprint required | CONFIRMED | FR-044 |
 | Patient-detail correction required | CONFIRMED | FR-006 |
 | Duplicate registration is an important scenario | PARTIALLY CONFIRMED; fallback remains open | FR-004, BR-005, OD-002 |
-| Multiple doctors is an important scenario | CONFIRMED scenario, rule open | OD-007 |
+| Consultation queues are doctor-specific; reception assigns each visit to a doctor before queue entry | CONFIRMED; reassignment behavior remains open | FR-018, FR-020, FR-023, BR-027, OD-007 |
 | Urgent cases are handled by receptionist informing the doctor directly; no CRM priority workflow is required | CONFIRMED | FR-024, BR-026, OD-006 |
 | Patient leaves after payment | CONFIRMED scenario, rule open | FR-025 |
 | Prescription changed after reaching pharmacy | CONFIRMED scenario, rule open | OD-012 |
@@ -154,7 +154,7 @@ The baseline is **not yet implementation-final** because material decisions rema
 
 - remaining patient-field implementation details and duplicate fallback/merge behavior;
 - waiver financial-record representation and reason requirements;
-- multi-doctor routing;
+- queued-visit reassignment between doctors;
 - clinical field structure;
 - medicine master/catalogue;
 - prescription amendments;
