@@ -305,12 +305,17 @@ When the doctor triggers the call action:
 2. reception is informed;
 3. reception physically calls/directs the patient.
 
-## 7.3 Open Queue Rules
+## 7.3 Urgent Cases and Remaining Queue Rules
+
+Urgent cases do not use a priority feature in the CRM.
+
+If an urgent situation occurs:
+
+1. the receptionist directly informs the doctor outside the software;
+2. the CRM does not create a priority request, priority flag, or automated priority reorder for that situation.
 
 Still unresolved:
 
-- urgent-priority handling;
-- manual reordering;
 - skipped patient behavior;
 - patient-does-not-respond behavior;
 - patient-left-after-payment behavior;
@@ -574,8 +579,7 @@ The following require explicit future workflow decisions:
 
 1. Duplicate patient detected after multiple visits already exist.
 2. Multiple doctors consult simultaneously.
-3. Patient is moved ahead for urgency.
-4. Patient does not respond when called.
+3. Patient does not respond when called.
 5. Patient leaves after paying but before consultation.
 6. Doctor edits prescription after pharmacy retrieval.
 7. Doctor edits prescription after partial or complete dispensing.
