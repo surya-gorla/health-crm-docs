@@ -264,7 +264,15 @@ Confirmed queue rule:
 - **Paid** -> eligible to enter the doctor queue.
 - **Unpaid** -> must not enter the doctor queue.
 
-A waived consultation scenario remains a separate open decision.
+Waived consultation flow is confirmed at a high level:
+
+1. reception raises a waiver request;
+2. the request is shown to the doctor;
+3. reception cannot approve the waiver;
+4. if the doctor approves, the visit becomes eligible for the doctor queue despite no consultation payment;
+5. while the waiver is pending or not approved, the visit remains ineligible for the queue.
+
+The exact financial-record representation and reason requirements for the waiver remain TBD.
 
 ---
 
