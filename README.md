@@ -4,11 +4,11 @@ This repository contains the business and product documentation for the clinic-f
 
 ## Documentation status
 
-**Baseline version:** v0.3  
-**Status:** Expanded requirements baseline with confirmed operational controls and remaining open decisions  
+**Baseline version:** v1.0  
+**Status:** V1 Business Requirements — LOCKED  
 **Date:** 2026-09-20
 
-The current documentation captures the workflow and requirements explicitly confirmed during discovery. Unknown details are intentionally marked as TBD or Open Decision rather than being assumed.
+The V1 core business workflow is locked. Remaining items are explicitly classified as configuration, technical architecture, compliance, or future-scope dependencies and do not authorize silent changes to the locked business behavior.
 
 ## Documentation map
 
@@ -16,7 +16,7 @@ The current documentation captures the workflow and requirements explicitly conf
 | --- | --- |
 | [01 — Business Requirements Document](docs/01-business-requirements-document.md) | Main business requirements baseline covering objectives, scope, roles, functional requirements, business rules, and dependencies. |
 | [02 — Workflows and State Model](docs/02-workflows-and-state-model.md) | End-to-end patient journey, queue lifecycle, prescription/pharmacy flow, and record lifecycle. |
-| [03 — Open Decisions and Edge Cases](docs/03-open-decisions-and-edge-cases.md) | Unresolved questions and operational edge cases that must be decided before implementation is considered complete. |
+| [03 — V1 Decision Register and Edge Cases](docs/03-open-decisions-and-edge-cases.md) | Canonical record of confirmed, derived/delegated, future, configuration, technical, and compliance decisions. |
 | [04 — Requirements Traceability](docs/04-requirements-traceability.md) | Maps confirmed product decisions to BRD requirements and identifies future/out-of-scope items. |
 
 ## Product boundary
@@ -48,4 +48,4 @@ The initial product does **not** include laboratory management, inpatient/bed ma
 
 ## Documentation rule
 
-A requirement is only treated as confirmed when it has been explicitly stated or approved. Recommendations, examples, and unresolved behavior remain separate until confirmed.
+Locked requirements may only change through explicit change control. Derived/delegated decisions remain identified as such; configuration and technical/compliance dependencies must not be used to silently alter V1 business behavior.
