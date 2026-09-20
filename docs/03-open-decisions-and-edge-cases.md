@@ -31,7 +31,7 @@ Existing references that were already used for core patient, queue, clinical, pr
 | ID | Area | Decision | Status |
 | --- | --- | --- | --- |
 | OD-001 | Registration | Patient registration fields | CONFIRMED |
-| OD-002 | Patient matching | Duplicate detection and fallback | CONFIRMED for V1; merge future, matching thresholds solution design |
+| OD-002 | Patient matching | Duplicate detection and fallback | CONFIRMED FOR V1 |
 | OD-003 | Patient matching | Shared family phone number | CONFIRMED |
 | OD-004 | Queue | Consultation payment gate | CONFIRMED |
 | OD-005 | Queue/Payment | Consultation-fee waiver | CONFIRMED |
@@ -44,24 +44,29 @@ Existing references that were already used for core patient, queue, clinical, pr
 | OD-012 | Prescription | Finalized prescription correction | CONFIRMED — supersede/replace model |
 | OD-013 | Pharmacy | Partial dispensing | CONFIRMED |
 | OD-014 | Pharmacy | Medicine substitution | CONFIRMED |
-| OD-015 | Inventory | Unit hierarchy | CONFIRMED at business level; conversions are medicine configuration |
+| OD-015 | Inventory | Unit hierarchy | CONFIRMED AT BUSINESS LEVEL |
 | OD-016 | Inventory | Batch/expiry/pricing metadata and alerts | CONFIRMED — thresholds configurable |
 | OD-017 | Pharmacy | Medicine returns | CONFIRMED — not supported in V1 |
-| OD-018 | Payment | Payment methods recorded by CRM | CONFIRMED as Owner-configurable clinic values |
+| OD-018 | Payment | Payment methods and external processing model | CONFIRMED |
 | OD-019 | Payment | Refund/cancellation rules | CONFIRMED — no refunds/partial payments; Owner-controlled cancellation/void |
-| OD-020 | Payment | Receipt/reference requirements | CONFIRMED for V1 outputs; payment receipt detail remains clinic-dependent |
-| OD-021 | Security | Authentication | CONFIRMED at V1 business level |
-| OD-022 | Security | Role/group permissions | CONFIRMED at V1 business level |
+| OD-020 | Payment | Printable outputs / optional payment reference | CONFIRMED AT V1 BUSINESS LEVEL |
+| OD-021 | Security | Authentication | CONFIRMED AT V1 BUSINESS LEVEL |
+| OD-022 | Security | Role/group permissions | CONFIRMED AT V1 BUSINESS LEVEL |
 | OD-023 | Deployment | Single-clinic topology with multi-doctor/reception/pharmacy scalability | CONFIRMED |
-| OD-024 | Deployment | Client/device model confirmed; hosting deferred to technical design |
-| OD-025 | Operations | Backup and recovery | OPEN |
-| OD-026 | Billing | Consultation fee determination | OPEN |
-| OD-027 | Audit | Audit access confirmed; retention/export requires compliance policy |
-| OD-028 | Compliance | EXTERNAL VALIDATION REQUIRED — not a core workflow decision |
-| OD-029 | Reporting | CONFIRMED at V1 business level |
+| OD-024 | Deployment | Client/device model | CONFIRMED AT V1 BUSINESS LEVEL; HOSTING DEFERRED |
+| OD-025 | Operations | Backup and recovery | DOWNSTREAM TECHNICAL DEPENDENCY |
+| OD-026 | Billing | Consultation fee determination | GO-LIVE CONFIGURATION DEPENDENCY |
+| OD-027 | Audit | Audit access and immutability | CONFIRMED; RETENTION/EXPORT POLICY DEPENDENCY |
+| OD-028 | Compliance | Legal/privacy/compliance requirements | EXTERNAL VALIDATION DEPENDENCY |
+| OD-029 | Reporting | V1 reports and business definitions | CONFIRMED AT V1 BUSINESS LEVEL |
 | OD-030 | Inventory control | Pharmacist inventory-change approval | CONFIRMED |
 | OD-031 | Inventory safety | Expired-stock handling | CONFIRMED |
 | OD-032 | Pharmacy scope | Non-prescription/pharmacy-only CRM dispensing | OUT OF V1 |
+| OD-033 | Payment control | Incorrect payment-record correction | CONFIRMED — Owner-controlled |
+| OD-034 | Inventory control | Bill void versus dispensed stock | CONFIRMED — no automatic stock restoration |
+| OD-035 | Access control | Owner/Admin access to clinical content | CONFIRMED — Doctor role required |
+| OD-036 | Security | Owner-role lifecycle authority | CONFIRMED — Owner-controlled |
+| OD-037 | Pharmacy | Multi-pharmacy availability shown to Doctor | CONFIRMED — view-only |
 
 ---
 
@@ -106,7 +111,7 @@ V1 display convention may use forms such as `PAT-000001` and `VIS-000001`. Exact
 
 ## OD-002 — Duplicate Detection and Fallback
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED FOR V1**
 
 Confirmed:
 
@@ -208,10 +213,12 @@ Confirmed:
 - Called patient does not respond -> reception marks **Unresponded** and system moves the visit five positions downward.
 - Paid patient leaves before consultation -> reception moves the visit toward the end of the doctor-specific queue.
 - Reception cannot cancel a visit.
-- Doctor may cancel a visit.
-- Doctor cancellation requires a reason.
-- Cancelled visit remains in history.
-- Consultation payment is non-refundable in V1 even when the doctor cancels the paid consultation.
+- Doctor may submit a consultation/visit cancellation request.
+- A specific Doctor-entered reason is mandatory.
+- Owner approves or rejects the request.
+- Approved cancellation removes the visit from active workflow, marks it Cancelled/Voided, and retains it in history.
+- Rejected cancellation leaves the visit active and is logged.
+- Consultation payment is non-refundable in V1 even when an approved cancellation concerns a paid consultation.
 
 Derived V1 boundary rules:
 
@@ -381,7 +388,7 @@ General pharmacy retail without a current CRM prescription is outside the confir
 
 ## OD-015 — Inventory Unit Hierarchy
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED AT BUSINESS LEVEL**
 
 Inventory must be trackable:
 
@@ -412,7 +419,7 @@ Inventory supports:
 - low-stock alert;
 - near-expiry alert.
 
-Low-stock and near-expiry thresholds are configurable by an authorized Doctor/Admin role rather than hard-coded globally. Initial values are operational configuration, not a BRD decision.
+Low-stock and near-expiry thresholds are configurable by an authorized Owner/Admin role rather than hard-coded globally. Initial values are operational configuration, not a BRD decision.
 
 ## OD-030 — Pharmacist Inventory-Change Approval
 
@@ -526,17 +533,13 @@ V1 supports A4 printing for clinic outputs already in scope, including prescript
 
 The CRM does not require thermal printing and does not require payment-gateway receipts because it does not process payments.
 
-If the clinic later requires a formal payment receipt/reference format, that can be configured after the clinic supplies its billing requirements.
+A payment/reference number is optional. A standalone receipt format is not required by core V1; a clinic-specific A4 acknowledgement/receipt layout may be configured without changing the payment workflow.
 
 ## OD-026 — Consultation Fee Determination
 
-**Status: OPEN**
+**Status: GO-LIVE CONFIGURATION DEPENDENCY**
 
-Clinic will define:
-
-- consultation fee;
-- whether fee varies by doctor/service;
-- how fee changes are configured.
+The clinic supplies the consultation fee values before go-live, including any doctor/service-specific values it chooses to use. These are configuration values rather than unresolved workflow decisions.
 
 ---
 
@@ -580,10 +583,12 @@ Confirmed second factor:
 
 ## OD-022 — Role / Group Permissions
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED AT V1 BUSINESS LEVEL**
 
-Access is group-based, with individual accounts belonging to groups such as:
+Access is group-based, with individual accounts belonging to one or more roles:
 
+- Owner;
+- Administrator;
 - Reception;
 - Doctor;
 - Pharmacist.
@@ -622,7 +627,7 @@ Can:
 - directly edit demographics;
 - approve/reject reception demographic-change requests;
 - approve/reject substitution request;
-- cancel visit with reason.
+- submit consultation/visit cancellation request with a specific reason.
 
 Doctor role alone does not grant clinic-owner financial, inventory-control, staff-management, or clinic-wide audit privileges.
 
@@ -668,19 +673,21 @@ Cannot:
 
 Derived V1 Admin privileges:
 
-- create/disable staff accounts;
-- assign users to permission groups;
+- create/disable non-Owner staff accounts;
+- assign non-Owner permission groups;
 - manage clinic-level non-clinical configuration;
 - manage medicine catalogue/inventory configuration where allowed;
-- view operational/revenue/inventory reports;
-- view audit logs.
+- view authorized operational/revenue/inventory reports;
+- view authorized audit logs.
 
-Admin permission by itself does **not** grant authority to create/edit doctor clinical notes, diagnosis, prescriptions, waiver approvals, or clinical amendments. A person who is both owner/admin and doctor receives those clinical permissions through the Doctor group.
+Admin permission by itself does **not** grant clinical-authoring authority, unrestricted clinical content, or Owner authority. Clinical notes, diagnosis, prescriptions, amendments, and substitution decisions require Doctor permission. Financial waiver, inventory-control, cancellation approval, and Owner-role lifecycle actions require Owner permission.
+
+Administrator cannot grant/revoke Owner authority or disable an Owner account.
 
 ### Staff lifecycle — derived V1 decision
 
-- Admin/Owner creates each staff account.
-- Admin/Owner assigns one or more permission groups.
+- Admin/Owner creates staff accounts within their permitted authority.
+- Admin may assign non-Owner roles; Owner authority is granted/revoked only through Owner authority.
 - Forgotten-password resets for non-Owner staff are handled by Owner, not by the staff member directly.
 - Role/group changes are logged.
 - When a staff member leaves, the account is **disabled**, not deleted, so historical audit references remain valid.
@@ -689,11 +696,12 @@ Admin permission by itself does **not** grant authority to create/edit doctor cl
 
 ## OD-027 — Audit Retention and Access
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED AT BUSINESS LEVEL; RETENTION/EXPORT POLICY DEPENDENCY**
 
 Derived V1 access:
 
-- Owner and authorized Admin may view clinic-wide audit logs;
+- Owner and authorized Admin may view clinic-wide audit metadata/logs;
+- Owner-only and Admin-only roles do not receive unrestricted clinical-note/diagnosis content merely through audit access;
 - Doctor-only, Pharmacist, and Reception users do not receive unrestricted clinic-wide audit-log access merely from those roles;
 - inventory-adjustment audit is filterable as part of the audit log;
 - audit events are not deletable through normal application UI.
@@ -740,7 +748,7 @@ The system continues to serve as the clinic's longitudinal patient archive acros
 
 ## OD-024 — Client / Device / Hosting Model
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED AT V1 BUSINESS LEVEL; HOSTING DEFERRED**
 
 Confirmed:
 
@@ -756,15 +764,15 @@ Derived V1 client scope:
 - responsive support for tablet-sized screens may be provided, but a separate mobile app is not required;
 - target current mainstream browsers used by the clinic.
 
-Hosting provider, concrete infrastructure, and performance targets belong to downstream technical architecture and remain intentionally deferred.
+Hosting provider, concrete infrastructure, backup/recovery targets, and performance targets belong to downstream technical architecture.
 
-No historical-system migration is assumed for V1 unless the clinic later supplies a specific digital data source for import. No third-party integration is required in initial V1 unless explicitly added later.
+No historical-system migration is assumed for V1 unless the clinic later supplies a specific digital source for import. No third-party integration is required by the locked V1 workflow unless introduced later through change control.
 
 ## OD-025 — Backup and Recovery
 
-**Status: OPEN**
+**Status: DOWNSTREAM TECHNICAL DEPENDENCY**
 
-Need to define:
+Technical architecture must define:
 
 - backup frequency;
 - recovery target;
@@ -773,13 +781,15 @@ Need to define:
 - restore responsibility;
 - disaster-recovery process.
 
+These do not alter the locked business workflow.
+
 ---
 
 # 13. Legal / Privacy / Compliance
 
 ## OD-028 — Applicable Requirements
 
-**Status: OPEN**
+**Status: EXTERNAL VALIDATION DEPENDENCY**
 
 Requires explicit validation before final implementation:
 
@@ -799,7 +809,7 @@ No compliance regime is asserted as confirmed in this BRD yet.
 
 ## OD-029 — V1 Reporting
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED AT V1 BUSINESS LEVEL**
 
 Confirmed V1 report/measurement set:
 
@@ -836,15 +846,63 @@ Derived V1 definitions:
 
 Access:
 
-- Doctor/Owner and Admin may view all V1 reports;
-- Pharmacist may view pharmacy/inventory reports;
+- Owner may view clinic-wide V1 operational, financial-status, inventory, approval, and audit reports;
+- authorized Admin may view non-clinical operational/revenue/inventory reports and authorized audit metadata;
+- Doctor-only users may view their clinical/queue information and clinically relevant patient history but do not inherit clinic-wide Owner financial/inventory reporting;
+- Pharmacist may view pharmacy/inventory reports for permitted pharmacy scope;
 - Reception may view reception/queue operational information required for its work, but not unrestricted clinical reporting.
 
 Exact chart layout, export format, analytics technology, and data-retention duration are implementation/policy details rather than remaining business questions.
 
 ---
 
-# 15. Future / Later Evaluation
+# 15. Additional Derived Control Decisions
+
+## OD-033 — Incorrect Payment-Record Correction
+
+**Status: CONFIRMED — DERIVED FROM FINANCIAL AUDIT MODEL**
+
+If Reception or Pharmacy staff record a payment incorrectly:
+
+1. the original payment record is not silently overwritten;
+2. staff submit a correction request with the proposed correction and a specific reason;
+3. Owner approves or rejects;
+4. approval establishes the corrected effective state while preserving original state, requester, reason, Owner decision, and timestamps;
+5. rejection leaves the active payment state unchanged.
+
+This is a record correction, not a refund.
+
+## OD-034 — Bill Void Versus Dispensed Stock
+
+**Status: CONFIRMED — DERIVED FROM INVENTORY-ACCOUNTABILITY MODEL**
+
+Approving pharmacy-bill cancellation/void does not reverse dispensing and does not restore inventory automatically.
+
+Any legitimate stock correction is a separate inventory-adjustment request requiring Owner approval.
+
+## OD-035 — Owner/Admin Clinical-Content Boundary
+
+**Status: CONFIRMED — DERIVED FROM ROLE SEPARATION**
+
+Owner-only and Administrator-only authority does not grant unrestricted clinical-note or diagnosis content. Full clinical-record content requires Doctor-role authority.
+
+Operational/audit views may show that a clinical record changed, who changed it, and when without automatically exposing the clinical content.
+
+## OD-036 — Owner-Role Lifecycle Authority
+
+**Status: CONFIRMED — DERIVED SECURITY CONTROL**
+
+Administrator cannot grant/revoke Owner role authority or disable an Owner account. Owner-role lifecycle changes require Owner authority and are audited.
+
+## OD-037 — Multi-Pharmacy Availability in Prescribing
+
+**Status: CONFIRMED — DERIVED FROM MULTI-PHARMACY MODEL**
+
+When multiple pharmacy units exist, Doctor prescribing shows clinic-wide availability and per-pharmacy-unit availability where stock is known. This is view-only and does not give Doctor inventory-control authority.
+
+---
+
+# 16. Future / Later Evaluation
 
 Not in current confirmed V1:
 
@@ -864,7 +922,7 @@ Already identified as later-phase candidates:
 
 ---
 
-# 16. Decision Closure Rule
+# 17. Decision Closure Rule
 
 When an open item is resolved:
 
