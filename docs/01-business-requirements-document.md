@@ -121,7 +121,8 @@ Only confirmed assumptions are listed here.
 2. A Patient ID remains associated with the same patient across multiple visits.
 3. Patient name and phone number are patient-search and matching attributes.
 4. Patient name and phone number do not replace the Patient ID as the unique identifier.
-5. Every clinic attendance creates a separate Visit ID associated with the permanent Patient ID.
+5. Multiple patients may share the same phone number.
+6. Every clinic attendance creates a separate Visit ID associated with the permanent Patient ID.
 
 ## 4.2 Visit model
 
@@ -169,10 +170,14 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-001 | Receptionist shall be able to search for an existing patient using Patient ID, phone number, or patient name before creating a new patient record. | TBD | Hospital CRM | TBD |
 | FR-002 | The system shall generate a permanent unique Patient ID when a new patient is registered. | TBD | Hospital CRM | TBD |
 | FR-003 | The Patient ID shall remain stable across all future visits for that patient. | TBD | Hospital CRM | TBD |
-| FR-004 | The system shall support detection/prevention of accidental duplicate patient registration using the available patient-identification information. Exact matching rules are TBD. | TBD | Hospital CRM | TBD |
+| FR-004 | When the system finds similar existing patient records during registration/search, reception shall review the candidate details with the patient and seek confirmation before creating or selecting a patient profile. Prior visit history and remembered visit purpose may be used to help the patient confirm the correct record. The fallback when no candidate can be confidently confirmed remains TBD. | TBD | Hospital CRM | TBD |
 | FR-005 | The receptionist shall be able to associate the generated Patient ID with the patient's physical clinic file. | TBD | Hospital CRM + physical file | TBD |
 | FR-006 | The system shall allow correction of patient details without replacing the patient's Patient ID. The exact correction/audit rules for demographic fields are TBD. | TBD | Hospital CRM | TBD |
 | FR-007 | The system shall support returning patients who arrive without the physical file by locating the existing digital patient record using the supported search attributes. | TBD | Hospital CRM | TBD |
+| FR-075 | Patient registration shall capture full name, phone number, date of birth, age, gender, address, and email as required registration information. How age is entered or derived relative to date of birth remains TBD. | TBD | Hospital CRM | TBD |
+| FR-076 | Emergency contact, blood group, known allergies, and guardian/parent details shall be optional patient-registration information. | TBD | Hospital CRM | TBD |
+| FR-077 | Government ID shall not be required for patient registration. Whether the system permits optional Government ID capture remains TBD. | TBD | Hospital CRM | TBD |
+| FR-078 | The system shall allow multiple different patient records to share the same phone number; phone number shall not be enforced as a globally unique patient identifier. | TBD | Hospital CRM | TBD |
 
 ## 6.2 Visit Creation
 
@@ -310,7 +315,9 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-004** — A new clinic visit for an existing patient must link to the existing Patient ID rather than generating a new patient identity.
 
-**BR-005** — Duplicate patient registration should be prevented or surfaced for review; the exact matching rule is TBD.
+**BR-005** — When similar existing patient records are surfaced, reception must review the candidate details with the patient and seek confirmation before deciding that an existing profile is the same person. Prior visit history and remembered visit purpose may be used to support confirmation. The fallback when no candidate can be confidently confirmed remains TBD.
+
+**BR-025** — Phone number is not a unique patient identifier. Multiple patients, including family members, may share the same phone number.
 
 ## 7.2 Visit and Queue Rules
 
@@ -386,12 +393,13 @@ The following items require explicit decisions before the BRD can be considered 
 
 ## 9.1 Patient Registration
 
-1. Mandatory patient demographic fields beyond name and phone.
-2. Whether date of birth, age, gender, address, emergency contact, or other demographics are required.
-3. Exact duplicate detection/matching rule.
-4. Whether the same phone number may be intentionally shared by multiple patients/family members.
-5. Patient-ID format and whether it has semantic meaning.
-6. Whether QR/barcode is included at launch or later only.
+1. How age is handled relative to date of birth (entered independently, derived, or another confirmed rule).
+2. Whether Government ID may be captured optionally; it is confirmed as not required.
+3. Exact algorithm/criteria used by the system to decide that records are "similar" enough to surface as possible matches.
+4. Fallback behavior when the patient cannot confidently confirm any surfaced existing record.
+5. Whether duplicate-record merge is required and who may perform it.
+6. Patient-ID format and whether it has semantic meaning.
+7. Whether QR/barcode is included at launch or later only.
 
 ## 9.2 Visit and Queue
 
