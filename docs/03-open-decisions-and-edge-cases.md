@@ -25,8 +25,8 @@ Items in this file are **not automatically requirements**. They remain open unti
 | OD-001 | Registration | Patient registration field classification | CONFIRMED; two implementation details remain open |
 | OD-002 | Patient matching | Duplicate detection/confirmation workflow | OPEN — partially resolved |
 | OD-003 | Patient matching | Whether family members may share one phone number | CONFIRMED |
-| OD-004 | Visit/queue | Exact condition for entering consultation queue | OPEN |
-| OD-005 | Visit/queue | Treatment of Paid, Partial, Unpaid, and Waived consultation states | OPEN |
+| OD-004 | Visit/queue | Exact condition for entering consultation queue | CONFIRMED for Paid/Unpaid; waiver remains open |
+| OD-005 | Visit/queue | Treatment of consultation payment exceptions | OPEN — waiver behavior only |
 | OD-006 | Queue | Urgent/out-of-order queue rule | OPEN |
 | OD-007 | Queue | Multiple doctors and queue-assignment model | OPEN |
 | OD-008 | Clinical record | Required structure of symptoms/history/diagnosis/notes | OPEN |
@@ -134,25 +134,29 @@ Therefore:
 
 ## OD-004 — Queue Entry Rule
 
-Need to define the exact prerequisite for a visit to enter the doctor queue.
+**Status: CONFIRMED for normal consultation payment flow.**
 
-Potential states already acknowledged:
+Confirmed:
 
-- Paid
-- Partial
-- Unpaid
-- Waived
+- **Paid consultation** -> patient/visit may enter the doctor queue.
+- **Unpaid consultation** -> patient/visit must not enter the doctor queue.
+- **Partial consultation payment** -> not supported.
 
-No state is yet confirmed as universally eligible/ineligible.
+Remaining open dependency:
 
-## OD-005 — Payment Exception Handling
+- waived-consultation behavior.
+
+## OD-005 — Waived Consultation Handling
+
+**Status: OPEN.**
 
 Need to define:
 
-- who can waive consultation fees;
-- whether waived visits display differently;
-- whether unpaid/partial visits may proceed;
-- whether payment can be collected after consultation.
+- whether consultation-fee waiver is supported at all;
+- who may authorize a waiver;
+- whether a waived visit may enter the queue;
+- whether a reason is mandatory;
+- how the waiver is represented in the financial/audit record.
 
 ## OD-006 — Urgent Patient Rule
 
