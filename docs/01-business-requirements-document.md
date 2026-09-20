@@ -240,7 +240,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-024 | The system shall not implement a priority flag, priority-request workflow, or automated priority reordering for urgent patients. If an urgent case arises, the receptionist shall communicate it directly to the doctor outside the CRM workflow. | TBD | Hospital CRM | TBD |
 | FR-025 | When a called patient does not respond, reception shall mark the visit as Unresponded and the system shall move that visit five queue positions downward within the assigned doctor's queue; if fewer than five later positions exist, the visit moves to the end. If a paid patient leaves before consultation, reception shall move the visit to the end of the assigned doctor's queue. | TBD | Hospital CRM | TBD |
 | FR-080 | Reception shall be able to reassign a queued visit from one doctor-specific queue to another doctor-specific queue. Every reassignment shall be logged. | TBD | Hospital CRM | TBD |
-| FR-081 | Reception shall not be permitted to cancel a visit. A doctor may cancel a visit, a cancellation reason shall be recorded, and the cancelled visit shall remain visible in history. | TBD | Hospital CRM | TBD |
+| FR-081 | Reception shall not be permitted to cancel a visit. A Doctor may request cancellation of a consultation/visit, but the cancellation shall not take effect until the Owner approves it. The Doctor must enter a specific free-text reason. If approved, the visit is removed from the active operational queue/view, marked Cancelled/Voided, and retained in history with requester, reason, Owner decision, and timestamps. If rejected, the visit remains active and the rejection is logged. | TBD | Hospital CRM | TBD |
 
 ## 6.5 Doctor Consultation and Clinical Record
 
@@ -308,9 +308,13 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-058 | The pharmacy bill shall identify what the patient is being charged for. | TBD | Hospital CRM | TBD |
 | FR-059 | Medicines not supplied by the clinic pharmacy shall not be included as dispensed bill items. | TBD | Hospital CRM | TBD |
 | FR-060 | V1 shall record pharmacy payment status/information supplied by clinic staff but shall not process the payment itself. | TBD | Hospital CRM | TBD |
-| FR-061 | Detailed pharmacy payment methods, partial-payment rules, refund rules, and cancellation rules remain TBD pending clinic confirmation. | TBD | Hospital CRM | TBD |
-| FR-062 | Any pharmacy receipt/reference requirements remain TBD; V1 does not require a payment-processing integration. | TBD | Hospital CRM | TBD |
-| FR-063 | Pharmacy staff shall update the recorded pharmacy payment status/information after the external payment activity is completed. | TBD | Hospital CRM | TBD |
+| FR-061 | Pharmacy bills shall not support partial payment or refunds in V1. A pharmacy bill is either Unpaid or Paid for the normal payment flow. | TBD | Hospital CRM | TBD |
+| FR-062 | Any pharmacy receipt/reference requirements remain clinic-configurable; V1 does not require a payment-processing integration or thermal receipt workflow. | TBD | Hospital CRM | TBD |
+| FR-063 | Pharmacy staff shall update the recorded pharmacy payment status/information after the external payment activity is completed. The CRM records the payment method used but does not process the payment. | TBD | Hospital CRM | TBD |
+| FR-105 | Pharmacy staff may request cancellation/void of a pharmacy bill only by entering a specific free-text reason. The request shall be sent to the Owner and shall not alter the active bill until the Owner approves it. | TBD | Hospital CRM | TBD |
+| FR-106 | The Owner may approve or reject a pharmacy-bill cancellation request. If approved, the bill is removed from the active billing workflow and marked Cancelled/Voided while the original bill, payment state, requester, exact reason, Owner decision, and timestamps remain preserved in history/audit. If rejected, the active bill remains unchanged and the rejection is logged. | TBD | Hospital CRM | TBD |
+| FR-107 | Cancellation/void is not a refund. If a pharmacy bill was already recorded as Paid, an approved cancellation shall not create or imply a refund in V1; the historical paid state remains auditable. | TBD | Hospital CRM | TBD |
+| FR-108 | Consultation and pharmacy payment-method values shall be Owner-configurable so each clinic can record the methods it actually accepts without changing application code. Payment-method recording is informational/reconciliation data only and does not initiate payment processing. | TBD | Hospital CRM | TBD |
 
 ## 6.11 Roles and Access
 
@@ -331,7 +335,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-071 | Audit information shall identify at minimum the actor and time of the material change; exact before/after retention requirements remain TBD. | TBD | Hospital CRM | TBD |
 | FR-072 | Important clinical and financial records shall not be permanently removed from normal workflow through an unaudited hard-delete action. | TBD | Hospital CRM | TBD |
 | FR-073 | Where a prescription, payment, or other important record is cancelled/voided, the record shall preserve the fact of cancellation. | TBD | Hospital CRM | TBD |
-| FR-074 | Doctor cancellation of a consultation and consultation-fee waiver decisions shall include a reason and shall be logged with the responsible actor. | TBD | Hospital CRM | TBD |
+| FR-074 | Consultation cancellation requests, pharmacy-bill cancellation requests, and consultation-fee waiver decisions shall require a specific reason where applicable and shall be logged with requester, Owner decision, actor, and time. | TBD | Hospital CRM | TBD |
 | FR-084 | Every staff member shall authenticate using an individual login under the clinic context. V1 shall use individual login credentials and password. | TBD | Hospital CRM | TBD |
 | FR-085 | Any account holding the Owner role shall require two-factor authentication (2FA) in addition to the account password before login is completed. The second factor shall use Google Authenticator-compatible time-based one-time passwords (TOTP). A user who holds Owner + Doctor or Owner + another role remains subject to Owner 2FA because the account has Owner privileges. | TBD | Hospital CRM | TBD |
 | FR-100 | Non-Owner staff accounts, including Doctor-only, Reception, Pharmacist, and Administrator-only accounts, shall not require 2FA in V1. | TBD | Hospital CRM | TBD |
@@ -386,7 +390,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-028** — Reception may reassign a queued visit between doctor-specific queues; every reassignment is audited.
 
-**BR-029** — Reception cannot cancel visits. The doctor may cancel a visit with a recorded reason, and cancelled visits remain in history.
+**BR-029** — Reception cannot cancel visits. A Doctor may request visit/consultation cancellation with a specific reason, but only the Owner can approve or reject the cancellation. Approved cancellation removes the visit from active workflow while preserving the cancelled/voided record and full audit history.
 
 **BR-030** — Finalized prescriptions are immutable in place. Correction requires a doctor-issued replacement linked to a preserved Superseded prescription. Pharmacists cannot edit prescriptions.
 
@@ -421,6 +425,16 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 **BR-045** — An Owner-performed staff password reset creates a temporary/reset credential that the staff member must replace after the next successful login. The reset action is auditable.
 
 **BR-046** — Owner TOTP enrollment generates one-time recovery codes. Recovery codes are emergency credentials, are not visible again after enrollment/regeneration, and each code is invalid after use. If the Owner loses password/authenticator access and has no valid recovery code, recovery requires a controlled technical recovery process rather than an in-app bypass.
+
+**BR-047** — Pharmacy bills do not support partial payment or refunds in V1.
+
+**BR-048** — Pharmacy-bill cancellation is an Owner-controlled void workflow. Pharmacist requests with a specific reason; Owner approves/rejects; approval removes the bill from active billing but never deletes its historical/audit record.
+
+**BR-049** — Consultation/visit cancellation is an Owner-controlled workflow. Doctor requests with a specific reason; Owner approves/rejects; approval removes the visit from active operational workflow but preserves the cancelled record.
+
+**BR-050** — Cancellation/void is distinct from refund. A paid consultation or paid pharmacy bill is not refunded by approving cancellation under V1.
+
+**BR-051** — Payment methods recorded by the CRM are clinic configuration values controlled by the Owner. They describe how an external payment occurred and do not initiate or settle the payment.
 
 **BR-010** — A visit with Unpaid consultation status must not enter the doctor queue unless a consultation-fee waiver has been approved by the Owner. A Paid consultation is eligible for queue entry. Partial consultation payment is not supported.
 
@@ -480,7 +494,7 @@ The following V1 reporting/measurement needs are confirmed:
 10. Expiring medicines.
 11. Most-prescribed medicines.
 12. Consultation-fee waivers.
-13. Cancellations; refund reporting applies only if a future/refined pharmacy refund flow is confirmed.
+13. Cancellation/void requests and Owner decisions; refunds are not supported in V1.
 14. Returning patients.
 15. Audit activity.
 
@@ -520,14 +534,11 @@ The following items remain unresolved and must not be inferred.
 
 ## 9.6 Payments
 
-20. Clinic-defined consultation payment methods to record.
-21. Clinic-defined pharmacy payment methods to record.
-22. Consultation fee determination/configuration.
-23. Pharmacy partial-payment rule.
-24. Pharmacy refund/cancellation rule.
-25. Any receipt/reference requirements.
-26. Pharmacy pricing/tax requirements.
-27. Whether external payment integration is introduced later; it is not part of V1.
+20. Payment-method values are Owner-configurable at clinic setup; the exact initial labels are a go-live configuration choice, not an unresolved BRD policy.
+21. Consultation fee determination/configuration remains clinic-supplied.
+22. Any formal receipt/reference format remains clinic-configurable.
+23. Pharmacy pricing/tax requirements remain clinic-supplied where applicable.
+24. External payment integration remains out of V1 unless introduced later.
 
 ## 9.7 Roles, Security, and Operations
 
@@ -601,7 +612,7 @@ The accepted initial module set is:
 | Pharmacy dispensing | Partial dispensing, substitution approval, no-return V1, and over-dispense prevention confirmed |
 | Inventory controls | Multi-unit tracking, batch/expiry/pricing fields, alerts, Owner-approved non-dispensing changes, and multi-pharmacy ledgers/transfers confirmed |
 | Consultation payment | Status recording only; no CRM processing, no partial payment, no refund |
-| Pharmacy payment | Status recording only; detailed payment/refund rules remain open |
+| Pharmacy payment | Status recording only; no partial payment, no refunds; Owner-controlled cancellation/void confirmed; payment methods Owner-configurable |
 | Roles | Owner, Doctor, Reception, Pharmacist, and Admin roles with multi-role individual accounts confirmed |
 | Authentication | Individual login/password confirmed; Owner accounts require 2FA; non-Owner staff do not; staff password reset is Owner-controlled |
 | Audit history | Confirmed |
