@@ -151,32 +151,31 @@ Therefore:
 - Paid consultation -> queue eligible.
 - Unpaid consultation -> not queue eligible.
 - Partial consultation payment -> not supported.
-- Approved doctor-controlled waiver -> queue eligible despite no payment.
+- Approved Owner-controlled waiver -> queue eligible despite no payment.
 
 V1 records payment status/information but does not process the payment itself.
 
 ## OD-005 — Consultation-Fee Waiver
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED**
 
 Confirmed:
 
-1. Reception may request a waiver.
-2. Reception cannot approve a waiver.
-3. A reception-requested waiver is shown to the doctor.
-4. Doctor approves or rejects.
-5. Until approval, an unpaid visit cannot enter the queue.
-6. Approved waiver makes the visit queue-eligible.
-7. Doctor may initiate the waiver directly.
-8. Doctor-initiated waiver is immediately approved and needs no second approval.
-9. Every waiver requires a reason.
-10. Waiver action, actor, reason, and decision are logged.
+1. Reception or a Doctor may request a consultation-fee waiver.
+2. Reception and Doctor role alone cannot approve the waiver.
+3. The request is shown to the Owner.
+4. Owner is the approving authority.
+5. Until Owner approval is received, an unpaid visit remains ineligible for the doctor queue.
+6. Owner approval makes the visit queue-eligible without consultation payment.
+7. If a user holding the Owner role initiates the waiver directly, no second approval step is required.
+8. Every waiver requires a reason.
+9. Waiver request, decision, actor, reason, and timestamp are logged.
+10. A user who is both Owner and Doctor may initiate/approve through the Owner authority on the same account.
 
-Derived V1 representation:
+V1 financial representation:
 
-- normal consultation payment status remains **Paid** or **Unpaid**;
-- an approved waiver is stored as a separate **Waived** consultation financial outcome, not falsely represented as Paid;
-- the waiver retains approver, reason, and timestamp;
+- normal consultation status remains **Paid** or **Unpaid**;
+- an approved waiver is stored as a separate **Waived** financial outcome, not falsely represented as Paid;
 - **Waived** is queue-eligible.
 
 ## OD-006 — Urgent Patient Handling
@@ -429,9 +428,9 @@ For non-dispensing inventory upkeep/changes, including stock addition, damage, l
 4. inventory changes only after Owner approval;
 5. request, actor, reason, decision, and resulting change are logged.
 
-This control is intended to make non-dispensing inventory losses/adjustments visible to the doctor rather than allowing unreviewed manual stock reductions.
+This control is intended to make non-dispensing inventory losses/adjustments visible to the Owner rather than allowing unreviewed manual stock reductions.
 
-Medicine selling-price or purchase-price changes proposed by pharmacy use the same request -> doctor-approval -> logged-change workflow.
+Medicine selling-price or purchase-price changes proposed by pharmacy use the same request -> Owner-approval -> logged-change workflow.
 
 ## OD-031 — Expired Stock
 
@@ -443,11 +442,11 @@ The Owner is notified.
 
 Owner response controls the inventory disposition/adjustment record, and the action is logged.
 
-The doctor-approval step does not provide a path to dispense expired stock.
+The Owner-approval step does not provide a path to dispense expired stock.
 
 Derived V1 handling:
 
-- expired/damaged/lost quantities are removed from **available** stock only through the doctor-approved adjustment workflow;
+- expired/damaged/lost quantities are removed from **available** stock only through the Owner-approved adjustment workflow;
 - the adjustment records a reason/category and quantity;
 - the CRM does not prescribe the clinic's physical disposal process in V1;
 - supplier-return/procurement workflows remain outside V1;
