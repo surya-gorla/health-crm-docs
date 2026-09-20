@@ -2,13 +2,13 @@
 
 ## 1. Purpose
 
-This is the active decision register for the Hospital CRM.
+This is the canonical V1 decision register and edge-case record for the Hospital CRM.
 
 It separates:
 
-- **CONFIRMED** decisions already promoted into the BRD;
-- **OPEN** items that still require a decision;
-- **PARTIALLY CONFIRMED** items where the principal behavior is known but one or more implementation-significant business rules remain unresolved;
+- **CONFIRMED** V1 business decisions;
+- **DERIVED / DELEGATED** decisions made under explicitly granted product-design authority;
+- **CONFIGURATION / TECHNICAL / COMPLIANCE DEPENDENCIES** that do not reopen the V1 business workflow;
 - **OUT OF SCOPE** items excluded from V1;
 - **FUTURE / LATER EVALUATION** items that are not part of current V1 behavior.
 
@@ -185,7 +185,7 @@ V1 financial representation:
 
 ## OD-006 — Urgent Patient Handling
 
-**Status: CONFIRMED**
+**Status: CONFIRMED — outside CRM**
 
 There is no priority feature in the CRM.
 
@@ -206,7 +206,7 @@ If an urgent case occurs:
 6. Reception may reassign a queued visit from one doctor to another.
 7. Every reassignment is logged.
 
-## Queue Edge Cases — Confirmed and Open
+## Queue Edge Cases — Confirmed
 
 Confirmed:
 
@@ -255,7 +255,7 @@ Clinical decision functions remain within the Doctor role even though the interf
 
 ## OD-009 — Editing a Completed Consultation
 
-**Status: CONFIRMED — DERIVED FROM THE AUDIT MODEL**
+**Status: CONFIRMED — doctor amendment model**
 
 Completed clinical records are not edited destructively.
 
@@ -276,7 +276,7 @@ This follows the already-confirmed rule that material clinical information canno
 
 ## OD-010 — Medicine Catalogue Identity
 
-**Status: CONFIRMED — DERIVED V1 MODEL**
+**Status: CONFIRMED**
 
 The medicine catalogue identifies a medicine using:
 
@@ -315,7 +315,7 @@ Quantity behavior:
 
 ## OD-012 — Finalized Prescription Changes
 
-**Status: CONFIRMED — DERIVED FROM IMMUTABILITY/AUDIT RULES**
+**Status: CONFIRMED — supersede/replace model**
 
 A finalized prescription is never edited in place.
 
@@ -372,7 +372,7 @@ Flow:
 
 ## OD-017 — Medicine Returns
 
-**Status: CONFIRMED — NOT SUPPORTED IN V1**
+**Status: CONFIRMED — not supported in V1**
 
 Patients cannot return medicines through the V1 pharmacy workflow.
 
@@ -411,7 +411,7 @@ The actual conversion value is medicine-specific configuration, not a new busine
 
 ## OD-016 — Inventory Metadata and Alerts
 
-**Status: CONFIRMED**
+**Status: CONFIRMED — thresholds configurable**
 
 Inventory supports:
 
@@ -500,7 +500,7 @@ High-velocity UI principle:
 
 ## OD-019 — Refund and Cancellation / Void
 
-**Status: CONFIRMED**
+**Status: CONFIRMED — no refunds/partial payments; Owner-controlled cancellation/void**
 
 ### Consultation
 
@@ -551,7 +551,7 @@ The clinic supplies the consultation fee values before go-live, including any do
 
 ## OD-021 — Authentication
 
-**Status: CONFIRMED AT BUSINESS LEVEL**
+**Status: CONFIRMED AT V1 BUSINESS LEVEL**
 
 Confirmed:
 
@@ -700,7 +700,7 @@ Administrator cannot grant/revoke Owner authority or disable an Owner account.
 
 ## OD-027 — Audit Retention and Access
 
-**Status: CONFIRMED AT BUSINESS LEVEL; RETENTION/EXPORT POLICY DEPENDENCY**
+**Status: CONFIRMED; RETENTION/EXPORT POLICY DEPENDENCY**
 
 Derived V1 access:
 
@@ -864,7 +864,7 @@ Exact chart layout, export format, analytics technology, and data-retention dura
 
 ## OD-033 — Incorrect Payment-Record Correction
 
-**Status: CONFIRMED — DERIVED FROM FINANCIAL AUDIT MODEL**
+**Status: CONFIRMED — Owner-controlled**
 
 If Reception or Pharmacy staff record a payment incorrectly:
 
@@ -878,7 +878,7 @@ This is a record correction, not a refund.
 
 ## OD-034 — Bill Void Versus Dispensed Stock
 
-**Status: CONFIRMED — DERIVED FROM INVENTORY-ACCOUNTABILITY MODEL**
+**Status: CONFIRMED — no automatic stock restoration**
 
 Approving pharmacy-bill cancellation/void does not reverse dispensing and does not restore inventory automatically.
 
@@ -886,7 +886,7 @@ Any legitimate stock correction is a separate inventory-adjustment request requi
 
 ## OD-035 — Owner/Admin Clinical-Content Boundary
 
-**Status: CONFIRMED — DERIVED FROM ROLE SEPARATION**
+**Status: CONFIRMED — Doctor role required**
 
 Owner-only and Administrator-only authority does not grant unrestricted clinical-note or diagnosis content. Full clinical-record content requires Doctor-role authority.
 
@@ -894,13 +894,13 @@ Operational/audit views may show that a clinical record changed, who changed it,
 
 ## OD-036 — Owner-Role Lifecycle Authority
 
-**Status: CONFIRMED — DERIVED SECURITY CONTROL**
+**Status: CONFIRMED — Owner-controlled**
 
 Administrator cannot grant/revoke Owner role authority or disable an Owner account. Owner-role lifecycle changes require Owner authority and are audited.
 
 ## OD-037 — Multi-Pharmacy Availability in Prescribing
 
-**Status: CONFIRMED — DERIVED FROM MULTI-PHARMACY MODEL**
+**Status: CONFIRMED — view-only**
 
 When multiple pharmacy units exist, Doctor prescribing shows clinic-wide availability and per-pharmacy-unit availability where stock is known. This is view-only and does not give Doctor inventory-control authority.
 
