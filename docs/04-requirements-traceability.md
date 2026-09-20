@@ -4,7 +4,7 @@
 
 This document maps the confirmed discovery decisions to the BRD requirements/business rules and to the active decision register.
 
-The current baseline is v0.2.
+The current baseline is v0.3.
 
 ---
 
@@ -92,10 +92,12 @@ Documentation rule:
 | Multiple receptionists use individual accounts in a shared reception workspace | CONFIRMED | FR-093, OD-023 |
 | Multiple pharmacy units maintain separate stock ledgers with Owner consolidated view | CONFIRMED | FR-094 to FR-096, BR-040, BR-041, OD-023 |
 | Pharmacist limited to prescriptions, allergies, dispensing/payment status, inventory requests | CONFIRMED | FR-067, FR-068, OD-022 |
-| Individual staff accounts; fixed clinic context; owner/admin-assisted reset | CONFIRMED + DERIVED V1 DESIGN | FR-069, FR-084, BR-035, OD-021, OD-022 |
-| Group-based privileges (Doctor/Reception/Pharmacist) | CONFIRMED | FR-069, OD-022 |
-| Login/password plus password reset | CONFIRMED | FR-084, OD-021 |
-| No 2FA/MFA in V1 | CONFIRMED | FR-085, OD-021 |
+| Individual user accounts in fixed clinic context | CONFIRMED | FR-069, FR-084, BR-035, OD-021, OD-022 |
+| Group-based privileges including Owner/Doctor/Reception/Pharmacist/Admin | CONFIRMED | FR-064, FR-069, OD-022 |
+| Owner-role accounts require password + 2FA, including Owner + Doctor accounts | CONFIRMED | FR-085, BR-043, OD-021 |
+| Non-Owner staff accounts do not require 2FA in V1 | CONFIRMED | FR-100, BR-043, OD-021 |
+| Staff Forgot Password creates Owner reset request; Owner sets reset credential; old password is never exposed | CONFIRMED | FR-101, FR-102, BR-044, OD-021 |
+| Staff must replace Owner-reset temporary password after next login; reset is audited | DERIVED SAFE V1 DESIGN | FR-103, BR-045, OD-021 |
 | Current pilot is single-branch/one owner-doctor, but the same clinic model supports additional doctors, receptionists, and pharmacy units | CONFIRMED | FR-092 to FR-099, BR-039 to BR-042, OD-023 |
 | Web app, internet-dependent, no offline V1 | CONFIRMED | BRD Section 13, OD-024 |
 | A4 printing; no thermal printer requirement | CONFIRMED | BRD Section 13, OD-020, OD-024 |
@@ -119,7 +121,7 @@ Documentation rule:
 | Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096 |
 | Pharmacy Billing and Payment Status | FR-057 — FR-063 |
 | Roles and Access | FR-064 — FR-069, FR-097 — FR-099 |
-| Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085 |
+| Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085, FR-100 — FR-103 |
 
 ---
 
@@ -142,7 +144,7 @@ The current decision IDs are defined in:
 
 - [03 — Open Decisions and Edge Cases](03-open-decisions-and-edge-cases.md)
 
-v0.2 explicitly corrects numbering inconsistencies that existed in the initial v0.1 register.
+v0.2 corrected numbering inconsistencies from the initial v0.1 register; v0.3 adds the generalized Owner/multi-role security model.
 
 Key genuinely open areas are now limited to:
 
