@@ -27,7 +27,7 @@ Create Visit ID
 Consultation payment/charge handling
     |
     v
-Queue eligibility check (exact rule TBD)
+Queue eligibility check: Paid or Owner-approved Waived -> eligible; Unpaid -> blocked
     |
     v
 Add visit to consultation queue
@@ -169,17 +169,16 @@ Confirmed visit-level associations include:
 
 ## 4.1 Baseline Visit State Model
 
-The currently accepted operational queue/visit states are:
+The accepted operational queue/visit states are:
 
 1. **Waiting**
 2. **Called**
-3. **With Doctor**
-4. **Consultation Completed**
-5. **Sent to Pharmacy**
-6. **Completed**
-7. **Cancelled**
-
-The exact triggers for all transitions remain subject to business-rule confirmation.
+3. **Unresponded** — transient queue event/state before returning to Waiting at the repositioned slot
+4. **With Doctor**
+5. **Consultation Completed**
+6. **Sent to Pharmacy**
+7. **Completed**
+8. **Cancelled/Voided**
 
 ## 4.2 Baseline State Flow
 
@@ -188,7 +187,12 @@ Waiting
    |
    v
 Called
-   |
+   | \
+   |  \ no response
+   |   v
+   | Unresponded
+   |   |
+   |   +--> reposition -> Waiting
    v
 With Doctor
    |
@@ -202,16 +206,7 @@ Sent to Pharmacy
 Completed
 ```
 
-Possible alternative:
-
-```text
-Any eligible operational state
-   |
-   v
-Cancelled
-```
-
-The exact states from which cancellation is permitted, and who can perform it, remain TBD.
+Cancellation is not a direct unrestricted state transition. A Doctor submits a cancellation request with a specific reason; the visit remains active while pending. Owner approval moves it to **Cancelled/Voided** and removes it from active workflow. Owner rejection leaves the active state unchanged. Reception cannot initiate visit cancellation.
 
 ---
 
@@ -223,7 +218,7 @@ The exact states from which cancellation is permitted, and who can perform it, r
 2. Reception selects the correct patient.
 3. Reception creates a new Visit ID.
 4. Reception handles the consultation payment/charge record.
-5. The visit becomes eligible for queue entry according to the final payment/queue business rule.
+5. The visit becomes queue-eligible only when consultation status is Paid or Owner-approved Waived.
 6. Reception adds or confirms the visit in the consultation queue.
 
 ## 5.2 New Patient
@@ -233,7 +228,7 @@ The exact states from which cancellation is permitted, and who can perform it, r
 3. Patient ID is associated with the physical clinic file.
 4. Reception creates the patient's first Visit ID.
 5. Reception handles consultation payment/charge.
-6. Queue eligibility is evaluated.
+6. Queue eligibility is evaluated: Paid or Owner-approved Waived is eligible; Unpaid is blocked.
 7. Visit enters the consultation queue.
 
 ## 5.3 Returning Patient Without Physical File
@@ -243,13 +238,13 @@ Confirmed intent:
 - the existing digital patient record must still be retrievable;
 - the patient must not receive a new Patient ID merely because the physical file is unavailable.
 
-The operational process for locating/replacing the physical file remains TBD.
+Locating or replacing the physical paper file is an offline clinic procedure and is not a V1 CRM workflow dependency. The digital patient identity remains usable regardless of the paper file's availability.
 
 ---
 
 # 6. Consultation Payment State Model
 
-Consultation payment must be recorded as a transaction, not only as a checkbox.
+Consultation payment must be stored as an auditable payment-status/information record rather than an unaudited checkbox.
 
 V1 does not process consultation payments. Reception records payment status/information after payment occurs outside the CRM.
 
@@ -259,32 +254,34 @@ Confirmed consultation rules:
 - Unpaid -> must not enter the doctor queue unless an approved waiver applies.
 - Partial consultation payment is not supported.
 - Consultation payment is non-refundable in V1.
-- If a paid consultation is cancelled, only the doctor may cancel it and a reason is required; the payment is not refunded.
+- If a paid consultation needs cancellation, a Doctor submits a request with a specific reason and the Owner approves/rejects it; approval does not refund the payment.
 
 Confirmed queue rule:
 
 - **Paid** -> eligible to enter the doctor queue.
 - **Unpaid** -> must not enter the doctor queue.
 
-Waived consultation flow is confirmed at a high level:
+Waived consultation flow:
 
-### Reception-initiated waiver
+### Reception- or Doctor-initiated request
 
-1. reception raises a waiver request;
-2. the request is shown to the doctor;
-3. reception cannot approve the waiver;
-4. if the doctor approves, the visit becomes eligible for the doctor queue despite no consultation payment;
-5. while the waiver is pending or not approved, the visit remains ineligible for the queue.
+1. Reception or a Doctor submits a waiver request.
+2. A specific reason is mandatory.
+3. The request is shown to the Owner.
+4. Reception and Doctor role alone cannot approve it.
+5. While pending or rejected, an Unpaid visit remains ineligible for the queue.
+6. Owner approval records the consultation financial outcome as **Waived** and makes the visit queue-eligible.
+7. Requester, approver, reason, decision, and timestamps are logged.
 
-### Doctor-initiated waiver
+### Owner-initiated waiver
 
-1. the doctor may initiate the consultation-fee waiver directly;
-2. because the doctor is the approving authority, no second approval step is required;
-3. the waiver is treated as approved immediately;
-4. the visit/payment status is updated automatically;
-5. the visit becomes eligible for the doctor queue.
+1. Owner may initiate a waiver directly.
+2. No second approval step is required because the action already uses Owner authority.
+3. The outcome is immediately **Waived**.
+4. The visit becomes queue-eligible.
+5. Reason and audit history remain mandatory.
 
-The exact financial-record representation and reason requirements for the waiver remain TBD.
+A user who is both Owner and Doctor performs the approval through Owner authority, even though both roles are on the same account.
 
 ---
 
@@ -327,7 +324,7 @@ Confirmed additional queue behavior:
 - reception may reassign a queued visit from one doctor to another doctor-specific queue;
 - every doctor reassignment is logged;
 - if a called patient does not respond, reception marks the visit **Unresponded** and the system moves it five queue positions downward;
-- if a paid patient leaves before consultation, reception moves the visit toward the end of that doctor's queue;
+- if a paid patient leaves before consultation, reception moves the visit to the end of that doctor's queue;
 - reception cannot cancel a visit;
 - a doctor may submit a consultation/visit cancellation request with a specific reason;
 - the Owner approves or rejects the request;
@@ -372,7 +369,7 @@ Optional entry includes:
 - advice;
 - follow-up information.
 
-Clinical decision functions remain within the Doctor role even though the interface itself is designed to be simple. In the current pilot, the clinic owner is also the only doctor, so that owner-doctor is the sole clinical finalization/approval authority.
+Clinical decision functions remain within the Doctor role even though the interface itself is designed to be simple. In the current pilot the Owner also holds the only Doctor role; if additional doctors are added, each Doctor-role user receives clinical authority independently while Owner-only authority remains separate.
 
 If a completed consultation needs correction, only a Doctor-role user may create an amendment/new revision. The original content remains preserved; amendment reason, actor, and timestamp are recorded.
 
@@ -469,7 +466,7 @@ Pharmacy staff:
 6. see billable clinic-pharmacy items;
 7. proceed with dispensing and billing.
 
-Additional search methods for pharmacy remain TBD.
+Patient ID is the required pharmacy lookup method for locked V1. Additional lookup methods are not required by the V1 business scope.
 
 ---
 
@@ -479,15 +476,15 @@ Pharmacy staff may access:
 
 - patient identification needed for fulfilment;
 - current prescription;
+- previous prescriptions;
+- known allergies;
 - medicine instructions;
 - quantity;
 - availability;
 - bill/price information;
 - pharmacy payment information.
 
-Pharmacy staff must not receive unrestricted access to full doctor clinical notes solely because they are dispensing medicines.
-
-The exact minimum clinical context beyond the prescription remains TBD.
+Pharmacy staff must not receive unrestricted access to diagnosis or full doctor clinical notes solely because they are dispensing medicines.
 
 ---
 
@@ -555,6 +552,8 @@ The system provides:
 - low-stock notifications;
 - near-expiry notifications.
 
+Threshold values are configurable by authorized Owner/Admin users.
+
 Normal prescription dispensing automatically deducts actual dispensed quantity.
 
 For pharmacy inventory upkeep or non-dispensing changes (for example stock additions, damage, loss, corrections, or price changes):
@@ -587,6 +586,15 @@ A stock transfer between pharmacy units uses one linked transfer record:
 3. source stock decreases;
 4. destination stock increases;
 5. both sides retain the same transfer reference and audit history.
+
+## 13.6 Multi-Pharmacy Prescribing Availability
+
+When more than one pharmacy unit exists, the Doctor prescribing view shows:
+
+- clinic-wide availability;
+- availability by pharmacy unit where stock is known.
+
+This is view-only for the Doctor. Pharmacy/Owner inventory controls remain unchanged.
 
 ---
 
@@ -666,6 +674,24 @@ Reception/pharmacy capture should be short:
 
 Payment APIs/gateways are not in the V1 critical workflow.
 
+## 14.4 Payment Correction
+
+If Reception or Pharmacy staff mark a payment incorrectly:
+
+1. the original payment record is not silently overwritten;
+2. staff submit a payment-correction request with the proposed correction and a specific reason;
+3. Owner approves or rejects;
+4. approval creates the corrected effective state while preserving the original state, requester, reason, Owner decision, and timestamps;
+5. rejection leaves the active payment state unchanged.
+
+This is a record correction, not a refund.
+
+## 14.5 Bill Void Does Not Restore Stock
+
+Approving a pharmacy-bill cancellation/void does not reverse dispensing or restore stock automatically.
+
+If a genuine stock correction is required, Pharmacy submits a separate inventory-adjustment request and Owner approves/rejects it through the inventory-control workflow.
+
 ---
 
 # 15. Role-Oriented Workflow Summary
@@ -731,7 +757,7 @@ Owner access includes:
 - staff password-reset request handling;
 - audit-log visibility.
 
-Owner role alone does not allow diagnosis, prescription authoring, or clinical amendments. If the owner is also a practicing doctor, the same account also receives Doctor-role permission.
+Owner role alone does not grant diagnosis, prescription authoring, clinical amendments, or unrestricted clinical-note/diagnosis content. Full clinical content requires Doctor-role authority. If the owner is also a practicing doctor, the same account receives Doctor-role permission.
 
 For a multi-role user, Owner and Doctor workspaces/modes should be visibly separated.
 
@@ -739,14 +765,16 @@ For a multi-role user, Owner and Doctor workspaces/modes should be visibly separ
 
 Administrator responsibilities include:
 
-- create/disable staff accounts;
-- assign permission groups;
+- create/disable non-Owner staff accounts;
+- assign non-Owner permission groups;
 - manage non-clinical clinic configuration;
 - manage medicine/inventory configuration where permitted;
 - view operational/revenue/inventory reports;
-- view audit logs.
+- view authorized audit logs.
 
-Administrator permission by itself does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, amendments, waiver approvals, and similar clinical actions require Doctor-group permission.
+Administrator permission by itself does not grant clinical-authoring authority, unrestricted clinical content, or Owner authority. Clinical notes, diagnosis, prescriptions, amendments, and medicine-substitution decisions require Doctor permission. Financial waiver, inventory-control, cancellation approval, and Owner-role lifecycle actions require Owner permission.
+
+Administrator cannot grant/revoke Owner role authority or disable an Owner account.
 
 Staff accounts are disabled rather than deleted when a staff member leaves, preserving historical audit references.
 
@@ -816,21 +844,25 @@ Correction or cancellation must preserve appropriate historical evidence.
 Current pilot:
 
 - one clinic branch;
-- clinic owner is also the only doctor;
-- separate pharmacy operation.
+- clinic Owner is also the only Doctor;
+- one separate pharmacy operation.
 
-The same clinic model must also support growth to:
+The same clinic model supports growth to:
 
-- multiple doctors with separate doctor queues;
-- multiple receptionists sharing reception operations through individual accounts;
+- multiple Doctors with separate doctor queues;
+- multiple Reception users sharing reception operations through individual accounts;
 - multiple pharmacy units with separate inventory ledgers;
-- an owner who may or may not also hold the Doctor role;
+- an Owner who may or may not also hold the Doctor role.
+
+Confirmed V1 deployment characteristics:
+
 - web application;
 - internet-dependent operation;
-- no offline mode in V1;
+- no offline mode;
 - normal A4 printing;
-- no thermal receipt printer requirement;
-- hosting/deployment provider remains TBD.
+- no thermal receipt printer requirement.
+
+Hosting/deployment provider remains a downstream technical-architecture choice.
 
 # 18. Confirmed Reporting Set
 
@@ -856,16 +888,14 @@ Per-doctor patient count is not required for the current single-doctor pilot.
 
 ---
 
-# 19. Remaining Genuine Open Areas
+# 19. Post-Lock Configuration and Delivery Dependencies
 
-The current workflow itself is substantially defined. In this pilot, reception/pharmacy staff are operational users and the owner-doctor is the sole clinical decision/finalization authority.
+The core business workflow is closed. The following do not reopen V1 business discovery:
 
-Remaining items requiring clinic policy, external validation, or downstream technical design are:
+1. clinic-supplied consultation fee values and pharmacy price/tax configuration;
+2. clinic-specific A4 receipt/acknowledgement layout, if desired;
+3. legal/privacy/compliance and retention validation;
+4. hosting, backup/recovery, performance, and other technical architecture decisions;
+5. catastrophic Owner-account recovery implementation if password/authenticator/recovery codes are all unavailable.
 
-1. clinic-defined consultation and pharmacy payment methods/status conventions;
-3. consultation fee and pharmacy billing policy details;
-4. pharmacy partial-payment/refund/cancellation policy;
-5. legal/privacy/compliance and retention requirements;
-6. hosting, backup/recovery, and other technical architecture decisions.
-
-Duplicate merging, offline mode, medicine returns, non-prescription pharmacy retail, and payment processing remain future/out of V1 unless explicitly added later.
+Duplicate merging, offline mode, medicine returns, non-prescription pharmacy retail, and payment processing remain future/out of V1 unless introduced through formal change control.
