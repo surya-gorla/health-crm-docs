@@ -47,7 +47,10 @@ Documentation rule:
 | Payment status is recorded; CRM does not process payment | CONFIRMED | FR-011 to FR-016, FR-060 to FR-063, BR-033, OD-004, OD-018 |
 | No partial consultation payment | CONFIRMED | FR-013, BR-021, OD-004 |
 | Unpaid consultation cannot enter queue | CONFIRMED | FR-016, BR-010, OD-004 |
-| Consultation payment is non-refundable in V1 | CONFIRMED | BR-021, OD-019 |
+| Consultation payment is non-refundable in V1 | CONFIRMED | BR-021, BR-050, OD-019 |
+| Pharmacy payment has no partial payment and no refunds in V1 | CONFIRMED | FR-061, BR-047, BR-050, OD-019 |
+| Pharmacy bill cancellation/void requires Pharmacist request + specific reason + Owner approval/rejection | CONFIRMED | FR-105 to FR-107, BR-048, OD-019 |
+| Payment-method labels are Owner-configurable clinic values; CRM records but does not process payment | CONFIRMED | FR-063, FR-108, BR-051, OD-018 |
 | Reception-requested waiver requires doctor approval | CONFIRMED | FR-015, FR-016, BR-022, OD-005 |
 | Doctor can initiate waiver directly | CONFIRMED | FR-015, BR-022, OD-005 |
 | Waiver requires reason and audit log | CONFIRMED | FR-074, BR-022, OD-005 |
@@ -57,7 +60,7 @@ Documentation rule:
 | Unresponded patient moved five queue positions down; if fewer than five remain, move to end | DERIVED V1 DECISION | FR-025, OD-007 queue edge rules |
 | Paid patient who leaves before consultation moved to end of assigned queue | DERIVED V1 DECISION | FR-025 |
 | Reception cannot cancel visit | CONFIRMED | FR-081, BR-029 |
-| Doctor can cancel visit with reason; cancelled visit remains in history | CONFIRMED | FR-081, FR-074, BR-029, OD-019 |
+| Doctor requests visit/consultation cancellation with specific reason; Owner approves/rejects; approved item leaves active workflow but remains in history | CONFIRMED | FR-081, FR-074, BR-029, BR-049, OD-019 |
 | Clinical entry should be low-complexity/guided | CONFIRMED BY DELEGATED DESIGN | FR-028 to FR-030, OD-008 |
 | Completed consultation correction uses Doctor-only amendment/revision; original preserved; reason required | DERIVED FROM AUDIT MODEL | FR-032, BR-012, OD-009 |
 | Clinical decision fields remain Doctor-role functions | CONFIRMED DESIGN CONTROL | FR-066, OD-008, OD-022 |
@@ -120,7 +123,7 @@ Documentation rule:
 | Printed Prescription | FR-041 — FR-044 |
 | Pharmacy Prescription Retrieval and Access | FR-045 — FR-048 |
 | Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096 |
-| Pharmacy Billing and Payment Status | FR-057 — FR-063 |
+| Pharmacy Billing and Payment Status | FR-057 — FR-063, FR-105 — FR-108 |
 | Roles and Access | FR-064 — FR-069, FR-097 — FR-099 |
 | Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085, FR-100 — FR-104 |
 
@@ -149,8 +152,6 @@ v0.2 corrected numbering inconsistencies from the initial v0.1 register; v0.3 ad
 
 Key genuinely open areas are now limited to:
 
-- OD-018 — clinic-defined payment methods/status conventions to record;
-- OD-019 — pharmacy partial-payment/refund/cancellation policy;
 - OD-026 — consultation fee/billing policy supplied by the clinic;
 - OD-025 — backup/recovery targets, to be finalized in technical architecture;
 - OD-027 / OD-028 — retention, privacy, healthcare/legal/compliance requirements requiring external validation;
@@ -171,7 +172,7 @@ The v0.3 baseline now establishes:
 - Owner-controlled fee waiver;
 - no CRM urgent-priority workflow;
 - non-response and patient-left queue behavior at high level;
-- doctor-only visit cancellation;
+- Doctor-requested / Owner-approved consultation cancellation;
 - low-complexity doctor consultation entry;
 - minimal immutable prescription;
 - pharmacy availability and dispensing;
