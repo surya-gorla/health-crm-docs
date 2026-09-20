@@ -331,6 +331,10 @@ If the doctor discovers an error:
 
 Pharmacist cannot perform this correction.
 
+### Printed availability marker
+
+At doctor finalization/printing time, medicines with clinic-wide status **Out of Stock** or **Not Stocked** are marked with **. A partial quantity discovered later during dispensing does not retroactively alter the original prescription; the pharmacy dispensing/billing summary records the actual supplied and unsupplied quantities.
+
 ---
 
 # 8. Pharmacy Dispensing
@@ -899,6 +903,8 @@ Administrator cannot grant/revoke Owner role authority or disable an Owner accou
 **Status: CONFIRMED — DERIVED FROM MULTI-PHARMACY MODEL**
 
 When multiple pharmacy units exist, Doctor prescribing shows clinic-wide availability and per-pharmacy-unit availability where stock is known. This is view-only and does not give Doctor inventory-control authority.
+
+Every dispensing/billing transaction belongs to the pharmacy unit that actually dispensed it. If more than one unit fulfils the same prescription, each unit records/bills only its own supplied quantity while cumulative dispensing remains capped by the active prescription.
 
 ---
 
