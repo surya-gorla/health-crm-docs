@@ -701,7 +701,7 @@ V1 uses individual username/login + password accounts within the fixed single-cl
 
 Authentication rules:
 
-- any account with the **Owner** role requires password + 2FA before login completes;
+- any account with the **Owner** role requires password + Google Authenticator-compatible TOTP 2FA before login completes;
 - this also applies when the same account is Owner + Doctor or Owner + another role;
 - Doctor-only, Reception, Pharmacist, and Administrator-only accounts do not require 2FA in V1.
 
@@ -718,7 +718,7 @@ For a non-Owner staff account:
 7. system requires the staff member to choose a new password before continuing normal use;
 8. reset request and Owner reset action are logged.
 
-The exact second-factor technology for Owner 2FA and the secure Owner-account recovery process remain technical/security-design items.
+Owner 2FA uses Google Authenticator-compatible TOTP. The secure Owner-account recovery process remains a technical/security-design item.
 
 ---
 
