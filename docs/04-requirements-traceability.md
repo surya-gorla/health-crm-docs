@@ -98,6 +98,7 @@ Documentation rule:
 | Non-Owner staff accounts do not require 2FA in V1 | CONFIRMED | FR-100, BR-043, OD-021 |
 | Staff Forgot Password creates Owner reset request; Owner sets reset credential; old password is never exposed | CONFIRMED | FR-101, FR-102, BR-044, OD-021 |
 | Staff must replace Owner-reset temporary password after next login; reset is audited | DERIVED SAFE V1 DESIGN | FR-103, BR-045, OD-021 |
+| Owner TOTP setup generates one-time recovery codes; catastrophic recovery has no in-app bypass | DERIVED SAFE SECURITY DESIGN | FR-104, BR-046, OD-021 |
 | Current pilot is single-branch/one owner-doctor, but the same clinic model supports additional doctors, receptionists, and pharmacy units | CONFIRMED | FR-092 to FR-099, BR-039 to BR-042, OD-023 |
 | Web app, internet-dependent, no offline V1 | CONFIRMED | BRD Section 13, OD-024 |
 | A4 printing; no thermal printer requirement | CONFIRMED | BRD Section 13, OD-020, OD-024 |
@@ -121,7 +122,7 @@ Documentation rule:
 | Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-090, FR-094 — FR-096 |
 | Pharmacy Billing and Payment Status | FR-057 — FR-063 |
 | Roles and Access | FR-064 — FR-069, FR-097 — FR-099 |
-| Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085, FR-100 — FR-103 |
+| Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085, FR-100 — FR-104 |
 
 ---
 
@@ -161,13 +162,13 @@ Other former open items have either been closed as derived V1 design decisions o
 
 # 7. Current Completeness Assessment
 
-The v0.2 baseline now establishes:
+The v0.3 baseline now establishes:
 
 - patient identity and registration-field model;
 - duplicate fallback behavior;
 - doctor-specific queues and reassignment;
 - payment-to-queue gate;
-- doctor-controlled fee waiver;
+- Owner-controlled fee waiver;
 - no CRM urgent-priority workflow;
 - non-response and patient-left queue behavior at high level;
 - doctor-only visit cancellation;
@@ -180,10 +181,10 @@ The v0.2 baseline now establishes:
 - multi-unit pharmacy inventory;
 - batch/expiry/pricing metadata;
 - stock and expiry alerts;
-- doctor-controlled non-dispensing inventory changes;
+- Owner-controlled non-dispensing inventory changes and inter-pharmacy transfers;
 - expired-stock non-dispensability;
 - role/group access model;
-- individual authentication model;
+- individual authentication model with Owner TOTP 2FA and Owner-controlled staff password recovery;
 - single-branch online web pilot;
 - selected V1 reporting set.
 
