@@ -155,10 +155,14 @@ Confirmed:
 1. Consultation-fee waiver is supported.
 2. Reception may raise the waiver request.
 3. Reception cannot approve the waiver.
-4. The waiver request is shown to the doctor.
-5. The doctor is the approver.
-6. Until doctor approval is received, the visit remains ineligible for the doctor queue.
-7. If the doctor approves the waiver, the visit becomes eligible for the doctor queue without consultation payment.
+4. A reception-initiated waiver request is shown to the doctor.
+5. The doctor is the approving authority.
+6. Until doctor approval is received for a reception-initiated request, the visit remains ineligible for the doctor queue.
+7. If the doctor approves the reception-initiated waiver, the visit becomes eligible for the doctor queue without consultation payment.
+8. The doctor may initiate a waiver directly from the doctor side.
+9. A doctor-initiated waiver does not require a second approval step.
+10. A doctor-initiated waiver is treated as immediately approved and automatically updates the visit/payment status.
+11. A doctor-initiated approved waiver makes the visit eligible for the doctor queue.
 
 Still open:
 
