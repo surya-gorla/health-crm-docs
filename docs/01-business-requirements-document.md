@@ -333,7 +333,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 | FR-073 | Where a prescription, payment, or other important record is cancelled/voided, the record shall preserve the fact of cancellation. | TBD | Hospital CRM | TBD |
 | FR-074 | Doctor cancellation of a consultation and consultation-fee waiver decisions shall include a reason and shall be logged with the responsible actor. | TBD | Hospital CRM | TBD |
 | FR-084 | Every staff member shall authenticate using an individual login under the clinic context. V1 shall use individual login credentials and password. | TBD | Hospital CRM | TBD |
-| FR-085 | Any account holding the Owner role shall require two-factor authentication (2FA) in addition to the account password before login is completed. A user who holds Owner + Doctor or Owner + another role remains subject to Owner 2FA because the account has Owner privileges. | TBD | Hospital CRM | TBD |
+| FR-085 | Any account holding the Owner role shall require two-factor authentication (2FA) in addition to the account password before login is completed. The second factor shall use Google Authenticator-compatible time-based one-time passwords (TOTP). A user who holds Owner + Doctor or Owner + another role remains subject to Owner 2FA because the account has Owner privileges. | TBD | Hospital CRM | TBD |
 | FR-100 | Non-Owner staff accounts, including Doctor-only, Reception, Pharmacist, and Administrator-only accounts, shall not require 2FA in V1. | TBD | Hospital CRM | TBD |
 | FR-101 | A non-Owner staff member who selects Forgot Password shall submit a password-reset request to the Owner. Staff shall not be able to self-reset the password without Owner action in V1. | TBD | Hospital CRM | TBD |
 | FR-102 | The Owner shall be able to review a staff password-reset request and set a new/temporary password. The system shall never reveal the staff member's existing password to the Owner or any other user. | TBD | Hospital CRM | TBD |
@@ -413,7 +413,7 @@ Primary KPI values remain **TBD** because analytics/KPI requirements have not ye
 
 **BR-042** — Owner role is the default approval authority for financial waiver approval and non-dispensing inventory control. Doctor role remains the authority for clinical decisions such as prescriptions and medicine substitutions.
 
-**BR-043** — Owner privilege is security-sensitive: every account containing the Owner role requires 2FA. Non-Owner staff accounts do not require 2FA in V1.
+**BR-043** — Owner privilege is security-sensitive: every account containing the Owner role requires Google Authenticator-compatible TOTP 2FA. Non-Owner staff accounts do not require 2FA in V1.
 
 **BR-044** — Staff forgotten-password recovery is a request/Owner-reset workflow. The Owner may replace the password but may never view or retrieve the existing password.
 
