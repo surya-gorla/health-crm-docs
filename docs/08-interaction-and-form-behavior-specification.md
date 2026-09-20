@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.1 |
+| Version | 0.2 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
 | Parent | PRD v0.2 |
@@ -315,7 +315,7 @@ Do not force it for UPI or Card.
 
 Use an explicit action such as **Mark Paid** / **Mark Paid & Continue**.
 
-Selecting the method is not equivalent to payment confirmation.
+Selecting UPI, Cash, Card, or Other must never mark a payment Paid by itself. Payment becomes Paid only after the user performs the explicit final payment-confirmation action.
 
 ## 8.5 Unpaid
 
@@ -976,3 +976,44 @@ This interaction specification fails review if:
 - a disabled/unauthorized control still exposes protected content;
 - unsaved material form edits can be discarded without warning;
 - history looks editable/current when it is not.
+
+
+---
+
+# 34. Role-Action Boundary Matrix
+
+This section makes the authorization contract explicit at the interaction layer.
+
+| Action | Reception | Doctor | Pharmacist | Administrator | Owner |
+| --- | --- | --- | --- | --- | --- |
+| Register/search patient | Yes | View as clinically needed | Lookup for dispensing | No routine workflow | Oversight only |
+| Directly edit established demographics | No | Yes, audited | No | No | Only if also Doctor |
+| Request demographic correction | Yes | N/A | No | No | Only through permitted role |
+| Diagnose / clinical notes | No | Yes | No | No | Only if also Doctor |
+| Finalize/replace prescription | No | Yes | No | No | Only if also Doctor |
+| Approve medicine substitution | No | Yes | No | No | Only if also Doctor |
+| Record consultation payment | Yes | No routine flow | No | No | Oversight / permitted correction approval |
+| Request consultation waiver | Yes | Yes | No | No | May directly waive |
+| Approve consultation waiver | No | No unless also Owner | No | No | Yes |
+| Request Visit cancellation | No | Yes | No | No | Only if also Doctor |
+| Approve Visit cancellation | No | No unless also Owner | No | No | Yes |
+| Dispense medicine | No | No | Yes | No | No routine workflow |
+| Record pharmacy payment | No | No | Yes | No | Oversight |
+| Request pharmacy bill void | No | No | Yes | No | No routine request |
+| Approve pharmacy bill void | No | No | No | No | Yes |
+| Submit inventory adjustment | No | No | Yes | Configuration only | May control/approve |
+| Approve inventory adjustment | No | No | No | No | Yes |
+| Request stock transfer | No | No | Yes | No | May control/approve |
+| Approve stock transfer | No | No | No | No | Yes |
+| Create/disable non-Owner staff | No | No | No | Yes | Yes |
+| Grant/revoke Owner role | No | No | No | **Never** | Yes |
+| Disable Owner account | No | No | No | **Never** | Owner-authorized lifecycle only |
+| View unrestricted full clinical content | No | Yes when clinically authorized | No | No | Only if also Doctor |
+
+Rules:
+
+1. **Administrator cannot grant or revoke Owner authority and cannot disable an Owner account.**
+2. Owner authority does not substitute for Doctor authority.
+3. Doctor authority does not substitute for Owner authority.
+4. Hiding a control in the UI is not sufficient authorization; direct navigation/action must also be denied.
+5. A multi-role user gains the union of explicitly assigned roles, while the active authority context remains visible and auditable.

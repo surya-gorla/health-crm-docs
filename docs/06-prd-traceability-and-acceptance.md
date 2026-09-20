@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.1 |
+| Version | 0.2 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
 | Parent | Product Requirements Document v0.1 |
@@ -440,3 +440,164 @@ The process is:
 5. then update PRD and acceptance mapping.
 
 Product design refinement that does not change business behavior can remain within the PRD workstream.
+
+
+---
+
+# 11. Screen and Interaction Acceptance
+
+These scenarios validate Documents 07 and 08 without introducing new business policy.
+
+## UXA-001 — Search-first Reception home
+
+**Given** Reception opens the workspace  
+**Then** patient search is immediately available and New Patient is a deliberate secondary action rather than the default automatic path.
+
+Supports: REC-01, REC-02.
+
+## UXA-002 — Shared phone is not unique proof
+
+**Given** multiple patient records share one phone number  
+**When** Reception searches the phone  
+**Then** the UI presents separate candidates and does not auto-select one record.
+
+Supports: REC-02, IX Section 5.
+
+## UXA-003 — Payment method selection is not payment confirmation
+
+**Given** a consultation or pharmacy payment form  
+**When** user selects UPI, Cash, Card, or Other  
+**Then** payment state does not become Paid until the explicit final payment action is performed.
+
+Supports: REC-05, PHA-04, IX Section 8.
+
+## UXA-004 — Other payment requires description
+
+**Given** user selects Other  
+**Then** a payment-method description becomes required before final payment confirmation.
+
+Supports: REC-05, PHA-04.
+
+## UXA-005 — Approval pending does not mutate source
+
+**Given** a waiver, bill void, payment correction, inventory adjustment, or transfer request is Pending  
+**Then** the underlying effective business state remains unchanged unless the locked workflow explicitly states otherwise.
+
+Supports: OWN-02, OWN-03, IX Section 9.
+
+## UXA-006 — Stale approval protection
+
+**Given** Owner opened a Pending approval  
+**And** another authorized session resolved it  
+**When** Owner attempts to decide using the stale view  
+**Then** the product blocks duplicate decision and requires refresh/review.
+
+Supports: OWN-03, IX Section 25.
+
+## UXA-007 — Unresponded state is operationally visible
+
+**Given** Reception marks a Called patient Unresponded  
+**Then** the event is visible in history and the Visit returns to Waiting at the rule-derived queue position.
+
+Supports: REC-07.
+
+## UXA-008 — Finalized prescription has no ordinary edit control
+
+**Given** prescription is Finalized  
+**Then** the screen offers reprint and replacement/correction flow, but not direct in-place edit.
+
+Supports: DOC-05, DOC-07.
+
+## UXA-009 — Partial dispensing preserves original prescription
+
+**Given** pharmacy can only supply part of the prescribed quantity  
+**Then** the dispensing screen shows supplied and unsupplied remainder without rewriting the original prescription.
+
+Supports: PHA-03, DOC-05.
+
+## UXA-010 — Pharmacy-unit context never disappears
+
+**Given** clinic has more than one pharmacy unit  
+**When** Pharmacist uses inventory, dispensing, bill, or transfer screens  
+**Then** the active pharmacy unit/source-destination context remains visible.
+
+Supports: PHA-01, PHA-03, PHA-04, PHA-07–PHA-10.
+
+## UXA-011 — Bill void warning is explicit
+
+**Given** Pharmacist or Owner views bill-void flow  
+**Then** the UI states that approving the void does not restore already-dispensed stock.
+
+Supports: PHA-05, OWN-03, IX Section 16.
+
+## UXA-012 — Inventory adjustment shows projected result
+
+**Given** Pharmacist prepares manual inventory change  
+**Then** current stock, proposed delta, and resulting quantity are visible before submission when quantity-based.
+
+Supports: PHA-09, OWN-03, IX Section 17.
+
+## UXA-013 — Unauthorized direct navigation is safe
+
+**Given** a user lacks permission for a screen/action  
+**When** the user reaches it by direct URL/navigation/history  
+**Then** protected content is not rendered and the action remains unavailable.
+
+Supports: IA-06, IX Section 26.
+
+## UXA-014 — Owner/Admin clinical boundary
+
+**Given** an Owner-only or Admin-only user  
+**When** they open operational/audit screens  
+**Then** full diagnosis/clinical-note content is not exposed solely by those roles.
+
+Supports: OWN-07, ADM screens, IX Section 34.
+
+## UXA-015 — Multi-role authority is visible
+
+**Given** one account has Owner + Doctor  
+**When** user switches between Doctor and Owner workspaces  
+**Then** the active workspace/authority remains visible and the same human identity is retained for audit.
+
+Supports: SH-06, IA-01, IX Section 29.
+
+## UXA-016 — Unsaved material changes warning
+
+**Given** a user changed a material form but has not successfully saved/submitted/finalized it  
+**When** user navigates away  
+**Then** the product warns before discarding the unsaved input.
+
+Supports: IX Section 3.6.
+
+## UXA-017 — Loading is not empty
+
+**Given** a data-backed list is still loading  
+**Then** the product does not show a final “No data” empty state until retrieval completes.
+
+Supports: IA Section 12, IX Sections 22–23.
+
+## UXA-018 — High-impact confirmation communicates consequence
+
+**Given** user finalizes prescription, approves bill void, approves inventory loss, or disables a staff account  
+**Then** the confirmation describes the actual consequence rather than a generic “Are you sure?”
+
+Supports: IX Section 27.
+
+---
+
+# 12. Interaction Release Blockers
+
+The PRD interaction layer is not acceptable if any of the following are possible:
+
+1. payment becomes Paid merely by choosing a payment method;
+2. high-impact action executes from a row click without explicit action;
+3. a Pending approval silently changes the source record;
+4. a stale approval can be applied twice;
+5. an unauthorized direct route renders protected clinical/Owner content;
+6. pharmacy-unit context disappears during dispensing or stock transfer;
+7. finalized prescription exposes ordinary edit controls;
+8. bill void UI implies dispensed stock will return automatically;
+9. Admin UI can grant/revoke Owner authority;
+10. Owner-only UI exposes unrestricted clinical notes;
+11. loading is rendered as an empty final state;
+12. material unsaved form data can be silently discarded.
