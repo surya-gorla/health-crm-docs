@@ -511,22 +511,33 @@ Clinic will define:
 
 ## OD-021 — Authentication
 
-**Status: PARTIALLY CONFIRMED**
+**Status: CONFIRMED AT BUSINESS LEVEL**
 
 Confirmed:
 
-- every staff member has an individual login;
-- staff authenticate under the clinic/hospital context;
+- every user has an individual account;
 - login + password is used in V1;
-- password-reset capability is required;
-- 2FA/MFA is not required in V1.
+- any account holding the **Owner** role requires 2FA;
+- an Owner + Doctor account still requires 2FA because Owner privilege is present;
+- Doctor-only, Reception, Pharmacist, and Administrator-only accounts do not require 2FA in V1;
+- non-Owner staff cannot self-reset forgotten passwords;
+- a staff Forgot Password action creates a request for the Owner;
+- Owner can reset/set a new temporary password;
+- Owner cannot see or retrieve the old password;
+- staff must change the reset password after the next successful login;
+- password-reset request and Owner reset action are logged.
 
 Derived V1 design:
 
 - because the pilot is a single clinic, no clinic/tenant selector is required at login;
-- staff use individual username/login + password accounts within the fixed clinic context;
-- password reset is administrator/owner-assisted in V1 rather than requiring email/SMS infrastructure;
-- inactivity timeout and password-strength rules are security configuration to be finalized during technical/security design, not remaining business-discovery questions.
+- staff use individual username/login + password accounts within the fixed clinic context.
+
+Still deferred to security design:
+
+- exact Owner second-factor mechanism;
+- Owner recovery when password or second factor is lost;
+- inactivity/session timeout;
+- password-strength rules.
 
 ## OD-022 — Role / Group Permissions
 
@@ -586,7 +597,8 @@ Can:
 - approve/reject non-dispensing inventory changes;
 - approve/reject pharmacy-to-pharmacy stock transfers;
 - inspect complete inventory movement/adjustment history;
-- manage/oversee staff accounts and group assignment subject to Admin design.
+- manage/oversee staff accounts and group assignment subject to Admin design;
+- receive and act on staff Forgot Password reset requests.
 
 Owner role alone does not grant clinical-authoring authority.
 
@@ -628,6 +640,7 @@ Admin permission by itself does **not** grant authority to create/edit doctor cl
 
 - Admin/Owner creates each staff account.
 - Admin/Owner assigns one or more permission groups.
+- Forgotten-password resets for non-Owner staff are handled by Owner, not by the staff member directly.
 - Role/group changes are logged.
 - When a staff member leaves, the account is **disabled**, not deleted, so historical audit references remain valid.
 - Disabled users cannot sign in.
