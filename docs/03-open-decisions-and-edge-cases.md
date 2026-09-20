@@ -28,7 +28,7 @@ Items in this file are **not automatically requirements**. They remain open unti
 | OD-004 | Visit/queue | Exact condition for entering consultation queue | CONFIRMED |
 | OD-005 | Visit/queue | Consultation-fee waiver workflow | CONFIRMED at workflow level; record/reason details remain open |
 | OD-006 | Queue | Urgent/out-of-order queue rule | CONFIRMED — handled outside CRM priority workflow |
-| OD-007 | Queue | Multiple doctors and queue-assignment model | OPEN |
+| OD-007 | Queue | Multiple doctors and queue-assignment model | CONFIRMED — doctor-specific queues; reassignment remains open |
 | OD-008 | Clinical record | Required structure of symptoms/history/diagnosis/notes | OPEN |
 | OD-009 | Clinical record | Rules for editing a completed consultation | OPEN |
 | OD-010 | Prescription | Medicine catalogue model: brand, generic/molecule, or both | OPEN |
@@ -184,14 +184,22 @@ Confirmed operating rule:
 
 This closes OD-006 as a software requirement.
 
-## OD-007 — Multiple Doctors
+## OD-007 — Multiple Doctors and Queue Assignment
 
-Need to define:
+**Status: CONFIRMED at queue-model level; reassignment remains open.**
 
-- one shared queue vs doctor-specific queues;
-- how reception assigns patients;
-- whether doctor reassignment is allowed;
-- whether doctors can pull from a shared pool.
+Confirmed:
+
+1. The clinic uses doctor-specific consultation queues.
+2. Reception selects the doctor for the visit before the visit enters the consultation queue.
+3. The eligible visit is added only to the selected doctor's queue.
+4. Each doctor sees the patients assigned to that doctor's queue.
+5. The confirmed model does not use one shared clinic-wide queue.
+
+Still open:
+
+- whether reception may reassign a patient/visit from one doctor's queue to another after the initial assignment;
+- if reassignment is allowed, when it is permitted and whether the reassignment must be audited.
 
 ---
 
