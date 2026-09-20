@@ -27,7 +27,7 @@ Items in this file are **not automatically requirements**. They remain open unti
 | OD-003 | Patient matching | Whether family members may share one phone number | CONFIRMED |
 | OD-004 | Visit/queue | Exact condition for entering consultation queue | CONFIRMED |
 | OD-005 | Visit/queue | Consultation-fee waiver workflow | CONFIRMED at workflow level; record/reason details remain open |
-| OD-006 | Queue | Urgent/out-of-order queue rule | OPEN |
+| OD-006 | Queue | Urgent/out-of-order queue rule | CONFIRMED — handled outside CRM priority workflow |
 | OD-007 | Queue | Multiple doctors and queue-assignment model | OPEN |
 | OD-008 | Clinical record | Required structure of symptoms/history/diagnosis/notes | OPEN |
 | OD-009 | Clinical record | Rules for editing a completed consultation | OPEN |
@@ -170,18 +170,19 @@ Still open:
 - whether the doctor must provide a reason when declining/rejecting a request;
 - how the approved waiver is represented in the financial record and audit history.
 
-## OD-006 — Urgent Patient Rule
+## OD-006 — Urgent Patient Handling
 
-Scenario:
+**Status: CONFIRMED.**
 
-> A patient needs to be seen before others in normal queue order.
+There is no urgent-patient priority feature in the CRM.
 
-Need to decide:
+Confirmed operating rule:
 
-- who can change priority;
-- whether a reason is required;
-- whether queue history records the change;
-- how waiting patients are represented after reorder.
+1. The CRM does not create a priority flag, priority request, or automated urgent-patient queue-reordering workflow.
+2. If an urgent case arises, the receptionist directly informs the doctor outside the software.
+3. No in-system receptionist-to-doctor priority approval flow is required for this scenario.
+
+This closes OD-006 as a software requirement.
 
 ## OD-007 — Multiple Doctors
 
