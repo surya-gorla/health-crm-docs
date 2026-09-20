@@ -332,10 +332,10 @@ Confirmed additional queue behavior:
 - the doctor may cancel a visit with a reason;
 - cancelled visits remain visible in history.
 
-Still unresolved:
+Boundary rules:
 
-- boundary behavior when fewer than five later queue slots remain;
-- exact slot interpretation of "toward the end" for a patient who leaves before consultation.
+- if fewer than five later queue positions exist for an Unresponded patient, move the visit to the end of the queue;
+- if a paid patient leaves before consultation, move the visit to the end of the assigned doctor's queue.
 
 ---
 
@@ -371,19 +371,19 @@ Optional entry includes:
 
 Clinical decision functions remain within the Doctor role even though the interface itself is designed to be simple.
 
-Post-completion edit/amendment rules remain TBD.
+If a completed consultation needs correction, only a Doctor-role user may create an amendment/new revision. The original content remains preserved; amendment reason, actor, and timestamp are recorded.
 
 ## 8.3 Auditability
 
 Material changes to clinical content must remain attributable.
 
-At minimum, audit behavior must preserve:
+Audit behavior preserves:
 
+- original content;
+- amendment/revision content;
 - actor;
 - time;
-- the fact that a material change occurred.
-
-Exact versioning/display rules remain TBD.
+- mandatory amendment reason.
 
 ---
 
@@ -391,14 +391,15 @@ Exact versioning/display rules remain TBD.
 
 ## 9.1 Medicine Entry
 
-The doctor primarily identifies medicines by:
+The doctor identifies medicines using:
 
-- medicine name;
-- strength ("power").
+- clinic medicine/display name;
+- strength ("power");
+- dosage form.
 
-Manufacturer information is stored for pharmacy/inventory context.
+Manufacturer is stored for pharmacy/inventory context.
 
-Whether dosage form is mandatory remains TBD. Whether the clinic's medicine naming is explicitly brand-based, generic/molecule-based, or clinic-defined remains TBD.
+Generic/molecule name may be stored as an additional searchable attribute, while the clinic display name remains the primary selection label.
 
 ## 9.2 Availability Status
 
@@ -428,7 +429,16 @@ Short timing/food/extra instructions may be added when needed.
 
 Where quantity can be deterministically calculated from dose, frequency, duration, and stock unit, the system calculates it automatically; otherwise the doctor enters quantity.
 
-After finalization, the prescription cannot be edited in place. Pharmacy cannot edit it either. The correction/replacement process for a finalized prescription containing an error remains TBD.
+After finalization, the prescription cannot be edited in place. Pharmacy cannot edit it either.
+
+If a finalized prescription contains an error:
+
+1. the doctor creates a replacement prescription;
+2. the old prescription becomes **Superseded**;
+3. correction reason is mandatory;
+4. actor/time are logged;
+5. pharmacy defaults to the latest active prescription and sees a superseded-prescription warning;
+6. any prior dispensing history remains preserved.
 
 ---
 
@@ -437,10 +447,8 @@ After finalization, the prescription cannot be edited in place. Pharmacy cannot 
 The printed prescription must:
 
 - contain the prescribed medicines;
-- visibly identify medicines unavailable from the clinic pharmacy;
-- explain that marked medicines must be obtained externally.
-
-The exact visual marker, legend, typography, and layout remain TBD.
+- mark unavailable or unsupplied items/quantities with **;
+- include a legend explaining that ** means the clinic pharmacy did not supply that medicine/quantity and the patient should obtain it outside.
 
 Prescription reprinting must not silently create an unrelated new prescription record.
 
@@ -622,7 +630,18 @@ Non-dispensing inventory changes submitted by pharmacy require doctor approval.
 
 ## 15.4 Administrator
 
-Detailed Administrator privileges remain TBD.
+Administrator responsibilities include:
+
+- create/disable staff accounts;
+- assign permission groups;
+- manage non-clinical clinic configuration;
+- manage medicine/inventory configuration where permitted;
+- view operational/revenue/inventory reports;
+- view audit logs.
+
+Administrator permission by itself does not grant clinical-authoring authority. Clinical notes, diagnosis, prescriptions, amendments, waiver approvals, and similar clinical actions require Doctor-group permission.
+
+Staff accounts are disabled rather than deleted when a staff member leaves, preserving historical audit references.
 
 ## 15.5 Group-Based Access
 
@@ -636,7 +655,7 @@ Users belong to privilege groups such as:
 
 Group membership determines role privileges.
 
-V1 uses login credentials/password and requires password reset. 2FA/MFA is not required in V1.
+V1 uses individual username/login + password accounts within the fixed single-clinic context. Password reset is owner/admin-assisted. 2FA/MFA is not required in V1.
 
 ---
 
@@ -698,21 +717,15 @@ Per-doctor patient count is not required for the current single-doctor pilot.
 
 ---
 
-# 19. Open Workflow Scenarios
+# 19. Remaining Genuine Open Areas
 
-The following require explicit future workflow decisions:
+The current workflow itself is substantially defined. Remaining items requiring clinic policy, external validation, or downstream technical design are:
 
-1. Duplicate patient detected after multiple visits already exist.
-2. Reassignment of a patient from one doctor's queue to another after initial assignment.
-3. Patient does not respond when called.
-5. Patient leaves after paying but before consultation.
-6. Doctor edits prescription after pharmacy retrieval.
-7. Doctor edits prescription after partial or complete dispensing.
-8. Partial medicine fulfilment.
-9. Medicine substitution.
-10. Medicine return/refund.
-11. Consultation payment waiver.
-12. Pharmacy-only visit.
-13. Prescription reprint.
-14. Patient demographic correction.
-15. Duplicate-profile fallback when the patient cannot confidently confirm an existing candidate.
+1. whether any non-doctor/lower-knowledge staff may only assist with data entry or are expected to perform clinical decision/finalization actions;
+2. clinic-defined consultation and pharmacy payment methods/status conventions;
+3. consultation fee and pharmacy billing policy details;
+4. pharmacy partial-payment/refund/cancellation policy;
+5. legal/privacy/compliance and retention requirements;
+6. hosting, backup/recovery, and other technical architecture decisions.
+
+Duplicate merging, offline mode, medicine returns, non-prescription pharmacy retail, and payment processing remain future/out of V1 unless explicitly added later.
