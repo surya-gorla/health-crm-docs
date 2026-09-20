@@ -647,7 +647,7 @@ Pharmacist access includes:
 
 Pharmacists cannot edit a doctor prescription directly.
 
-Non-dispensing inventory changes submitted by pharmacy require doctor approval.
+Non-dispensing inventory changes submitted by pharmacy require Owner approval.
 
 ## 15.4 Owner
 
