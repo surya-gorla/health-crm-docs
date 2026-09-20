@@ -2,9 +2,9 @@
 
 ## 1. Purpose
 
-This document provides traceability between the confirmed product decisions from discovery and the formal requirements in the BRD.
+This document maps the confirmed discovery decisions to the BRD requirements/business rules and to the active decision register.
 
-It also separates confirmed requirements from future items, exclusions, and open decisions.
+The current baseline is v0.2.
 
 ---
 
@@ -12,82 +12,87 @@ It also separates confirmed requirements from future items, exclusions, and open
 
 The current baseline is derived from:
 
-1. the originally described clinic workflow;
-2. the accepted refinements from product discussion;
-3. the user's explicit acceptance of the proposed patient/visit model, queue improvements, role boundaries, auditability, transaction-based payments, and MVP module boundary.
+1. the original clinic workflow described by the product owner;
+2. explicitly accepted refinements from the discovery discussion;
+3. grouped decisions supplied for patient identity, queue behavior, clinical UX, prescription, pharmacy, inventory, payments, permissions, authentication, pilot deployment, and reporting;
+4. pharmacy UX/edge-case decisions explicitly delegated for product-design resolution.
 
-The BRD authoring method follows the supplied zero-assumption rule:
+Documentation rule:
 
-- confirmed information becomes requirements;
-- unresolved information remains open/TBD;
-- suggestions are not silently promoted into scope.
+- confirmed information becomes a BRD requirement or business rule;
+- delegated design decisions are recorded as such;
+- unresolved information remains OPEN/TBD;
+- safety-critical inventory behavior is constrained so expired stock cannot be dispensed;
+- suggestions are not silently presented as user-confirmed facts.
 
 ---
 
 # 3. Traceability Matrix
 
-| Discovery Decision / Requirement Source | Classification | BRD Mapping |
+| Discovery Decision / Source | Classification | BRD / Decision Mapping |
 | --- | --- | --- |
-| Reception captures patient details | CONFIRMED | FR-001 to FR-007, FR-075 to FR-078 |
-| Registration requires full name, phone, DOB, age, gender, address, and email | CONFIRMED | FR-075 |
-| Emergency contact, blood group, known allergies, and guardian/parent details are optional | CONFIRMED | FR-076 |
-| Government ID is not required | CONFIRMED | FR-077 |
-| Multiple patients may share one phone number | CONFIRMED | FR-078, BR-025 |
-| Suspected duplicate candidates are reviewed with the patient; prior visit history/purpose may help confirmation | CONFIRMED | FR-004, BR-005 |
-| System generates unique Patient ID | CONFIRMED | FR-002, FR-003 |
-| Patient ID remains permanent | CONFIRMED | FR-003, BR-001 |
-| Patient searchable by Patient ID, phone, and name | CONFIRMED | FR-001, BR-002 |
-| Returning patient should not get new patient identity | CONFIRMED | FR-007, FR-010, BR-004 |
-| Each visit should have separate Visit ID | CONFIRMED | FR-008 to FR-010, BR-003, BR-006 |
-| Consultation payment handled at reception | CONFIRMED | FR-011 to FR-016 |
-| Payment should be a transaction, not only a checkbox | CONFIRMED | FR-012, BR-020 |
-| Consultation payment supports Paid/Unpaid/Refunded/Cancelled; partial consultation payment is not supported | CONFIRMED | FR-013, BR-021 |
-| Paid consultation may enter doctor queue; unpaid consultation may not | CONFIRMED | FR-016, BR-010, OD-004 |
-| Reception may request consultation-fee waiver; doctor approves. Doctor may also initiate a waiver directly, which is immediately approved and updates visit/payment status automatically. Approved waiver permits queue entry. | CONFIRMED | FR-015, FR-016, BR-010, BR-022, OD-005 |
-| Patient goes into queue after reception workflow | CONFIRMED subject to payment eligibility | FR-017, FR-016 |
-| Doctor sees queue | CONFIRMED | FR-018, FR-020 |
-| Queue states should be explicit | CONFIRMED | FR-019, BR-008 |
-| Doctor calls patient through reception | CONFIRMED | FR-021, FR-022, BR-009 |
-| Doctor sees patient and records consultation | CONFIRMED | FR-026 to FR-032 |
-| Doctor records diagnosis and notes | CONFIRMED | FR-028 to FR-032 |
-| Doctor prescribes medicines from screen | CONFIRMED | FR-033 to FR-040 |
-| Doctor can search/select/type medicines | CONFIRMED | FR-033 |
-| Doctor sees pharmacy availability while prescribing | CONFIRMED | FR-034 |
-| Availability distinguishes In Stock / Out of Stock / Not Stocked | CONFIRMED | FR-035, BR-015 |
-| Doctor may still prescribe unavailable medicine | CONFIRMED | FR-036, BR-014 |
-| Printed prescription marks unavailable medicines | CONFIRMED | FR-041 to FR-043, BR-016 |
-| Patient takes prescription to pharmacy | CONFIRMED | FR-045 onward |
-| Pharmacy retrieves by Patient ID | CONFIRMED | FR-045 |
-| Pharmacy should not automatically see full clinical notes | CONFIRMED | FR-047, BR-013 |
-| Pharmacy identifies available/unavailable medicines | CONFIRMED | FR-049, FR-053 |
-| Pharmacy dispenses available items | CONFIRMED | FR-050 |
-| Dispensing reduces inventory | CONFIRMED | FR-051, BR-017 |
-| Pharmacy explains unavailable items/outside purchase | CONFIRMED | FR-053, FR-054 |
-| Pharmacy bills only supplied medicines | CONFIRMED | FR-057 to FR-059, BR-018 |
-| Pharmacy records payment | CONFIRMED | FR-060 to FR-063 |
-| Initial roles: Admin, Receptionist, Doctor, Pharmacist | CONFIRMED | FR-064 to FR-069 |
-| Important records need audit history | CONFIRMED | FR-070 to FR-074, BR-023, BR-024 |
-| Important records should not be silently hard-deleted | CONFIRMED | FR-072, FR-073 |
-| Prescription reprint required | CONFIRMED | FR-044 |
-| Patient-detail correction required | CONFIRMED | FR-006 |
-| Duplicate registration is an important scenario | PARTIALLY CONFIRMED; fallback remains open | FR-004, BR-005, OD-002 |
-| Consultation queues are doctor-specific; reception assigns each visit to a doctor before queue entry | CONFIRMED; reassignment behavior remains open | FR-018, FR-020, FR-023, BR-027, OD-007 |
-| Urgent cases are handled by receptionist informing the doctor directly; no CRM priority workflow is required | CONFIRMED | FR-024, BR-026, OD-006 |
-| Patient leaves after payment | CONFIRMED scenario, rule open | FR-025 |
-| Prescription changed after reaching pharmacy | CONFIRMED scenario, rule open | OD-012 |
-| Partial pharmacy availability | CONFIRMED scenario, rule open | FR-052, OD-013 |
-| Alternate brands/substitution | CONFIRMED scenario, rule open | FR-055, OD-014 |
-| Medicine return/refund | CONFIRMED scenario, rule open | FR-056, OD-017 |
-| Consultation payment waiver | CONFIRMED scenario, exact rule open | FR-015, OD-005 |
-| Pharmacy-only visit | CONFIRMED scenario, rule open | Open Decisions |
-| Shared family phone number | CONFIRMED | FR-078, BR-025, OD-003 |
-| QR/barcode patient-file identifier | FUTURE | BRD 3.3 |
-| Pharmacy supplier/purchasing management | FUTURE / OUT OF MVP | BRD 3.2 and 3.3 |
-| Laboratory management | OUT OF MVP | BRD 3.2 |
-| Inpatient/bed management | OUT OF MVP | BRD 3.2 |
-| Insurance processing | OUT OF MVP | BRD 3.2 |
-| Ambulance management | OUT OF MVP | BRD 3.2 |
-| HR/payroll | OUT OF MVP | BRD 3.2 |
+| Permanent Patient ID | CONFIRMED | FR-002, FR-003, BR-001 |
+| Search by Patient ID, phone, and name | CONFIRMED | FR-001, BR-002 |
+| DOB is entered; age is derived | CONFIRMED | FR-075, OD-001 |
+| Full name, phone, DOB, gender, address, email required | CONFIRMED | FR-075, OD-001 |
+| Emergency contact, blood group, allergies, guardian/parent optional | CONFIRMED | FR-076, OD-001 |
+| Government ID optional, not required | CONFIRMED | FR-077, OD-001 |
+| Shared family phone numbers allowed | CONFIRMED | FR-078, BR-025, OD-003 |
+| Similar patient candidates reviewed with patient using prior visit context if useful | CONFIRMED | FR-004, BR-005, OD-002 |
+| If patient cannot confirm candidate, create normal profile marked Possible Duplicate | CONFIRMED | FR-004, FR-079, BR-005, OD-002 |
+| Duplicate merge not required in current V1 | CONFIRMED CURRENT SCOPE | FR-079, OD-002 |
+| Separate Visit ID per clinic attendance | CONFIRMED | FR-008 to FR-010, BR-003, BR-006 |
+| Payment status is recorded; CRM does not process payment | CONFIRMED | FR-011 to FR-016, FR-060 to FR-063, BR-033, OD-004, OD-018 |
+| No partial consultation payment | CONFIRMED | FR-013, BR-021, OD-004 |
+| Unpaid consultation cannot enter queue | CONFIRMED | FR-016, BR-010, OD-004 |
+| Consultation payment is non-refundable in V1 | CONFIRMED | BR-021, OD-019 |
+| Reception-requested waiver requires doctor approval | CONFIRMED | FR-015, FR-016, BR-022, OD-005 |
+| Doctor can initiate waiver directly | CONFIRMED | FR-015, BR-022, OD-005 |
+| Waiver requires reason and audit log | CONFIRMED | FR-074, BR-022, OD-005 |
+| No CRM urgent-priority feature; receptionist tells doctor directly | CONFIRMED | FR-024, BR-026, OD-006 |
+| Doctor-specific queues | CONFIRMED | FR-018, FR-020, FR-023, BR-027, OD-007 |
+| Reception can reassign between doctor queues; reassignment logged | CONFIRMED | FR-080, BR-028, OD-007 |
+| Unresponded patient moved five queue positions down | CONFIRMED with boundary TBD | FR-025, OD-007 queue edge rules |
+| Paid patient who leaves before consultation moved toward end | CONFIRMED with exact-slot TBD | FR-025 |
+| Reception cannot cancel visit | CONFIRMED | FR-081, BR-029 |
+| Doctor can cancel visit with reason; cancelled visit remains in history | CONFIRMED | FR-081, FR-074, BR-029, OD-019 |
+| Clinical entry should be low-complexity/guided | CONFIRMED BY DELEGATED DESIGN | FR-028 to FR-030, OD-008 |
+| Clinical decision fields remain Doctor-role functions | CONFIRMED DESIGN CONTROL | FR-066, OD-008, OD-022 |
+| Medicine selected by name + strength/power | CONFIRMED | FR-033, OD-010 |
+| Manufacturer stored | CONFIRMED | FR-033, FR-087, OD-010, OD-016 |
+| Prescription instructions intentionally minimal | CONFIRMED | FR-037, OD-011 |
+| Quantity auto-calculated when deterministic, otherwise entered by doctor | CONFIRMED | FR-038, OD-011 |
+| Finalized prescription cannot be edited in place | CONFIRMED | FR-039, BR-030, OD-012 |
+| Pharmacist cannot edit prescription | CONFIRMED | FR-040, FR-067, BR-030, OD-012 |
+| Doctor sees pharmacy availability while prescribing | CONFIRMED | FR-034 to FR-036, BR-014, BR-015 |
+| Partial medicine fulfilment allowed | DELEGATED V1 DESIGN | FR-052 to FR-054, OD-013 |
+| No back-order/collect-later workflow in V1 | DELEGATED V1 DESIGN | FR-052, OD-013 |
+| Prevent over-dispensing beyond prescribed quantity | DELEGATED V1 DESIGN | FR-082, OD-013 |
+| Pharmacist substitution requires doctor approval and audit | DELEGATED V1 DESIGN | FR-055, OD-014 |
+| Medicine returns not supported in V1 | CONFIRMED + DELEGATED FLOW | FR-056, OD-017 |
+| CRM pharmacy dispensing requires current finalized prescription | DELEGATED V1 DESIGN | FR-083, OD-032 |
+| Inventory tracked from lowest dispensable unit to higher packages | CONFIRMED | FR-086, OD-015 |
+| Batch, expiry, manufacturer, purchase price, selling price stored | CONFIRMED | FR-087, OD-016 |
+| Low-stock and near-expiry alerts | CONFIRMED | FR-088, OD-016 |
+| Normal dispensing deducts stock automatically | CONFIRMED | FR-051, BR-017, BR-031 |
+| Pharmacist non-dispensing inventory change requires doctor approval | CONFIRMED | FR-068, BR-031, OD-030 |
+| Inventory-change request/reason/decision logged | CONFIRMED | FR-068, OD-030 |
+| Expired stock requires doctor notification and logged disposition | CONFIRMED with safety constraint | FR-089, BR-032, OD-031 |
+| Expired stock is not dispensable | SAFETY CONTROL | FR-089, BR-032, OD-031 |
+| Reception limited to intake, demographics confirmation, payment status, queue | CONFIRMED | FR-065, OD-022 |
+| Reception demographic correction becomes doctor approval request | CONFIRMED | FR-065, FR-066, OD-022 |
+| Doctor can edit demographics and approve changes | CONFIRMED | FR-066, OD-022 |
+| Doctor can see queue/payment status and handle inventory approvals | CONFIRMED | FR-066, OD-022 |
+| Pharmacist limited to prescriptions, allergies, dispensing/payment status, inventory requests | CONFIRMED | FR-067, FR-068, OD-022 |
+| Individual staff accounts | CONFIRMED | FR-069, FR-084, OD-021, OD-022 |
+| Group-based privileges (Doctor/Reception/Pharmacist) | CONFIRMED | FR-069, OD-022 |
+| Login/password plus password reset | CONFIRMED | FR-084, OD-021 |
+| No 2FA/MFA in V1 | CONFIRMED | FR-085, OD-021 |
+| Single-branch pilot; owner is doctor; separate pharmacy | CONFIRMED | BRD Section 13, OD-023 |
+| Web app, internet-dependent, no offline V1 | CONFIRMED | BRD Section 13, OD-024 |
+| A4 printing; no thermal printer requirement | CONFIRMED | BRD Section 13, OD-020, OD-024 |
+| Hosting decision deferred | OPEN | BRD Section 9.8, OD-024 |
+| V1 reporting set selected | CONFIRMED SET; formulas TBD | BRD Section 8, OD-029 |
 
 ---
 
@@ -95,18 +100,18 @@ The BRD authoring method follows the supplied zero-assumption rule:
 
 | Requirement Group | BRD IDs |
 | --- | --- |
-| Patient Registration and Retrieval | FR-001 — FR-007 |
+| Patient Registration and Retrieval | FR-001 — FR-007, FR-075 — FR-079 |
 | Visit Creation | FR-008 — FR-010 |
 | Reception and Consultation Payment | FR-011 — FR-016 |
-| Consultation Queue | FR-017 — FR-025 |
+| Consultation Queue | FR-017 — FR-025, FR-080 — FR-081 |
 | Doctor Consultation and Clinical Record | FR-026 — FR-032 |
 | Prescription Authoring and Medicine Availability | FR-033 — FR-040 |
 | Printed Prescription | FR-041 — FR-044 |
 | Pharmacy Prescription Retrieval and Access | FR-045 — FR-048 |
-| Pharmacy Dispensing and Inventory | FR-049 — FR-056 |
-| Pharmacy Billing and Payment | FR-057 — FR-063 |
+| Pharmacy Dispensing and Inventory | FR-049 — FR-056, FR-082 — FR-083, FR-086 — FR-089 |
+| Pharmacy Billing and Payment Status | FR-057 — FR-063 |
 | Roles and Access | FR-064 — FR-069 |
-| Audit, Correction, Cancellation, and Reprint | FR-070 — FR-074 |
+| Audit, Cancellation, Authentication | FR-070 — FR-074, FR-084 — FR-085 |
 
 ---
 
@@ -114,69 +119,84 @@ The BRD authoring method follows the supplied zero-assumption rule:
 
 | Rule Area | BRD Rules |
 | --- | --- |
-| Patient identity | BR-001 — BR-005 |
-| Visit and queue | BR-006 — BR-010 |
+| Patient identity | BR-001 — BR-005, BR-025 |
+| Visit and queue | BR-006 — BR-010, BR-026 — BR-029 |
 | Clinical record | BR-011 — BR-013 |
-| Prescription and pharmacy | BR-014 — BR-018 |
-| Payment | BR-019 — BR-022 |
+| Prescription and pharmacy | BR-014 — BR-018, BR-030 — BR-032 |
+| Payment | BR-019 — BR-022, BR-033 |
 | Audit | BR-023 — BR-024 |
 
 ---
 
-# 6. Open Decision Coverage
+# 6. Canonical Decision Register Coverage
 
-Open requirements and edge cases are maintained in:
+The current decision IDs are defined in:
 
 - [03 — Open Decisions and Edge Cases](03-open-decisions-and-edge-cases.md)
 
-These items are intentionally not resolved through assumptions.
+v0.2 explicitly corrects numbering inconsistencies that existed in the initial v0.1 register.
+
+Key still-open areas:
+
+- OD-002 — exact duplicate-matching algorithm and future merge;
+- OD-005 — financial representation of approved waiver;
+- OD-009 — completed consultation amendments;
+- OD-010 — brand/generic/catalogue naming and dosage-form requirement;
+- OD-012 — replacement/correction of finalized prescription;
+- OD-015 — exact inventory unit conversions;
+- OD-018 — payment methods recorded;
+- OD-019 — pharmacy refund/cancellation;
+- OD-020 — receipt/reference behavior;
+- OD-021 — authentication/session/password-reset details;
+- OD-022 — Administrator permissions;
+- OD-024 — hosting/browser/performance;
+- OD-025 — backup/recovery;
+- OD-026 — consultation fee configuration;
+- OD-027 — audit retention/access;
+- OD-028 — legal/privacy/compliance;
+- OD-029 — report formulas/platform/access/retention.
 
 ---
 
 # 7. Current Completeness Assessment
 
-The baseline is strong enough to establish:
+The v0.2 baseline now establishes:
 
-- the main actors;
-- the principal journey;
-- the identity model;
-- the visit model;
-- the queue model at a high level;
-- the consultation record;
-- prescription/pharmacy integration;
-- transaction-based payment recording;
-- pharmacy dispensing and inventory deduction;
-- initial role boundaries;
-- audit-history expectations;
-- MVP exclusions.
-
-The baseline is **not yet implementation-final** because material decisions remain open around:
-
-- remaining patient-field implementation details and duplicate fallback/merge behavior;
-- waiver financial-record representation and reason requirements;
-- queued-visit reassignment between doctors;
-- clinical field structure;
-- medicine master/catalogue;
-- prescription amendments;
+- patient identity and registration-field model;
+- duplicate fallback behavior;
+- doctor-specific queues and reassignment;
+- payment-to-queue gate;
+- doctor-controlled fee waiver;
+- no CRM urgent-priority workflow;
+- non-response and patient-left queue behavior at high level;
+- doctor-only visit cancellation;
+- low-complexity doctor consultation entry;
+- minimal immutable prescription;
+- pharmacy availability and dispensing;
 - partial dispensing;
-- substitution;
-- inventory units/batches/expiry;
-- payment methods;
-- permissions/security;
-- compliance;
-- reporting;
-- deployment architecture.
+- doctor-controlled substitution;
+- no medicine returns in V1;
+- multi-unit pharmacy inventory;
+- batch/expiry/pricing metadata;
+- stock and expiry alerts;
+- doctor-controlled non-dispensing inventory changes;
+- expired-stock non-dispensability;
+- role/group access model;
+- individual authentication model;
+- single-branch online web pilot;
+- selected V1 reporting set.
+
+The baseline is not implementation-final because the open items listed in Section 6 remain unresolved.
 
 ---
 
 # 8. Change-Control Guidance
 
-When a new requirement is confirmed:
+When another decision is confirmed:
 
-1. assign or update its BRD requirement ID;
-2. add/update the relevant business rule;
-3. update workflow/state documentation if applicable;
-4. remove or resolve the corresponding open decision;
-5. add a traceability row;
-6. check for contradictions with existing requirements;
-7. preserve the meaning of previously confirmed decisions unless explicitly superseded.
+1. update the canonical OD entry;
+2. update affected FR/BR wording;
+3. update workflow/state documentation;
+4. update this traceability map;
+5. remove superseded wording;
+6. preserve existing IDs rather than renumbering established requirements casually.
