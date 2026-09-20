@@ -4,8 +4,8 @@ This repository contains the business and product documentation for the clinic-f
 
 ## Documentation status
 
-**Baseline version:** v0.1  
-**Status:** Requirements baseline with open decisions  
+**Baseline version:** v0.2  
+**Status:** Expanded requirements baseline with confirmed operational controls and remaining open decisions  
 **Date:** 2026-09-20
 
 The current documentation captures the workflow and requirements explicitly confirmed during discovery. Unknown details are intentionally marked as TBD or Open Decision rather than being assumed.
