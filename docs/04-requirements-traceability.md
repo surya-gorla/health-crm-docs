@@ -52,17 +52,18 @@ Documentation rule:
 | No CRM urgent-priority feature; receptionist tells doctor directly | CONFIRMED | FR-024, BR-026, OD-006 |
 | Doctor-specific queues | CONFIRMED | FR-018, FR-020, FR-023, BR-027, OD-007 |
 | Reception can reassign between doctor queues; reassignment logged | CONFIRMED | FR-080, BR-028, OD-007 |
-| Unresponded patient moved five queue positions down | CONFIRMED with boundary TBD | FR-025, OD-007 queue edge rules |
-| Paid patient who leaves before consultation moved toward end | CONFIRMED with exact-slot TBD | FR-025 |
+| Unresponded patient moved five queue positions down; if fewer than five remain, move to end | DERIVED V1 DECISION | FR-025, OD-007 queue edge rules |
+| Paid patient who leaves before consultation moved to end of assigned queue | DERIVED V1 DECISION | FR-025 |
 | Reception cannot cancel visit | CONFIRMED | FR-081, BR-029 |
 | Doctor can cancel visit with reason; cancelled visit remains in history | CONFIRMED | FR-081, FR-074, BR-029, OD-019 |
 | Clinical entry should be low-complexity/guided | CONFIRMED BY DELEGATED DESIGN | FR-028 to FR-030, OD-008 |
+| Completed consultation correction uses Doctor-only amendment/revision; original preserved; reason required | DERIVED FROM AUDIT MODEL | FR-032, BR-012, OD-009 |
 | Clinical decision fields remain Doctor-role functions | CONFIRMED DESIGN CONTROL | FR-066, OD-008, OD-022 |
-| Medicine selected by name + strength/power | CONFIRMED | FR-033, OD-010 |
+| Medicine selected by display name + strength/power + dosage form; optional generic searchable attribute | DERIVED V1 DESIGN | FR-033, OD-010 |
 | Manufacturer stored | CONFIRMED | FR-033, FR-087, OD-010, OD-016 |
 | Prescription instructions intentionally minimal | CONFIRMED | FR-037, OD-011 |
 | Quantity auto-calculated when deterministic, otherwise entered by doctor | CONFIRMED | FR-038, OD-011 |
-| Finalized prescription cannot be edited in place | CONFIRMED | FR-039, BR-030, OD-012 |
+| Finalized prescription cannot be edited in place; correction creates replacement and marks old prescription Superseded | DERIVED FROM IMMUTABILITY/AUDIT | FR-039, BR-030, OD-012 |
 | Pharmacist cannot edit prescription | CONFIRMED | FR-040, FR-067, BR-030, OD-012 |
 | Doctor sees pharmacy availability while prescribing | CONFIRMED | FR-034 to FR-036, BR-014, BR-015 |
 | Partial medicine fulfilment allowed | DELEGATED V1 DESIGN | FR-052 to FR-054, OD-013 |
@@ -71,9 +72,9 @@ Documentation rule:
 | Pharmacist substitution requires doctor approval and audit | DELEGATED V1 DESIGN | FR-055, OD-014 |
 | Medicine returns not supported in V1 | CONFIRMED + DELEGATED FLOW | FR-056, OD-017 |
 | CRM pharmacy dispensing requires current finalized prescription | DELEGATED V1 DESIGN | FR-083, OD-032 |
-| Inventory tracked from lowest dispensable unit to higher packages | CONFIRMED | FR-086, OD-015 |
+| Inventory tracked with configured base unit + higher package conversion factors | DERIVED V1 DESIGN | FR-086, OD-015 |
 | Batch, expiry, manufacturer, purchase price, selling price stored | CONFIRMED | FR-087, OD-016 |
-| Low-stock and near-expiry alerts | CONFIRMED | FR-088, OD-016 |
+| Low-stock and near-expiry alerts use Doctor/Admin-configurable thresholds | DERIVED V1 DESIGN | FR-088, OD-016 |
 | Normal dispensing deducts stock automatically | CONFIRMED | FR-051, BR-017, BR-031 |
 | Pharmacist non-dispensing inventory change requires doctor approval | CONFIRMED | FR-068, BR-031, OD-030 |
 | Inventory-change request/reason/decision logged | CONFIRMED | FR-068, OD-030 |
@@ -84,7 +85,7 @@ Documentation rule:
 | Doctor can edit demographics and approve changes | CONFIRMED | FR-066, OD-022 |
 | Doctor can see queue/payment status and handle inventory approvals | CONFIRMED | FR-066, OD-022 |
 | Pharmacist limited to prescriptions, allergies, dispensing/payment status, inventory requests | CONFIRMED | FR-067, FR-068, OD-022 |
-| Individual staff accounts | CONFIRMED | FR-069, FR-084, OD-021, OD-022 |
+| Individual staff accounts; fixed clinic context; owner/admin-assisted reset | CONFIRMED + DERIVED V1 DESIGN | FR-069, FR-084, BR-035, OD-021, OD-022 |
 | Group-based privileges (Doctor/Reception/Pharmacist) | CONFIRMED | FR-069, OD-022 |
 | Login/password plus password reset | CONFIRMED | FR-084, OD-021 |
 | No 2FA/MFA in V1 | CONFIRMED | FR-085, OD-021 |
@@ -136,25 +137,17 @@ The current decision IDs are defined in:
 
 v0.2 explicitly corrects numbering inconsistencies that existed in the initial v0.1 register.
 
-Key still-open areas:
+Key genuinely open areas are now limited to:
 
-- OD-002 — exact duplicate-matching algorithm and future merge;
-- OD-005 — financial representation of approved waiver;
-- OD-009 — completed consultation amendments;
-- OD-010 — brand/generic/catalogue naming and dosage-form requirement;
-- OD-012 — replacement/correction of finalized prescription;
-- OD-015 — exact inventory unit conversions;
-- OD-018 — payment methods recorded;
-- OD-019 — pharmacy refund/cancellation;
-- OD-020 — receipt/reference behavior;
-- OD-021 — authentication/session/password-reset details;
-- OD-022 — Administrator permissions;
-- OD-024 — hosting/browser/performance;
-- OD-025 — backup/recovery;
-- OD-026 — consultation fee configuration;
-- OD-027 — audit retention/access;
-- OD-028 — legal/privacy/compliance;
-- OD-029 — report formulas/platform/access/retention.
+- clinical authority for any lower-knowledge/non-doctor staff who may use the consultation interface;
+- OD-018 — clinic-defined payment methods/status conventions to record;
+- OD-019 — pharmacy partial-payment/refund/cancellation policy;
+- OD-026 — consultation fee/billing policy supplied by the clinic;
+- OD-025 — backup/recovery targets, to be finalized in technical architecture;
+- OD-027 / OD-028 — retention, privacy, healthcare/legal/compliance requirements requiring external validation;
+- OD-024 — hosting/infrastructure selection, intentionally deferred.
+
+Other former open items have either been closed as derived V1 design decisions or moved to downstream technical configuration rather than remaining business-policy questions.
 
 ---
 
@@ -186,7 +179,7 @@ The v0.2 baseline now establishes:
 - single-branch online web pilot;
 - selected V1 reporting set.
 
-The baseline is not implementation-final because the open items listed in Section 6 remain unresolved.
+The business workflow is now substantially defined. Final implementation readiness still depends on the small set of clinic-policy, compliance, and technical-architecture items listed in Section 6.
 
 ---
 
