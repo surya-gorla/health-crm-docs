@@ -1,10 +1,13 @@
 # Hospital CRM — Workflows and State Model
 
+**Status:** V1 Business Workflow — LOCKED  
+**Lock date:** 2026-09-20
+
 ## 1. Purpose
 
 This document defines the currently confirmed end-to-end workflow and the business states that connect reception, doctor consultation, prescription, pharmacy fulfilment, and payment.
 
-It does not invent unconfirmed exception behavior. Open rules are referenced explicitly.
+It implements the locked V1 business behavior. Configuration, technical, compliance, and future-scope dependencies are kept separate and must not be used to infer new workflow behavior.
 
 ---
 
