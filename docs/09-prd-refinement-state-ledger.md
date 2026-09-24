@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.13 DRAFT |
 | Current group | G11 — Owner Approval Center & Exception Control |
-| Current stage | G11 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
+| Current stage | G11 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10 |
 | In-progress groups | G11 |
 | Not started | G12–G15 |
@@ -70,7 +70,7 @@ A group is COMPLETE only when all four gates pass:
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMPLETE | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | PASS vs G1–G9 | COMPLETE — REM-063–REM-066 recorded | Closed |
-| G11 | Owner Approval Center & Exception Control | COMMIT VALIDATED | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | IN PROGRESS | — | Current group |
+| G11 | Owner Approval Center & Exception Control | BACKWARD PASS | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | IN PROGRESS | Current group |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
 | G14 | Cross-Product State, Audit, History & Safety | NOT STARTED | — | — | — | |
@@ -2586,6 +2586,37 @@ Apply G11 lifecycle-specific Approval Center behavior across PRD P-094–P-096, 
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G10 and reconcile any conflict before forward-impact analysis.
+
+## 2026-09-25 — G11 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1:** same-human multi-role actions remain legal where authority permits, but requester and Owner-decision events retain distinct effective authority/workspace attribution. Owner-only approval screens do not inherit Doctor clinical access.
+- **G2:** password reset remains Pending -> Resolved by Set Temporary Credential, never generic Approve/Reject; disabled account is not re-enabled; target becoming Owner/ineligible cannot use the non-Owner reset path. Owner actions remain behind Owner authentication.
+- **G3:** demographic correction remains Doctor-controlled and is intentionally not absorbed into Owner Approval Center.
+- **G4:** waiver lifecycle, Direct Owner Waiver, and baseline-safe payment correction are preserved exactly. REM-029/030 are satisfied.
+- **G5:** Visit-cancellation Pending does not freeze workflow, Completed-before-decision becomes stale, and same-human Doctor request/Owner approval remains separately attributable. REM-038 is satisfied.
+- **G6:** Owner operational approval context continues to exclude unrestricted clinical content.
+- **G7:** prescription correction/replacement remains Doctor-controlled and is not misclassified as Owner approval.
+- **G8:** substitution approval remains prescribing/responsible-Doctor authority and is not moved into Owner Approval Center.
+- **G9:** bill void/payment correction use latest/current payment truth, preserve no-refund/no-stock-restoration rules, and support post-Visit bill administration without reopening Visit. REM-057/058 are satisfied.
+- **G10:** inventory adjustment/transfer approval uses captured vs current stock, stale blocking and linked transfer semantics; Direct Owner Adjustment remains outside fake self-approval. REM-063 is satisfied.
+
+### Mandatory reminder dispositions
+
+- REM-005 — SATISFIED.
+- REM-010 — SATISFIED.
+- REM-011 — SATISFIED.
+- REM-029 — SATISFIED.
+- REM-030 — SATISFIED.
+- REM-038 — SATISFIED.
+- REM-057 — SATISFIED.
+- REM-058 — SATISFIED.
+- REM-063 — SATISFIED.
+
+### Next exact action
+
+Evaluate G11 impact on G12–G15 and create only targeted reminders for downstream dependencies.
 
 
 
