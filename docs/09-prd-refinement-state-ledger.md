@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.4 DRAFT |
+| Current PRD version | v0.5 DRAFT |
 | Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G3 vs G1–G2 |
 | Completed groups | G1, G2 |
 | In-progress groups | G3 |
 | Not started | G4–G15 |
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | DECISIONS RESOLVED | — | — | — | Current group |
+| G3 | Patient Search, Identity, Registration & Patient Profile | COMMIT VALIDATED / BACKWARD CHECK | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | IN PROGRESS vs G1–G2 | — | Current group |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -544,7 +544,7 @@ G2 is complete. Do not start G3 until explicitly instructed.
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -576,7 +576,7 @@ Document 10 currently contains no reminder targeted to G3.
 
 ### Current action
 
-Apply the resolved G3 patient-identity decisions to PRD, acceptance, screen, and interaction specifications in one logical Group 3 commit.
+Compare committed G3 behavior against all completed groups G1–G2; reconcile any conflict before forward-impact analysis.
 
 ### Blockers
 
@@ -755,3 +755,29 @@ If the active Visit is reassigned before the pending request is decided, the cor
 - physical-file replacement workflow;
 - new required registration fields;
 - Patient ID editing/replacement.
+
+
+## 2026-09-25 — G3 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438`
+- Files changed:
+  - `docs/05-product-requirements-document.md`
+  - `docs/06-prd-traceability-and-acceptance.md`
+  - `docs/07-information-architecture-and-screen-specification.md`
+  - `docs/08-interaction-and-form-behavior-specification.md`
+
+### Validation result
+
+PASS.
+
+- P requirements remain exactly P-001 through P-116 with no duplicate IDs.
+- Screen inventory remains 49 unique screen IDs.
+- UX interaction scenarios remain unique and now extend through UXA-036.
+- PRD/companion versions align at PRD v0.5.
+- Explicit Patient selection, current duplicate recheck, Possible Duplicate provenance/usability, Reception clinical boundary, no-active-Visit correction routing, stale correction protection, physical-file non-blocking behavior, unknown-create safety, and Patient ID immutability are all present.
+
+### Next exact action
+
+Evaluate G3 compatibility cumulatively against G1 workspace/authority rules and G2 authentication/account-state rules.
