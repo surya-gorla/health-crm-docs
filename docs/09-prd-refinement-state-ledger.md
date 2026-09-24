@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.9 DRAFT |
 | Current group | G7 — Prescription Authoring & Prescription Lifecycle |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G7 vs G1–G6 |
+| Current stage | FORWARD IMPACT ANALYSIS — G7 to G8–G15 |
 | Completed groups | G1, G2, G3, G4, G5, G6 |
 | In-progress groups | G7 |
 | Not started | G8–G15 |
@@ -66,7 +66,7 @@ A group is COMPLETE only when all four gates pass:
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
-| G7 | Prescription Authoring & Prescription Lifecycle | COMMIT VALIDATED / BACKWARD CHECK | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | IN PROGRESS vs G1–G6 | — | Current group |
+| G7 | Prescription Authoring & Prescription Lifecycle | FORWARD IMPACT ANALYSIS | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | IN PROGRESS | Current group |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
@@ -1895,3 +1895,24 @@ PASS.
 ### Next exact action
 
 Run backward compatibility against G1–G6, with special attention to G6 completion wording and G5 cancellation semantics.
+
+
+## 2026-09-25 — G7 BACKWARD COMPATIBILITY COMPLETE
+
+### Result
+
+PASS after a precision clarification.
+
+### Reconciliation
+
+`e7020544866df081bd98e469890c61ea3f95c1c7` clarifies G6 completion wording:
+
+- Consultation Completed is always recorded as the clinical completion event;
+- completion still never auto-finalizes prescription;
+- G7 readiness is then evaluated;
+- if a current Finalized prescription already exists, current Visit may immediately advance to Sent to Pharmacy;
+- otherwise Visit remains Consultation Completed awaiting prescription finalization.
+
+No business-policy conflict exists with G1–G6.
+
+REM-035 and REM-041 are satisfied subject to final reminder-register update.
