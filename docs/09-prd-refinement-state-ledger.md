@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.14 DRAFT |
 | Current group | G12 — Administration, Staff Access & Clinic Configuration |
-| Current stage | G12 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
+| Current stage | G12 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11 |
 | In-progress groups | G12 |
 | Not started | G13–G15 |
@@ -2775,6 +2775,33 @@ Apply G12 account/role/configuration boundaries across P-097–P-101, administra
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G11; reconcile any conflict before G12 forward-impact analysis.
+
+## 2026-09-25 — G12 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1/G2:** Admin remains non-Owner authority; role revocation/disablement removes stale authority from open work; newly granted Owner capability remains TOTP-gated; password recovery stays separate from account/role state.
+- **G3/G6/G7:** catalogue/account/config changes do not rewrite patient identity, clinical history, or finalized prescription history.
+- **G4:** consultation-fee changes are prospective and existing Visit applied amounts remain frozen. REM-031 is satisfied.
+- **G5:** account/config changes do not alter queue/Visit state.
+- **G8:** medicine/package configuration never becomes a physical stock movement.
+- **G9:** pharmacy price/tax changes are prospective and existing bill snapshots remain frozen. REM-059 is satisfied.
+- **G10:** base-unit ledger truth and historical movement conversion are preserved; Admin configuration does not bypass Owner operational inventory control. REM-064 is satisfied.
+- **G11:** role/account changes preserve request-time actor/authority history; non-Owner reset becomes non-actionable after Owner grant; revoked Owner/Admin authority cannot survive an open page. REM-067 is satisfied.
+
+### Mandatory reminder dispositions
+
+- REM-006 — SATISFIED.
+- REM-012 — SATISFIED.
+- REM-013 — SATISFIED.
+- REM-031 — SATISFIED.
+- REM-059 — SATISFIED.
+- REM-064 — SATISFIED.
+- REM-067 — SATISFIED.
+
+### Next exact action
+
+Evaluate G12 impact on G13–G15 and create only targeted downstream reminders.
 
 
 
