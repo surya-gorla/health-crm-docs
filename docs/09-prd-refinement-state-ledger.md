@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | RECONCILIATION REQUIRED — G2 vs G1 |
+| Current stage | FORWARD IMPACT ANALYSIS — G2 to G3–G15 |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | RECONCILIATION REQUIRED | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | G1 wording clarification required | — | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | FORWARD IMPACT ANALYSIS | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | IN PROGRESS | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -408,3 +408,57 @@ Clarify G1 contracts so:
 4. account disablement is distinguished from role-only revocation: disablement ends all protected account use when detected, while role revocation removes the affected authority/workspace.
 
 No other G1 decision conflicts with G2.
+
+
+## 2026-09-24 — G2 BACKWARD COMPATIBILITY RECONCILED
+
+### Reconciliation commit
+
+- `5fe2bcc7151092307aa1d527d3b42863ec7e6144` — reconciled G2 authentication gates with G1 workspace/multi-role wording.
+
+### Changes made
+
+- G1 now distinguishes assigned workspaces from workspaces whose applicable authentication prerequisites are satisfied for the current session.
+- Normal switching among already-authentication-qualified workspaces remains free of second username/password login and repeated Owner TOTP.
+- Newly granted Owner authority remains gated until Owner second-factor requirements are satisfied.
+- Role-only revocation continues to route the user to remaining permitted workspaces.
+- Whole-account disablement is explicitly treated differently: protected account use returns to the sign-in boundary.
+
+### Validation
+
+PASS.
+
+### Backward compatibility verdict
+
+**G2 vs G1: PASS.**
+
+No remaining business/product contradiction was found.
+
+## 2026-09-24 — G2 FORWARD IMPACT ANALYSIS START
+
+### Future groups scanned
+
+- G3 Patient Identity
+- G4 Visit/Payment/Waiver
+- G5 Queue
+- G6 Consultation
+- G7 Prescription
+- G8 Dispensing
+- G9 Pharmacy Billing
+- G10 Inventory
+- G11 Owner Approval Center
+- G12 Staff Administration
+- G13 Reporting
+- G14 Cross-Product State/Audit/Safety
+- G15 Printing
+
+### Preliminary result
+
+No material G2-specific reminder is required for G3–G10, G13, or G15 beyond the global role/audit rules already tracked elsewhere.
+
+Mandatory future coupling is concentrated in:
+- **G11** — password reset is an action-specific Pending -> Resolved workflow, not generic Approve/Reject;
+- **G12** — Owner role creation/grant, disable/re-enable, and active-session permission changes must respect G2 authentication gates;
+- **G14** — authentication secret exclusion from audit, reset-request retry/stale safety, and session/account-state changes need cross-product safety coverage.
+
+Next exact action: write targeted reminders and resolve REM-001 through REM-004 in Document 10.
