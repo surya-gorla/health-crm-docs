@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.5 DRAFT |
+| Current PRD version | v0.6 DRAFT |
 | Current group | G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G4 vs G1–G3 |
 | Completed groups | G1, G2, G3 |
 | In-progress groups | G4 |
 | Not started | G5–G15 |
@@ -63,7 +63,7 @@ A group is COMPLETE only when all four gates pass:
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
-| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | DECISIONS RESOLVED | — | — | — | Current group |
+| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMMIT VALIDATED / BACKWARD CHECK | `38df611096205195a219abbaf498187563c10e90` | IN PROGRESS vs G1–G3 | — | Current group |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
@@ -885,7 +885,7 @@ G3 is complete. G4 has not been started.
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -922,7 +922,7 @@ G3 is complete. G4 has not been started.
 
 ### Current action
 
-Apply the resolved G4 Visit/payment/waiver/correction decisions to PRD, acceptance, screen, and interaction specifications.
+Compare committed G4 behavior against all completed groups G1–G3 and reconcile any conflict before forward-impact analysis.
 
 ### Blockers
 
@@ -1187,3 +1187,30 @@ G5 must evaluate how an already-active queued Visit displays/handles a later fin
 - retroactive deletion/rewind of queue or clinical history after financial correction;
 - one-Visit-per-day restrictions;
 - fee configuration values.
+
+
+## 2026-09-25 — G4 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- `38df611096205195a219abbaf498187563c10e90`
+- Files changed:
+  - `docs/05-product-requirements-document.md`
+  - `docs/06-prd-traceability-and-acceptance.md`
+  - `docs/07-information-architecture-and-screen-specification.md`
+  - `docs/08-interaction-and-form-behavior-specification.md`
+
+### Validation result
+
+PASS.
+
+- P requirements remain exactly P-001 through P-116 with no duplicate IDs.
+- Screen inventory remains 49 unique screen IDs.
+- UX acceptance remains unique and now extends through UXA-046.
+- PRD/companion versions align at PRD v0.6.
+- Visit starts Unpaid, Doctor assignment may occur later, queue requires Paid/Waived + Doctor, Possible Duplicate/missing paper file do not block Visit creation, Doctor pre-queue waiver path is reachable, one Pending waiver is enforced, stale waiver/payment corrections are blocked, Owner direct waiver has no redundant approval, fee snapshot behavior is present, and Visit/payment unknown-outcome retry is protected.
+- Two automated checks initially returned false negatives because their regex expected different wording for “Possible Duplicate does not block Visit” and “Visit starts Unpaid.” The source text was verified as correct; product text was not distorted to satisfy the validator.
+
+### Next exact action
+
+Evaluate G4 compatibility cumulatively against G1 workspace/authority rules, G2 authentication/account-state rules, and G3 patient identity/demographic-correction rules.
