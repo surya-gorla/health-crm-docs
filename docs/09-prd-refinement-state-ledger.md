@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.10 DRAFT |
 | Current group | G9 — Pharmacy Billing, Payment & Bill Cancellation |
-| Current stage | PREPARING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8 |
 | In-progress groups | G9 |
 | Not started | G10–G15 |
@@ -68,7 +68,7 @@ A group is COMPLETE only when all four gates pass:
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
-| G9 | Pharmacy Billing, Payment & Bill Cancellation | PREPARING | — | — | — | Current group |
+| G9 | Pharmacy Billing, Payment & Bill Cancellation | DECISIONS RESOLVED | — | — | — | Current group |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
@@ -2129,7 +2129,7 @@ Proceed directly to G9.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -2159,8 +2159,42 @@ Proceed directly to G9.
 
 ### Current action
 
-Perform full G9 source review before product reasoning.
+Apply resolved G9 bill creation, payment, Visit-completion, payment-correction, and bill-void rules to PRD layers.
 
 ### Blockers
 
 None.
+
+
+## 2026-09-25 — G9 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required.
+
+1. **Bill source:** Pharmacy bill lines come only from committed actual dispensing records, never from prescribed-but-unsupplied quantity.
+2. **Unit-specific bill:** every bill belongs to the pharmacy unit whose dispensing records it bills. Multi-unit fulfilment may therefore create multiple bills for one Visit.
+3. **No double billing:** a committed dispensing quantity can be included in only one active/non-voided bill lineage at a time. Prescription replacement does not rebill earlier dispensing. Resolves REM-046.
+4. **Bill creation:** Pharmacist explicitly creates a bill from supplied-but-not-yet-billed dispensing records for the current Visit/unit. Bill starts Unpaid.
+5. **Bill snapshot:** on creation freeze bill lines, supplied quantities, unit-price/price basis, configured tax/amount fields where applicable, total, unit, Visit, and source dispensing references. Later price/config changes or prescription replacement do not silently rewrite an existing bill.
+6. **Bill ordinary immutability:** established bill lines/total are not edited in place. V1 bill correction is the Owner-controlled void path; payment correction changes payment record, not bill lines/total.
+7. **External payment:** use UPI/Cash/Card/Other; Other description required; reference optional; selecting method never marks Paid; explicit final Mark Paid after external success.
+8. **No partial/no refund:** Paid means the full current bill amount was externally paid; Unpaid is valid; no partial-payment or refund UI.
+9. **Payment correction:** Pharmacy may request correction of Paid/Unpaid, method, Other description, reference, or other payment-record metadata; mandatory reason + captured baseline; Owner approves/rejects; bill amount/lines are not changed. Paid->Unpaid correction is not a refund. Resolves REM-028.
+10. **Bill void request:** Pharmacist requests with mandatory specific reason; one actionable Pending request per bill; pending leaves bill/payment active.
+11. **Bill void decision:** Owner revalidates bill/request, sees latest payment state, and approves/rejects. Approval -> bill Cancelled/Voided and leaves active billing; rejection -> active bill unchanged. If Paid, approval does not refund. Original bill/payment/request/decision history remains.
+12. **Void and stock:** bill void never reverses dispensing or restores stock. A legitimate stock correction is separate G10 Owner-approved inventory adjustment.
+13. **Visit cancellation:** effective Visit cancellation blocks new dispensing and new bill creation, but never auto-voids/refunds existing bill. Existing bill/payment history remains. Existing bill may still receive record-level payment capture/correction/void administration without reopening Visit or dispensing. Resolves REM-037.
+14. **Visit Completed condition:** Visit may transition Sent to Pharmacy -> Completed when Pharmacist explicitly finishes clinic-pharmacy fulfilment and:
+    - no committed dispensing record remains unbilled;
+    - all current intended clinic dispensing work is finished;
+    - any remaining prescription quantity is explicitly left unsupplied/outside with no reservation/back-order;
+    - any same-Visit multi-unit committed dispensing is accounted for in its unit bill(s).
+15. **Payment does not gate completion:** existing bill payment state may be Paid or Unpaid. There is no locked pharmacy-payment gate equivalent to consultation queue payment. Financial status remains visible/reportable after Visit completion.
+16. **Multiple units:** one unit's bill/payment does not automatically Complete the Visit if other committed/unbilled unit dispensing still exists. Final completion is Visit-level and considers all committed pharmacy units.
+17. **Pending substitution:** Visit cannot be finalized as pharmacy-fulfilment-complete while an actionable substitution request still represents intended clinic fulfilment. Staff must resolve/abandon that fulfilment path; no hidden back-order.
+18. **After Completed:** no new dispensing or new bill creation for that Visit. Existing bills can still be marked Paid after an external payment, corrected through Owner-controlled payment correction, or voided through Owner control; these do not reopen Visit.
+19. **Void/payment concurrency:** payment may change while void request is Pending because bill remains active. Owner decision must show current payment state; a newly Paid bill can still be voided with explicit no-refund warning.
+20. **Unknown outcome safety:** bill creation, Paid recording, Visit completion, void request/decision, and payment correction use refresh/check before blind retry.
+21. **No automatic re-billing after void:** voided bill remains historical; V1 does not silently regenerate/rebill its dispensing records.
+22. **Visit completion and unsupplied remainder:** completion never means every prescribed unit was supplied; unsupplied remainder is a legitimate final clinic-pharmacy outcome because V1 has no back-order. Resolves REM-051.
+
+Technical transaction/idempotency mechanisms remain downstream, but these effective outcomes are mandatory.
