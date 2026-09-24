@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.7 |
+| Version | 0.8 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.7 |
+| Parent | Product Requirements Document v0.8 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -488,7 +488,20 @@ Release must fail if any of these are possible:
 59. approve cancellation after Visit reached Completed;
 60. allow duplicate simultaneously actionable cancellation requests;
 61. cancel/void by deleting existing clinical/prescription/dispensing/financial history or implying refund;
-62. apply stale queue/cancellation action after current state or Doctor assignment changed.
+62. apply stale queue/cancellation action after current state or Doctor assignment changed;
+63. allow clinical authoring before explicit With Doctor state;
+64. make Save Draft implicitly complete the consultation;
+65. allow stale Doctor draft save to overwrite newer saved content/state;
+66. complete consultation without required complaint/problem and assessment/diagnosis;
+67. keep ordinary editable clinical fields after Consultation Completed;
+68. automatically merge Possible Duplicate candidate clinical histories;
+69. approve a stale demographic-correction request after value/reviewer changed;
+70. directly correct demographics without preserving old/new Doctor/time attribution;
+71. destructively edit a completed consultation instead of creating a revision;
+72. let a clinical amendment reopen queue/payment/cancellation workflow;
+73. treat an unfinished cancelled draft as a completed consultation amendment target;
+74. continue active clinical writes after effective cancellation;
+75. expose unrestricted clinical content solely through Owner/Admin/Reception/Pharmacist authority.
 
 ---
 
@@ -994,6 +1007,95 @@ Supports: P-047, OWN-03, IX Section 38.
 **Then** the product blocks the outdated action and refreshes current state.
 
 Supports: P-041–P-044, IX Sections 25 and 38.
+
+## UXA-057 — Clinical authoring begins only With Doctor
+
+**Given** a Visit is Waiting or Called  
+**Then** viewing the Visit/history does not expose an editable active consultation.  
+**When** assigned Doctor explicitly starts consultation from Called  
+**Then** state becomes With Doctor and current consultation authoring becomes available.
+
+Supports: P-048, DOC-01–DOC-02, REM-034, IX Sections 11, 12, 39.
+
+## UXA-058 — Save Draft does not complete consultation
+
+**Given** Visit is With Doctor  
+**When** Doctor saves an incomplete current consultation draft  
+**Then** saved content remains associated with the Visit, required completion fields may still be incomplete, and Visit remains With Doctor.
+
+Supports: P-050–P-052, DOC-02, IX Sections 12 and 39.
+
+## UXA-059 — Complete Consultation creates immutable boundary
+
+**Given** required clinical fields are present and current state/assignment remain valid  
+**When** Doctor explicitly completes consultation  
+**Then** Visit becomes Consultation Completed, current clinical record is the completed effective record, and ordinary edit controls become read-only.
+
+Supports: P-052–P-053, DOC-02, IX Sections 12 and 39.
+
+## UXA-060 — Possible Duplicate does not merge clinical histories
+
+**Given** Patient is marked Possible Duplicate with candidate Patient IDs  
+**When** Doctor opens longitudinal history  
+**Then** only the current Patient ID's authorized timeline is shown; candidate profiles are not automatically merged into it.
+
+Supports: P-049, DOC-03, REM-021, IX Sections 12 and 39.
+
+## UXA-061 — Demographic correction approval is stale-safe
+
+**Given** Doctor opened an assigned demographic-correction request  
+**And** current demographic value or Doctor routing changed before decision  
+**When** Doctor tries to approve  
+**Then** outdated decision is blocked and refreshed current value/reviewer context is required.
+
+Supports: P-024, DOC-01–DOC-02, REM-021, IX Sections 25, 36, 39.
+
+## UXA-062 — Direct Doctor demographic correction is not fake approval
+
+**Given** authorized Doctor directly corrects an established demographic  
+**Then** old/new value, Doctor, and time are recorded, Patient ID remains immutable, and no fabricated Reception request/approval is created.
+
+Supports: P-024, IX Sections 36 and 39.
+
+## UXA-063 — Amendment creates new effective revision
+
+**Given** a completed consultation exists  
+**When** Doctor creates an amendment with required reason  
+**Then** a new effective clinical revision is created and every prior revision remains read-only history.
+
+Supports: P-053, DOC-06, IX Sections 12 and 39.
+
+## UXA-064 — Amendment does not reopen a closed Visit
+
+**Given** a completed clinical record belongs to a Visit now Completed or Cancelled/Voided  
+**When** Doctor creates a valid amendment  
+**Then** clinical revision changes but queue/payment/cancellation/Visit state do not reopen.
+
+Supports: P-053, DOC-06, IX Section 39.
+
+## UXA-065 — Pending cancellation does not freeze consultation
+
+**Given** cancellation request is Pending and Visit remains With Doctor  
+**Then** Doctor may continue valid clinical work while Pending status remains visible.
+
+Supports: P-046, P-048–P-052, REM-034, IX Sections 38 and 39.
+
+## UXA-066 — Effective cancellation blocks stale clinical write
+
+**Given** Doctor has unsaved/open consultation content  
+**And** Owner cancellation becomes effective first  
+**When** Doctor tries Save Draft or Complete Consultation  
+**Then** product blocks the stale write, shows Cancelled/Voided current state, and preserves already-saved clinical content.
+
+Supports: P-047, P-050–P-052, REM-034, IX Sections 25, 38, 39.
+
+## UXA-067 — Non-Doctor authority does not reveal full clinical content
+
+**Given** Owner-only, Admin-only, Reception, or Pharmacist authority  
+**When** operational/audit/history context is opened  
+**Then** unrestricted diagnosis/notes are not exposed solely by that authority.
+
+Supports: P-054, IA role boundaries, IX Section 39.
 
 ---
 

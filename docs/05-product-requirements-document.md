@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.7 |
+| Version | 0.8 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -1046,7 +1046,7 @@ Stale action never silently overwrites newer queue state.
 
 # 15. Doctor Consultation Workspace
 
-Source: FR-026–FR-032, FR-091; BR-011–BR-013, BR-034, BR-036, BR-038, BR-054.
+Source: FR-026–FR-032, FR-091, FR-113; BR-011–BR-013, BR-034, BR-036, BR-038, BR-054; OD-008–OD-009, OD-035.
 
 ## 15.1 Consultation layout
 
@@ -1055,26 +1055,53 @@ Source: FR-026–FR-032, FR-091; BR-011–BR-013, BR-034, BR-036, BR-038, BR-054
 Recommended workspace structure:
 
 1. patient identity header;
-2. current Visit context;
+2. current Visit context and state;
 3. allergies/important patient context;
-4. relevant longitudinal history;
-5. current consultation entry;
-6. prescription area/action.
+4. Possible Duplicate identity warning where applicable;
+5. relevant longitudinal history for the current Patient ID;
+6. current consultation entry;
+7. demographic-correction task/context where applicable;
+8. prescription area/action.
 
-### P-048 — Assigned Visit access
+### P-048 — Assigned Visit access and authoring boundary
 
-Doctor opens the active Visit from the Doctor queue.
+Doctor may inspect permitted patient/Visit context from the Doctor workspace, but active clinical authoring begins only after the explicit G5 transition **Called -> With Doctor**.
+
+The editable current consultation requires:
+
+- current Visit state = With Doctor;
+- current Visit still assigned to that Doctor;
+- Visit not Cancelled/Voided.
+
+Opening a queue row or historical Visit does not itself start consultation or enable active authoring.
 
 ### P-049 — Longitudinal history
 
-Doctor assigned to the current Visit can access relevant prior consultations, diagnoses, prescriptions, amendments, and superseded records.
+Doctor with authorized clinical access can review the longitudinal archive for the **current permanent Patient ID**, including relevant prior consultations, diagnoses/assessments, prescriptions, amendments, and superseded records.
 
-### P-050 — Required clinical entry
+Possible Duplicate status may be shown as identity-risk context, but candidate Patient IDs are not automatically merged and their clinical histories are not combined into one timeline.
 
-Doctor consultation must support:
+Historical records are read-only unless a specific authorized correction/amendment flow is invoked.
+
+### P-050 — Required clinical entry and draft behavior
+
+The current consultation supports:
 
 - chief complaint / patient problem;
 - clinical assessment / diagnosis.
+
+While Visit is With Doctor, Doctor may save an in-progress consultation draft before both required fields are complete.
+
+**Save Draft**:
+
+- does not complete the consultation;
+- retains the current Visit/Patient association;
+- records Doctor and save time;
+- may overwrite the current in-progress draft only when the loaded draft/state is still current.
+
+If another successful save or Visit-state change occurred first, stale save must not silently overwrite newer content.
+
+V1 does not require a permanent revision chain for every intermediate draft save.
 
 ### P-051 — Optional clinical entry
 
@@ -1086,17 +1113,90 @@ Support optional:
 - advice;
 - follow-up information.
 
+Optional fields do not become mandatory merely because they are present in the interface.
+
 ### P-052 — Complete consultation
 
-Doctor can complete the consultation and advance the Visit according to the locked workflow.
+**Complete Consultation** is an explicit Doctor-only action available from current With Doctor state.
 
-### P-053 — Clinical amendment
+Before completion:
 
-Completed clinical content is not edited in place. Doctor creates an amendment/revision with mandatory reason; original remains visible in history.
+- chief complaint / patient problem is present;
+- assessment / diagnosis is present;
+- current Doctor assignment and With Doctor state are revalidated;
+- current clinical content is successfully persisted.
+
+On success:
+
+- the current clinical content becomes the completed effective consultation record;
+- Doctor/time are recorded;
+- Visit moves to **Consultation Completed**;
+- ordinary clinical fields become read-only.
+
+Completion does not itself finalize a prescription or perform pharmacy progression; prescription progression is governed by G7.
+
+A stale/duplicate completion action cannot create another completed clinical record.
+
+### P-053 — Clinical amendment and revision chain
+
+Completed consultation content is never edited in place.
+
+Doctor chooses **Create Amendment** from the current effective completed clinical record.
+
+Amendment:
+
+- starts from the current effective revision;
+- changes only the clinical content needing correction/addition;
+- requires a mandatory specific amendment reason;
+- uses an explicit final action;
+- creates a new effective clinical revision;
+- preserves all earlier revisions as read-only history;
+- records Doctor/time/reason.
+
+If another amendment became effective after the form was loaded, stale amendment submission is blocked pending refreshed review.
+
+A completed clinical record may be amended after the Visit later becomes Completed or Cancelled/Voided. Amendment corrects historical clinical content only; it does not reopen the Visit, queue, payment, prescription, or pharmacy workflow.
+
+If a Visit was Cancelled/Voided while With Doctor **before consultation completion**, already-saved draft content remains historical/read-only but is not relabelled as a completed consultation and does not receive the completed-consultation amendment flow.
+
+### Demographic correction within Doctor workflow
+
+Doctor workspace must make assigned demographic-correction tasks reachable.
+
+For a Reception-originated request:
+
+- show patient/Visit context where applicable;
+- field, captured current value, proposed value, requester/time;
+- revalidate current value and current reviewer authority before decision;
+- Approved applies proposed value with old/new/requester/Doctor/time history;
+- Rejected leaves the effective value unchanged;
+- Stale current value or stale reviewer assignment blocks the old decision.
+
+For a patient-level request with no active Visit, the selected Doctor reviewer may decide without creating a fake Visit.
+
+Doctor direct demographic correction is a separate action with explicit current -> proposed value, Patient ID immutable, and old/new/Doctor/time audit.
+
+### Cancellation concurrency
+
+Pending cancellation does **not** freeze consultation.
+
+While request remains Pending and Visit remains With Doctor, normal permitted draft save/completion may continue.
+
+If Owner cancellation becomes effective while Doctor has the consultation open:
+
+- future Save Draft / Complete Consultation / active clinical actions are blocked;
+- already-saved clinical content remains preserved;
+- stale local content is not silently committed over Cancelled/Voided state.
+
+If completion becomes effective first, the completed record remains preserved and Owner may decide cancellation from Consultation Completed if still valid under G5.
 
 ### P-054 — Clinical access boundary
 
-Owner-only, Admin-only, Reception, and Pharmacist authority does not expose unrestricted full clinical-note/diagnosis content.
+Full consultation/diagnosis/notes require Doctor authority and authorized patient/Visit context.
+
+- Owner-only, Admin-only, Reception, and Pharmacist authority do not expose unrestricted full clinical content.
+- Owner+Doctor receives full clinical access only through Doctor authority context.
+- operational/audit views may identify that clinical content changed without exposing the content itself.
 
 ---
 

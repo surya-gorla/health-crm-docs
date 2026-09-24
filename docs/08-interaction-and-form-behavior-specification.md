@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.7 |
+| Version | 0.8 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.7 |
+| Parent | PRD v0.8 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -697,9 +697,19 @@ Urgent communication remains outside software.
 
 # 12. Consultation Form Pattern
 
-## 12.1 Required vs optional
+## 12.1 Authoring gate
 
-Required:
+Editable current consultation exists only while:
+
+- Visit state is With Doctor;
+- current Doctor is the assigned Doctor;
+- Visit is not Cancelled/Voided.
+
+Opening queue/history does not start consultation.
+
+## 12.2 Required vs optional
+
+Required for **Complete Consultation**:
 
 - chief complaint / patient problem;
 - assessment / diagnosis.
@@ -712,21 +722,67 @@ Optional:
 - advice;
 - follow-up.
 
-## 12.2 Clinical history
+Save Draft may succeed before required completion fields are all filled.
+
+## 12.3 Save Draft
+
+Save Draft is explicit and does not change Visit state.
+
+Before save:
+- validate current With Doctor state;
+- validate current Doctor assignment;
+- validate the loaded draft baseline is current.
+
+If newer saved content/state exists, block silent overwrite and refresh/review.
+
+V1 does not require every intermediate draft save to become a permanent amendment/revision.
+
+## 12.4 Clinical history
 
 Historical content opens read-only.
 
-## 12.3 Completion
+Longitudinal timeline is scoped to one permanent Patient ID.
 
-Consultation completion is an explicit action.
+Possible Duplicate marker does not merge candidate Patient histories.
 
-If required content is missing, completion is blocked with field-level errors.
+## 12.5 Completion
 
-## 12.4 Amendment
+Complete Consultation is explicit.
+
+Before completion:
+- required clinical fields are present;
+- current state/assignment are valid;
+- current content is persisted.
+
+Success:
+- current effective clinical record becomes completed;
+- Visit -> Consultation Completed;
+- ordinary clinical fields become read-only.
+
+Completion does not implicitly finalize prescription.
+
+## 12.6 Amendment
 
 Completed consultation cannot re-enter ordinary edit mode.
 
-Use amendment flow with reason.
+Create Amendment:
+- starts from latest effective revision;
+- requires reason;
+- creates a new effective revision;
+- preserves old revisions.
+
+If latest revision changed after form load, stale amendment cannot apply.
+
+Amendment may correct a completed record even after Visit later becomes Completed or Cancelled/Voided; it does not reopen workflow.
+
+## 12.7 Effective cancellation while editing
+
+Pending cancellation does not freeze valid consultation work.
+
+If cancellation becomes effective:
+- block subsequent draft save/completion/active authoring;
+- preserve already-saved content;
+- do not silently commit stale local input.
 
 ---
 
@@ -1303,7 +1359,20 @@ This interaction specification fails review if:
 - cancellation is approved after Visit reached Completed;
 - duplicate Pending cancellation requests are created;
 - cancellation deletes prior clinical/pharmacy/financial history or implies refund;
-- stale queue/cancellation action applies after state/assignment changed.
+- stale queue/cancellation action applies after state/assignment changed;
+- clinical authoring is available before explicit With Doctor state;
+- Save Draft completes consultation implicitly;
+- stale Doctor draft save overwrites newer clinical content/state;
+- consultation completes without required complaint/problem and assessment/diagnosis;
+- completed consultation returns to ordinary editable mode;
+- Possible Duplicate candidate histories are automatically merged;
+- stale demographic-correction approval overwrites newer value/reviewer routing;
+- Doctor direct demographic correction lacks old/new/actor/time history;
+- completed consultation is destructively edited rather than amended;
+- amendment reopens queue/payment/cancellation workflow;
+- unfinished cancelled draft is treated as a completed consultation;
+- active clinical writes continue after effective cancellation;
+- non-Doctor authority exposes unrestricted clinical content.
 
 
 ---
@@ -1777,3 +1846,89 @@ Later group reviews must ensure:
 - Doctor workspace stops future active authoring when cancellation becomes effective;
 - Pharmacy does not continue future active Visit fulfilment after cancellation;
 - already-created clinical/prescription/dispensing/billing history remains viewable to authorized roles.
+
+---
+
+# 39. Clinical Record, Demographic Review, and Amendment Contract
+
+## 39.1 Current consultation record
+
+The current editable clinical draft is Visit-specific and Doctor-specific.
+
+A successful draft save records the current content against the same Patient ID + Visit ID and does not create a new Visit or completed revision.
+
+## 39.2 Concurrent draft safety
+
+State-changing clinical save/complete depends on current Visit state, assignment, and current saved baseline.
+
+A stale Doctor session must refresh rather than overwrite:
+- newer saved draft;
+- new Doctor assignment;
+- effective cancellation;
+- completed consultation.
+
+## 39.3 Demographic-correction tasks
+
+Doctor workspace exposes requests assigned to that Doctor.
+
+Decision view shows:
+- Patient ID;
+- Visit ID when applicable;
+- field;
+- captured current value;
+- proposed value;
+- requester/time.
+
+Approve/reject revalidates current field value and reviewer authority.
+
+Patient-level request without active Visit remains patient-level; do not create a Visit.
+
+## 39.4 Direct Doctor demographic correction
+
+Direct correction is separate from approving a Reception request.
+
+Show current -> proposed value.
+
+On success record old/new/Doctor/time.
+
+Patient ID is never editable.
+
+Stale loaded value blocks overwrite.
+
+## 39.5 Clinical revision model
+
+Only a completed consultation enters the amendment revision model.
+
+Revision chain:
+- original completed record;
+- amendment 1;
+- amendment 2;
+- etc.
+
+Exactly one revision is the current effective clinical record; all prior revisions remain historical/read-only.
+
+## 39.6 Amendment after Visit closure
+
+Amending a completed clinical record after Completed or Cancelled/Voided:
+- changes only the effective clinical record revision;
+- does not reopen Visit;
+- does not alter queue/payment/cancellation/pharmacy state.
+
+Saved draft from a consultation cancelled before completion remains historical but is not treated as a completed record eligible for this amendment flow.
+
+## 39.7 Cancellation concurrency
+
+If cancellation becomes effective before clinical save/complete:
+- current Visit state wins;
+- stale clinical write is rejected;
+- already-saved content remains.
+
+If completion becomes effective first:
+- completed clinical record remains;
+- subsequent valid cancellation preserves it.
+
+## 39.8 Clinical-content access
+
+Full clinical content requires Doctor authority and authorized patient/Visit context.
+
+Non-Doctor operational/audit views may show safe event metadata without exposing full clinical content.

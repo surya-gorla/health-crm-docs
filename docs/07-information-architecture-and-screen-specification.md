@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.6 |
+| Version | 0.7 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.7 |
+| Parent | PRD v0.8 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -938,6 +938,7 @@ Make the next clinical action immediately obvious.
 - ordered Waiting/Called queue;
 - current With Doctor patient if any;
 - **Assigned Visits Awaiting Financial Eligibility** shown separately from the ordered queue;
+- pending demographic-correction requests assigned to this Doctor;
 - pending substitution requests;
 - queue counts/status.
 
@@ -968,6 +969,7 @@ If assignment/state changed, stale Call/Start action is blocked.
 - Call Patient from Waiting;
 - Start Consultation from Called;
 - view authorized patient history;
+- open demographic-correction request;
 - open substitution request;
 - request waiver from eligible assigned pre-queue Visit.
 
@@ -979,17 +981,30 @@ No Owner-only approval actions appear merely because the user is a Doctor.
 
 ## DOC-02 — Active Consultation Workspace
 
-**Users:** Doctor assigned to current Visit  
+**Users:** Doctor currently assigned to a Visit in With Doctor state  
 **Source:** P-048–P-054
+
+### Entry gate
+
+Editable consultation authoring requires:
+
+- current Visit state = With Doctor;
+- current Doctor assignment = signed-in Doctor;
+- Visit not Cancelled/Voided.
+
+If state/assignment changed after screen load, switch to safe read-only/current-state presentation and block stale save/complete.
 
 ### Persistent patient header
 
 - patient name;
 - Patient ID;
 - Visit ID;
+- Visit state;
 - DOB/age;
 - gender;
-- known allergies.
+- known allergies;
+- Possible Duplicate marker where applicable;
+- Pending Cancellation indicator where applicable.
 
 ### Main sections
 
@@ -999,19 +1014,46 @@ No Owner-only approval actions appear merely because the user is a Doctor.
 4. optional examination findings
 5. optional clinical notes
 6. optional advice/follow-up
-7. Prescription action
-8. longitudinal-history access
+7. demographic-correction task/context where applicable
+8. Prescription action
+9. longitudinal-history access
 
 ### Primary actions
 
-- Save current consultation work according to implementation;
+- **Save Draft**;
 - Build Prescription;
-- Complete Consultation;
-- Request Cancellation while Visit is eligible.
+- **Complete Consultation**;
+- Request Cancellation while Visit is eligible;
+- review assigned demographic-correction request;
+- direct demographic correction where authorized.
 
-### Safety
+### Save Draft
 
-Required fields must be satisfied before consultation completion.
+- allowed while With Doctor/current Doctor;
+- required fields may still be incomplete;
+- does not transition Visit state;
+- preserves Patient ID + Visit ID;
+- records Doctor/save time;
+- blocks stale overwrite when saved baseline/state changed.
+
+### Complete Consultation
+
+- explicit final action;
+- requires chief complaint/problem + assessment/diagnosis;
+- revalidates With Doctor/current Doctor/current saved content;
+- success -> Consultation Completed;
+- ordinary clinical editor becomes read-only.
+
+### Cancellation safety
+
+Pending cancellation does not disable valid authoring.
+
+If cancellation becomes effective:
+- block future Save Draft / Complete / active authoring;
+- preserve already-saved content;
+- do not silently commit stale local edits.
+
+### Restricted
 
 Owner controls are not embedded into the clinical form.
 
@@ -1019,31 +1061,43 @@ Owner controls are not embedded into the clinical form.
 
 ## DOC-03 — Longitudinal Patient History
 
-**Users:** Doctor through authorized current Visit  
-**Source:** P-049
+**Users:** Doctor through authorized patient/Visit context  
+**Source:** P-049, P-053
 
 ### Purpose
 
-Review previous care without confusing historical content with current editable content.
+Review the longitudinal archive for one permanent Patient ID without confusing history with current editable work.
+
+### Identity boundary
+
+Header keeps the permanent Patient ID visible.
+
+If the Patient carries Possible Duplicate:
+- show the marker as identity context;
+- do not combine candidate Patient IDs or their clinical timelines;
+- opening another Patient requires normal explicit authorized context.
 
 ### Timeline/card content
 
-- Visit date;
+- Visit date/state;
 - Doctor;
 - chief complaint;
 - diagnosis/assessment;
 - prescription summary;
-- amendment indicator;
-- superseded-prescription indicator.
+- clinical amendment indicator/current revision;
+- superseded-prescription indicator;
+- Cancelled/Voided historical indicator where applicable.
 
 ### Actions
 
 - open historical Visit read-only;
-- inspect amendment/superseded history.
+- inspect complete clinical revision chain;
+- inspect prescription supersede history;
+- Create Amendment only when a completed clinical record exists and Doctor is authorized.
 
 ### Acceptance
 
-Historical records do not become editable merely because they are opened.
+Historical records never become ordinary editable forms merely because they are opened.
 
 ---
 
@@ -1114,19 +1168,40 @@ No Edit Finalized Prescription action.
 
 ## DOC-06 — Clinical Amendment
 
-**Users:** Doctor  
+**Users:** authorized Doctor  
 **Source:** P-053
+
+### Eligibility
+
+A completed consultation record must exist.
+
+Visit may now be Consultation Completed, later Completed, or Cancelled/Voided; amendment corrects historical clinical content and never reopens active workflow.
+
+Do not offer this completed-consultation amendment flow for an unfinished draft preserved from cancellation before completion.
 
 ### Content
 
-- current effective clinical record;
-- original/historical revision reference;
-- amendment fields;
-- mandatory amendment reason.
+- Patient ID + Visit ID;
+- Visit current/historical state;
+- current effective clinical revision;
+- prior revision chain;
+- editable copy of current effective clinical fields;
+- mandatory specific amendment reason.
+
+### Action
+
+**Create Amendment**
+
+Before apply:
+- confirm same current effective revision is still latest;
+- if another amendment became effective, block stale submission and refresh.
 
 ### Outcome
 
-Create new effective revision and retain old content.
+- create a new effective revision;
+- preserve every prior revision read-only;
+- record Doctor/time/reason;
+- keep Visit/queue/payment/cancellation state unchanged.
 
 ---
 
