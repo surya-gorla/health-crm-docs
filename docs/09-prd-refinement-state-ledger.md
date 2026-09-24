@@ -18,11 +18,11 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.6 DRAFT |
-| Current group | None — G4 complete; starting G5 next |
-| Current stage | G4 COMPLETE / TRANSITIONING |
+| Current group | G5 — Doctor Queue & Visit Flow Control |
+| Current stage | PREPARING |
 | Completed groups | G1, G2, G3, G4 |
-| In-progress groups | None |
-| Not started | G5–G15 |
+| In-progress groups | G5 |
+| Not started | G6–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 27 — see Document 10 |
 | Latest group closure commit | `a54e3d23dea2d1765d3ae467e26c00d3d78d3c74` |
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
+| G5 | Doctor Queue & Visit Flow Control | PREPARING | — | — | — | Current group |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1316,3 +1316,53 @@ No reconciliation commit was required.
 ### Transition
 
 Proceed directly to G5 under the user's continuous-review instruction.
+
+
+# G5 — Doctor Queue & Visit Flow Control
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-040 — Queue row information
+- P-041 — Doctor call
+- P-042 — Reassignment
+- P-043 — Unresponded
+- P-044 — Patient leaves
+- P-045 — Urgent case
+- P-046 — Doctor cancellation request
+- P-047 — Owner cancellation decision
+
+### Mandatory prior-group reminders
+
+- REM-020 — pending demographic correction follows the current assigned Doctor after queue reassignment; previous Doctor must not retain stale decision authority.
+- REM-026 — assigned pre-queue financial Visits remain separate from ordered Doctor queue; queue requires Doctor + Paid/Waived.
+- REM-027 — later payment correction must not erase/rewind queue history; G5 must define safe active presentation/actions when effective financial state changes after queue entry.
+
+### Required source review
+
+- locked BRD queue states, doctor-specific queue, calling, reassignment, Unresponded, patient-leave, urgent, and Visit-cancellation rules;
+- workflow/state model for queue and cancellation;
+- OD-006/OD-007/OD-019 and related edge decisions;
+- current PRD P-040–P-047;
+- Reception/Doctor/Owner queue/cancellation screens;
+- interaction contracts for queue, state transitions, stale data, confirmations, approvals;
+- G1–G4 accepted contracts and REM-020/REM-026/REM-027.
+
+### Current action
+
+Perform full G5 source review before product reasoning.
+
+### Blockers
+
+None.
+
+---
+
+## 2026-09-25 — G5 PREPARING checkpoint
+
+- G5 started immediately after G4 closure.
+- Mandatory reminders loaded: REM-020, REM-026, REM-027.
+- Next exact action: complete source review before product decisions.
