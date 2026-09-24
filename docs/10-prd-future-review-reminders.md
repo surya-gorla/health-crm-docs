@@ -35,14 +35,20 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-015 | G2 | G14 | Extend retry/stale-state review to authentication recovery: repeated Forgot Password must not create duplicate actionable requests, and a reset already resolved by another Owner session cannot be applied again as Pending. | P-111/P-112 currently emphasize other business records; G2 adds an auth-recovery state that needs the same safety discipline. | OPEN |
 | REM-016 | G2 | G14 | Evaluate account disablement/role changes while multiple sessions or tabs are open. Preserve the product rule that stale authority/protected use stops when the state change is detected, while leaving exact propagation/session transport to technical design. | G1/G2 now define product behavior but not implementation mechanics. | OPEN |
 | REM-017 | G2 | G14 | Include recovery-code lifecycle in state-safety review: used codes cannot authenticate again and regeneration invalidates the prior set. Do not expose code values in audit/state history. | Recovery codes are security-sensitive one-time state governed by G2. | OPEN |
-| REM-018 | G3 | G4 | Preserve the Patient-to-Visit boundary: Visit creation must link the already selected/newly created permanent Patient ID and must never create another Patient identity. Possible Duplicate status and missing physical file must not block first/subsequent Visit creation. | G3 makes Patient identity independently usable; G4 owns Visit creation/payment transition. | OPEN |
-| REM-019 | G3 | G4 | When an active Visit exists without an assigned Doctor, verify G4 Doctor-selection/assignment behavior can satisfy G3's requirement that Reception cannot submit that Visit-linked demographic correction until a Doctor is selected. Do not create a Visit solely for a correction when no active Visit exists. | G3 correction routing depends on active Visit Doctor assignment, while G4 owns Visit/Doctor creation context. | OPEN |
 | REM-020 | G3 | G5 | If an active Visit is reassigned while a demographic-correction request is Pending, the request must follow the current assigned Doctor and the previous Doctor must not remain able to apply the stale routing. | G3 derives correction authority from the Visit's assigned Doctor; G5 owns reassignment. | OPEN |
 | REM-021 | G3 | G6 | Doctor review must support Reception demographic-correction approval/rejection and Doctor direct demographic correction with old/new audit detail and stale-value protection. Doctor longitudinal history may expose Possible Duplicate status/context but must not automatically combine clinical histories across candidate Patient IDs because V1 has no merge. | G3 defines the patient-level correction and duplicate identity rules; G6 owns Doctor clinical workspace/history. | OPEN |
 | REM-022 | G3 | G13 | Returning-patient/unique-patient reporting must respect the permanent Patient IDs that actually exist. Possible Duplicate profiles remain separate identities in V1; reporting must not silently similarity-deduplicate them unless a later approved business definition explicitly says so. | V1 has no duplicate merge, so reporting logic can otherwise silently contradict the identity model. | OPEN |
 | REM-023 | G3 | G14 | Extend P-111 retry/idempotency review to Patient creation: an unknown registration outcome must be resolved by checking effective state before another create attempt, including concurrent candidate changes discovered at final submit. | Patient identity duplication is high-impact and G3 now defines product-level retry behavior. | OPEN |
 | REM-024 | G3 | G14 | Audit/history must cover Possible Duplicate provenance and demographic corrections without exposing unauthorized clinical content: candidate Patient IDs/actor/time for the marker; old/new/requester/Doctor decision/time for corrections; Doctor direct edits remain attributable. | G3 introduces auditable identity-risk and demographic-change metadata that G14 must present consistently. | OPEN |
 | REM-025 | G3 | G14 | Stale-state protection must explicitly cover demographic correction: if the captured current value changed before Doctor decision, the old proposal cannot overwrite newer truth; exact concurrency/version mechanism stays technical. | G3 establishes the stale business behavior; G14 owns the cross-product stale-state contract. | OPEN |
+| REM-026 | G4 | G5 | Keep **Assigned Visits Awaiting Financial Eligibility** separate from the ordered Doctor queue. Queue entry requires both Doctor assignment and current Paid/Waived eligibility; Paid/Waived-but-not-queued and Unpaid-assigned states must not be mistaken for queue members. | G4 made Visit, financial eligibility, Doctor assignment, and queue membership distinct states. | OPEN |
+| REM-027 | G4 | G5 | A later Owner-approved payment correction must not delete/rewind existing queue history. If an already-queued/advanced Visit's effective financial state becomes Unpaid, G5 must define safe current queue presentation/allowed actions without pretending the Visit never entered or silently creating a new eligibility event. | G4 makes financial correction non-destructive; G5 owns active queue behavior. | OPEN |
+| REM-028 | G4 | G9 | Reuse the common payment semantics for pharmacy: explicit Paid confirmation, UPI/Cash/Card/Other, Other description, optional reference, no partial/refund, baseline-aware correction, and unknown-outcome retry safety where applicable. Do not import consultation-waiver behavior into pharmacy billing. | G4 refined the shared payment interaction contract; G9 owns pharmacy billing. | OPEN |
+| REM-029 | G4 | G11 | Approval Center must support consultation-waiver specifics: one actionable Pending request, Paid-before-decision makes the request stale/non-actionable, rejection preserves Unpaid and allows a later new request, and **Direct Waiver** is an Owner action rather than a request requiring self-approval. | G4 defines waiver lifecycle; G11 owns generic Owner approval UX/state. | OPEN |
+| REM-030 | G4 | G11 | Payment-correction approval must display/revalidate the captured payment baseline, block stale application, preserve original/proposed/effective values, and make clear Paid->Unpaid is record correction rather than refund. | G4 defines correction safety; G11 owns Owner decision presentation. | OPEN |
+| REM-031 | G4 | G12 | Consultation-fee configuration changes are prospective: changing clinic configuration must not silently rewrite the applied amount of already-created Visits. A Visit-specific correction does not change global fee configuration. | G4 establishes Visit-level fee snapshot semantics; G12 owns configuration UX. | OPEN |
+| REM-032 | G4 | G13 | Consultation revenue/financial reporting should use the current effective recorded financial state after approved corrections, count Paid consultation amounts, exclude Waived, and avoid double-counting superseded/original payment records retained for audit. | G4 preserves original financial history while defining one corrected effective record; G13 owns reporting definitions/presentation. | OPEN |
+| REM-033 | G4 | G14 | Cross-product retry/stale safety must cover Visit creation, Paid recording, combined Mark Paid + queue partial success, one Pending waiver/correction per relevant baseline, stale waiver after Paid, and stale payment-correction baseline. Exact idempotency/concurrency mechanisms remain technical. | G4 defines product-level safety outcomes that G14 must generalize. | OPEN |
 
 ---
 
@@ -54,6 +60,8 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-002 | G1 | G2 | Resolved across D-G2-07 plus G1 reconciliation: whole-account disablement ends protected account use when detected and returns to sign-in; role-only revocation removes affected authority/workspace. Exact propagation remains technical. | RESOLVED |
 | REM-003 | G1 | G2 | Resolved by D-G2-06 / P-013: reset credential enters only the forced-change gate; successful replacement then resumes G1 normal single-/multi-workspace routing. | RESOLVED |
 | REM-004 | G1 | G2 | Resolved by D-G2-01/D-G2-08 and reconciliation commit `5fe2bcc7151092307aa1d527d3b42863ec7e6144`: normal authenticated workspace switching does not repeat login/TOTP, while newly granted Owner authority remains second-factor gated before use. | RESOLVED |
+| REM-018 | G3 | G4 | Resolved by P-026/P-031 and G4 decisions: Visit creation always links the selected Patient ID; Possible Duplicate/missing physical file are non-blocking; queue entry remains separate. | RESOLVED |
+| REM-019 | G3 | G4 | Resolved by P-027 and REC-05/REC-08: active Visit may be Unassigned; Doctor is assigned before queue entry or Visit-linked demographic-correction submission; no fake Visit is created for no-active-Visit correction. | RESOLVED |
 
 ---
 
@@ -86,12 +94,9 @@ When G14 begins, explicitly evaluate:
 - REM-017
 
 
-## Target G4 — Mandatory Reminders
+## Target G4 — Resolved
 
-When G4 begins, explicitly evaluate:
-
-- REM-018
-- REM-019
+REM-018 and REM-019 were resolved during the G4 review and are recorded in Resolved Reminder History.
 
 ## Target G5 — Mandatory Reminders
 
@@ -118,3 +123,42 @@ When G14 begins, also explicitly evaluate:
 - REM-023
 - REM-024
 - REM-025
+
+
+## Target G5 — Additional Mandatory Reminders from G4
+
+When G5 begins, also explicitly evaluate:
+
+- REM-026
+- REM-027
+
+## Target G9 — Mandatory Reminders from G4
+
+When G9 begins, explicitly evaluate:
+
+- REM-028
+
+## Target G11 — Additional Mandatory Reminders from G4
+
+When G11 begins, also explicitly evaluate:
+
+- REM-029
+- REM-030
+
+## Target G12 — Additional Mandatory Reminder from G4
+
+When G12 begins, also explicitly evaluate:
+
+- REM-031
+
+## Target G13 — Additional Mandatory Reminder from G4
+
+When G13 begins, also explicitly evaluate:
+
+- REM-032
+
+## Target G14 — Additional Mandatory Reminder from G4
+
+When G14 begins, also explicitly evaluate:
+
+- REM-033

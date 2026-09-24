@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.6 DRAFT |
 | Current group | G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction |
-| Current stage | FORWARD IMPACT ANALYSIS — G4 to G5–G15 |
+| Current stage | FINAL GROUP VALIDATION — G4 |
 | Completed groups | G1, G2, G3 |
 | In-progress groups | G4 |
 | Not started | G5–G15 |
@@ -63,7 +63,7 @@ A group is COMPLETE only when all four gates pass:
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
-| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | FORWARD IMPACT ANALYSIS | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | IN PROGRESS | Current group |
+| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | FINAL VALIDATION | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Current group |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
@@ -1243,3 +1243,41 @@ Evaluate G4 compatibility cumulatively against G1 workspace/authority rules, G2 
 ### Next exact action
 
 Evaluate G4 against G5–G15 and create only targeted future reminders.
+
+
+## 2026-09-25 — G4 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Targeted reminders created
+
+**G5 — Doctor Queue**
+- REM-026 — pre-queue financial list remains separate from actual queue; queue requires Doctor + Paid/Waived.
+- REM-027 — later financial correction does not rewind queue history; G5 must define safe active presentation/actions.
+
+**G9 — Pharmacy Billing**
+- REM-028 — reuse common payment/correction/retry semantics without importing consultation waiver.
+
+**G11 — Owner Approval Center**
+- REM-029 — waiver lifecycle, stale-after-Paid behavior, later request after rejection, Direct Waiver as non-request.
+- REM-030 — payment-correction baseline revalidation and non-refund presentation.
+
+**G12 — Configuration**
+- REM-031 — fee configuration is prospective; existing Visit amount is not silently rewritten.
+
+**G13 — Reporting**
+- REM-032 — revenue uses current effective Paid records, excludes Waived, and does not double-count audit originals.
+
+**G14 — Cross-Product State/Safety**
+- REM-033 — Visit/payment idempotency, combined-action partial success, one Pending request, stale waiver/correction.
+
+### Prior reminders resolved
+
+- REM-018 — RESOLVED.
+- REM-019 — RESOLVED.
+
+### No targeted G4 reminder required
+
+No unique unresolved G4 dependency was found for G6–G8, G10, or G15 beyond existing shared Patient/Visit/payment/audit contracts.
+
+### Next exact action
+
+Run all four G4 closure gates, update ledger/PR if PASS, then proceed directly to G5.
