@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.7 DRAFT |
+| Current PRD version | v0.8 DRAFT |
 | Current group | G6 — Consultation & Longitudinal Clinical Record |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G6 vs G1–G5 |
 | Completed groups | G1, G2, G3, G4, G5 |
 | In-progress groups | G6 |
 | Not started | G7–G15 |
@@ -65,7 +65,7 @@ A group is COMPLETE only when all four gates pass:
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
-| G6 | Consultation & Longitudinal Clinical Record | DECISIONS RESOLVED | — | — | — | Current group |
+| G6 | Consultation & Longitudinal Clinical Record | COMMIT VALIDATED / BACKWARD CHECK | `762524428d1c62976519d7cd126ebe199054e2b2` | IN PROGRESS vs G1–G5 | — | Current group |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
@@ -1558,7 +1558,7 @@ Proceed directly to G6.
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -1587,7 +1587,7 @@ Proceed directly to G6.
 
 ### Current action
 
-Apply resolved G6 consultation, history, correction, amendment, and cancellation-concurrency rules to PRD layers.
+Compare committed G6 behavior cumulatively against G1–G5 and reconcile any conflict before forward-impact analysis.
 
 ### Blockers
 
@@ -1672,3 +1672,25 @@ None. All identified gaps can be resolved as derived product design without chan
 13. Exact save-version/concurrency mechanics remain technical and must be generalized in G14.
 
 No new business input is required.
+
+
+## 2026-09-25 — G6 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- `762524428d1c62976519d7cd126ebe199054e2b2`
+- Changed docs 05–08.
+
+### Validation
+
+PASS.
+
+- P-001..P-116 remain unique.
+- Screen inventory remains 49 unique IDs.
+- UX scenarios remain unique and extend through UXA-067.
+- PRD/companion versions align at PRD v0.8.
+- With Doctor authoring gate, explicit draft save, stale-save protection, completion -> Consultation Completed/read-only, Patient-ID-scoped history, demographic-review/direct-correction behavior, amendment revision chain, post-closure amendment semantics, and cancellation-safe writes are present.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G5.
