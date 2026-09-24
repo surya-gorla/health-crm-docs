@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.11 DRAFT |
 | Current group | G10 — Inventory, Stock Accountability & Pharmacy Transfers |
-| Current stage | G10 PREPARING |
+| Current stage | G10 DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9 |
 | In-progress groups | G10 |
 | Not started | G11–G15 |
@@ -69,7 +69,7 @@ A group is COMPLETE only when all four gates pass:
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
-| G10 | Inventory, Stock Accountability & Pharmacy Transfers | PREPARING | — | — | — | Current group |
+| G10 | Inventory, Stock Accountability & Pharmacy Transfers | DECISIONS RESOLVED | — | — | — | Current group |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
@@ -2352,4 +2352,35 @@ Perform the full G10 source review before autonomous product reasoning.
 ### Blockers
 
 None.
+
+## 2026-09-25 — G10 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required. These decisions preserve the locked anti-theft/accountability model and the already-accepted G7–G9 stock boundaries.
+
+1. **Authoritative unit ledger:** every pharmacy unit has its own attributable inventory ledger. Clinic-total stock is derived from unit ledgers and never replaces unit-level truth.
+2. **Movement model:** stock quantity is changed by ledger movements/events, not by silently editing a current-stock number. Normal dispensing creates its automatic negative movement; approved addition/loss/damage/expiry/correction and approved transfer create explicit movements. Historical movements are not rewritten when later corrections occur.
+3. **Dispensing remains authoritative physical movement:** prescription replacement, bill creation/payment/correction/void, Visit completion/cancellation, or reporting never retroactively changes stock. Resolves REM-047 and REM-056.
+4. **Base-unit normalization:** every medicine has a configured base stock/dispensing unit. Staff may enter/display a configured package quantity, but every quantity-changing request shows the conversion and stores the normalized base-unit delta/result. Historical movement retains the conversion/result used at the time rather than silently changing after future configuration edits.
+5. **Batch attribution:** where stock is held by batch/lot, quantity-changing movements identify the concrete batch/lot and preserve its expiry/manufacturer context. A dispense must resolve actual valid/non-expired batch quantity before commit; hidden use of expired or insufficient batch stock is not allowed. The exact UI default/order for choosing among multiple valid batches is implementation design, but the committed batch attribution is mandatory.
+6. **Available versus physically recorded expired stock:** reaching expiry makes the batch immediately unavailable for dispensing/available-stock calculations. Expiry alone does not silently erase physical quantity from the ledger. Removal/disposition quantity is recorded only through the controlled Owner-authorized adjustment, preserving the expired quantity and subsequent disposition history.
+7. **Low-stock/near-expiry evaluation:** use configured medicine/inventory thresholds against current valid stock/batch expiry context. Thresholds are configuration, not hard-coded product policy. Owner consolidated views preserve the underlying unit/batch drill-down.
+8. **Pharmacist adjustment request:** stock addition, damage, loss, expired disposition, and quantity correction require explicit category, pharmacy unit, medicine, affected batch where relevant, entered quantity/unit, normalized base-unit effect, mandatory specific reason, and captured stock baseline sufficient to show projected result.
+9. **Correction semantics:** a stock-count correction may express the intended counted/resulting quantity; the product derives and displays the delta against the captured baseline so the Owner never approves an unexplained replacement number.
+10. **No stock mutation while Pending:** a Pharmacist request changes nothing and reserves nothing while Pending. This keeps the live ledger truthful and avoids hidden unavailable stock.
+11. **Stale adjustment protection:** Owner decision revalidates the relevant current unit/batch stock and request baseline. If intervening dispensing/adjustment/transfer means the proposed result is no longer the reviewed result or would go negative, the old request cannot silently apply; refreshed review/new proposal is required. Do not partially apply a stale request.
+12. **Owner direct inventory action:** Owner may perform the same non-dispensing inventory adjustment directly without creating a self-approval request, because the locked rule requires Owner authorization rather than Owner self-approval. Direct adjustment still requires category/reason, current-state review, explicit confirmation, and full audit attribution.
+13. **Price-change request is non-quantity:** Pharmacist-proposed purchase/selling-price change uses the same Owner-control/request pattern but does not create a quantity movement. Capture current value, proposed value, reason, requester, Owner decision, and effective time. Historical dispensing/bills remain unchanged; G12 owns prospective configuration behavior.
+14. **Transfer request:** transfer specifies source unit, different destination unit, medicine, concrete batch where relevant, entered quantity/unit, normalized base quantity, mandatory reason, and captured source availability. Submitting the request does not change or reserve either unit.
+15. **Transfer approval:** Owner decision revalidates source transferable valid quantity and request state. Approval is one atomic business outcome with a shared transfer ID/reference: source decreases and destination increases by the same normalized quantity; rejection/stale failure changes neither side. No partial transfer approval is introduced.
+16. **Transferred batch continuity:** the destination movement preserves the physical stock's batch/lot/expiry/manufacturer identity and transfer linkage rather than inventing a new unrelated batch. Transfer does not rewrite prior source history.
+17. **Transfer concurrency:** if source stock falls below requested transferable quantity before approval, the request is stale/non-actionable until refreshed/replaced; destination does not receive stock and source is not partially deducted.
+18. **Owner visibility:** Owner inventory control shows current available stock and recorded stock context by unit, consolidated totals, batch/expiry risk, automatic dispensing movements, additions, adjustments, damage/loss, expiry disposition, transfers, requester/approver/reason/time, and before/delta/after values where quantity changes.
+19. **Admin boundary:** authorized Admin may configure medicine/inventory metadata and thresholds where permitted, but Admin authority alone cannot approve/apply operational stock loss/addition/correction/transfer. Owner authority remains the operational control point.
+20. **Retry/unknown-outcome safety:** adjustment submission/direct adjustment/approval and transfer submission/approval are state-changing operations. Duplicate submit is prevented while pending; unknown outcome is checked against the ledger/request before blind retry. Exact transaction/locking implementation remains technical and will be generalized in G14.
+21. **G8 stock safety preserved:** dispensing continues to revalidate current valid/non-expired batch stock and succeeds with stock deduction as one effective operation; inventory work here does not create a reservation for unsupplied prescription remainder. Resolves REM-052.
+
+### Current action
+
+Apply these decisions across PRD requirements, acceptance/traceability, inventory/Owner screens, and interaction contracts; then commit and validate G10 as one logical product refinement.
+
 
