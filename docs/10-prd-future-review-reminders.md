@@ -35,7 +35,6 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-015 | G2 | G14 | Extend retry/stale-state review to authentication recovery: repeated Forgot Password must not create duplicate actionable requests, and a reset already resolved by another Owner session cannot be applied again as Pending. | P-111/P-112 currently emphasize other business records; G2 adds an auth-recovery state that needs the same safety discipline. | OPEN |
 | REM-016 | G2 | G14 | Evaluate account disablement/role changes while multiple sessions or tabs are open. Preserve the product rule that stale authority/protected use stops when the state change is detected, while leaving exact propagation/session transport to technical design. | G1/G2 now define product behavior but not implementation mechanics. | OPEN |
 | REM-017 | G2 | G14 | Include recovery-code lifecycle in state-safety review: used codes cannot authenticate again and regeneration invalidates the prior set. Do not expose code values in audit/state history. | Recovery codes are security-sensitive one-time state governed by G2. | OPEN |
-| REM-021 | G3 | G6 | Doctor review must support Reception demographic-correction approval/rejection and Doctor direct demographic correction with old/new audit detail and stale-value protection. Doctor longitudinal history may expose Possible Duplicate status/context but must not automatically combine clinical histories across candidate Patient IDs because V1 has no merge. | G3 defines the patient-level correction and duplicate identity rules; G6 owns Doctor clinical workspace/history. | OPEN |
 | REM-022 | G3 | G13 | Returning-patient/unique-patient reporting must respect the permanent Patient IDs that actually exist. Possible Duplicate profiles remain separate identities in V1; reporting must not silently similarity-deduplicate them unless a later approved business definition explicitly says so. | V1 has no duplicate merge, so reporting logic can otherwise silently contradict the identity model. | OPEN |
 | REM-023 | G3 | G14 | Extend P-111 retry/idempotency review to Patient creation: an unknown registration outcome must be resolved by checking effective state before another create attempt, including concurrent candidate changes discovered at final submit. | Patient identity duplication is high-impact and G3 now defines product-level retry behavior. | OPEN |
 | REM-024 | G3 | G14 | Audit/history must cover Possible Duplicate provenance and demographic corrections without exposing unauthorized clinical content: candidate Patient IDs/actor/time for the marker; old/new/requester/Doctor decision/time for corrections; Doctor direct edits remain attributable. | G3 introduces auditable identity-risk and demographic-change metadata that G14 must present consistently. | OPEN |
@@ -46,17 +45,24 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-031 | G4 | G12 | Consultation-fee configuration changes are prospective: changing clinic configuration must not silently rewrite the applied amount of already-created Visits. A Visit-specific correction does not change global fee configuration. | G4 establishes Visit-level fee snapshot semantics; G12 owns configuration UX. | OPEN |
 | REM-032 | G4 | G13 | Consultation revenue/financial reporting should use the current effective recorded financial state after approved corrections, count Paid consultation amounts, exclude Waived, and avoid double-counting superseded/original payment records retained for audit. | G4 preserves original financial history while defining one corrected effective record; G13 owns reporting definitions/presentation. | OPEN |
 | REM-033 | G4 | G14 | Cross-product retry/stale safety must cover Visit creation, Paid recording, combined Mark Paid + queue partial success, one Pending waiver/correction per relevant baseline, stale waiver after Paid, and stale payment-correction baseline. Exact idempotency/concurrency mechanisms remain technical. | G4 defines product-level safety outcomes that G14 must generalize. | OPEN |
-| REM-034 | G5 | G6 | Consultation start must preserve the explicit Called -> With Doctor boundary. Pending cancellation does not freeze consultation, but an effective cancellation while With Doctor must stop future active authoring/saves without deleting already-saved clinical history; stale Doctor views must not keep writing after cancellation. | G5 owns queue/cancellation state; G6 owns consultation authoring. | OPEN |
 | REM-035 | G5 | G7 | When a Visit becomes Cancelled/Voided at Consultation Completed or later, preserve existing prescription history but prevent new active prescription authoring/finalization/replacement that would continue a cancelled Visit. Determine how superseded/finalized prescriptions are shown historically. | G5 says cancellation stops future active Visit progression but preserves artifacts; G7 owns prescription lifecycle. | OPEN |
 | REM-036 | G5 | G8 | If cancellation becomes effective at Sent to Pharmacy, Pharmacy must stop future dispensing/fulfilment for that Visit while preserving all dispensing already performed. Each dispensing action should revalidate that Visit is still active. | G5 explicitly permits cancellation from Sent to Pharmacy and makes it non-destructive. | OPEN |
 | REM-037 | G5 | G9 | Visit cancellation must not create pharmacy refund or erase existing bill/payment history. Evaluate whether new pharmacy billing/payment actions remain available after Visit cancellation and ensure cancelled Visit cannot continue active billing workflow. | G5 stops future active Visit workflow while preserving existing pharmacy history; G9 owns billing/payment. | OPEN |
 | REM-038 | G5 | G11 | Owner cancellation approval must support one Pending request, current-state revalidation, Completed-before-decision stale behavior, non-freezing Pending workflow, rejection leaving current state unchanged, and same-human Doctor-request/Owner-decision attribution. | G5 defines the cancellation lifecycle; G11 owns Approval Center behavior. | OPEN |
 | REM-039 | G5 | G13 | Average-wait reporting must respect queue history: ordinary reassignment/Unresponded/move-to-end preserve the queue-entry journey; actual removal for financial ineligibility plus later re-entry creates another queue-entry event. Define the deterministic reporting event without deleting earlier history. | OD-029 defines wait as queue entry -> With Doctor; G5 now allows multiple historical queue-entry events in one Visit. | OPEN |
 | REM-040 | G5 | G14 | Cross-product stale/concurrency review must include races among Call, Start Consultation, Reassign, Unresponded, move-to-end, financial correction, cancellation request/decision, and Visit completion. One Pending cancellation per Visit and stale decisions/actions must be enforced. | G5 depends heavily on current state/assignment and concurrent actors. | OPEN |
+| REM-041 | G6 | G7 | Consultation completion does not itself finalize prescription or send the Visit to Pharmacy. Define when prescription builder/finalization remains available across With Doctor and Consultation Completed, what exact event moves Visit to Sent to Pharmacy, and ensure an effective Visit cancellation blocks new active prescription finalization/replacement while preserving existing prescription history. | G6 makes clinical completion an independent immutable boundary; G7 owns prescription progression. | OPEN |
+| REM-042 | G6 | G8 | Preserve G6 clinical-content boundary in Pharmacy: dispensing may use current/previous prescriptions and known allergies, but must not expose unrestricted diagnosis, consultation notes, or Doctor longitudinal clinical history. | G6 explicitly limits full clinical content to Doctor authority; G8 owns Pharmacy retrieval/dispensing. | OPEN |
+| REM-043 | G6 | G13 | Patients-seen/day and related consultation counts should anchor to the original Consultation Completed event. Later clinical amendments must not create a second completed consultation or change the original completion event; evaluate how later Visit cancellation affects reporting without rewriting historical completion. | G6 separates completion from later amendment/cancellation history; G13 owns reporting. | OPEN |
+| REM-044 | G6 | G14 | Generalize stale/audit safety for clinical drafts and amendments: concurrent draft saves must not overwrite newer content, stale amendment baseline must refresh, effective cancellation must reject stale clinical writes, and clinical revision audit must preserve current vs prior revisions without exposing content to unauthorized audit roles. | G6 defines product-level clinical concurrency/revision behavior; G14 owns cross-product safety/audit. | OPEN |
 
 ---
 
 ## Resolved Reminder History
+
+| REM-021 | G3 | G6 | Resolved by G6 Doctor demographic-review/direct-correction contracts and Patient-ID-scoped longitudinal history: stale value/reviewer is blocked and Possible Duplicate candidate histories are not auto-combined. | RESOLVED |
+| REM-034 | G5 | G6 | Resolved by G6 consultation/cancellation concurrency: authoring starts only at With Doctor, Pending cancellation does not freeze work, and effective cancellation blocks stale future writes while preserving saved clinical content. | RESOLVED |
+
 
 | ID | Raised By | Target Group | Disposition | Status |
 | --- | --- | --- | --- | --- |
@@ -109,11 +115,9 @@ REM-018 and REM-019 were resolved during the G4 review and are recorded in Resol
 
 REM-020 was resolved during G5. Additional G4 reminders REM-026/027 were also resolved and are recorded in Resolved Reminder History.
 
-## Target G6 — Mandatory Reminders
+## Target G6 — Resolved
 
-When G6 begins, explicitly evaluate:
-
-- REM-021
+REM-021 was resolved during the G6 review.
 
 ## Target G13 — Mandatory Reminders
 
@@ -162,10 +166,9 @@ When G14 begins, also explicitly evaluate:
 - REM-033
 
 
-## Target G6 — Additional Mandatory Reminder from G5
+## Target G6 — Additional Reminder Resolved
 
-When G6 begins, also evaluate:
-- REM-034
+REM-034 was resolved during the G6 review.
 
 ## Target G7 — Mandatory Reminder from G5
 
@@ -196,3 +199,20 @@ When G13 begins, also evaluate:
 
 When G14 begins, also evaluate:
 - REM-040
+
+
+## Target G7 — Additional Mandatory Reminder from G6
+When G7 begins, also evaluate:
+- REM-041
+
+## Target G8 — Additional Mandatory Reminder from G6
+When G8 begins, also evaluate:
+- REM-042
+
+## Target G13 — Additional Mandatory Reminder from G6
+When G13 begins, also evaluate:
+- REM-043
+
+## Target G14 — Additional Mandatory Reminder from G6
+When G14 begins, also evaluate:
+- REM-044
