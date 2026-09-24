@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.6 DRAFT |
 | Current group | G5 — Doctor Queue & Visit Flow Control |
-| Current stage | GROUP REASONING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4 |
 | In-progress groups | G5 |
 | Not started | G6–G15 |
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | GROUP REASONING | — | — | — | Current group |
+| G5 | Doctor Queue & Visit Flow Control | DECISIONS RESOLVED | — | — | — | Current group |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1322,7 +1322,7 @@ Proceed directly to G5 under the user's continuous-review instruction.
 
 ## Current checkpoint
 
-**Stage:** GROUP REASONING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -1353,7 +1353,7 @@ Proceed directly to G5 under the user's continuous-review instruction.
 
 ### Current action
 
-Resolve G5 queue/state/cancellation edge cases from the completed source review, then apply them to the PRD layers.
+Apply the resolved G5 queue/reassignment/cancellation rules to PRD, acceptance, screen, and interaction specifications.
 
 ### Blockers
 
@@ -1421,3 +1421,26 @@ None.
 ### Business input required
 
 None. The gaps can be resolved as derived product design while preserving the locked state model.
+
+
+## 2026-09-25 — G5 DECISIONS RESOLVED
+
+No new business input is required.
+
+1. **Queue membership/order:** actual queue contains only Doctor-assigned, Paid/Waived Visits. New entries append to the selected Doctor's queue end. Pre-queue financial Visits remain outside queue counts/order. No drag/drop/manual priority reorder.
+2. **Queue timing:** preserve queue-entry history through reassignment, Unresponded reposition, and move-to-end. A true removal/re-entry records a new active queue-entry event while retaining prior history.
+3. **Call/start:** Call Patient is Doctor-only from Waiting and creates Called. Start Consultation is explicit from Called, current assigned Doctor only, and creates With Doctor. Viewing a row does not change state.
+4. **Reassignment:** Reception may reassign Waiting or Called Visit only. Destination Doctor must differ. Destination receives the Visit at queue end as Waiting. Called history is retained. With Doctor or later cannot be reassigned.
+5. **Demographic correction routing:** reassignment moves any pending Visit-linked demographic-correction reviewer authority to the new Doctor; old Doctor stale view cannot decide. Resolves REM-020.
+6. **Unresponded:** Reception-only from Called; record event, move five positions down or to end, return current state to Waiting; stale action is blocked.
+7. **Patient leaves before consultation:** from Waiting/Called, move financially eligible Paid/Waived Visit to same-Doctor queue end and return/keep Waiting. This is not cancellation/refund. Waived follows Paid operationally because G4 made both queue-eligible.
+8. **Financial correction before consultation:** if effective state becomes Unpaid while Waiting/Called, remove current queue membership but preserve queue history; show Not Queued/Unpaid. Re-entry after renewed eligibility is explicit and goes to queue end.
+9. **Financial correction after With Doctor:** do not unwind clinical workflow; corrected financial state remains visible/auditable.
+10. **Urgency:** no priority flag, urgency score, priority request, drag reorder, or automatic jump.
+11. **Cancellation request:** Doctor-only with specific reason from Waiting/Called/Unresponded/With Doctor/Consultation Completed/Sent to Pharmacy; not from Completed/Cancelled. One actionable Pending request per Visit.
+12. **Pending cancellation:** Visit remains active and may progress. If it reaches Completed before Owner decision, request becomes non-actionable/stale.
+13. **Owner cancellation decision:** revalidate current state. Approval -> Cancelled/Voided and active workflow removal while preserving all existing history and no refund. Rejection leaves current state unchanged. Same-human Owner+Doctor remains separately attributed.
+14. **Stage effects:** cancellation removes Waiting/Called from queue; stops further active progression from With Doctor/Consultation Completed/Sent to Pharmacy while preserving already-created clinical/pharmacy history.
+15. **Concurrency:** every queue action revalidates state and Doctor assignment before applying; stale call/start/reassign/Unresponded/move/cancellation actions refresh instead of applying outdated state.
+
+Future checks are required for G6 clinical concurrency, G8/G9 cancellation after pharmacy handoff, G11 cancellation approvals, G13 waiting-time reporting, and G14 state/concurrency safety.
