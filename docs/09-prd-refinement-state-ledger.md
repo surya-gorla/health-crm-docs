@@ -18,13 +18,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.11 DRAFT |
-| Current group | G9 — Pharmacy Billing, Payment & Bill Cancellation |
-| Current stage | BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
-| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8 |
-| In-progress groups | G9 |
-| Not started | G10–G15 |
+| Current group | G10 — Inventory, Stock Accountability & Pharmacy Transfers |
+| Current stage | G10 PREPARING |
+| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9 |
+| In-progress groups | G10 |
+| Not started | G11–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 39 — see Document 10 |
+| Open future reminders | 42 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
 
 ---
@@ -68,8 +68,8 @@ A group is COMPLETE only when all four gates pass:
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
-| G9 | Pharmacy Billing, Payment & Bill Cancellation | BACKWARD PASS | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | IN PROGRESS | Current group |
-| G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
+| G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
+| G10 | Inventory, Stock Accountability & Pharmacy Transfers | PREPARING | — | — | — | Current group |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
@@ -2252,3 +2252,104 @@ Run cumulative backward compatibility against G1–G8, reconciling any conflict 
 ### Next exact action
 
 Scan G10–G15 for downstream dependencies introduced by G9 and write targeted reminders before final closure.
+
+## 2026-09-25 — G9 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Resolved inherited reminders
+
+- REM-028 — shared pharmacy payment/correction semantics.
+- REM-037 — Visit cancellation versus existing pharmacy financial history.
+- REM-046 — prescription replacement versus prior billing.
+- REM-051 — final Visit completion after multi-unit/partial fulfilment.
+
+### Targeted reminders created
+
+- REM-056 -> G10: dispensing remains the stock-changing event; billing/void/payment/completion do not restore or mutate stock.
+- REM-057 -> G11: bill-void approval must use latest bill/request/payment state and explicit no-refund consequences.
+- REM-058 -> G11: pharmacy payment correction remains baseline-aware, stale-safe, and bill-total immutable.
+- REM-059 -> G12: billing configuration/price changes are prospective and cannot rewrite frozen bill snapshots.
+- REM-060 -> G13: reporting must distinguish effective payment state, historical Paid+Voided records, multi-unit bills, and active charge status without double-counting.
+- REM-061 -> G14: global stale/idempotency review must cover bill creation/payment/correction/void/completion concurrency and unknown outcomes.
+- REM-062 -> G15: A4 pharmacy output must use frozen bill snapshot and clearly distinguish active versus historical Cancelled/Voided copies.
+
+### Reminder-register commit
+
+`63811be1c6a5f6a6a7493ba2f1ca3e862c2e1460`
+
+Open reminder count after G9: **42**.
+
+## 2026-09-25 — G9 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G8:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint state:** CURRENT
+
+### Main Group 9 commit
+
+`d317a8d50cfa5baeb7506920ffa75c4e19776f00`
+
+### Validation-fix commit
+
+`4c4c6622b940e1db6d5efca2e872488a01d580fe`
+
+The validation-fix corrected only section-boundary duplication introduced by the main documentation edit; it did not change product behavior.
+
+### Final verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- REM-028/037/046/051 resolved.
+- REM-056–REM-062 created.
+- No unresolved backward conflict remains.
+- Pharmacy payment remains external; no partial payment or refund was introduced.
+- Visit completion is pharmacy-fulfilment based rather than payment-gated.
+
+### Transition
+
+Proceed directly to G10 under the user's continuous-review instruction.
+
+# G10 — Inventory, Stock Accountability & Pharmacy Transfers
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-085 — Pharmacy-unit stock
+- P-086 — Consolidated Owner view
+- P-087 — Automatic movement visibility
+- P-088 — Inventory adjustment request
+- P-089 — Owner inventory-adjustment decision
+- P-090 — Expired stock
+- P-091 — Low-stock / near-expiry visibility
+- P-092 — Pharmacy stock-transfer request
+- P-093 — Owner transfer decision
+
+### Mandatory prior-group reminders
+
+- REM-047 — prescription replacement/finalization must never retroactively alter stock; actual dispensing remains the stock movement and preserves original version attribution.
+- REM-052 — preserve atomic dispense -> unit stock deduction, valid/non-expired stock only, no reservation for unsupplied remainder, and safe concurrent unit stock behavior.
+- REM-056 — billing/payment/Visit completion/bill void must not become stock-changing events; legitimate correction remains separate Owner-controlled inventory adjustment.
+
+### Required source review
+
+- locked BRD inventory model, units/package conversion, batch/expiry/pricing metadata, low-stock/expiry rules, manual adjustment approval, inventory-theft controls, and multi-pharmacy transfer behavior;
+- workflow/state and OD inventory decisions;
+- current PRD P-085–P-093;
+- Pharmacy inventory screens, Owner inventory control/approval screens, and interaction contracts;
+- G1–G9 accepted contracts and REM-047/052/056.
+
+### Current action
+
+Perform the full G10 source review before autonomous product reasoning.
+
+### Blockers
+
+None.
+
