@@ -18,13 +18,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.14 DRAFT |
-| Current group | G12 — Administration, Staff Access & Clinic Configuration |
-| Current stage | G12 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
-| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11 |
-| In-progress groups | G12 |
-| Not started | G13–G15 |
+| Current group | G13 — Reporting, Analytics & Owner Visibility |
+| Current stage | G13 PREPARING |
+| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12 |
+| In-progress groups | G13 |
+| Not started | G14–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 37 — see Document 10 |
+| Open future reminders | 33 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
 
 ---
@@ -2802,6 +2802,85 @@ Run cumulative backward compatibility against G1–G11; reconcile any conflict b
 ### Next exact action
 
 Evaluate G12 impact on G13–G15 and create only targeted downstream reminders.
+
+## 2026-09-25 — G12 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Resolved inherited reminders
+
+- REM-006
+- REM-012
+- REM-013
+- REM-031
+- REM-059
+- REM-064
+- REM-067
+
+### Targeted reminders created
+
+- REM-070 -> G13: reports must preserve historical staff/medicine/pharmacy-unit identity after archive/disable/config changes.
+- REM-071 -> G14: security/state safety must cover TOTP-gated Owner grants, zero-active-Owner protection, live role/account revocation, account/config retry safety, and secret-free audit.
+- REM-072 -> G15: output-template changes must not alter preserved historical facts/reprint semantics.
+
+### Reminder-register commit
+
+`658a0855ddc7fd5cf1f2432d843ef995f4e83191`
+
+Open reminder count after G12: **33**.
+
+## 2026-09-25 — G12 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G11:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint state:** CURRENT
+
+### Main Group 12 commit
+
+`2eeb8aea4047fc321eb8104faf20cbb22ca5f63e`
+
+### Final verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- Seven inherited G12 reminders resolved.
+- REM-070–REM-072 created.
+- No unresolved backward conflict remains.
+- Admin remains non-Owner authority; configuration is prospective; historical business facts are non-destructive.
+
+### Transition
+
+Proceed directly to G13.
+
+# G13 — Reporting, Analytics & Owner Visibility
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Required source review
+
+- locked BRD Section 8 analytics/report definitions and OD reporting decisions;
+- current P-102 and reporting/Owner screens;
+- queue timing history from G5;
+- consultation financial correction/waiver semantics from G4;
+- pharmacy bill/payment/void semantics from G9;
+- inventory movement/reporting semantics from G10;
+- exception outcome semantics from G11;
+- archive/configuration history semantics from G12;
+- all reminders targeting G13.
+
+### Current action
+
+Perform full G13 source review before autonomous product reasoning.
+
+### Blockers
+
+None.
+
 
 
 
