@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.8 DRAFT |
+| Current PRD version | v0.9 DRAFT |
 | Current group | G7 — Prescription Authoring & Prescription Lifecycle |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G7 vs G1–G6 |
 | Completed groups | G1, G2, G3, G4, G5, G6 |
 | In-progress groups | G7 |
 | Not started | G8–G15 |
@@ -66,7 +66,7 @@ A group is COMPLETE only when all four gates pass:
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
-| G7 | Prescription Authoring & Prescription Lifecycle | DECISIONS RESOLVED | — | — | — | Current group |
+| G7 | Prescription Authoring & Prescription Lifecycle | COMMIT VALIDATED / BACKWARD CHECK | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | IN PROGRESS vs G1–G6 | — | Current group |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
@@ -1765,7 +1765,7 @@ Proceed directly to G7.
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -1797,7 +1797,7 @@ Proceed directly to G7.
 
 ### Current action
 
-Apply the resolved G7 prescription draft/finalization/replacement/pharmacy-readiness rules to PRD layers.
+Compare committed G7 behavior against G1–G6; reconcile any ambiguity before forward-impact analysis.
 
 ### Blockers
 
@@ -1873,3 +1873,25 @@ None for the locked prescription path. A no-prescription direct-completion bypas
 16. **Concurrency:** finalization/replacement revalidates Visit state, current prescription version, and finalization-time availability. Stale action cannot overwrite a newer replacement or effective cancellation.
 
 REM-035 and REM-041 are resolved by these rules subject to final validation.
+
+
+## 2026-09-25 — G7 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- `7dfa93fe469ae36b793aa0b8ca17d4931db34832`
+- Changed docs 05–08.
+
+### Validation
+
+PASS.
+
+- P requirements remain exactly P-001 through P-116.
+- Screen inventory remains 49 unique IDs.
+- UX acceptance extends uniquely through UXA-079.
+- PRD/companion versions align at PRD v0.9.
+- Draft-state eligibility, finalization validation, finalization-time availability snapshot, independent consultation/prescription readiness, Sent to Pharmacy transition, immutable finalized versions, replacement lineage/stale protection, prior-dispensing preservation, reprint snapshot semantics, cancellation/Completed blocking, and no-prescription-bypass guard are present.
+
+### Next exact action
+
+Run backward compatibility against G1–G6, with special attention to G6 completion wording and G5 cancellation semantics.
