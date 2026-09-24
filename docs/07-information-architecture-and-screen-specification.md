@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.12 |
+| Version | 0.13 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.13 |
+| Parent | PRD v0.14 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -2180,23 +2180,33 @@ This is recorded financial status, not bank settlement verification.
 
 ## OWN-06 — Staff and Access Oversight
 
-**Users:** Owner  
+**Users:** Owner
 **Source:** P-097–P-100
 
 ### Content
 
 - staff accounts;
-- roles;
+- role(s);
+- Owner-protected state;
 - enabled/disabled state;
-- pending password reset requests;
-- recent role/account changes.
+- pending non-Owner password reset requests;
+- recent account/role changes;
+- Owner TOTP-setup-required state where relevant.
 
 ### Actions
 
-- create/disable permitted staff;
-- assign/revoke roles;
-- act on password reset;
-- Owner-level lifecycle control.
+- create/disable/re-enable permitted staff;
+- assign/revoke non-Owner roles;
+- Owner-authorized Owner-role lifecycle;
+- act on eligible non-Owner password reset;
+- inspect safe account/role history.
+
+### Safety
+
+- Owner-role grant requires Owner authority and TOTP enrollment/verification before new Owner capability is usable;
+- action cannot leave clinic with zero active Owners;
+- password reset does not enable account or alter roles;
+- historical account/action records are never hard-deleted.
 
 ---
 
@@ -2301,86 +2311,107 @@ Do not record old/new credential values.
 
 ## ADM-01 — Administration Home
 
-**Users:** Administrator  
+**Users:** Administrator
 **Source:** P-097–P-101
 
 ### Content
 
-- staff account summary;
-- medicine/configuration shortcuts;
-- authorized operational notices.
+- non-Owner staff/account summary;
+- medicine/inventory configuration shortcuts within Admin permission;
+- safe configuration notices;
+- authorized operational/report/audit links.
 
-No Owner approval center.
+No Owner Approval Center and no Owner-only financial/operational controls.
 
 ---
 
 ## ADM-02 — Staff Accounts
 
-**Users:** Administrator; Owner  
+**Users:** Administrator; Owner
 **Source:** P-097–P-100
 
 ### Content
 
 - staff identity;
-- roles;
+- role(s);
 - enabled/disabled state;
-- last relevant account-status change.
+- protected Owner indicator where applicable;
+- last relevant account/role-status change.
 
 ### Admin actions
 
-- create non-Owner staff;
-- assign non-Owner roles;
-- disable/re-enable non-Owner staff.
+For non-Owner targets only:
+
+- create staff;
+- assign/revoke non-Owner roles;
+- disable/re-enable.
+
+### Owner actions
+
+Owner may additionally use Owner-authorized lifecycle controls according to P-099.
 
 ### Restricted
 
-Admin cannot grant/revoke Owner or disable Owner.
+Admin cannot grant/revoke Owner, disable Owner, or hard-delete historical staff.
+
+Role/account updates do not erase request/audit history.
 
 ---
 
 ## ADM-03 — Staff Account Create/Edit
 
-**Users:** Administrator within authority; Owner  
+**Users:** Administrator within authority; Owner
 **Source:** P-097–P-100
 
 ### Fields
 
 - staff identity;
 - login;
-- role(s);
+- non-Owner role(s);
 - enabled/disabled state.
 
-### Validation
+Owner-authorized Owner-role lifecycle is presented separately from normal Admin role edit.
 
-If acting user is Admin, Owner role is unavailable.
+### Validation/safety
 
-Historical staff is disabled, not deleted.
+- Admin never sees Owner role as assignable/revokable option;
+- do not allow normal deletion of historical account;
+- role removal warning states active workspace authority will stop when detected;
+- disable warning states protected use stops and re-enable later requires fresh sign-in;
+- password/reset credential is not edited implicitly by account-status change.
 
 ---
 
 ## ADM-04 — Medicine Catalogue
 
-**Users:** authorized Admin/Owner  
+**Users:** authorized Admin/Owner
 **Source:** P-101, P-055
 
 ### Content
 
-- display name;
+- current display name;
 - strength;
 - dosage form;
 - manufacturer;
 - optional generic/molecule;
-- inventory unit configuration.
+- inventory unit configuration;
+- active / archived state.
 
-### Purpose
+### Actions
 
-Maintain the clinic medicine identity used by Doctor and Pharmacy workflows.
+- create current catalogue item;
+- edit permitted current metadata;
+- archive/disable for future selection.
+
+### Safety
+
+If item has history, do not hard-delete or rewrite historical prescription/dispense/bill identity snapshots.
 
 ---
 
 ## ADM-05 — Inventory Configuration
 
-**Users:** authorized Admin/Owner  
+**Users:** authorized Admin/Owner
 **Source:** P-085–P-091, P-101
 
 ### Content
@@ -2389,30 +2420,67 @@ Maintain the clinic medicine identity used by Doctor and Pharmacy workflows.
 - package conversions;
 - low-stock threshold;
 - near-expiry threshold;
-- permitted medicine inventory metadata.
+- permitted non-operational medicine/inventory metadata.
 
-### Safety
+### Before save
 
-Configuration changes do not become unlogged manual stock movements.
+For conversion changes show:
+
+- current conversion;
+- proposed conversion;
+- future-use consequence;
+- explicit statement that base-unit stock and historical movements are unchanged.
+
+For threshold changes explain current alert classifications may refresh.
+
+### Restricted
+
+Configuration must not:
+
+- directly add/remove/correct stock;
+- approve inventory/transfer requests;
+- perform Direct Owner Adjustment;
+- silently rewrite historical movement quantities.
 
 ---
 
 ## ADM-06 — Clinic Configuration
 
-**Users:** authorized Owner/Admin according to permission boundary  
+**Users:** Owner; Administrator with non-financial permitted fields
 **Source:** P-028, P-101
 
-### Configuration
+### Non-financial Admin-permitted configuration
+
+- permitted clinic metadata;
+- optional A4 layout/configuration;
+- other explicitly allowed non-financial settings.
+
+### Owner-controlled financial configuration
 
 - consultation fee values;
 - doctor/service-specific fee values if used;
-- pharmacy units;
-- optional A4 output configuration;
-- applicable price/tax configuration where supplied.
+- pharmacy purchase/selling price values where applicable;
+- billing price/tax values where applicable.
+
+### Pharmacy-unit lifecycle
+
+Owner controls operational create/archive/disable where accountability is affected.
+
+A unit with history is archived/disabled, not deleted.
+
+Archived unit remains in historical drill-down but is unavailable for new dispensing/normal transfer source/destination.
+
+### Prospectivity warnings
+
+Consultation fee save:
+- existing Visit applied amounts stay unchanged.
+
+Pharmacy price/tax save:
+- existing created bills stay frozen.
 
 ### Important
 
-Configuration controls values; it does not redefine locked workflow behavior.
+Configuration controls future/current configured values; it never redefines locked workflow behavior or silently rewrites historical business records.
 
 ---
 
@@ -2595,6 +2663,13 @@ The screen model is not ready for design/implementation sign-off if:
 - direct Owner waiver/inventory adjustment creates a fake self-approval request;
 - same-human multi-role request/decision is collapsed into one unattributed user event;
 - Owner approval detail exposes unrestricted clinical notes solely because user is Owner;
+- Admin can grant/revoke/disable Owner through normal staff controls;
+- newly granted Owner capability can be used before required TOTP gate;
+- password reset silently re-enables account or changes roles;
+- role revocation leaves an already-open protected workspace usable indefinitely;
+- Admin configuration directly changes physical stock or bypasses Owner financial configuration control;
+- fee/price/conversion/catalogue changes rewrite existing Visit/bill/prescription/movement history;
+- historical staff/medicine/pharmacy-unit records can be destructively deleted;
 - approved transfer updates only source or only destination;
 - expired quantity disappears from inventory history merely because it became non-dispensable;
 - billing/payment/void/Visit lifecycle silently alters previously committed stock movement;

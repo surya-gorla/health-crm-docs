@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.13 |
+| Version | 0.14 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -2267,29 +2267,189 @@ Owner-only approval screens expose only operational decision context required by
 
 # 21. Administration Workspace
 
+Administration manages non-Owner staff and permitted clinic configuration without becoming a bypass around Owner, Doctor, or Pharmacist authority.
+
+## 21.1 Staff accounts and role lifecycle
+
 ### P-097 — Staff account management
 
-Admin/Owner can create staff accounts within their authority.
+Every staff member uses an individual clinic-context account.
 
-### P-098 — Non-Owner role management
+Administrator and Owner may create/manage non-Owner staff within their authority.
 
-Admin can assign/remove non-Owner roles.
+Normal administration supports:
 
-### P-099 — Owner-role protection
+- staff identity/login;
+- assigned roles;
+- enabled/disabled state;
+- safe account-history metadata.
 
-Admin cannot grant/revoke Owner, modify Owner authority, or disable Owner.
+Historical staff accounts are disabled rather than hard-deleted.
 
-### P-100 — Disable instead of delete
+Disabling, archiving, or role changes never delete existing Visit, clinical, prescription, pharmacy, approval, or audit history linked to that human/account.
 
-Staff leaving the clinic are disabled rather than deleted.
+### P-098 — Non-Owner role management and live authority
+
+Administrator may assign/remove **non-Owner** roles.
+
+Owner may manage non-Owner roles and performs Owner-authority lifecycle actions.
+
+Role change behavior:
+
+- revoking a role removes that authority/workspace on the next protected action/navigation/permission refresh;
+- an already-open page does not preserve revoked authority;
+- adding a non-Owner role becomes available according to normal permission refresh/session behavior;
+- request/audit history retains the effective role/workspace recorded when the historical action occurred.
+
+Role change does not silently change password/reset credentials or enabled/disabled account state.
+
+### P-099 — Owner-role protection and security gate
+
+Administrator cannot:
+
+- grant Owner;
+- revoke Owner;
+- disable Owner;
+- use direct route/API action to perform those operations.
+
+Owner-role lifecycle requires Owner authority and audit history.
+
+When Owner authority is newly granted:
+
+- new Owner capability is not usable until mandatory Owner TOTP enrollment/verification requirement is satisfied;
+- existing non-Owner roles may continue normally if account remains enabled;
+- Admin cannot bypass this gate.
+
+The product must not allow Owner lifecycle action that leaves the clinic with zero active Owner accounts.
+
+### P-100 — Disable/re-enable instead of delete
+
+Disablement is whole-account state and is distinct from role removal and password reset.
+
+When an account is disabled:
+
+- protected use stops when disablement is detected;
+- already-open protected pages do not preserve access;
+- roles/history are retained rather than deleted.
+
+Re-enable:
+
+- restores account eligibility without silently changing assigned roles;
+- requires fresh sign-in before protected use resumes.
+
+Password reset:
+
+- does not enable/disable account;
+- does not assign/revoke roles.
+
+Pending business requests submitted by a user remain historical and are not erased by later disablement/role change. Their target-specific current-state rules still determine whether Owner may act.
+
+For non-Owner password reset specifically, if target later gains Owner authority, old non-Owner reset request becomes non-actionable.
+
+## 21.2 Configuration authority and historical snapshots
 
 ### P-101 — Configuration
 
-Authorized users can manage applicable non-clinical configuration such as medicine catalogue, inventory conversion/threshold configuration, consultation fee values, pharmacy prices/tax values where applicable, and optional A4 output configuration.
+Configuration permissions are category-specific; P-101 does **not** grant blanket Admin permission to alter Owner-controlled financial or operational state.
 
-Configuration permissions must respect the locked Owner/Admin boundaries.
+#### Admin/Owner permitted non-financial configuration
 
----
+Authorized Admin/Owner may manage, where permitted:
+
+- current medicine catalogue identity;
+- medicine base/package conversion configuration;
+- low-stock / near-expiry thresholds;
+- permitted non-operational inventory metadata;
+- current clinic non-financial metadata;
+- optional A4 layout/configuration.
+
+#### Owner-controlled financial configuration
+
+In V1, Owner controls effective:
+
+- consultation fee values;
+- doctor/service-specific fee values if used;
+- pharmacy selling/purchase price configuration where applicable;
+- price/tax values affecting billing.
+
+Pharmacist-proposed price changes continue through Pharmacist request -> Owner decision. Owner may directly set Owner-controlled financial configuration.
+
+A financial configuration save creates no stock quantity movement.
+
+#### Medicine catalogue lifecycle
+
+Catalogue edits affect future selection/current display configuration.
+
+Historical finalized prescription, dispense, bill, and audit records retain their stored medicine identity/context and are not silently rewritten.
+
+A medicine with historical use is archived/disabled for future selection rather than hard-deleted from history.
+
+#### Inventory conversion and threshold behavior
+
+Base-unit ledger truth remains authoritative.
+
+Changing package conversion:
+
+- affects future package entry/display;
+- does not change current normalized base-unit stock;
+- does not reinterpret historical movement normalized quantities/conversion snapshots.
+
+Changing low-stock/near-expiry thresholds may immediately change current derived alert classification, but does not rewrite inventory movements.
+
+Invalid conversion configuration such as non-positive factor or loss of required base-unit identity is blocked.
+
+#### Consultation-fee snapshot
+
+Fee configuration becomes effective prospectively.
+
+Visits already created retain the applied consultation amount captured at Visit creation. Existing Visit amount is corrected only through the applicable Visit/payment-specific correction workflow, not by changing global configuration.
+
+#### Pharmacy price/tax snapshot
+
+New price/tax configuration applies prospectively to future applicable billing context.
+
+Already-created pharmacy bills retain their frozen line/price/tax/total snapshot and are never recalculated by later configuration changes.
+
+Historical dispensing/movement quantity is never reinterpreted by a price change.
+
+#### Pharmacy-unit lifecycle
+
+Because pharmacy units anchor inventory accountability, operational unit lifecycle is Owner-controlled.
+
+A pharmacy unit with history is archived/disabled rather than deleted.
+
+Disabled/archived unit:
+
+- remains visible in historical inventory/dispensing/billing/report drill-down;
+- is unavailable for new dispensing;
+- is unavailable as normal new transfer source/destination;
+- retains prior unit ledger/history.
+
+Administrator may maintain permitted non-operational unit metadata but cannot hide/remove operational history or bypass Owner unit-lifecycle control.
+
+#### Configuration audit
+
+Material configuration change records:
+
+- actor/account;
+- effective authority;
+- configuration category/field;
+- prior value;
+- resulting value;
+- effective time.
+
+Never record passwords, reset credentials, TOTP secrets/codes, or recovery-code values in configuration/audit history.
+
+## 21.3 Account/configuration state safety
+
+For account create, disable/re-enable, role grant/revoke, Owner-role lifecycle, medicine archive/configuration, pharmacy-unit lifecycle, and material configuration save:
+
+- revalidate current actor authority before commit;
+- disable duplicate final submit while pending;
+- if result is unknown, retrieve current account/configuration state before blind retry;
+- do not silently cascade-delete historical business records.
+
+Exact session propagation, transaction, and idempotency implementation remains technical design.
 
 # 22. Reporting and Owner Visibility
 

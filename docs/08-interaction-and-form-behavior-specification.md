@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.13 |
+| Version | 0.14 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.13 |
+| Parent | PRD v0.14 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -1920,6 +1920,13 @@ This interaction specification fails review if:
 - dispensing continues after effective Visit cancellation;
 - unsaved dispense quantities silently carry to another pharmacy unit;
 - dispensing alone marks Visit Completed.
+- Admin can mutate Owner authority through normal administration;
+- role/account/credential states silently mutate each other;
+- revoked role or disabled account keeps using already-open protected workspace;
+- newly granted Owner bypasses required TOTP readiness;
+- Admin configuration mutates physical stock or Owner-controlled financial values;
+- configuration changes rewrite historical Visit/bill/prescription/inventory facts;
+- staff/medicine/pharmacy-unit history can be destructively deleted.
 
 
 ---
@@ -2663,3 +2670,150 @@ Effective cancellation:
 Dispensing alone does not mark Visit Completed.
 
 G9 determines billing/payment and final pharmacy workflow completion.
+
+---
+
+# 42. Administration, Account Lifecycle, and Configuration Contract
+
+## 42.1 Account and role separation
+
+Treat as separate state dimensions:
+
+- account enabled/disabled;
+- assigned role set;
+- credential/reset state;
+- Owner TOTP readiness.
+
+One must not silently mutate another.
+
+## 42.2 Admin versus Owner authority
+
+Administrator may manage non-Owner accounts/roles and permitted configuration.
+
+Admin UI/API must deny:
+
+- grant Owner;
+- revoke Owner;
+- disable Owner;
+- Owner approval actions;
+- Owner operational inventory actions;
+- Owner-controlled financial configuration.
+
+If same human also holds Owner role, those actions occur only after entering valid Owner authority/context.
+
+## 42.3 Owner-role grant
+
+Owner-authorized grant does not immediately make new Owner capability usable unless Owner TOTP enrollment/verification requirement is satisfied.
+
+Show a clear **Owner setup required** state.
+
+Existing permitted non-Owner work may continue.
+
+Do not allow change that leaves zero active Owner accounts.
+
+## 42.4 Role revocation and disablement while active
+
+Role revocation:
+
+- removes that authority on next protected action/navigation/refresh;
+- does not disable whole account.
+
+Account disablement:
+
+- ends protected account use when detected;
+- preserves roles/history;
+- re-enable requires fresh sign-in.
+
+Already-open pages do not retain stale authority.
+
+## 42.5 Password reset separation
+
+Password reset:
+
+- changes credential only;
+- does not enable/disable account;
+- does not add/remove roles.
+
+Disabling/re-enabling account does not silently resolve/recreate password-reset request.
+
+If Pending non-Owner reset target gains Owner authority, old request becomes non-actionable.
+
+## 42.6 Historical request attribution across account changes
+
+Later requester disablement/role change does not rewrite or delete request-time actor/effective-authority attribution.
+
+Business request remains governed by its own current target-state rules.
+
+## 42.7 Medicine catalogue lifecycle
+
+Current catalogue item may be edited/archived for future use.
+
+Historical prescription/dispense/bill records retain stored medicine identity/context.
+
+Do not hard-delete historical medicine reference.
+
+## 42.8 Base/package conversion configuration
+
+Show current -> proposed conversion and future-use effect.
+
+Configuration change:
+
+- applies to future package entry/display;
+- leaves normalized current base stock unchanged;
+- leaves historical movement conversion/normalized quantity unchanged.
+
+Block non-positive/invalid base-unit configuration.
+
+## 42.9 Threshold configuration
+
+Threshold edit may refresh current low-stock/near-expiry derived flags.
+
+It does not rewrite movement history.
+
+## 42.10 Financial configuration
+
+Owner-controlled financial configuration includes consultation fees and pharmacy price/tax values.
+
+Consultation fee:
+- applies to future Visit creation;
+- does not rewrite existing Visit applied amount.
+
+Pharmacy price/tax:
+- applies prospectively;
+- does not recalculate existing created bill snapshot.
+
+Pharmacist-proposed price change remains Owner decision workflow; it is not stock quantity movement.
+
+## 42.11 Pharmacy-unit lifecycle
+
+Operational pharmacy-unit archive/disable is Owner-controlled.
+
+Historical unit:
+- stays in ledger/dispense/bill/report history;
+- cannot be destructively deleted;
+- when disabled, cannot be used for new dispensing or normal transfer source/destination.
+
+## 42.12 Configuration audit
+
+For material config change show/retain safe metadata:
+
+- actor/account;
+- effective authority;
+- category/field;
+- prior value;
+- resulting value;
+- effective time.
+
+Never include password/reset/TOTP/recovery secret values.
+
+## 42.13 Unknown outcome / retry
+
+For account/role/status/config save:
+
+- disable duplicate final action while pending;
+- revalidate actor authority and current target/config state;
+- if result unknown, refresh before retry;
+- recover already-applied result where present.
+
+Exact persistence/session/idempotency implementation remains technical.
+

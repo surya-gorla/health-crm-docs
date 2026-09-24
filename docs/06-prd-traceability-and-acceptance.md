@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.13 |
+| Version | 0.14 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.13 |
+| Parent | Product Requirements Document v0.14 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -502,6 +502,100 @@ Supports: P-094, P-011–P-013, REM-010–REM-011.
 **Then** product refreshes request/target/effective state and prevents a second effective action.
 
 Supports: P-094–P-096, IX Sections 9–10 and 25.
+
+## AC-059 — Admin cannot mutate Owner authority
+
+**Given** Administrator opens staff management
+**Then** Owner grant/revoke/disable actions are unavailable and direct protected action is denied.
+
+Supports: P-098–P-099, FR-069, BR-057.
+
+## AC-060 — Newly granted Owner capability is TOTP-gated
+
+**Given** Owner grants Owner authority to an existing non-Owner account
+**When** that user has not satisfied Owner TOTP enrollment/verification requirement
+**Then** Owner workspace/capability remains unavailable while existing permitted non-Owner roles may continue.
+
+Supports: P-099, REM-012, BR-043.
+
+## AC-061 — Revoked role cannot survive in an open workspace
+
+**Given** user has a protected workspace open
+**When** that role is revoked
+**Then** next protected action/navigation/permission refresh denies that authority and returns user to permitted context.
+
+Supports: P-098, REM-006, IX Section 29.
+
+## AC-062 — Disable/re-enable remains separate from credentials and roles
+
+**Given** non-Owner staff is disabled and later re-enabled
+**Then** historical roles remain unless separately changed, reset credential state is not silently changed, and protected use resumes only after fresh sign-in.
+
+Supports: P-100, REM-013.
+
+## AC-063 — Account changes preserve submitted request history
+
+**Given** user submitted a valid business request
+**When** requester account is later disabled or role is removed
+**Then** request/audit history retains original requester/effective-authority attribution and is not silently deleted.
+
+Supports: P-097–P-100, REM-067.
+
+## AC-064 — Owner-role grant invalidates non-Owner reset path
+
+**Given** non-Owner password reset is Pending
+**When** target gains Owner authority
+**Then** old reset becomes non-actionable and cannot bypass Owner recovery/TOTP policy.
+
+Supports: P-099–P-100, REM-067.
+
+## AC-065 — Consultation fee configuration is prospective
+
+**Given** Visit already exists with applied fee snapshot
+**When** Owner changes consultation fee configuration
+**Then** existing Visit amount is unchanged and only future Visit creation uses new configured fee.
+
+Supports: P-101, REM-031.
+
+## AC-066 — Pharmacy price/tax configuration does not recalculate old bill
+
+**Given** pharmacy bill already exists
+**When** Owner changes price/tax configuration
+**Then** bill retains frozen line/price/tax/total snapshot.
+
+Supports: P-101, REM-059.
+
+## AC-067 — Package conversion change preserves ledger truth
+
+**Given** historical stock movement used prior package conversion
+**When** authorized conversion configuration changes
+**Then** current base-unit stock and historical normalized movement remain unchanged; new conversion applies prospectively.
+
+Supports: P-101, REM-064.
+
+## AC-068 — Medicine history survives catalogue retirement
+
+**Given** medicine has historical prescription/dispense/bill use
+**When** authorized user archives/disables medicine for future selection
+**Then** historical references remain readable and are not rewritten/deleted.
+
+Supports: P-101, BR-023–BR-024.
+
+## AC-069 — Pharmacy-unit retirement preserves ledger history
+
+**Given** pharmacy unit has historical stock/dispensing/billing
+**When** Owner disables/archives unit
+**Then** unit is unavailable for new operational use but remains visible in historical drill-down.
+
+Supports: P-101, BR-040–BR-041.
+
+## AC-070 — Material configuration change is auditable and retry-safe
+
+**Given** account/role/configuration change is state-changing
+**When** result is unknown or actor authority changed
+**Then** product checks current effective state/authority before another final attempt and preserves prior/resulting configuration audit without secret values.
+
+Supports: P-097–P-101, IX Section 42.
 
 
 ---
@@ -1767,6 +1861,112 @@ Supports: P-094, REM-063.
 **Then** current request/target/result is refreshed before another executable action is enabled.
 
 Supports: P-094–P-095, IX Sections 10 and 25.
+
+## UXA-124 — Owner accounts are protected in Admin staff UI
+
+**Given** Administrator views staff list
+**Then** Owner account may be visibly identified as protected, but Owner grant/revoke/disable actions are absent/denied.
+
+Supports: P-099, ADM-02–ADM-03.
+
+## UXA-125 — Role revocation updates active authority
+
+**Given** current user loses active workspace role
+**Then** already-open page cannot continue normal protected action after permission refresh/navigation.
+
+Supports: P-098, IX Sections 26 and 29.
+
+## UXA-126 — Account disablement does not look like password reset
+
+**Given** staff account is disabled
+**Then** UI distinguishes disabled status from credential/reset status and never suggests password reset re-enables access.
+
+Supports: P-100, ADM-02, OWN-09.
+
+## UXA-127 — Re-enable requires fresh sign-in
+
+**Given** disabled account is re-enabled
+**Then** prior protected session is not silently resumed; user must sign in again.
+
+Supports: P-100, IX Section 35.
+
+## UXA-128 — Pending request retains historical requester attribution after role change
+
+**Given** requester later loses role or account becomes disabled
+**Then** request detail/history still shows request-time actor/effective authority and does not disappear.
+
+Supports: P-098–P-100, REM-067.
+
+## UXA-129 — Medicine archive removes future selection, not history
+
+**Given** current medicine is archived
+**Then** new authoring/search excludes it as active choice while historical prescription/dispense/bill references remain readable.
+
+Supports: P-101, ADM-04.
+
+## UXA-130 — Conversion edit shows prospective consequence
+
+**Given** authorized user changes package conversion
+**Then** UI explains future package entry/display changes while base stock and historical movement quantities stay unchanged.
+
+Supports: P-101, ADM-05, REM-064.
+
+## UXA-131 — Threshold change updates current alert view without history rewrite
+
+**Given** threshold changes
+**Then** current low-stock/near-expiry classification may refresh, but movement history remains unchanged.
+
+Supports: P-101, ADM-05.
+
+## UXA-132 — Admin cannot publish Owner-controlled financial configuration
+
+**Given** Administrator opens clinic configuration
+**Then** consultation fee and pharmacy price/tax effective-value controls are absent/read-only unless the same account also enters valid Owner authority.
+
+Supports: P-101, ADM-06.
+
+## UXA-133 — Consultation fee edit warns old Visits stay unchanged
+
+**Given** Owner edits consultation fee
+**Then** confirmation states new value applies prospectively and existing Visit applied amounts are not rewritten.
+
+Supports: P-101, REM-031.
+
+## UXA-134 — Pharmacy price/tax edit warns old bills stay frozen
+
+**Given** Owner edits price/tax configuration
+**Then** confirmation states existing created bills remain unchanged.
+
+Supports: P-101, REM-059.
+
+## UXA-135 — Pharmacy unit archive is historical, not destructive
+
+**Given** Owner archives unit with history
+**Then** UI shows loss of new operational availability but preserves historical ledger/report visibility and never offers destructive delete.
+
+Supports: P-101, ADM-06.
+
+## UXA-136 — Configuration audit shows old and new safe values
+
+**Given** material configuration was changed
+**Then** authorized audit/history shows actor/effective authority, field/category, old/new value and time without secret credential material.
+
+Supports: P-101, OWN-07, IX Section 42.
+
+## UXA-137 — Unknown administration outcome refreshes before retry
+
+**Given** account/role/config save returns unknown outcome
+**When** user retries
+**Then** current account/configuration state is refreshed first to avoid duplicate or reverted state.
+
+Supports: P-097–P-101, IX Section 42.
+
+## UXA-138 — No configuration edit silently cascades into historical records
+
+**Given** current catalogue/fee/price/conversion/unit configuration changes
+**Then** preserved Visit/prescription/dispense/bill/movement/approval history is unchanged except explicit future/current derived views defined by the product.
+
+Supports: P-101, IX Section 42.
 
 
 ---
