@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.8 |
+| Version | 0.9 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -1200,11 +1200,24 @@ Full consultation/diagnosis/notes require Doctor authority and authorized patien
 
 ---
 
-# 16. Prescription Builder
+# 16. Prescription Builder and Lifecycle
 
-Source: FR-033–FR-044, FR-116; BR-014–BR-016, BR-030, BR-058; OD-010–OD-012, OD-037.
+Source: FR-033–FR-044, FR-083, FR-116; BR-014–BR-016, BR-030, BR-058; OD-010–OD-012, OD-032, OD-037.
 
-## 16.1 Medicine selection
+## 16.1 Prescription draft and medicine selection
+
+A Visit may have one current unfinalized prescription draft while active.
+
+Doctor may create/edit that draft while the Visit is:
+
+- **With Doctor**; or
+- **Consultation Completed** and still awaiting a finalized prescription.
+
+A draft is tied to the same Patient ID + Visit ID and is not dispensable merely because it exists.
+
+Once a current prescription is Finalized, ordinary draft editing stops; correction uses replacement.
+
+Completed or Cancelled/Voided Visits do not expose new active prescription authoring.
 
 Search/select by:
 
@@ -1216,58 +1229,185 @@ Manufacturer is available as medicine/inventory context.
 
 Optional generic/molecule may be searchable.
 
-### P-055 — Availability at prescribing
+### P-055 — Availability at prescribing and finalization snapshot
 
-Doctor sees In Stock, Out of Stock, or Not Stocked.
+During authoring, Doctor sees current clinic-wide availability:
+
+- In Stock;
+- Out of Stock;
+- Not Stocked.
+
+Immediately before finalization/replacement finalization, refresh the current availability used for the prescription's finalization record.
+
+For each finalized item, retain the clinic-wide availability-at-finalization value used by the printed ** marker. Later inventory movement does not rewrite this snapshot.
 
 ### P-056 — Multi-pharmacy availability
 
-When multiple pharmacy units exist, Doctor can see clinic total and per-unit availability. Doctor cannot modify stock.
+When multiple pharmacy units exist, Doctor can see clinic-wide total plus per-unit availability where inventory is known.
+
+This view is read-only and grants no stock-control action.
+
+Per-unit/current availability may change after finalization; the printed unavailable marker continues to use the frozen clinic-wide finalization snapshot.
 
 ### P-057 — Unavailable prescribing
 
-Out of Stock or Not Stocked does not block prescribing.
+Out of Stock or Not Stocked does not block Add to Prescription or finalization.
 
-## 16.2 Prescription instructions
+The product informs the Doctor but does not turn inventory availability into clinical prescribing authority.
+
+## 16.2 Prescription instructions and draft validation
 
 Per medicine:
 
-- medicine;
+- medicine/display identity;
 - strength;
 - dose amount;
 - frequency;
 - duration;
-- optional timing/food/short instruction.
+- optional timing/food/short instruction;
+- prescribed quantity.
+
+Doctor may add/remove/edit rows while the prescription is unfinalized and the Visit remains in an allowed authoring state.
 
 ### P-058 — Quantity calculation
 
-If deterministic, quantity is automatically calculated; otherwise Doctor enters it.
+Where dose/frequency/duration plus configured dispensing unit make quantity deterministic, the system calculates and displays the quantity.
 
-### P-059 — Finalize prescription
+Where calculation is not deterministic, Doctor must enter quantity.
 
-Doctor explicitly finalizes prescription.
+Prescription finalization is blocked while any item has unresolved required instructions or unresolved quantity.
+
+The product does not require duplicate manual entry of a deterministically calculated quantity.
+
+### P-059 — Finalize prescription and pharmacy-readiness rule
+
+**Finalize Prescription** is an explicit Doctor-only action.
+
+Before finalization:
+
+- Visit remains active and is With Doctor or Consultation Completed;
+- Visit is not Completed or Cancelled/Voided;
+- at least one complete prescription item exists;
+- every item has required medicine/strength/dose/frequency/duration;
+- every item has resolved prescribed quantity;
+- current prescription/draft baseline is revalidated;
+- finalization-time availability is refreshed.
+
+On success, freeze the finalized version with:
+
+- Patient ID + Visit ID;
+- Doctor and finalization time;
+- medicine identities/instructions/quantities;
+- finalization-time clinic-wide availability per item;
+- current version identity/status.
+
+Finalization and clinical completion are independent prerequisites for pharmacy handoff:
+
+- Finalize while **With Doctor** -> prescription becomes Finalized, Visit remains With Doctor until consultation completion;
+- if consultation becomes **Consultation Completed** while a current Finalized prescription already exists -> readiness condition is met and Visit advances to **Sent to Pharmacy**;
+- Finalize while already **Consultation Completed** -> readiness condition is met and Visit advances to **Sent to Pharmacy**.
+
+The transition records Consultation Completed as the clinical event even if the readiness rule immediately advances current Visit state to Sent to Pharmacy.
+
+A finalized prescription that exists while the Visit is still With Doctor is not yet pharmacy-ready for dispensing.
+
+The locked V1 sources do not define a no-prescription bypass from Consultation Completed directly to Completed; this PRD does not invent one.
 
 ### P-060 — Immutable finalized prescription
 
-Finalized prescription is not edited in place.
+Finalized prescription is read-only in ordinary use.
+
+Doctor may print/reprint the finalized version and, while the Visit remains active, use the explicit replacement flow when correction is required.
+
+Pharmacist cannot edit or finalize it.
 
 ### P-061 — Replacement prescription
 
-Doctor corrects an erroneous finalized prescription by creating replacement, entering mandatory reason, and marking old prescription Superseded.
+Doctor may replace the current finalized prescription while the Visit remains active in:
 
-### P-062 — Prior dispensing preserved
+- With Doctor;
+- Consultation Completed;
+- Sent to Pharmacy.
 
-Dispensing already performed against a superseded prescription remains preserved.
+Replacement is unavailable as a new active workflow action after Visit becomes Completed or Cancelled/Voided.
+
+Replacement:
+
+- starts from the current active finalized version;
+- shows any known prior dispensing against the prescription/version lineage;
+- requires mandatory specific correction reason;
+- requires explicit final replacement action;
+- refreshes finalization-time availability;
+- atomically marks the previous active version **Superseded** and makes the replacement **Finalized/current**;
+- links old/new versions and records Doctor/reason/time.
+
+If the active version changed or Visit became Cancelled/Voided before submit, stale replacement is blocked.
+
+If replacement is finalized while current Visit is Consultation Completed, the normal readiness rule advances to Sent to Pharmacy. If already Sent to Pharmacy, Visit remains Sent to Pharmacy.
+
+### P-062 — Prior dispensing and version lineage preserved
+
+Prescription replacement never reverses or deletes prior dispensing, inventory deduction, or billing history.
+
+Prior dispensed quantity remains attributable to the version/item from which it was supplied.
+
+Subsequent dispensing uses the latest current finalized prescription together with preserved prior dispensing history; exact remaining-dispensable calculation across a replacement is owned by the pharmacy-dispensing contract.
+
+Pharmacy defaults to the latest current finalized prescription and must not silently continue an old Superseded version.
 
 ## 16.3 Prescription output
 
-### P-063 — A4 print
+### P-063 — A4 print/reprint
 
-Doctor can print/reprint finalized prescription without creating an unrelated version.
+Print and reprint use a finalized prescription version.
+
+Normal print/reprint defaults to the current Finalized version.
+
+Reprint:
+
+- does not create a new prescription version;
+- does not recompute medicine availability using current stock;
+- uses the same finalization-time prescription data/availability snapshot.
+
+Superseded prescriptions remain historical/read-only rather than becoming the default printable/dispensable prescription.
+
+Detailed historical-copy labeling is finalized in the printing review.
 
 ### P-064 — ** availability marker
 
-At finalization, medicines with clinic-wide Out of Stock or Not Stocked status are marked ** with legend. Later partial dispensing does not retroactively change the prescription.
+For each finalized version, medicines whose **clinic-wide availability at that version's finalization** is Out of Stock or Not Stocked receive ** plus the locked explanatory legend.
+
+Later:
+
+- stock changes;
+- partial dispensing;
+- another pharmacy unit's availability change
+
+do not retroactively change the finalized version's marker.
+
+A replacement prescription receives its own new finalization-time availability snapshot and print markers.
+
+### Cancellation and amendment boundaries
+
+Pending Visit cancellation does not by itself freeze otherwise-valid prescription work.
+
+Once Visit becomes Cancelled/Voided:
+
+- stop new draft saves/finalization/replacement/pharmacy-readiness progression;
+- preserve existing Draft/Finalized/Superseded prescription versions and all prior dispensing history as read-only history.
+
+A later clinical amendment never silently changes prescription content. If an active Visit still requires prescription correction, Doctor uses the explicit replacement flow.
+
+### Concurrency safety
+
+Finalize/replacement revalidates:
+
+- Visit state;
+- Doctor authority/current context;
+- current draft or active prescription version;
+- finalization-time availability refresh.
+
+A stale action cannot overwrite a newer replacement or continue active prescription workflow after effective Visit cancellation.
 
 ---
 

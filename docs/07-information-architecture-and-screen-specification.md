@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.7 |
+| Version | 0.8 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.8 |
+| Parent | PRD v0.9 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -938,6 +938,7 @@ Make the next clinical action immediately obvious.
 - ordered Waiting/Called queue;
 - current With Doctor patient if any;
 - **Assigned Visits Awaiting Financial Eligibility** shown separately from the ordered queue;
+- **Consultation Completed — Awaiting Finalized Prescription** tasks shown separately from the queue;
 - pending demographic-correction requests assigned to this Doctor;
 - pending substitution requests;
 - queue counts/status.
@@ -968,6 +969,7 @@ If assignment/state changed, stale Call/Start action is blocked.
 
 - Call Patient from Waiting;
 - Start Consultation from Called;
+- open Prescription Builder for a Consultation Completed Visit awaiting finalization;
 - view authorized patient history;
 - open demographic-correction request;
 - open substitution request;
@@ -1106,6 +1108,26 @@ Historical records never become ordinary editable forms merely because they are 
 **Users:** Doctor  
 **Source:** P-055–P-062
 
+### Eligibility
+
+Editable ordinary builder is available while Visit is active and:
+
+- With Doctor; or
+- Consultation Completed without a current finalized prescription.
+
+Completed and Cancelled/Voided do not expose new active authoring.
+
+If a finalized prescription already exists, open DOC-05; correction uses DOC-07.
+
+### Prescription context
+
+- Patient ID;
+- Visit ID;
+- current Visit state;
+- Doctor;
+- Draft status;
+- Pending Cancellation indicator where applicable.
+
 ### Medicine-row content
 
 - medicine/display name;
@@ -1113,7 +1135,7 @@ Historical records never become ordinary editable forms merely because they are 
 - dosage form;
 - manufacturer context;
 - optional generic/molecule context;
-- clinic-wide availability;
+- current clinic-wide availability;
 - per-pharmacy availability when relevant;
 - dose amount;
 - frequency;
@@ -1123,17 +1145,41 @@ Historical records never become ordinary editable forms merely because they are 
 
 ### Actions
 
+- Save Draft;
 - Add Medicine;
 - Remove unfinalized row;
 - Finalize Prescription.
 
 ### Quantity
 
-Auto-calculate only when deterministic; otherwise require Doctor entry.
+- deterministic -> system-calculated/displayed from current prescribing inputs and configured unit;
+- non-deterministic -> Doctor quantity required.
 
-### Safety
+Finalization requires every row's quantity to be resolved.
+
+### Finalize validation
+
+Before finalization:
+
+- at least one complete medicine row;
+- required row fields complete;
+- quantity resolved;
+- current Visit still active/allowed;
+- current draft baseline still current;
+- refresh availability.
+
+### Outcome
+
+Finalization freezes the prescription version.
+
+- If Visit is With Doctor -> Visit remains With Doctor.
+- If Visit is Consultation Completed -> Visit becomes Sent to Pharmacy.
 
 Unavailable medicine remains prescribable.
+
+### Stale/cancellation safety
+
+Effective cancellation or a newer finalized/replacement version blocks stale finalization.
 
 ---
 
@@ -1144,25 +1190,39 @@ Unavailable medicine remains prescribable.
 
 ### Purpose
 
-Review the exact finalized output before printing/reprinting.
+Review the exact immutable finalized version and its finalization-time availability markers.
 
 ### Content
 
-- patient/Visit;
-- medicines/instructions;
+- Patient ID / Visit ID / Visit state;
+- Doctor and finalization time;
+- prescription version/status;
+- medicines/instructions/quantities;
+- finalization-time clinic-wide availability;
 - ** marker for Out of Stock/Not Stocked at finalization;
 - explanatory legend;
-- finalization status/version.
+- Superseded warning when viewing historical version;
+- prior/replacement lineage where applicable.
 
-### Actions
+### Default
+
+Open the current Finalized version by default.
+
+A Superseded version is historical/read-only and is never the default current dispensing/print target.
+
+### Actions for current Finalized version
 
 - Print A4;
 - Reprint;
-- Create Replacement if correction is needed.
+- Create Replacement while Visit state still allows active correction.
+
+Reprint uses the same finalized data/snapshot and creates no new version.
 
 ### Restricted
 
-No Edit Finalized Prescription action.
+- no Edit Finalized Prescription;
+- no new active replacement after Completed or Cancelled/Voided;
+- current stock changes do not rewrite the finalized ** markers.
 
 ---
 
@@ -1210,20 +1270,59 @@ Before apply:
 **Users:** Doctor  
 **Source:** P-061–P-062
 
+### Eligibility
+
+Visit remains active in:
+
+- With Doctor;
+- Consultation Completed;
+- Sent to Pharmacy.
+
+Do not offer a new active replacement after Completed or Cancelled/Voided.
+
 ### Content
 
-- current finalized prescription;
-- any prior dispensing quantity;
-- replacement prescription editor;
-- mandatory correction reason.
+- Patient ID / Visit ID / current Visit state;
+- current active Finalized prescription/version;
+- any prior dispensing quantity/history known against the prescription lineage;
+- editable replacement copy;
+- current availability while editing;
+- mandatory specific correction reason.
 
 ### Warning
 
-Clearly state that prior dispensing history will remain and cannot be erased.
+Clearly state:
+
+- prior dispensing, stock deduction, and billing history remain;
+- replacement does not reverse previously supplied medicine;
+- Pharmacy will use the new current prescription for subsequent dispensing.
+
+### Final action
+
+**Finalize Replacement**
+
+Before apply:
+- current active prescription version must still match the loaded baseline;
+- Visit must still be active/not cancelled;
+- required rows/quantities must be complete;
+- refresh availability for the replacement's own finalization snapshot.
 
 ### Outcome
 
-Old prescription -> Superseded. New prescription -> active.
+Atomically:
+
+- previous active prescription -> Superseded;
+- replacement -> Finalized/current;
+- link versions and record Doctor/reason/time;
+- preserve all prior dispensing.
+
+If Visit is Consultation Completed -> Sent to Pharmacy.
+If Visit is Sent to Pharmacy -> remains Sent to Pharmacy.
+If Visit is With Doctor -> remains With Doctor.
+
+### Stale safety
+
+If another replacement became current or cancellation became effective, block submit and refresh.
 
 ---
 

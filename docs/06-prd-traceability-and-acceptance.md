@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.8 |
+| Version | 0.9 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.8 |
+| Parent | Product Requirements Document v0.9 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -501,7 +501,20 @@ Release must fail if any of these are possible:
 72. let a clinical amendment reopen queue/payment/cancellation workflow;
 73. treat an unfinished cancelled draft as a completed consultation amendment target;
 74. continue active clinical writes after effective cancellation;
-75. expose unrestricted clinical content solely through Owner/Admin/Reception/Pharmacist authority.
+75. expose unrestricted clinical content solely through Owner/Admin/Reception/Pharmacist authority;
+76. treat an unfinalized prescription draft as pharmacy-ready;
+77. auto-finalize prescription when consultation completes;
+78. auto-complete consultation when prescription finalizes;
+79. send a With Doctor Visit to Pharmacy merely because prescription was finalized;
+80. allow finalization with incomplete prescription rows or unresolved quantity;
+81. recompute a finalized version's ** markers from current stock during reprint;
+82. edit a Finalized prescription in place instead of replacement;
+83. replace a stale/non-current prescription version without refresh;
+84. erase prior dispensing/stock/billing when prescription is replaced;
+85. let Pharmacy silently continue a Superseded prescription as the current source;
+86. allow new active prescription finalization/replacement after effective Visit cancellation or Completed state;
+87. let a clinical amendment silently change prescription content;
+88. invent a no-prescription Consultation Completed -> Completed shortcut outside locked V1.
 
 ---
 
@@ -1096,6 +1109,101 @@ Supports: P-047, P-050–P-052, REM-034, IX Sections 25, 38, 39.
 **Then** unrestricted diagnosis/notes are not exposed solely by that authority.
 
 Supports: P-054, IA role boundaries, IX Section 39.
+
+## UXA-068 — Prescription can be finalized before consultation completion without pharmacy handoff
+
+**Given** Visit is With Doctor  
+**When** Doctor finalizes a valid prescription  
+**Then** prescription becomes Finalized/read-only but Visit remains With Doctor and is not yet pharmacy-ready.
+
+Supports: P-059, DOC-04, IX Sections 13 and 40.
+
+## UXA-069 — Consultation Completed waits for prescription when needed
+
+**Given** Doctor completes consultation before a current prescription is finalized  
+**Then** Visit remains Consultation Completed and appears in Doctor's separate awaiting-prescription task context rather than re-entering the queue.
+
+Supports: P-052, P-059, DOC-01, IX Section 40.
+
+## UXA-070 — Second readiness prerequisite triggers Sent to Pharmacy
+
+**Given** one of consultation completion or current prescription finalization is already satisfied  
+**When** the other prerequisite becomes effective  
+**Then** current Visit state advances to Sent to Pharmacy without changing the already-recorded clinical/finalization event.
+
+Supports: P-052, P-059, REM-041, IX Section 40.
+
+## UXA-071 — Availability refresh does not block unavailable prescribing
+
+**Given** a prescribed item changes from In Stock to Out of Stock before finalization  
+**When** Doctor finalizes  
+**Then** finalization refreshes/stores Out of Stock, prescription remains valid, and that version receives the ** print marker.
+
+Supports: P-055–P-057, P-064, IX Sections 13, 14, 40.
+
+## UXA-072 — Reprint preserves the finalization snapshot
+
+**Given** finalized prescription marked an item ** at finalization  
+**And** stock later becomes available  
+**When** Doctor reprints the same version  
+**Then** the marker remains because reprint uses the stored finalization snapshot and creates no new version.
+
+Supports: P-063–P-064, DOC-05, IX Section 14.
+
+## UXA-073 — Replacement is atomic and stale-safe
+
+**Given** Doctor opened replacement for current finalized version  
+**And** another replacement became current first  
+**When** Doctor submits the older replacement form  
+**Then** it is blocked as stale and cannot supersede the newer current version.
+
+Supports: P-061, DOC-07, IX Sections 25 and 40.
+
+## UXA-074 — Replacement preserves prior dispensing
+
+**Given** medicine was already dispensed from the current finalized prescription  
+**When** Doctor finalizes a replacement  
+**Then** old prescription becomes Superseded, new version becomes current, and prior dispensing/stock/billing history remains unchanged.
+
+Supports: P-061–P-062, REM-035, DOC-07, IX Section 40.
+
+## UXA-075 — Pharmacy defaults latest current version
+
+**Given** an older prescription was Superseded  
+**When** prescription context is opened for subsequent workflow  
+**Then** latest current Finalized version is the default and the superseded lineage remains visible as history.
+
+Supports: P-060–P-062, DOC-05, IX Section 40.
+
+## UXA-076 — Effective cancellation blocks prescription continuation
+
+**Given** Doctor has an active draft or replacement open  
+**And** Visit becomes Cancelled/Voided first  
+**When** Doctor attempts Save/Finalize/Finalize Replacement  
+**Then** stale active action is blocked and existing prescription versions/history remain preserved.
+
+Supports: P-047, P-059–P-062, REM-035, IX Sections 38 and 40.
+
+## UXA-077 — Completed Visit does not reopen for active prescription replacement
+
+**Given** Visit is Completed  
+**Then** historical prescription versions remain viewable but new active Finalize/Replacement actions are unavailable.
+
+Supports: P-059–P-062, IX Section 40.
+
+## UXA-078 — Clinical amendment does not mutate prescription
+
+**Given** Doctor amends a completed clinical record  
+**Then** prescription versions remain unchanged unless a separate valid active-Visit prescription replacement is explicitly performed.
+
+Supports: P-053, P-061, IX Sections 39 and 40.
+
+## UXA-079 — No unapproved no-prescription bypass
+
+**Given** Visit is Consultation Completed without a finalized prescription  
+**Then** implementation does not silently mark it Completed through an invented no-prescription shortcut.
+
+Supports: locked workflow baseline, P-059, IX Section 40.
 
 ---
 
