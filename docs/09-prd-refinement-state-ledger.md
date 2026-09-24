@@ -18,13 +18,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.15 DRAFT |
-| Current group | G13 — Reporting, Analytics & Owner Visibility |
-| Current stage | G13 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
-| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12 |
-| In-progress groups | G13 |
-| Not started | G14–G15 |
+| Current group | G14 — Cross-Product Audit, State Safety & Global Interaction Controls |
+| Current stage | G14 PREPARING |
+| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13 |
+| In-progress groups | G14 |
+| Not started | G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 33 — see Document 10 |
+| Open future reminders | 27 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
 
 ---
@@ -2975,6 +2975,79 @@ Run cumulative backward compatibility against G1–G12; reconcile any conflict b
 ### Next exact action
 
 Evaluate G13 impact on G14–G15 and create only real downstream reminders.
+
+## 2026-09-25 — G13 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Resolved inherited reminders
+
+- REM-032
+- REM-039
+- REM-043
+- REM-060
+- REM-065
+- REM-068
+- REM-070
+
+### Targeted reminder created
+
+- REM-073 -> G14: reporting is derived/read-only, access-scoped, time-bucketed consistently, and reproducible from preserved source history.
+
+### Reminder-register commit
+
+`9d7538959c2181878af3942c7f7a9e7177ba8e18`
+
+Open reminder count after G13: **27**.
+
+## 2026-09-25 — G13 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G12:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint state:** CURRENT
+
+### Main Group 13 commit
+
+`6b301301da5f9e92c76297947c54d471663100dd`
+
+### Final verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- Seven inherited G13 reminders resolved.
+- REM-073 created.
+- No unresolved backward conflict remains.
+- The locked report set is unchanged; calculations are now deterministic.
+
+### Transition
+
+Proceed directly to G14.
+
+# G14 — Cross-Product Audit, State Safety & Global Interaction Controls
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Required source review
+
+- current P-107–P-116 and global interaction/audit sections;
+- all open reminders targeting G14;
+- audit/record-preservation rules in locked BRD;
+- every completed G1–G13 stale-state, retry, authority, history, and secret-handling contract;
+- responsive/loading/confirmation/audit patterns.
+
+### Current action
+
+Perform cumulative G14 source review before autonomous product reasoning.
+
+### Blockers
+
+None.
+
 
 
 
