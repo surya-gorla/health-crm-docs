@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.7 DRAFT |
 | Current group | G5 — Doctor Queue & Visit Flow Control |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G5 vs G1–G4 |
+| Current stage | RECONCILIATION REQUIRED — G5 vs G4 |
 | Completed groups | G1, G2, G3, G4 |
 | In-progress groups | G5 |
 | Not started | G6–G15 |
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | COMMIT VALIDATED / BACKWARD CHECK | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | IN PROGRESS vs G1–G4 | — | Current group |
+| G5 | Doctor Queue & Visit Flow Control | RECONCILIATION REQUIRED | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | G4 clarification required | — | Current group |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1471,3 +1471,26 @@ PASS.
 ### Next exact action
 
 Evaluate G5 cumulatively against G1 workspace/authority, G2 auth/account-state, G3 patient/demographic-correction, and G4 Visit/payment/waiver contracts.
+
+
+## 2026-09-25 — G5 BACKWARD COMPATIBILITY FINDING
+
+### Result
+
+**RECONCILIATION REQUIRED — one G4 wording ambiguity; no BRD/business-policy conflict.**
+
+### Finding BC-G5-01
+
+G4 P-039 / IX 37.8 says a later financial correction does not delete/rewind prior queue/clinical history, but it does not explicitly distinguish:
+- preserving historical queue events; from
+- preserving current active queue membership.
+
+G5 now defines the operational consequence:
+- if correction to Unpaid occurs while Waiting/Called, remove current queue membership non-destructively and preserve all queue history;
+- if correction occurs With Doctor or later, do not unwind clinical workflow.
+
+### Planned reconciliation
+
+Clarify G4 wording to reference the G5 stage-sensitive operational effect while retaining the original non-destructive principle.
+
+No compatibility conflict was found with G1, G2, or G3.
