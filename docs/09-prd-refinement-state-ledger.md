@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.5 DRAFT |
 | Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G3 vs G1–G2 |
+| Current stage | FORWARD IMPACT ANALYSIS — G3 to G4–G15 |
 | Completed groups | G1, G2 |
 | In-progress groups | G3 |
 | Not started | G4–G15 |
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | COMMIT VALIDATED / BACKWARD CHECK | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | IN PROGRESS vs G1–G2 | — | Current group |
+| G3 | Patient Search, Identity, Registration & Patient Profile | FORWARD IMPACT ANALYSIS | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | IN PROGRESS | Current group |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -576,7 +576,7 @@ Document 10 currently contains no reminder targeted to G3.
 
 ### Current action
 
-Compare committed G3 behavior against all completed groups G1–G2; reconcile any conflict before forward-impact analysis.
+Scan G4–G15 for dependencies or likely conflicts introduced by G3, record only targeted future reminders, then run final closure gates.
 
 ### Blockers
 
@@ -781,3 +781,28 @@ PASS.
 ### Next exact action
 
 Evaluate G3 compatibility cumulatively against G1 workspace/authority rules and G2 authentication/account-state rules.
+
+
+## 2026-09-25 — G3 BACKWARD COMPATIBILITY COMPLETE
+
+### Compared against
+
+- G1 workspace, patient-context, permission, multi-role, and audit-authority rules;
+- G2 authentication, account-state, and disabled-session rules.
+
+### Result
+
+**PASS — no reconciliation commit required.**
+
+### Compatibility reasoning
+
+- G3's explicit **Select Patient** before patient context strengthens G1's rule against silent context changes.
+- Reception Patient Profile remains identity/operational only and does not violate G1's clinical-content boundary.
+- G3 Doctor-controlled corrections preserve role authority rather than giving Reception new write authority.
+- G3 Patient ID immutability does not conflict with any prior group.
+- All G3 screens remain behind the normal G2 authentication/account-state boundary.
+- No G3 rule weakens Owner 2FA, disabled-account behavior, workspace authority, or multi-role attribution.
+
+### Next exact action
+
+Evaluate G3 against all future groups G4–G15 and write targeted reminders only where a real dependency exists.
