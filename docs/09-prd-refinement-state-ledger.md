@@ -18,11 +18,11 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.9 DRAFT |
-| Current group | None — G7 complete; starting G8 next |
-| Current stage | G7 COMPLETE / TRANSITIONING |
+| Current group | G8 — Pharmacy Access, Prescription Retrieval & Dispensing |
+| Current stage | PREPARING |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7 |
-| In-progress groups | None |
-| Not started | G8–G15 |
+| In-progress groups | G8 |
+| Not started | G9–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 37 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
@@ -67,7 +67,7 @@ A group is COMPLETE only when all four gates pass:
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
-| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
+| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | PREPARING | — | — | — | Current group |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
@@ -1969,3 +1969,48 @@ Run all four G7 closure gates; if PASS, close G7 and proceed directly to G8.
 ### Transition
 
 Proceed directly to G8.
+
+
+# G8 — Pharmacy Access, Prescription Retrieval & Dispensing
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-065 — Patient ID lookup
+- P-066 — Clinical visibility
+- P-067 — Dispense actual quantity
+- P-068 — Automatic stock deduction
+- P-069 — Partial dispensing
+- P-070 — No back-order
+- P-071 — Over-dispense prevention
+- P-072 — Substitution request
+- P-073 — No medicine return
+- P-074 — Prescription-required dispensing
+- P-075 — Unit-specific dispensing
+- P-076 — Unit-specific billing
+
+### Mandatory prior-group reminders
+
+- REM-036 — effective Visit cancellation at Sent to Pharmacy stops future dispensing while preserving already-completed dispensing.
+- REM-042 — Pharmacy may see current/previous prescriptions and known allergies needed for dispensing, but not unrestricted diagnosis/notes/Doctor longitudinal history.
+- REM-045 — Pharmacy retrieval requires pharmacy-ready Visit/current Finalized prescription, defaults latest current version, rejects stale Superseded version, and accounts for prior dispensing across replacement lineage.
+
+### Required source review
+
+- locked BRD Pharmacy retrieval/access, partial fulfilment, quantity, substitution, returns, prescription-required dispensing, multi-pharmacy, inventory deduction rules;
+- workflow/OD dispensing state models;
+- current PRD P-065–P-076;
+- PHA-01/02/03/06 and related Doctor substitution screens;
+- interaction contracts for quantity, multi-unit context, stale prescription, cancellation, partial dispensing;
+- G1–G7 accepted contracts and REM-036/042/045.
+
+### Current action
+
+Perform full G8 source review before product reasoning.
+
+### Blockers
+
+None.
