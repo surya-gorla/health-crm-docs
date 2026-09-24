@@ -2685,7 +2685,6 @@ Proceed directly to G12 under the user's continuous-review instruction.
 - P-099 — Account disablement
 - P-100 — Owner role boundary
 - P-101 — Configuration
-- P-103 — (cross-linked administration/configuration behavior where applicable)
 
 ### Mandatory prior-group reminders
 
