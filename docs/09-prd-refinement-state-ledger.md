@@ -19,13 +19,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | BACKWARD COMPATIBILITY CHECK — G2 vs G1 |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | See Document 10 |
-| Latest checkpoint commit | `c52c0371e246ac914bebef4d279c55e981da8627` |
+| Latest checkpoint commit | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` |
 
 ---
 
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | DECISIONS RESOLVED | — | — | — | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | COMMIT VALIDATED / BACKWARD CHECK | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | IN PROGRESS vs G1 | — | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -137,7 +137,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -162,7 +162,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ### Current action
 
-Apply the resolved G2 product decisions to PRD, acceptance, screen, and interaction specifications in one logical Group 2 commit.
+Compare the committed G2 authentication behavior against every accepted G1 workspace/multi-role decision and reconcile any ambiguity or conflict before forward-impact analysis.
 
 ### Source-review files scheduled
 
@@ -348,3 +348,30 @@ Disposition: resolves the account-disable portion of REM-002; role-only revocati
 - exact live-session invalidation transport;
 - catastrophic Owner recovery mechanism when usable credentials/recovery codes are unavailable;
 - broader TOTP-factor replacement/device-migration mechanism beyond the locked enrollment/recovery-code behavior.
+
+
+## 2026-09-24 — G2 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- Commit: `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0`
+- Files changed:
+  - `docs/05-product-requirements-document.md`
+  - `docs/06-prd-traceability-and-acceptance.md`
+  - `docs/07-information-architecture-and-screen-specification.md`
+  - `docs/08-interaction-and-form-behavior-specification.md`
+
+### Validation result
+
+PASS.
+
+- P requirements remain exactly P-001 through P-116 with no duplicate IDs.
+- Authentication acceptance now contains AU-001 through AU-012 with no duplicate IDs.
+- Screen inventory remains 49 unique screen IDs.
+- PRD/companion document versions and parent references align.
+- Mandatory Owner whole-login 2FA, initial enrollment, non-enumerating recovery, single Pending reset request, forced-change gate, disabled-session handling, one-time recovery codes, secret exclusion from audit, and deferred security boundaries are all present.
+- Initial automated check produced one false negative because the validator expected the phrase “do not require 2FA” while P-010 correctly says “are not required to complete 2FA.” The validator was corrected; product text was not changed to satisfy the check.
+
+### Next exact action
+
+Read G1 accepted requirements/contracts and compare each relevant G2 change against them.
