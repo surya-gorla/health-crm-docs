@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.13 DRAFT |
+| Current PRD version | v0.14 DRAFT |
 | Current group | G12 — Administration, Staff Access & Clinic Configuration |
-| Current stage | G12 DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | G12 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11 |
 | In-progress groups | G12 |
 | Not started | G13–G15 |
@@ -2750,6 +2750,31 @@ No new clinic/business input is required. These decisions preserve the locked Ow
 ### Current action
 
 Apply G12 account/role/configuration boundaries across P-097–P-101, administration screens, acceptance/traceability, and interaction contracts; then commit and validate.
+
+## 2026-09-25 — G12 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e`
+- Changed Documents 05–08.
+- PRD advanced to v0.14.
+- Four file blobs were staged separately and committed atomically after the earlier oversized tool call was blocked; no partial product edit occurred before this commit.
+
+### Validation result
+
+**PASS.**
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios extend through AC-070 with no duplicate IDs.
+- UX acceptance scenarios extend through UXA-138 with no duplicate IDs.
+- Screen contracts remain 49 with no duplicate screen IDs.
+- PRD/acceptance/interaction align at v0.14; Document 07 is v0.13 with Parent PRD v0.14.
+- Section 42 appears exactly once and carries administration/account/configuration interaction rules.
+- Owner protection/TOTP gating, live role revocation, account/reset separation, prospective configuration, catalogue/unit archival, and no-historical-rewrite rules are explicit across Documents 05–08.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G11; reconcile any conflict before G12 forward-impact analysis.
 
 
 
