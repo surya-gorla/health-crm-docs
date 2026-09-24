@@ -17,15 +17,15 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.3 DRAFT |
-| Current group | None — G2 complete; awaiting explicit start of G3 |
-| Current stage | G2 COMPLETE / WAITING |
+| Current PRD version | v0.4 DRAFT |
+| Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
+| Current stage | PREPARING |
 | Completed groups | G1, G2 |
-| In-progress groups | None |
-| Not started | G3–G15 |
+| In-progress groups | G3 |
+| Not started | G4–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 13 — see Document 10 |
-| Latest checkpoint commit | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` |
+| Latest checkpoint commit | `5b437164ed4492451bbd1e4b26c4a1cc38e4bbc2` |
 
 ---
 
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
+| G3 | Patient Search, Identity, Registration & Patient Profile | PREPARING | — | — | — | Current group |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -538,3 +538,56 @@ then update PR #2 progress if all pass.
 ### Stop condition
 
 G2 is complete. Do not start G3 until explicitly instructed.
+
+
+# G3 — Patient Search, Identity, Registration & Patient Profile
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-016 — Search first
+- P-017 — Search result identity
+- P-018 — Duplicate candidates
+- P-019 — Possible Duplicate
+- P-020 — New patient registration
+- P-021 — Permanent Patient ID
+- P-022 — Patient profile
+- P-023 — Demographic correction
+- P-024 — Doctor direct demographic correction
+- P-025 — Missing physical file
+
+### Mandatory prior-group reminders
+
+Document 10 currently contains no reminder targeted to G3.
+
+### Required source review
+
+- locked BRD patient identity/search/registration/demographic-correction requirements and business rules;
+- workflow/state model patient search, registration, duplicate handling, and correction paths;
+- V1 decision-register entries for patient identity and duplicates;
+- locked requirements traceability;
+- current PRD P-016–P-025;
+- Reception/Doctor patient-related screen contracts;
+- interaction rules for search, forms, duplicate candidates, history, stale state, and role boundaries;
+- accepted G1/G2 contracts to ensure patient context and access behavior stay compatible.
+
+### Current action
+
+Move to SOURCE REVIEW and identify product-definition gaps without changing the locked business policy.
+
+### Blockers
+
+None.
+
+---
+
+## 2026-09-25 — G3 PREPARING checkpoint
+
+- User instructed the refinement process to continue after G2 completion.
+- Ledger moved to G3 PREPARING.
+- No prior reminder is currently targeted to G3.
+- PRD version checkpoint corrected from stale v0.3 to current v0.4.
+- Next exact action: perform full G3 source review before product reasoning.
