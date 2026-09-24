@@ -18,14 +18,14 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.5 DRAFT |
-| Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
-| Current stage | FINAL GROUP VALIDATION — G3 |
-| Completed groups | G1, G2 |
-| In-progress groups | G3 |
+| Current group | None — G3 complete; awaiting G4 start |
+| Current stage | G3 COMPLETE / WAITING |
+| Completed groups | G1, G2, G3 |
+| In-progress groups | None |
 | Not started | G4–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 13 — see Document 10 |
-| Latest checkpoint commit | `5b437164ed4492451bbd1e4b26c4a1cc38e4bbc2` |
+| Open future reminders | 21 — see Document 10 |
+| Latest checkpoint commit | `b8691d8c526aa5953d1e48cd67afe088abf15493` |
 
 ---
 
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | FINAL VALIDATION | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Current group |
+| G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -841,3 +841,41 @@ No unique unresolved G3 dependency was found for G7–G12 except the groups expl
 ### Next exact action
 
 Run all four G3 closure gates, then update the PR checklist if all pass.
+
+
+## 2026-09-25 — G3 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G2:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint currency:** PASS
+
+### Main Group 3 commit
+
+`b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` — refined patient search, candidate confirmation, registration duplicate protection, Possible Duplicate behavior, Reception patient profile boundaries, demographic correction, physical-file independence, and Patient-create retry safety.
+
+### Backward compatibility
+
+No reconciliation commit was required.
+
+G3 strengthens G1 patient-context safety through explicit selection, stays within Reception/Doctor authority boundaries, and remains behind G2 authentication/account-state gates.
+
+### Forward-reminder commit
+
+`b8691d8c526aa5953d1e48cd67afe088abf15493` — created REM-018–REM-025 for G4, G5, G6, G13, and G14.
+
+### G3 final product verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- Duplicate merge remains outside V1.
+- Technical matching thresholds, idempotency implementation, and concurrency/version mechanisms remain correctly deferred.
+- No unresolved backward conflict remains.
+
+### Stop condition
+
+G3 is complete. G4 has not been started.
