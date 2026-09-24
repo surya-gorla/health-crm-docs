@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | FORWARD IMPACT ANALYSIS — G2 to G3–G15 |
+| Current stage | FINAL GROUP VALIDATION — G2 |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | FORWARD IMPACT ANALYSIS | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | IN PROGRESS | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | FINAL VALIDATION | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — reminders recorded | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -462,3 +462,44 @@ Mandatory future coupling is concentrated in:
 - **G14** — authentication secret exclusion from audit, reset-request retry/stale safety, and session/account-state changes need cross-product safety coverage.
 
 Next exact action: write targeted reminders and resolve REM-001 through REM-004 in Document 10.
+
+
+## 2026-09-24 — G2 FORWARD IMPACT ANALYSIS COMPLETE
+
+### No targeted G2 reminder required
+
+After reviewing the current baseline of all remaining groups, no G2-specific reminder is required for:
+- G3–G10;
+- G13;
+- G15.
+
+Their normal role/authentication dependence is already covered by accepted G1/G2 contracts and does not create a unique unresolved future decision.
+
+### New mandatory reminders recorded
+
+**G11 — Owner Approval Center**
+- REM-010 — password reset is Pending -> Resolved by Set Temporary Credential, not generic Approve/Reject.
+- REM-011 — one actionable Pending reset request; stale/resolved Owner screens cannot reset again.
+
+**G12 — Staff Administration**
+- REM-012 — Owner creation/grant requires TOTP enrollment/second-factor qualification before Owner capability can be used.
+- REM-013 — reset, disable/re-enable, and role-state changes remain separate lifecycles.
+
+**G14 — Cross-Product State/Audit/Safety**
+- REM-014 — auth secrets excluded from audit/history.
+- REM-015 — retry/stale safety covers password-reset request lifecycle.
+- REM-016 — session/tab handling after account/role state change.
+- REM-017 — one-time recovery-code lifecycle and regeneration invalidation.
+
+### Previous reminders resolved
+
+REM-001 through REM-004 are now RESOLVED with explicit dispositions in Document 10.
+
+### Next exact action
+
+Run the complete G2 closure gate:
+- Gate A current-group validation;
+- Gate B backward compatibility;
+- Gate C forward reminders;
+- Gate D ledger currency;
+then update PR #2 progress if all pass.
