@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.7 DRAFT |
 | Current group | G5 — Doctor Queue & Visit Flow Control |
-| Current stage | RECONCILIATION REQUIRED — G5 vs G4 |
+| Current stage | FINAL GROUP VALIDATION — G5 |
 | Completed groups | G1, G2, G3, G4 |
 | In-progress groups | G5 |
 | Not started | G6–G15 |
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | RECONCILIATION REQUIRED | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | G4 clarification required | — | Current group |
+| G5 | Doctor Queue & Visit Flow Control | FINAL VALIDATION | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Current group |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1494,3 +1494,33 @@ G5 now defines the operational consequence:
 Clarify G4 wording to reference the G5 stage-sensitive operational effect while retaining the original non-destructive principle.
 
 No compatibility conflict was found with G1, G2, or G3.
+
+
+## 2026-09-25 — G5 BACKWARD COMPATIBILITY RECONCILED
+
+- G1–G3: PASS without changes.
+- G4 ambiguity reconciled by `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f`.
+- G4 now explicitly distinguishes immutable queue history from current queue membership after financial correction.
+- Waiting/Called may leave current queue when corrected to Unpaid; With Doctor or later is not unwound.
+
+## 2026-09-25 — G5 FORWARD IMPACT ANALYSIS COMPLETE
+
+Created:
+- REM-034 -> G6 clinical start/cancellation concurrency.
+- REM-035 -> G7 prescription behavior after Visit cancellation.
+- REM-036 -> G8 stop future dispensing after Visit cancellation.
+- REM-037 -> G9 billing/payment after Visit cancellation.
+- REM-038 -> G11 cancellation approval lifecycle.
+- REM-039 -> G13 waiting-time reporting with multiple queue-entry events.
+- REM-040 -> G14 queue/cancellation concurrency.
+
+Resolved:
+- REM-020
+- REM-026
+- REM-027
+
+No unique G5-specific reminder was required for G10, G12, or G15.
+
+### Next exact action
+
+Run all four G5 closure gates; if PASS, close G5 and proceed directly to G6.
