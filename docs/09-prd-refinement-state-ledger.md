@@ -19,13 +19,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | GROUP REASONING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | See Document 10 |
-| Latest checkpoint commit | `b43716ecd4e744148baee8db809fa36304856998` |
+| Latest checkpoint commit | `c52c0371e246ac914bebef4d279c55e981da8627` |
 
 ---
 
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | GROUP REASONING | — | — | — | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | DECISIONS RESOLVED | — | — | — | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -137,7 +137,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ## Current checkpoint
 
-**Stage:** GROUP REASONING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -162,7 +162,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ### Current action
 
-Resolve the product-design gaps identified by the completed source review, while preserving the locked authentication policy and G1 workspace rules.
+Apply the resolved G2 product decisions to PRD, acceptance, screen, and interaction specifications in one logical Group 2 commit.
 
 ### Source-review files scheduled
 
@@ -255,3 +255,96 @@ None currently identified.
 - REM-002 — ACTIVE IN REVIEW
 - REM-003 — ACTIVE IN REVIEW
 - REM-004 — ACTIVE IN REVIEW
+
+
+## 2026-09-24 — G2 DECISIONS RESOLVED
+
+No new clinic/business input is required. The following are DERIVED PRODUCT DESIGN / security-boundary clarifications consistent with the locked BRD.
+
+### D-G2-01 — Owner-role 2FA gates the entire login
+
+- Any account containing Owner authority must satisfy password + Owner TOTP/recovery-code second factor before **any** normal application workspace is entered.
+- The user cannot choose Doctor or another non-Owner workspace to bypass Owner 2FA.
+- After a fully authenticated Owner-containing session is established, normal switching among already-permitted workspaces does not require a second login or repeated TOTP solely because of the switch.
+
+Disposition: resolves REM-001 and REM-004, subject to post-commit compatibility validation with G1.
+
+### D-G2-02 — Initial Owner TOTP enrollment is a mandatory pre-workspace gate
+
+- Valid Owner password with no enrolled TOTP factor routes to mandatory enrollment before normal workspace entry.
+- Enrollment requires the generated authenticator secret/QR plus successful TOTP verification.
+- Recovery codes are shown only after successful factor verification and are shown only in the enrollment/regeneration event.
+- Login is not considered complete until the required factor enrollment/verification sequence succeeds.
+- Exact cryptographic storage and authenticator implementation remain technical.
+
+### D-G2-03 — Recovery-code behavior is explicit but bounded
+
+- A valid unused recovery code may satisfy the Owner second-factor step only after password authentication.
+- A used recovery code becomes invalid immediately.
+- Regenerating recovery codes invalidates the previous set and shows the replacement set only at regeneration.
+- Recovery-code values, TOTP codes, TOTP secrets, and passwords are never written into normal audit/history output.
+- Replacing/resetting the TOTP factor beyond initial enrollment is not silently invented here; catastrophic/no-credential recovery remains the controlled technical-security dependency already locked by BR-046/OD-021.
+
+### D-G2-04 — Forgot Password is non-Owner, non-self-service, and non-enumerating
+
+- The in-app staff Forgot Password flow applies to non-Owner accounts only.
+- Submitting the form never resets the password directly.
+- The unauthenticated response must not confirm whether the supplied identifier exists, is disabled, or carries Owner authority.
+- An Owner account must not be routed into the non-Owner Owner-reset workflow; Owner password/account recovery remains the controlled Owner recovery path.
+- At most one simultaneously actionable reset request exists per eligible staff account; repeat submissions while one is pending must not create duplicate Owner work.
+
+### D-G2-05 — Staff reset request has a simple lifecycle
+
+- Eligible request -> Pending.
+- Owner sets/replaces the temporary credential -> request becomes Resolved.
+- A resolved/stale request cannot be actioned again as if still pending.
+- No generic Approve/Reject semantics are invented for password reset; the Owner's effective action is setting the temporary credential.
+- The reset action replaces the current sign-in credential but does not change role membership or enabled/disabled account status.
+- If the account is disabled, a password reset never implicitly re-enables it.
+
+This creates a future compatibility reminder for G11 because the Owner Approval Center currently uses generic Approve/Reject language.
+
+### D-G2-06 — Forced password change is an authentication gate
+
+- A valid Owner-reset credential may establish identity for the reset flow but does not grant normal workspace access.
+- The user must successfully set/confirm a replacement password before any normal workspace navigation/content is available.
+- After successful replacement, the temporary/reset credential is no longer valid and the user proceeds through G1's normal single-/multi-workspace entry behavior.
+- If the change is abandoned or fails, the forced-change gate remains on the next valid reset-credential login.
+- Password-strength specifics remain the deferred security policy.
+
+Disposition: resolves REM-003, subject to post-commit compatibility validation with G1.
+
+### D-G2-07 — Disabled account state overrides credentials and recovery
+
+- Disabled accounts cannot enter the product even with otherwise valid normal/reset credentials.
+- Password reset does not change disabled status.
+- If an account is disabled while a session is active, normal protected use must stop on the next protected navigation/action or authentication-state refresh and the user returns to the sign-in boundary.
+- Re-enabling an account does not revive an already-terminated disabled session; the user signs in again.
+- Exact real-time revocation/session-propagation mechanism remains technical.
+
+Disposition: resolves the account-disable portion of REM-002; role-only revocation remains governed by G1 and future G12/G14 checks.
+
+### D-G2-08 — Newly granted Owner authority requires second-factor satisfaction before use
+
+- If an authenticated non-Owner session later receives Owner authority, Owner-capable workspace/actions do not become usable merely because the role assignment changed.
+- The already-authenticated password may count as the first factor for that session, but Owner access requires the Owner TOTP gate (or mandatory enrollment if no factor exists) before Owner-capable access is exposed.
+- Exact step-up/session implementation remains technical.
+- This is a security-sensitive exception to the ordinary G1 rule that workspace switching itself does not require re-authentication; a backward-compatibility check will determine whether G1 wording needs clarification.
+
+### D-G2-09 — Safe authentication errors and secret handling
+
+- Invalid username/password responses remain generic.
+- Forgot Password responses remain non-enumerating.
+- TOTP/recovery-code errors are shown only after password-authenticated Owner flow and do not expose stored secrets.
+- Passwords, reset credentials, TOTP secrets/codes, and recovery codes never appear in normal audit/history.
+- Audit may record safe metadata such as requester, target account, actor, action, outcome, and timestamp where required.
+
+### Explicitly deferred, not invented in G2
+
+- inactivity/session timeout;
+- password-strength rules;
+- brute-force/rate-limit/lockout mechanics;
+- cryptographic storage/key handling;
+- exact live-session invalidation transport;
+- catastrophic Owner recovery mechanism when usable credentials/recovery codes are unavailable;
+- broader TOTP-factor replacement/device-migration mechanism beyond the locked enrollment/recovery-code behavior.
