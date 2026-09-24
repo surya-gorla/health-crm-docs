@@ -10,7 +10,7 @@
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
-| Working branch | `prd/refine-group-01-workspace-navigation` |
+| Working review | PR #2 — long-lived PRD refinement review |
 | Product stage | V1 product definition — group-by-group refinement in progress |
 
 ---

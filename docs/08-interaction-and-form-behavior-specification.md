@@ -8,7 +8,7 @@
 | Version | 0.3 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.2 |
+| Parent | PRD v0.3 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |

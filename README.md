@@ -61,4 +61,4 @@ The initial PRD baseline has been merged into `main`. Further PRD refinement is 
 
 The locked BRD on `main` remains the business source of truth. PRD refinements may add product interaction detail but may not silently change locked business behavior.
 
-Current refinement workstream: `prd/refine-group-01-workspace-navigation`.
+Current refinement workstream: one long-lived PRD refinement pull request. Each reviewed group or later cross-group correction is added as a separate logical commit to that same PR until the PRD review is complete.

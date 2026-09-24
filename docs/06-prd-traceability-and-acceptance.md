@@ -8,7 +8,7 @@
 | Version | 0.3 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.1 |
+| Parent | Product Requirements Document v0.3 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
