@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.10 DRAFT |
+| Current PRD version | v0.11 DRAFT |
 | Current group | G9 — Pharmacy Billing, Payment & Bill Cancellation |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8 |
 | In-progress groups | G9 |
 | Not started | G10–G15 |
@@ -68,7 +68,7 @@ A group is COMPLETE only when all four gates pass:
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
-| G9 | Pharmacy Billing, Payment & Bill Cancellation | DECISIONS RESOLVED | — | — | — | Current group |
+| G9 | Pharmacy Billing, Payment & Bill Cancellation | COMMIT VALIDATED | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | IN PROGRESS | — | Current group |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
@@ -2198,3 +2198,33 @@ No new clinic/business input is required.
 22. **Visit completion and unsupplied remainder:** completion never means every prescribed unit was supplied; unsupplied remainder is a legitimate final clinic-pharmacy outcome because V1 has no back-order. Resolves REM-051.
 
 Technical transaction/idempotency mechanisms remain downstream, but these effective outcomes are mandatory.
+
+## 2026-09-25 — G9 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `d317a8d50cfa5baeb7506920ffa75c4e19776f00`
+- Changed Documents 05–08.
+- PRD advanced to v0.11.
+
+### Validation-fix commit
+
+- `4c4c6622b940e1db6d5efca2e872488a01d580fe`
+- Corrected section-boundary duplication introduced by the main edit in Documents 05, 07 and 08.
+- No product rule changed in this fix.
+
+### Validation result
+
+**PASS after validation-fix commit.**
+
+- P requirements remain exactly P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios remain unique and extend through AC-038.
+- UX acceptance scenarios remain unique and extend through UXA-100.
+- Existing screen IDs remain unique; G9 reused existing PHA-04/PHA-05 and shared Owner/payment-correction surfaces rather than inventing a new screen.
+- PRD/acceptance/interaction versions align at PRD v0.11; Document 07 is a v0.10 companion whose Parent points to PRD v0.11.
+- Unit-specific supplied-only billing, duplicate-billing prevention, bill snapshot immutability, external-payment confirmation, baseline-safe pharmacy payment correction, Visit-level completion, multi-unit completion, post-completion bill administration, void/payment concurrency, no-stock-restoration, and retry safety are now represented across Documents 05–08.
+- The four malformed replacement-boundary headings found during initial commit inspection were repaired and revalidated.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G8, reconciling any conflict before forward-impact analysis.
