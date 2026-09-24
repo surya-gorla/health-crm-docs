@@ -18,11 +18,11 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.10 DRAFT |
-| Current group | None — G8 complete; starting G9 next |
-| Current stage | G8 COMPLETE / TRANSITIONING |
+| Current group | G9 — Pharmacy Billing, Payment & Bill Cancellation |
+| Current stage | PREPARING |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8 |
-| In-progress groups | None |
-| Not started | G9–G15 |
+| In-progress groups | G9 |
+| Not started | G10–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 39 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
@@ -68,7 +68,7 @@ A group is COMPLETE only when all four gates pass:
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
-| G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
+| G9 | Pharmacy Billing, Payment & Bill Cancellation | PREPARING | — | — | — | Current group |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
@@ -2123,3 +2123,44 @@ Run all four G8 closure gates; if PASS, close G8 and proceed directly to G9.
 ### Transition
 
 Proceed directly to G9.
+
+
+# G9 — Pharmacy Billing, Payment & Bill Cancellation
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-077 — Bill only supplied items
+- P-078 — External payment recording
+- P-079 — No partial pharmacy payment
+- P-080 — No pharmacy refund
+- P-081 — Pharmacist void request
+- P-082 — Pending bill remains active
+- P-083 — Owner decision
+- P-084 — No automatic stock restoration
+
+### Mandatory prior-group reminders
+
+- REM-028 — reuse explicit external payment model, methods, optional reference, correction workflow, no partial/refund, unknown-outcome safety.
+- REM-037 — Visit cancellation must not refund/erase existing pharmacy bill/payment history; cancelled Visit cannot continue new active billing.
+- REM-046 — prescription replacement after prior dispensing must preserve earlier pharmacy bill/payment history; only newly supplied quantities become new billable supply.
+- REM-051 — define final pharmacy/Visit completion after partial/multi-unit fulfilment and payment, without treating one dispense as completion.
+
+### Required source review
+
+- locked BRD pharmacy billing/payment, bill void, payment correction, no-refund, multi-pharmacy billing rules;
+- workflow/OD billing state models;
+- current PRD P-077–P-084;
+- PHA-04/PHA-05, Owner approval details, payment correction screens;
+- G1–G8 accepted contracts and REM-028/037/046/051.
+
+### Current action
+
+Perform full G9 source review before product reasoning.
+
+### Blockers
+
+None.
