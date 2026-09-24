@@ -19,13 +19,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | SOURCE REVIEW |
+| Current stage | GROUP REASONING |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | See Document 10 |
-| Latest checkpoint commit | `c979b0d1e0fa96be4a0d94c8e3e6c2ca9b1e6427` |
+| Latest checkpoint commit | `b43716ecd4e744148baee8db809fa36304856998` |
 
 ---
 
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | SOURCE REVIEW | — | — | — | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | GROUP REASONING | — | — | — | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -137,7 +137,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ## Current checkpoint
 
-**Stage:** SOURCE REVIEW
+**Stage:** GROUP REASONING
 
 ### Primary requirements
 
@@ -162,7 +162,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ### Current action
 
-Read and reconcile all G2-relevant locked business sources, current PRD layers, authentication screen/interaction contracts, and REM-001 through REM-004 before making product decisions.
+Resolve the product-design gaps identified by the completed source review, while preserving the locked authentication policy and G1 workspace rules.
 
 ### Source-review files scheduled
 
@@ -205,3 +205,53 @@ None currently identified.
 - G2 moved from PREPARING to SOURCE REVIEW.
 - Mandatory prior-group reminders: REM-001, REM-002, REM-003, REM-004.
 - No product decision will be written until the scheduled source review is complete.
+
+
+## 2026-09-24 — G2 SOURCE REVIEW COMPLETE
+
+### Files read
+
+- `docs/01-business-requirements-document.md`
+- `docs/02-workflows-and-state-model.md`
+- `docs/03-open-decisions-and-edge-cases.md`
+- `docs/04-requirements-traceability.md`
+- `docs/05-product-requirements-document.md`
+- `docs/06-prd-traceability-and-acceptance.md`
+- `docs/07-information-architecture-and-screen-specification.md`
+- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/10-prd-future-review-reminders.md`
+
+### Locked business conclusions confirmed
+
+1. Every user has one individual username/login + password account in the fixed clinic context.
+2. Any account containing Owner role requires Google Authenticator-compatible TOTP before login completes; choosing a non-Owner workspace cannot bypass this.
+3. Accounts with no Owner role do not require 2FA in V1.
+4. Non-Owner Forgot Password creates an Owner-controlled reset request; it is not self-service.
+5. Owner may set a new/temporary credential but never view the old credential.
+6. Reset credential must be replaced after the next successful login before normal use.
+7. Reset request and Owner reset action are auditable.
+8. Owner TOTP enrollment produces one-time recovery codes; regeneration invalidates the prior set and used codes are invalid.
+9. Catastrophic Owner recovery, inactivity/session timeout, and password-strength policy remain security/technical dependencies.
+10. Disabled accounts are preserved, cannot sign in, and may later be re-enabled through authorized staff lifecycle controls.
+
+### Product-definition gaps identified for G2 reasoning
+
+- Owner TOTP must gate the entire login for an Owner-containing account, not merely the Owner workspace.
+- Initial Owner TOTP enrollment/bootstrap is not sequenced clearly enough.
+- Recovery-code use/regeneration behavior needs a clearer product contract without inventing the deferred catastrophic-recovery mechanism.
+- Forgot Password must remain non-enumerating and must not route Owner accounts into the non-Owner staff reset process.
+- Repeated Forgot Password submissions should not create duplicate simultaneously actionable Owner work.
+- Staff reset request needs an explicit lifecycle and stale/resolved handling.
+- Forced password change must precede all normal workspace entry and then return to G1 single-/multi-workspace routing.
+- Password reset must not re-enable a disabled account.
+- Account disable during an active session needs a product expectation consistent with G1 stale-authority rules.
+- If Owner authority is added during an already-authenticated non-Owner session, Owner-capable access cannot become usable until the Owner TOTP requirement is satisfied.
+- Normal workspace switching after a fully authenticated session should not require repeated login/TOTP.
+- Session timeout, password-strength details, rate limiting/lockout, and exact session-invalidation mechanics remain technical/security design and must not be invented in the PRD.
+
+### Mandatory reminder status entering reasoning
+
+- REM-001 — ACTIVE IN REVIEW
+- REM-002 — ACTIVE IN REVIEW
+- REM-003 — ACTIVE IN REVIEW
+- REM-004 — ACTIVE IN REVIEW
