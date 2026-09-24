@@ -18,13 +18,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
-| Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | FINAL GROUP VALIDATION — G2 |
-| Completed groups | G1 |
-| In-progress groups | G2 |
+| Current group | None — G2 complete; awaiting explicit start of G3 |
+| Current stage | G2 COMPLETE / WAITING |
+| Completed groups | G1, G2 |
+| In-progress groups | None |
 | Not started | G3–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | See Document 10 |
+| Open future reminders | 13 — see Document 10 |
 | Latest checkpoint commit | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` |
 
 ---
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | FINAL VALIDATION | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — reminders recorded | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -503,3 +503,38 @@ Run the complete G2 closure gate:
 - Gate C forward reminders;
 - Gate D ledger currency;
 then update PR #2 progress if all pass.
+
+
+## 2026-09-24 — G2 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint currency:** PASS
+
+### Main Group 2 commit
+
+`f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` — refined authentication, account access, password recovery, TOTP enrollment/recovery, forced-change, disabled-account, and auth-secret handling behavior.
+
+### Backward reconciliation
+
+`5fe2bcc7151092307aa1d527d3b42863ec7e6144` — clarified G1 workspace switching so ordinary authenticated switching remains frictionless while newly granted Owner authority remains second-factor gated.
+
+### Forward-reminder commit
+
+`521f67e2733f1d049c1595567356e353a1f62cb8` — resolved REM-001–REM-004 and created REM-010–REM-017 for G11/G12/G14.
+
+### G2 final product verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- Deferred security architecture remains clearly separated from product policy.
+- Known future-group coupling is captured in Document 10 rather than silently pre-solving G11/G12/G14.
+
+### Stop condition
+
+G2 is complete. Do not start G3 until explicitly instructed.
