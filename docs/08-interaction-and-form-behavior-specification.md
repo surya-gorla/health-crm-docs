@@ -1667,7 +1667,12 @@ Financial correction never erases historical Visit/queue/clinical events.
 
 Before queue entry, corrected state changes future eligibility.
 
-After workflow has progressed, preserve already-existing operational/clinical history while showing the corrected financial state.
+For current operational membership, apply the G5 stage rule:
+
+- Waiting/Called corrected to Unpaid -> current queue membership may be removed while prior queue history remains;
+- With Doctor or later -> do not unwind clinical workflow.
+
+If a removed Visit later regains eligibility, explicit re-entry creates a new current queue-entry event instead of restoring the former queue position.
 
 ## 37.9 Combined action partial failure
 

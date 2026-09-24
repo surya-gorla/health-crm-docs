@@ -815,10 +815,15 @@ Owner approval creates the corrected effective financial record while preserving
 
 Before approval, the product revalidates the correction baseline. If the effective payment record changed after the request was submitted, the old request is stale and cannot silently apply against the newer record.
 
-Financial correction does not retroactively delete or rewind already-created queue/clinical history:
+Financial correction does not retroactively delete or rewrite already-created queue/clinical history.
+
+Current operational effect follows the Visit stage defined in G5:
 
 - before queue entry, the corrected financial state governs future queue eligibility;
-- after the Visit has already entered/progressed through queue/consultation, the corrected financial state is recorded and shown, while existing queue/clinical history remains intact.
+- while current queue state is Waiting/Called, correction to Unpaid may remove **current active queue membership** and return the Visit to non-queued financial resolution, while all prior queue events remain historical;
+- at With Doctor or later, correction does not unwind active/past clinical workflow.
+
+Removing current membership is not deletion of prior queue history. Re-entry after renewed eligibility is a new active queue-entry event rather than restoration of the old queue position.
 
 A Paid -> Unpaid correction means the earlier Paid record was erroneous; it does not represent or create a refund.
 
