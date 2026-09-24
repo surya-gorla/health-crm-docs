@@ -19,13 +19,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | PREPARING / SOURCE REVIEW NOT YET COMPLETE |
+| Current stage | SOURCE REVIEW |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | See Document 10 |
-| Latest branch commit at ledger creation | `00a4cd86a4465f52d3abc374d420273f027960c5` |
+| Latest checkpoint commit | `c979b0d1e0fa96be4a0d94c8e3e6c2ca9b1e6427` |
 
 ---
 
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | PREPARING | — | — | — | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | SOURCE REVIEW | — | — | — | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -137,7 +137,7 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** SOURCE REVIEW
 
 ### Primary requirements
 
@@ -162,7 +162,19 @@ Targeted future reminders were identified for authentication/session behavior, r
 
 ### Current action
 
-Establish persistent ledger/reminder infrastructure, then perform full G2 source review before making product decisions.
+Read and reconcile all G2-relevant locked business sources, current PRD layers, authentication screen/interaction contracts, and REM-001 through REM-004 before making product decisions.
+
+### Source-review files scheduled
+
+- `docs/01-business-requirements-document.md`
+- `docs/02-workflows-and-state-model.md`
+- `docs/03-open-decisions-and-edge-cases.md`
+- `docs/04-requirements-traceability.md`
+- `docs/05-product-requirements-document.md`
+- `docs/06-prd-traceability-and-acceptance.md`
+- `docs/07-information-architecture-and-screen-specification.md`
+- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/10-prd-future-review-reminders.md`
 
 ### Blockers
 
@@ -185,3 +197,11 @@ None currently identified.
 - New protocol requires state ledger and future-reminder register to be read/updated continuously.
 - Before G2 reasoning, Documents 09 and 10 are being established as persistent process state.
 - Next exact action: read G2-relevant BRD, workflows, decision register, traceability, PRD, screen specification, interaction specification, and all reminders targeting G2.
+
+
+## 2026-09-24 — G2 SOURCE REVIEW START
+
+- Ledger/reminder infrastructure commit `c979b0d1e0fa96be4a0d94c8e3e6c2ca9b1e6427` revalidated: PASS.
+- G2 moved from PREPARING to SOURCE REVIEW.
+- Mandatory prior-group reminders: REM-001, REM-002, REM-003, REM-004.
+- No product decision will be written until the scheduled source review is complete.
