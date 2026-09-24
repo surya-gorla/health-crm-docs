@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.2 |
+| Version | 0.3 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
 | Parent | Product Requirements Document v0.1 |
@@ -318,9 +318,9 @@ Sources: FR-117, BR-057, OD-036.
 
 ## RA-006 — Multi-role account
 
-Owner + Doctor uses one identity but both permission sets; product must keep authority context explicit.
+A user with more than one assigned role uses one identity and gains the permitted workspaces of those roles. The product keeps the effective workspace/authority explicit; combining roles does not convert one role into another.
 
-Sources: FR-064, FR-098, BR-039, OD-023.
+Sources: FR-064, FR-098, BR-039, OD-022, OD-023.
 
 ---
 
@@ -377,7 +377,7 @@ Release must fail if any of these are possible:
 
 | PRD Area | Product Requirements | Primary BRD Sources |
 | --- | --- | --- |
-| Workspace / shell | P-001–P-007 | FR-064–FR-069, FR-097–FR-100, BR-034–BR-043 |
+| Workspace / multi-role context | P-001–P-005, P-096 | FR-064, FR-069, FR-097–FR-100, BR-034–BR-039, OD-022, OD-023 |
 | Authentication | P-008–P-015 | FR-084–FR-085, FR-100–FR-104, BR-035, BR-043–BR-046 |
 | Reception / search | P-016–P-020 | FR-001–FR-004, FR-078–FR-079 |
 | Patient profile | P-021–P-025 | FR-002–FR-007, FR-075–FR-079, FR-091 |
@@ -388,11 +388,11 @@ Release must fail if any of these are possible:
 | Pharmacy fulfilment | P-065–P-076 | FR-045–FR-056, FR-082–FR-083, FR-095, FR-118 |
 | Pharmacy billing | P-077–P-084 | FR-057–FR-063, FR-105–FR-115, FR-118 |
 | Inventory | P-085–P-093 | FR-051, FR-068, FR-086–FR-090, FR-094–FR-096, FR-115 |
-| Owner approvals | P-094–P-096 | FR-015, FR-068, FR-081, FR-097, FR-101–FR-102, FR-105–FR-107, FR-114 |
+| Owner approvals | P-094–P-095 | FR-015, FR-068, FR-081, FR-097, FR-101–FR-102, FR-105–FR-107, FR-114 |
 | Administration | P-097–P-101 | FR-064, FR-069, FR-117, OD-022 |
 | Reporting | P-102–P-106 | BRD Section 8, OD-029 |
 | Audit / history | P-107–P-110 | FR-070–FR-074, BR-023–BR-024 |
-| Product state safety | P-111–P-112 | BR-023–BR-024 plus locked non-destructive controls |
+| Cross-product state / audit / safety | P-006–P-007, P-107–P-112 | FR-070–FR-074, BR-023–BR-024 plus locked non-destructive controls |
 | Printing | P-113–P-116 | FR-041–FR-044, FR-062 |
 
 ---
@@ -555,9 +555,9 @@ Supports: OWN-07, ADM screens, IX Section 34.
 
 ## UXA-015 — Multi-role authority is visible
 
-**Given** one account has Owner + Doctor  
-**When** user switches between Doctor and Owner workspaces  
-**Then** the active workspace/authority remains visible and the same human identity is retained for audit.
+**Given** one account has more than one assigned role  
+**When** the user switches among permitted workspaces  
+**Then** the active workspace/authority remains visible, the same human identity is retained, and material actions are attributed to the authority context actually used.
 
 Supports: SH-06, IA-01, IX Section 29.
 
@@ -582,6 +582,76 @@ Supports: IA Section 12, IX Sections 22–23.
 **Then** the confirmation describes the actual consequence rather than a generic “Are you sure?”
 
 Supports: IX Section 27.
+
+## UXA-019 — Single-role entry bypasses workspace selector
+
+**Given** an authenticated user has exactly one permitted workspace  
+**Then** the user enters that workspace directly rather than being forced through a meaningless workspace choice.
+
+Supports: P-003, SH-06, IX Section 29.
+
+## UXA-020 — Multi-role switch control remains reachable
+
+**Given** an authenticated user has more than one permitted workspace  
+**Then** the user has an always-reachable workspace-switch control without needing to sign out or use another account.
+
+Supports: P-003, SH-06, IX Section 29.
+
+## UXA-021 — Permission absence versus state unavailability
+
+**Given** the current account lacks authority for an action  
+**Then** that action is not exposed as a normal navigation/action choice and direct access is denied.  
+**Given** the user has authority but the current record/state makes the action temporarily invalid  
+**Then** the action may remain visible but disabled with a meaningful explanation.
+
+Supports: P-002, P-005, IA-06, IX Section 26.
+
+## UXA-022 — Workspace switch does not leak active record context
+
+**Given** a Doctor is working on a specific patient/Visit  
+**When** the same account switches to Owner workspace  
+**Then** the Owner workspace does not silently inherit that clinical record as its active context. Any legitimate cross-workspace opening is explicit and enters the target authority context first.
+
+Supports: P-004, IA Section 11.4, IX Section 29.
+
+## UXA-023 — Unsaved work protected during workspace switch
+
+**Given** the current workspace contains material unsaved changes  
+**When** the user attempts to switch workspaces  
+**Then** the product warns before those changes can be discarded and allows the user to remain in the current workspace.
+
+Supports: P-004, IX Section 3.6, IX Section 29.
+
+## UXA-024 — Revoked role cannot remain usable through an open workspace
+
+**Given** a user's role is revoked while that role's workspace is already open  
+**When** the user performs the next protected navigation/action or the permission state refreshes  
+**Then** the product denies the revoked authority and routes the user to a permitted workspace without rendering protected content.
+
+Supports: P-002, P-005, IA-06, IX Sections 25–26, 29.
+
+## UXA-025 — Multiple tabs retain independent authority context
+
+**Given** a multi-role user has Doctor workspace open in one browser tab and Owner workspace open in another  
+**Then** each tab visibly retains its own authority context and switching one tab does not silently change the other.
+
+Supports: P-001, P-003, P-096, IX Section 29.
+
+## UXA-026 — Cross-workspace attention does not leak protected detail
+
+**Given** a multi-role user is in one workspace and another permitted workspace has pending attention items  
+**Then** a count/attention indicator may be shown, but protected detail or actions appear only after entering the correct workspace/authority context.
+
+Supports: P-005, IX Sections 21 and 29.
+
+## UXA-027 — Same human can act through two legitimate authorities with separate attribution
+
+**Given** one account legitimately holds Doctor and Owner roles  
+**And** the Doctor authority submits an action requiring Owner approval  
+**When** the same human later performs the approval through Owner authority  
+**Then** the request and approval remain two separately attributable events showing the same human identity but different effective authorities.
+
+Supports: P-096, FR-098, BR-039, IX Sections 28–29.
 
 ---
 

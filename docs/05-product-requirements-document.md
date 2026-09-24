@@ -6,12 +6,12 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.2 |
+| Version | 0.3 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
-| Working branch | `prd/v1-product-requirements` |
-| Product stage | V1 product definition — screen and interaction detailing in progress |
+| Working branch | `prd/refine-group-01-workspace-navigation` |
+| Product stage | V1 product definition — group-by-group refinement in progress |
 
 ---
 
@@ -246,9 +246,9 @@ Administrator cannot grant/revoke Owner authority, disable Owner, or inherit cli
 
 **Classification: DERIVED PRODUCT DESIGN based on locked role separation.**
 
-The application should expose role-based workspaces.
+The application exposes role-based workspaces.
 
-A user sees only workspaces granted by their roles.
+A user sees only workspaces granted by their assigned roles.
 
 Recommended V1 workspaces:
 
@@ -258,25 +258,35 @@ Recommended V1 workspaces:
 4. **Owner**
 5. **Administration**
 
-A multi-role user uses one account and can switch between permitted workspaces.
+A user with exactly one permitted workspace enters that workspace directly after successful authentication. A user with more than one permitted workspace is presented with a workspace choice and must also have an always-reachable workspace-switch control in the application shell.
 
-For an Owner + Doctor account, Owner and Doctor actions remain visually separated so an action's authority is obvious.
+Multi-role behavior applies to every valid role combination, not only Owner + Doctor. One human uses one account; roles add permitted authority without creating separate identities.
+
+Workspace context is deliberately scoped. Switching workspaces does not silently carry an active patient, Visit, Doctor queue, pharmacy unit, or protected record into the target workspace. A legitimate cross-workspace transition must explicitly enter the target workspace/authority before protected content or actions are exposed.
+
+If material unsaved work exists, workspace switching must warn before that work can be discarded.
+
+Separate browser tabs/windows may operate in different permitted workspaces at the same time. Each tab/window retains its own explicit workspace context; changing workspace in one must not silently change the authority context of another.
+
+If a role is revoked while a workspace is already open, stale access must not remain usable. On the next protected navigation/action or permission refresh, access is re-evaluated and the user is returned to a permitted workspace if necessary. The exact session/permission-refresh mechanism is a technical design decision.
+
+Cross-workspace attention indicators may show that another permitted workspace has pending work, but protected details/actions are opened only after entering the correct workspace/authority context.
 
 ### P-001 — Workspace identity
 
-The active workspace must always be visible.
+The active workspace/authority context must always be visible while the user is inside the application, including when different browser tabs/windows are using different permitted workspaces.
 
 ### P-002 — Role-safe navigation
 
-Navigation must not expose actions the current account lacks permission to perform.
+Functionality for which the current account lacks authority must not be exposed as normal navigation/action choices, and direct navigation must also be denied. This is distinct from an action the user is authorized to perform but which is temporarily unavailable because of current record/state conditions.
 
 ### P-003 — Multi-role switching
 
-A multi-role account must switch workspace without requiring a second account.
+A multi-role account uses one identity and may switch among all assigned workspaces without a second login. Single-workspace accounts enter directly; multi-workspace accounts receive a workspace selector plus an always-reachable switch control.
 
-### P-004 — Context preservation
+### P-004 — Workspace-scoped context preservation
 
-Switching workspace must not silently change the patient, visit, Doctor queue, pharmacy unit, or record being acted on without explicit user selection.
+Switching workspaces must not silently change or carry forward the patient, Visit, Doctor queue, pharmacy unit, or protected record being acted on. Material unsaved work must be protected by a leave/switch warning. Explicit cross-workspace transitions may pass a record reference only after the target workspace/authority is entered.
 
 ---
 
@@ -298,7 +308,12 @@ For pharmacy-scoped users, active pharmacy-unit context must be visible when mor
 
 ### P-005 — Permission-aware shell
 
-Unavailable modules/actions are hidden or disabled based on effective role permissions.
+The shell distinguishes lack of authority from temporary state unavailability:
+
+- if the user lacks authority, the module/action is omitted from normal navigation/action choices and direct access is denied;
+- if the user has authority but the current record/state makes the action temporarily invalid, the action may remain visible but disabled with a meaningful explanation.
+
+The shell must also provide an always-reachable workspace switcher for multi-role users and may show cross-workspace attention counts without exposing protected detail outside the correct authority context.
 
 ### P-006 — Clear status language
 
@@ -938,9 +953,11 @@ Each approval item shows:
 
 Owner decision records decision, actor, time, and resulting effective state.
 
-### P-096 — Role-aware Owner + Doctor
+### P-096 — Effective authority attribution for multi-role users
 
-When the same account is Owner + Doctor, the product must still record which authority was used for the action.
+When the same account holds multiple roles, the product must preserve both the human identity and the effective authority/workspace used for each material action. Audit semantics must distinguish at minimum the actor/account, effective role or workspace, action, affected target, and time.
+
+If the same human legitimately performs different sides of a workflow through different assigned roles—for example requesting a Visit cancellation as Doctor and later approving it as Owner—the two actions remain separately attributable to the two authority contexts rather than being collapsed into one generic user action.
 
 ---
 

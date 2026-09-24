@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.1 |
+| Version | 0.2 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
 | Parent | PRD v0.2 |
@@ -43,9 +43,11 @@ The screen model may be implemented with pages, drawers, panels, dialogs, or oth
 
 Reception, Doctor, Pharmacy, Owner, and Administration are distinct workspaces.
 
-A multi-role user may switch workspaces without signing into a second account.
+A single-workspace user enters that workspace directly after authentication. A multi-role user uses one identity, selects among permitted workspaces, and can switch without signing into a second account. The switch control remains reachable from the application shell.
 
-The active workspace must remain visible.
+The active workspace/authority must remain visible. Multi-role behavior applies to all valid combinations, not only Owner + Doctor.
+
+Workspace context is scoped: switching does not silently carry an active patient, Visit, queue, pharmacy unit, or protected record into the target workspace. Separate browser tabs/windows may hold different permitted workspace contexts simultaneously.
 
 ## IA-02 — Patient/Visit context is explicit
 
@@ -75,7 +77,9 @@ Waiver, cancellation, payment correction, inventory adjustment, transfer, passwo
 
 ## IA-06 — No authority through navigation
 
-A user cannot gain access to a forbidden action by direct navigation, bookmarked link, browser history, or stale screen state.
+A user cannot gain access to a forbidden action by direct navigation, bookmarked link, browser history, stale screen state, or an already-open workspace after permission revocation.
+
+If the user lacks authority, the forbidden module/action is omitted from normal navigation and direct access is denied. If the user has authority but a current record/state temporarily prevents the action, the control may remain visible but disabled with an explanation.
 
 ---
 
@@ -341,14 +345,16 @@ Recovery codes are shown only at enrollment/regeneration and are not presented l
 
 ---
 
-## SH-06 — Workspace Selector
+## SH-06 — Workspace Selector / Switcher
 
 **Users:** multi-role accounts  
-**Source:** P-001–P-004
+**Source:** P-001–P-005, P-096
 
 ### Purpose
 
-Choose an authority context when more than one workspace is permitted.
+Choose or switch the effective authority context when more than one workspace is permitted.
+
+A single-workspace account bypasses this choice after authentication. A multi-workspace account sees the selector on entry and retains an always-reachable switch control in the application shell.
 
 ### Example
 
@@ -357,9 +363,19 @@ Owner + Doctor sees:
 - Doctor Workspace
 - Owner Workspace
 
+The same pattern applies to other valid combinations such as Reception + Pharmacist.
+
+### Switching rules
+
+- material unsaved work must trigger a leave/switch warning before it can be discarded;
+- switching does not silently carry an active patient, Visit, queue, pharmacy unit, or protected record into the target workspace;
+- a legitimate cross-workspace transition enters the target workspace/authority before opening protected content;
+- separate tabs/windows may retain different permitted workspace contexts independently;
+- if the current role is revoked, the next protected navigation/action or permission refresh denies further access and routes the user to a permitted workspace.
+
 ### Acceptance
 
-Selecting a workspace does not silently change the patient, Visit, or pharmacy unit being acted on.
+The active workspace remains visible after switching, the human identity remains the same, and material actions are attributable to the effective authority actually used.
 
 ---
 
@@ -1578,14 +1594,20 @@ Superseded, amended, corrected, cancelled, and voided records remain viewable to
 
 Historical state should never be mistaken for a currently actionable state.
 
-## 11.4 Multi-role context
+## 11.4 Multi-role and workspace context
 
 When a user has multiple roles:
 
-- current workspace remains visible;
-- Owner-only action is performed in Owner authority context;
-- Doctor-only clinical action is performed in Doctor authority context;
-- audit history records the actual authority/action used.
+- the current workspace/authority remains visible;
+- one human identity is used across all permitted workspaces;
+- each browser tab/window retains its own explicit workspace context;
+- Owner-only actions are performed in Owner authority context;
+- Doctor-only clinical actions are performed in Doctor authority context;
+- equivalent separation applies to every other valid role combination;
+- workspace switching does not silently carry protected record context into the target workspace;
+- cross-workspace notifications may expose an attention count but not protected detail/action until the target authority context is entered;
+- audit history records the human actor and effective authority/workspace used;
+- the same human may perform separate workflow actions through different legitimately assigned roles, with each action separately attributed.
 
 ---
 

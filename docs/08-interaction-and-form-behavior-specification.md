@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.2 |
+| Version | 0.3 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
 | Parent | PRD v0.2 |
@@ -855,15 +855,33 @@ Examples:
 
 ---
 
-# 26. Permission-Denied Pattern
+# 26. Permission and State-Unavailability Pattern
 
-If a user reaches a forbidden function:
+## 26.1 User lacks authority
 
-- do not render sensitive content and merely disable the button;
-- show safe access-denied messaging;
-- provide path back to permitted workspace.
+If a user lacks authority for a module/action:
 
-Direct navigation must not bypass role rules.
+- omit it from normal navigation/action choices;
+- do not render protected content and merely disable a control;
+- deny direct/bookmarked/history access;
+- show safe access-denied messaging where the user reaches a protected route;
+- provide a path back to a permitted workspace.
+
+## 26.2 User has authority but current state blocks the action
+
+If the user normally has authority but the current record/state makes an action temporarily invalid:
+
+- the control may remain visible;
+- it may be disabled;
+- the interface should explain the relevant condition where useful.
+
+Example: a Doctor may see **Complete Consultation** disabled because required clinical fields are missing; a Pharmacist who has no Owner authority should not see **Approve Inventory Adjustment** as a normal action.
+
+## 26.3 Permission revocation during an open session
+
+An already-open page does not preserve revoked authority. On the next protected navigation/action or permission refresh, access is re-evaluated; protected content/action is denied and the user is returned to a permitted workspace when necessary.
+
+The exact permission-refresh/session implementation belongs to technical design.
 
 ---
 
@@ -899,19 +917,55 @@ Clinical event metadata must respect the clinical-content access boundary.
 
 ---
 
-# 29. Multi-Role Interaction Contract
+# 29. Multi-Role and Workspace Interaction Contract
 
-A user with Owner + Doctor:
+The contract applies to every valid multi-role combination, not only Owner + Doctor.
 
-- logs in once;
-- completes Owner-required TOTP;
-- can switch Owner/Doctor workspace;
-- performs clinical actions in Doctor context;
-- performs financial/inventory approvals in Owner context.
+## 29.1 Entry and switching
 
-Do not create two separate user identities.
+- a single-workspace user enters that workspace directly after authentication;
+- a multi-workspace user chooses among permitted workspaces and retains an always-reachable workspace-switch control;
+- one human uses one account across all assigned roles;
+- Owner-containing accounts still follow the Owner TOTP requirement.
 
-Do not silently infer authority from whichever screen was last open.
+## 29.2 Authority context
+
+- the active workspace/authority remains visible;
+- clinical actions are performed in Doctor authority where Doctor permission is required;
+- Owner financial/inventory/approval actions are performed in Owner authority;
+- the same separation applies to Reception, Pharmacist, and Administrator combinations;
+- do not infer authority from whichever screen happened to be open previously.
+
+## 29.3 Workspace-scoped work context
+
+- switching workspaces does not silently carry the active patient, Visit, Doctor queue, pharmacy unit, or protected record into the target workspace;
+- an explicit cross-workspace transition may pass a record reference only after the target workspace/authority is entered;
+- material unsaved changes trigger a warning before a switch can discard them.
+
+## 29.4 Multiple browser tabs/windows
+
+A multi-role user may keep different permitted workspaces open in different tabs/windows. Each tab/window retains its own visible workspace/authority context. Changing one must not silently alter another.
+
+## 29.5 Role changes while signed in
+
+If a role is revoked while its workspace is open, stale authority must not remain usable. The next protected action/navigation or permission refresh re-evaluates access and safely returns the user to a permitted workspace when required.
+
+## 29.6 Cross-workspace attention
+
+The shell may show an attention/count indicator for another permitted workspace, but opening protected detail/action requires entering the correct workspace/authority context first.
+
+## 29.7 Audit attribution and same-human dual-role actions
+
+Material action history preserves both the human identity and the effective role/workspace used. Conceptually the audit semantics include:
+
+- actor/account;
+- effective role or workspace;
+- action;
+- affected target;
+- timestamp;
+- reason/decision context where applicable.
+
+If the same human legitimately performs different sides of a workflow through different assigned roles, each action remains separately attributable. For example, the same Owner + Doctor may request a Visit cancellation in Doctor authority and later approve it in Owner authority if the locked business rules permit both actions.
 
 ---
 
@@ -975,7 +1029,13 @@ This interaction specification fails review if:
 - a multi-pharmacy action hides its unit context;
 - a disabled/unauthorized control still exposes protected content;
 - unsaved material form edits can be discarded without warning;
-- history looks editable/current when it is not.
+- history looks editable/current when it is not;
+- a user without authority sees a forbidden action as a normal navigation/action option;
+- workspace switching silently carries protected patient/Visit context into another authority context;
+- material unsaved work is discarded by workspace switching without warning;
+- revoked authority remains usable because the workspace was already open;
+- switching workspace in one browser tab silently changes another tab's authority context;
+- cross-workspace notifications expose protected detail/action outside the correct workspace.
 
 
 ---
@@ -1017,3 +1077,7 @@ Rules:
 3. Doctor authority does not substitute for Owner authority.
 4. Hiding a control in the UI is not sufficient authorization; direct navigation/action must also be denied.
 5. A multi-role user gains the union of explicitly assigned roles, while the active authority context remains visible and auditable.
+6. Permission absence and temporary state unavailability are different: unauthorized actions are hidden/blocked; authorized-but-currently-invalid actions may be disabled with explanation.
+7. A role revoked during an open session cannot remain usable merely because its page was already open.
+8. Separate browser tabs/windows may use different permitted workspaces, but each must keep its authority context explicit.
+9. If the same human performs separate workflow actions under different legitimate roles, audit history preserves the same human identity and the distinct authority used for each action.

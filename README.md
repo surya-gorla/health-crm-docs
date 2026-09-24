@@ -57,6 +57,8 @@ Locked requirements may only change through explicit change control. Derived/del
 
 ## PRD workstream
 
-PRD development is isolated on branch `prd/v1-product-requirements`.
+The initial PRD baseline has been merged into `main`. Further PRD refinement is performed in small, reviewable group branches and merged back through pull requests.
 
-The locked BRD on `main` remains the business source of truth. PRD drafts may add product interaction detail but may not silently change locked business behavior.
+The locked BRD on `main` remains the business source of truth. PRD refinements may add product interaction detail but may not silently change locked business behavior.
+
+Current refinement workstream: `prd/refine-group-01-workspace-navigation`.
