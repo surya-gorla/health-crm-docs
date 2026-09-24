@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.8 DRAFT |
 | Current group | G6 — Consultation & Longitudinal Clinical Record |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G6 vs G1–G5 |
+| Current stage | FORWARD IMPACT ANALYSIS — G6 to G7–G15 |
 | Completed groups | G1, G2, G3, G4, G5 |
 | In-progress groups | G6 |
 | Not started | G7–G15 |
@@ -65,7 +65,7 @@ A group is COMPLETE only when all four gates pass:
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
-| G6 | Consultation & Longitudinal Clinical Record | COMMIT VALIDATED / BACKWARD CHECK | `762524428d1c62976519d7cd126ebe199054e2b2` | IN PROGRESS vs G1–G5 | — | Current group |
+| G6 | Consultation & Longitudinal Clinical Record | FORWARD IMPACT ANALYSIS | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | IN PROGRESS | Current group |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
@@ -1587,7 +1587,7 @@ Proceed directly to G6.
 
 ### Current action
 
-Compare committed G6 behavior cumulatively against G1–G5 and reconcile any conflict before forward-impact analysis.
+Scan G7–G15 for downstream dependencies introduced by G6, resolve REM-021/REM-034, record targeted reminders, then run final closure gates.
 
 ### Blockers
 
@@ -1694,3 +1694,17 @@ PASS.
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G5.
+
+
+## 2026-09-25 — G6 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- G1: Doctor clinical authority/workspace boundaries preserved.
+- G2: authentication/account-state boundaries unchanged.
+- G3: Possible Duplicate histories remain separate; demographic correction stale/routing/direct-edit rules are implemented and reachable.
+- G4: later financial correction at With Doctor or later does not unwind clinical workflow.
+- G5: Called -> With Doctor remains the authoring gate; Pending cancellation does not freeze work; effective cancellation blocks future active writes while preserving saved content.
+- Historical amendment after Visit closure is not active Visit progression and therefore does not conflict with G5 cancellation semantics.
+
+REM-021 and REM-034 are satisfied subject to reminder-register update.
