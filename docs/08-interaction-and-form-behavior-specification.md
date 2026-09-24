@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.14 |
+| Version | 0.15 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.14 |
+| Parent | PRD v0.15 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -1927,6 +1927,13 @@ This interaction specification fails review if:
 - Admin configuration mutates physical stock or Owner-controlled financial values;
 - configuration changes rewrite historical Visit/bill/prescription/inventory facts;
 - staff/medicine/pharmacy-unit history can be destructively deleted.
+- report query shows zero/empty before loading completes;
+- financial aggregate double-counts superseded payment history;
+- average wait resets on ordinary reassignment/Unresponded queue movement;
+- Paid+Voided bill is treated as refund or loses void context;
+- stock transfer is counted as sale or clinic-wide stock gain;
+- archived reporting dimensions disappear/reassign historical attribution;
+- report filter broadens data beyond authorized scope.
 
 
 ---
@@ -2816,4 +2823,160 @@ For account/role/status/config save:
 - recover already-applied result where present.
 
 Exact persistence/session/idempotency implementation remains technical.
+
+---
+
+# 43. Reporting and Analytics Interaction Contract
+
+## 43.1 Date/time basis
+
+Day-based metrics use clinic-local date/calendar context.
+
+The UI keeps selected date/date-range visible.
+
+## 43.2 Loading, empty, and restricted states
+
+Do not show zero/empty before query completion.
+
+Distinguish:
+
+- Loading;
+- No data for selected filters;
+- Results;
+- Access restricted;
+- Error / retry.
+
+## 43.3 Patients seen
+
+Count one Visit at its first Consultation Completed event.
+
+Later amendment or cancellation does not create/remove that historical seen event.
+
+## 43.4 Average wait
+
+Successful wait interval is:
+
+**queue entry for the waiting journey that reaches first With Doctor -> first With Doctor**
+
+Within the same journey:
+
+- reassignment;
+- Called;
+- Unresponded;
+- move-five-slots;
+- move-to-end
+
+do not reset queue-entry time.
+
+Actual queue removal plus later eligible re-entry starts a new segment. Earlier abandoned segments remain history but are excluded from the successful wait interval.
+
+## 43.5 Effective consultation revenue
+
+Use current effective payment record only.
+
+- Paid contributes;
+- Waived/Unpaid do not;
+- preserved superseded payment records do not contribute again;
+- later cancellation without refund does not erase a still-effective Paid record.
+
+Day bucket uses effective Paid-recording time.
+
+## 43.6 Effective pharmacy revenue
+
+Use current effective Paid pharmacy payment record and frozen bill amount/unit attribution.
+
+Paid bill later Voided without refund remains recorded money received, while void state is separately visible.
+
+Correction to Unpaid removes it from effective Paid revenue.
+
+Do not recalculate old bills from current price configuration.
+
+## 43.7 Medicine sales
+
+Sales quantity derives from committed dispense, not prescription, bill request, stock adjustment, or transfer.
+
+Unsupplied quantity is zero sale.
+
+Sales value uses frozen billed supplied value where available.
+
+## 43.8 Inventory reporting
+
+Current valid stock derives pharmacy-unit movement ledgers.
+
+- expired/unavailable recorded quantity is distinct;
+- clinic total supports unit/batch drill-down;
+- transfer nets to zero clinic-wide and is not sale/addition;
+- corrections/loss/damage/expiry movements keep their own category;
+- current alert classification may reflect current configured threshold.
+
+## 43.9 Most prescribed
+
+Standard aggregate uses the current final prescription version for each Visit.
+
+Do not count Superseded versions as additional current prescribing contributions.
+
+Historical version detail remains available according to authority.
+
+## 43.10 Exception activity versus effective outcome
+
+Do not confuse request volume with effective business changes.
+
+For waiver/cancellation/void and other Owner work, keep states distinguishable:
+
+- Pending;
+- Approved;
+- Rejected;
+- Resolved;
+- Stale / Non-actionable;
+- direct Owner action where applicable.
+
+Effective metrics count effective outcomes only.
+
+## 43.11 Returning patient
+
+A new Visit is returning-patient activity when that Patient ID has at least one earlier Visit.
+
+Possible Duplicate Patient IDs remain separate identities.
+
+## 43.12 Archived dimensions
+
+Archived/disabled staff, medicine, and pharmacy-unit identities remain reportable historical dimensions.
+
+Current display may show current label/status, but historical attribution never migrates silently to another entity.
+
+## 43.13 Role/scoping
+
+Filters never broaden authority.
+
+- Owner: clinic-wide authorized scope;
+- Admin: authorized non-clinical scope;
+- Pharmacist: permitted pharmacy scope;
+- Reception: reception/queue operational scope;
+- Doctor-only: no inherited clinic-wide Owner finance/inventory scope.
+
+## 43.14 Audit reporting
+
+Audit reporting uses actual audit events and respects:
+
+- effective authority attribution;
+- clinical-content access boundary;
+- credential/TOTP/recovery secret exclusion.
+
+Audit-event count is not the same as successful business-outcome count.
+
+## 43.15 Recorded status language
+
+Financial analytics must say **Recorded revenue / CRM Paid status**.
+
+Do not imply external bank settlement verification.
+
+## 43.16 Report refresh
+
+Reports are derived/read views.
+
+Refreshing/re-querying reports never mutates source records.
+
+If source correction/configuration changes current effective derived result, refreshed current report may change while historical source/audit remains preserved.
+
+Exact analytics storage/query implementation remains technical.
 

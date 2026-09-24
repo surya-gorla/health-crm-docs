@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.14 |
+| Version | 0.15 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.14 |
+| Parent | Product Requirements Document v0.15 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -596,6 +596,96 @@ Supports: P-101, BR-040–BR-041.
 **Then** product checks current effective state/authority before another final attempt and preserves prior/resulting configuration audit without secret values.
 
 Supports: P-097–P-101, IX Section 42.
+
+## AC-071 — Patients seen anchors to first completion event
+
+**Given** Visit reaches Consultation Completed
+**And** clinical amendment or later cancellation occurs afterward
+**Then** patients-seen reporting counts that Visit once at its original first completion event and does not create/remove the historical seen event.
+
+Supports: P-102, REM-043.
+
+## AC-072 — Successful waiting journey is deterministic
+
+**Given** Visit is reassigned/Unresponded/moved within the same queue journey
+**Then** average wait retains the original queue-entry timestamp.
+
+**Given** Visit is removed from queue membership and later re-enters before first With Doctor
+**Then** the successful wait uses the later queue-entry segment immediately preceding first With Doctor.
+
+Supports: P-102, REM-039.
+
+## AC-073 — Consultation revenue uses effective Paid record
+
+**Given** original consultation payment has later approved correction
+**Then** revenue uses only the current effective Paid/Unpaid state/value, excludes Waived, and does not double-count preserved prior records.
+
+Supports: P-102, REM-032.
+
+## AC-074 — Paid cancellation remains recorded revenue without refund
+
+**Given** consultation remains effectively Paid
+**When** Visit is later Cancelled/Voided under no-refund V1 rules
+**Then** recorded consultation revenue remains included while cancellation is reported separately.
+
+Supports: P-102, BR-048, BR-050.
+
+## AC-075 — Paid pharmacy bill later voided stays recorded money received
+
+**Given** pharmacy payment remains effectively Paid
+**When** bill is later Voided without refund
+**Then** recorded pharmacy revenue still includes the frozen Paid bill amount and the void is separately visible; an approved correction to Unpaid removes it from effective Paid revenue.
+
+Supports: P-102, REM-060.
+
+## AC-076 — Medicine sales use dispensing, not prescription or stock movement
+
+**Given** medicine was partially dispensed and other inventory adjustments/transfers occurred
+**Then** medicine-sales quantity uses actual committed dispensing only; unsupplied, transfer, addition, loss, correction and expiry movements do not count as sales.
+
+Supports: P-102, REM-065.
+
+## AC-077 — Current stock derives unit ledgers and separates expired quantity
+
+**Given** unit ledgers include valid and expired recorded stock
+**Then** current available stock excludes expired/unavailable quantity, consolidated stock derives unit positions, and unit/batch drill-down remains attributable.
+
+Supports: P-102, REM-065.
+
+## AC-078 — Internal transfer is not clinic-wide stock gain or sale
+
+**Given** approved linked transfer moves quantity from Pharmacy A to Pharmacy B
+**Then** unit positions change by -Q/+Q, clinic consolidated quantity nets to zero, and the transfer contributes neither medicine sale nor stock addition.
+
+Supports: P-102, REM-065.
+
+## AC-079 — Most prescribed does not double-count Superseded versions
+
+**Given** Doctor replaces finalized prescription
+**Then** standard most-prescribed aggregation uses the Visit's current final prescription version and does not independently count the Superseded version as another current prescription contribution.
+
+Supports: P-102, P-064–P-067.
+
+## AC-080 — Request outcome report distinguishes effective from non-effective work
+
+**Given** approval/request history contains Pending, Rejected, Stale, Approved, Resolved and direct Owner actions
+**Then** effective waiver/cancellation metrics count only actual effective outcomes and direct actions are not double-counted as both request and approval.
+
+Supports: P-102, REM-068.
+
+## AC-081 — Archived entity remains historical report dimension
+
+**Given** staff, medicine or pharmacy unit is later disabled/archived
+**Then** prior report/audit attribution remains linked to the stable historical identity and can still be filtered/drilled into.
+
+Supports: P-102–P-104, REM-070.
+
+## AC-082 — Returning patient uses prior Visit on same Patient ID
+
+**Given** a new Visit is created for a Patient ID with at least one earlier Visit
+**Then** that Visit qualifies as returning-patient activity; Possible Duplicate profiles remain separate identities until merge exists.
+
+Supports: P-102, OD-029.
 
 
 ---
@@ -1967,6 +2057,97 @@ Supports: P-097–P-101, IX Section 42.
 **Then** preserved Visit/prescription/dispense/bill/movement/approval history is unchanged except explicit future/current derived views defined by the product.
 
 Supports: P-101, IX Section 42.
+
+## UXA-139 — Report loading is not shown as zero data
+
+**Given** report query is still loading
+**Then** UI does not display a misleading zero/empty report until query completes.
+
+Supports: P-102–P-105.
+
+## UXA-140 — Report no-data state names active filters
+
+**Given** completed report has no rows for current filter
+**Then** UI distinguishes "no data for this filter/date range" from loading or access denial.
+
+Supports: P-102–P-105.
+
+## UXA-141 — Financial report says recorded status, not bank settlement
+
+**Given** Owner views revenue
+**Then** UI identifies figures as CRM-recorded Paid status and does not claim bank settlement verification.
+
+Supports: P-102, OWN-05.
+
+## UXA-142 — Void and payment remain separately understandable
+
+**Given** Paid pharmacy bill was later Voided without refund
+**Then** financial reporting can show recorded Paid amount and void status separately without implying refund or active bill equivalence.
+
+Supports: P-102, REM-060.
+
+## UXA-143 — Waiting-time drill-down preserves queue journey
+
+**Given** Visit had reassignment/Unresponded and later successful consultation
+**Then** report/drill-down can explain the queue-entry-to-With-Doctor interval without resetting for ordinary queue movements.
+
+Supports: P-102, REM-039.
+
+## UXA-144 — Stock report keeps unit context
+
+**Given** Owner views consolidated stock
+**Then** clinic total supports drill-down to pharmacy unit/batch and does not hide expired/unavailable recorded quantity inside valid available stock.
+
+Supports: P-102, REM-065.
+
+## UXA-145 — Archived entities remain filterable
+
+**Given** medicine/unit/staff was archived or disabled
+**Then** historical report filters/results retain that identity with current archived/disabled indication rather than dropping or reassiging old records.
+
+Supports: P-102–P-104, REM-070.
+
+## UXA-146 — Admin report scope remains non-clinical
+
+**Given** Admin opens reports
+**Then** clinic-wide non-clinical authorized metrics do not reveal unrestricted diagnosis/clinical-note content or Owner approval controls.
+
+Supports: P-103.
+
+## UXA-147 — Pharmacist report scope remains unit-limited
+
+**Given** Pharmacist is scoped to Pharmacy A
+**Then** pharmacy/inventory report does not silently include Pharmacy B unless the user separately holds authority that permits it.
+
+Supports: P-104.
+
+## UXA-148 — Effective outcome and workflow activity are distinguishable
+
+**Given** Owner views waiver/cancellation activity
+**Then** effective Approved/direct outcomes can be distinguished from Pending/Rejected/Stale request volume.
+
+Supports: P-102, REM-068.
+
+## UXA-149 — Most-prescribed view does not mix historical versions as current
+
+**Given** prescriptions were replaced
+**Then** standard aggregate reflects canonical current final version while historical version detail remains accessible where authorized.
+
+Supports: P-102.
+
+## UXA-150 — Revenue correction updates aggregate without duplicate history
+
+**Given** approved payment correction changes effective state
+**Then** aggregate updates to current effective value/state while audit/history still shows original record without double-counting it.
+
+Supports: P-102, REM-032, REM-060.
+
+## UXA-151 — Reporting filters never broaden authorization
+
+**Given** user selects date/unit/entity filters
+**Then** result remains restricted to the user's authorized scope even if another entity is named in URL/filter input.
+
+Supports: P-102–P-106.
 
 
 ---

@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.13 |
+| Version | 0.14 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.14 |
+| Parent | PRD v0.15 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -2159,22 +2159,43 @@ Owner can move from low-stock/near-expiry/expired summaries to the exact unit/ba
 
 ## OWN-05 — Financial Status Overview
 
-**Users:** Owner  
+**Users:** Owner
 **Source:** P-102
 
-### Content
+### Purpose
 
-- consultation revenue;
-- pharmacy revenue;
-- total recorded revenue;
-- payment method breakdown where data exists;
+Show CRM-recorded financial status; never present the totals as bank-settlement verification.
+
+### Core cards
+
+- consultation recorded revenue;
+- pharmacy recorded revenue;
+- daily total recorded revenue;
+- current effective Paid count/value;
 - Waived count/value context;
 - cancellations/voids;
 - payment corrections.
 
-### Important language
+### Calculation context
 
-This is recorded financial status, not bank settlement verification.
+- use current effective payment records, not preserved superseded payment versions;
+- Waived/Unpaid are excluded from revenue;
+- paid consultation later Cancelled remains recorded revenue because V1 has no refund;
+- Paid pharmacy bill later Voided without refund remains recorded money received while void status is shown separately;
+- payment correction to Unpaid removes that record from effective Paid revenue;
+- existing pharmacy bill uses frozen bill total/unit attribution.
+
+### Filters
+
+- date/date range;
+- payment method;
+- pharmacy unit for pharmacy metrics where applicable.
+
+### Language
+
+Label financial totals as **Recorded revenue** / **CRM payment status**.
+
+Do not use language such as settled, bank-confirmed, deposited, or reconciled unless a future integration actually supplies that evidence.
 
 ---
 
@@ -2241,27 +2262,78 @@ Audit metadata does not automatically reveal unrestricted clinical-note content.
 
 ## OWN-08 — Reports
 
-**Users:** Owner  
+**Users:** Owner
 **Source:** P-102
 
 ### Report set
 
 - patients seen/day;
 - average waiting time;
-- consultation revenue;
-- pharmacy revenue;
-- total revenue;
+- consultation recorded revenue;
+- pharmacy recorded revenue;
+- daily total recorded revenue;
 - medicine sales;
 - current stock;
 - low/out-of-stock;
 - expiring medicines;
 - most prescribed;
 - waivers;
-- cancellations;
+- cancellations/voids;
 - returning patients;
 - audit activity.
 
-Exact chart style remains design implementation.
+### Shared filters
+
+Where the metric has that dimension:
+
+- date/date range;
+- pharmacy unit;
+- medicine;
+- staff/actor;
+- event/request outcome.
+
+Archived/disabled entities remain available for historical filtering and display a current Archived/Disabled indicator without losing stable identity.
+
+### Operational definitions
+
+**Patients seen**
+- one count at first Consultation Completed.
+
+**Average wait**
+- successful waiting journey's queue entry -> first With Doctor;
+- reassignment/Unresponded/move-to-end do not reset that journey;
+- actual removal + later re-entry creates a new segment.
+
+**Medicine sales**
+- actual committed dispensed quantity/value;
+- not prescribed/unsupplied/transfer/adjustment quantity.
+
+**Current stock**
+- current unit-ledger derived valid stock;
+- consolidated view drills into unit/batch;
+- expired/unavailable recorded quantity remains distinguishable.
+
+**Most prescribed**
+- canonical current final prescription version per Visit for the standard aggregate;
+- Superseded history remains historical detail.
+
+**Waivers/cancellations**
+- effective outcomes are separate from Pending/Rejected/Stale request activity.
+
+**Returning patients**
+- new Visit for Patient ID with an earlier Visit.
+
+### States
+
+- Loading;
+- No data for current filters;
+- Results;
+- Access denied/scope limited;
+- Error/retry.
+
+Do not render zero values before loading completes.
+
+Exact chart style/export format remains implementation choice.
 
 ---
 
@@ -2670,6 +2742,12 @@ The screen model is not ready for design/implementation sign-off if:
 - Admin configuration directly changes physical stock or bypasses Owner financial configuration control;
 - fee/price/conversion/catalogue changes rewrite existing Visit/bill/prescription/movement history;
 - historical staff/medicine/pharmacy-unit records can be destructively deleted;
+- reports double-count superseded payment records after correction;
+- average-wait calculation resets on ordinary reassignment/Unresponded movement;
+- Paid+Voided pharmacy bill is silently treated as refund or silently treated as an active bill with no void context;
+- internal stock transfer is counted as medicine sale or clinic-wide stock gain;
+- archived staff/medicine/pharmacy-unit identity disappears from historical reporting;
+- report filters broaden data beyond the viewer's authorized scope;
 - approved transfer updates only source or only destination;
 - expired quantity disappears from inventory history merely because it became non-dispensable;
 - billing/payment/void/Visit lifecycle silently alters previously committed stock movement;

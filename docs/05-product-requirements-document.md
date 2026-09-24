@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.14 |
+| Version | 0.15 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -2455,13 +2455,13 @@ Exact session propagation, transaction, and idempotency implementation remains t
 
 Source: BRD Section 8; OD-029.
 
-V1 reports:
+V1 report set remains:
 
 - patients seen per day;
 - average waiting time;
 - consultation revenue;
 - pharmacy revenue;
-- daily total revenue;
+- daily total recorded revenue;
 - medicine sales;
 - current stock;
 - low-stock medicines;
@@ -2469,33 +2469,157 @@ V1 reports:
 - expiring medicines;
 - most-prescribed medicines;
 - waivers;
-- cancellations;
+- cancellations/voids;
 - returning patients;
 - audit activity.
 
-### P-102 — Owner reports
+The product defines deterministic calculations without inventing KPI targets, chart preferences, bank-settlement claims, or mandatory export format.
+
+## 22.1 Shared reporting rules
+
+Day-based reports use clinic-local calendar/time context.
+
+Current reports may reflect current effective payment corrections and current alert thresholds, while immutable source history remains preserved.
+
+Loading, no-data-for-current-filter, and access-restricted states are visually distinct.
+
+Historical disabled/archived staff, medicines, and pharmacy units remain attributable and filterable; current labels may include Archived/Disabled indicators without changing stable historical identity.
+
+### P-102 — Owner clinic-wide reports
 
 Owner can access clinic-wide operational, financial-status, inventory, approval, and audit reporting.
 
+#### Patients seen per day
+
+Count each Visit once at its **first Consultation Completed** event.
+
+Later clinical amendment or later Visit cancellation does not create another seen event and does not erase the historical completion event.
+
+#### Average waiting time
+
+For a Visit that reaches With Doctor, measure:
+
+**queue-entry event of the successful waiting journey -> first With Doctor transition**
+
+Within one waiting journey, Doctor reassignment, Called, Unresponded, move-five-slots, and move-to-end preserve the original queue-entry time.
+
+If the Visit is actually removed from queue eligibility/membership and later re-entered, the new eligible queue insertion begins a new waiting segment. Earlier abandoned segments remain historical but do not inflate the successful consultation wait.
+
+#### Consultation recorded revenue
+
+Use current effective consultation payment records in Paid state.
+
+- Waived and Unpaid are excluded.
+- approved payment correction changes effective reporting state/value without counting preserved superseded history again;
+- later Visit cancellation does not remove a still-effective Paid record because V1 cancellation is not a refund.
+
+Day-bucketed consultation revenue uses the effective Paid-recording date/time.
+
+#### Pharmacy recorded revenue
+
+Use current effective pharmacy payment records in Paid state and each bill's frozen total/unit attribution.
+
+- payment correction to Unpaid removes the record from effective Paid revenue;
+- a later bill void without refund does not erase a still-effective Paid external-payment record;
+- bill void is shown separately so recorded money received is not confused with active bill status;
+- preserved old/superseded payment records are not double-counted.
+
+Day-bucketed pharmacy revenue uses the effective Paid-recording date/time.
+
+#### Daily total recorded revenue
+
+Consultation recorded revenue + pharmacy recorded revenue under the same selected date/time/filter basis.
+
+Financial reporting is CRM-recorded status, not bank settlement verification.
+
+#### Medicine sales
+
+Quantity = actual committed dispensed quantity, normalized to the relevant reporting unit/base quantity as defined by inventory data.
+
+Do not count:
+
+- merely prescribed quantity;
+- unsupplied quantity;
+- stock additions/corrections;
+- loss/damage/expiry movements;
+- internal transfers.
+
+Value uses the frozen billed supplied line value where available and never recalculates historical sale value from current price configuration.
+
+#### Inventory reports
+
+Current stock is derived from pharmacy-unit movement ledgers.
+
+- clinic total = consolidated unit positions;
+- unit/batch drill-down remains available;
+- valid available stock excludes expired/unavailable recorded quantity;
+- expired/unavailable quantity remains separately visible where relevant;
+- internal transfer changes unit position but nets to zero clinic-wide and is not a sale/addition;
+- current low/out-of-stock/near-expiry classification uses current configured thresholds/batch state.
+
+#### Most prescribed
+
+For standard V1 aggregation, each Visit contributes its **current final prescription version** rather than double-counting Superseded versions.
+
+Historical version lineage remains inspectable.
+
+#### Waivers and cancellations
+
+Effective waiver report counts approved/direct Owner Waived outcomes, not Pending/Rejected/Stale requests.
+
+Effective cancellation/void report counts approved/direct effective cancellation/void outcomes, not Pending/Rejected/Stale requests.
+
+Approval-workflow activity may separately show request-state counts without treating them as effective business outcomes.
+
+#### Returning patients
+
+A Visit is a returning-patient Visit when its Patient ID already had at least one earlier Visit before the new Visit was created.
+
+Possible Duplicate profiles remain distinct Patient IDs until a future merge workflow exists.
+
+#### Audit activity
+
+Audit report uses actual audit events and preserves actor/effective authority, event type, target, reason/context, and time subject to content/secret access boundaries.
+
+Audit event count is not a proxy for successful business outcome count.
+
 ### P-103 — Admin reports
 
-Authorized Admin sees non-clinical operational/revenue/inventory reports and authorized audit metadata.
+Authorized Admin sees only permitted **non-clinical** operational/revenue/inventory reports and authorized audit metadata.
+
+Admin report access does not grant Owner approval controls, Owner authority, or unrestricted clinical content.
 
 ### P-104 — Pharmacy reports
 
-Pharmacist sees pharmacy/inventory reports for permitted pharmacy scope.
+Pharmacist sees pharmacy/inventory reporting only for permitted pharmacy scope.
+
+Where multiple units exist, Pharmacist does not gain clinic-wide cross-unit scope merely because Owner reporting can consolidate units.
 
 ### P-105 — Reception operational view
 
-Reception sees queue/reception operational information required for work without unrestricted clinical reporting.
+Reception sees queue/reception operational information required for work without unrestricted clinical or clinic-wide financial/inventory reporting.
 
 ### P-106 — Doctor reporting boundary
 
 Doctor-only role does not inherit Owner clinic-wide financial/inventory reporting.
 
-No numeric success target or chart layout is invented by this PRD.
+Doctor may see clinically relevant patient/queue context within Doctor authority without gaining clinic-wide Owner analytics.
 
----
+## 22.2 Report filtering and history
+
+Where the report has that dimension, support at least:
+
+- date/date range;
+- pharmacy unit;
+- staff/actor;
+- event/status category;
+- medicine.
+
+Filters must respect the viewer's allowed scope.
+
+Archived/disabled entities remain usable for historical filtering.
+
+Exact visualization/chart/export implementation remains downstream design, but report calculations above are product requirements.
 
 # 23. Audit and History UX
 
