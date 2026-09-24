@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.5 DRAFT |
 | Current group | G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction |
-| Current stage | PREPARING |
+| Current stage | GROUP REASONING |
 | Completed groups | G1, G2, G3 |
 | In-progress groups | G4 |
 | Not started | G5–G15 |
@@ -63,7 +63,7 @@ A group is COMPLETE only when all four gates pass:
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
-| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | PREPARING | — | — | — | Current group |
+| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | GROUP REASONING | — | — | — | Current group |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
@@ -885,7 +885,7 @@ G3 is complete. G4 has not been started.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** GROUP REASONING
 
 ### Primary requirements
 
@@ -922,7 +922,7 @@ G3 is complete. G4 has not been started.
 
 ### Current action
 
-Perform full G4 source review before product reasoning.
+Resolve the product-state and interaction gaps identified by the completed G4 source review, then apply them to the PRD layers.
 
 ### Blockers
 
@@ -935,3 +935,57 @@ None.
 - G4 started immediately after G3 closure.
 - Mandatory prior reminders: REM-018, REM-019.
 - No product changes are being made until source review is complete.
+
+
+## 2026-09-25 — G4 SOURCE REVIEW COMPLETE
+
+### Files read
+
+- `docs/01-business-requirements-document.md`
+- `docs/02-workflows-and-state-model.md`
+- `docs/03-open-decisions-and-edge-cases.md`
+- `docs/04-requirements-traceability.md`
+- `docs/05-product-requirements-document.md`
+- `docs/06-prd-traceability-and-acceptance.md`
+- `docs/07-information-architecture-and-screen-specification.md`
+- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/10-prd-future-review-reminders.md`
+
+### Locked business conclusions confirmed
+
+1. Each clinic attendance creates a unique Visit ID linked to the permanent Patient ID; returning patients do not receive a new Patient ID.
+2. Consultation payment execution remains outside the CRM; the CRM records payment state/information only.
+3. Normal consultation financial states are Paid and Unpaid; approved waiver is the separate Waived outcome.
+4. Paid and Waived are queue-eligible; Unpaid is blocked.
+5. Partial consultation payment and consultation refund do not exist in V1.
+6. UPI/Cash/Card/Other are the default methods; Other requires description; reference is optional.
+7. Reception or Doctor may request waiver with a mandatory reason; Owner alone approves/rejects unless the user also holds Owner authority.
+8. Owner may directly waive without a second approval; reason/audit remain mandatory.
+9. Pending/rejected waiver leaves the Visit financially Unpaid and queue-blocked.
+10. Incorrect payment records use staff request -> Owner decision; original and resulting record remain auditable; correction is not a refund.
+11. Doctor-specific queue entry requires a Doctor assignment.
+12. FR-006/G3 explicitly allow an active Visit to exist before Doctor assignment.
+13. Fee values are clinic configuration rather than PRD policy.
+
+### Mandatory reminder dispositions entering reasoning
+
+- REM-018: ACTIVE IN REVIEW — G4 must ensure Visit creation reuses the selected Patient ID and Possible Duplicate/missing paper file do not block Visit creation.
+- REM-019: ACTIVE IN REVIEW — G4 must support an active unassigned Visit and Doctor assignment before queue entry / Visit-linked demographic-correction submission.
+
+### Product-definition gaps identified
+
+- current REC-05 wording implies Doctor selection/new Visit/payment/queue are one inseparable operation even though locked rules permit an unassigned active Visit;
+- initial Visit financial state and fee-snapshot behavior are not explicit;
+- Paid recording and queue insertion can be a combined high-velocity action, but partial success/failure behavior is undefined;
+- Doctor-requested waiver has no reachable product path because an Unpaid Visit is not yet in the Doctor queue;
+- waiver request applicability and duplicate/stale request behavior are underspecified;
+- pending waiver can become stale if the patient pays externally before Owner decision;
+- Owner direct waiver needs an explicit product path;
+- payment-correction fields/state transitions and stale-request behavior are underspecified;
+- payment correction can occur after the Visit has already progressed, but no rule should silently rewind clinical/queue history;
+- payment-record retries/unknown outcomes need identity-like duplicate protection;
+- consultation-fee configuration changes must not silently rewrite historical Visit financial records.
+
+### Business input required
+
+None. These gaps can be resolved as derived product behavior without changing the locked payment/waiver policy.
