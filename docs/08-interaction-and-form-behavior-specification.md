@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.5 |
+| Version | 0.6 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.5 |
+| Parent | PRD v0.6 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -391,12 +391,14 @@ Direct choices:
 
 Bank Transfer is entered via Other if used.
 
+Payment method is informational/reconciliation data for an external payment; choosing a method does not initiate payment.
+
 ## 8.2 Other
 
 When Other is selected:
 
-- show a required “Payment method” description field;
-- do not allow final payment confirmation until it is completed.
+- show a required short “Payment method” description field;
+- do not allow final Paid confirmation until it is completed.
 
 ## 8.3 Reference
 
@@ -404,35 +406,102 @@ Payment reference/transaction number is optional.
 
 Do not force it for UPI or Card.
 
-## 8.4 Final action
+## 8.4 Consultation initial state and applied amount
 
-Use an explicit action such as **Mark Paid** / **Mark Paid & Continue**.
+A newly created Visit starts with effective consultation outcome **Unpaid**.
 
-Selecting UPI, Cash, Card, or Other must never mark a payment Paid by itself. Payment becomes Paid only after the user performs the explicit final payment-confirmation action.
+The Visit stores the consultation amount applied at Visit creation. Later clinic-fee configuration changes do not silently rewrite that Visit.
 
-## 8.5 Unpaid
+## 8.5 Final Paid action
 
-Unpaid remains a legitimate recorded state.
+Use an explicit action such as **Mark Paid**.
 
-For consultation, Unpaid remains queue-blocked unless Owner-approved Waived.
+Selecting UPI, Cash, Card, or Other must never mark a payment Paid by itself.
 
-## 8.6 No partial payment UI
+Before confirmation show:
+
+- Visit;
+- full effective amount;
+- selected method;
+- Other description if applicable;
+- optional reference.
+
+Disable duplicate final confirmation while submitting.
+
+A Visit already Paid/Waived does not expose normal Mark Paid again.
+
+## 8.6 Consultation queue eligibility
+
+Queue entry is a separate operational consequence.
+
+Require both:
+- Paid or Waived;
+- Doctor assigned.
+
+Combined **Mark Paid & Add to Queue** is acceptable only when Doctor is already assigned.
+
+If payment succeeds but queue insertion fails:
+- preserve Paid;
+- show **Paid — Not Queued**;
+- allow safe queue retry after refresh.
+
+If payment outcome is unknown, do not queue until Paid is confirmed.
+
+## 8.7 Unpaid
+
+Unpaid is the valid initial/remaining state.
+
+It may coexist with:
+- Doctor assigned or unassigned;
+- Pending waiver.
+
+It is never queue-eligible.
+
+## 8.8 Waived
+
+Waived is a financial outcome separate from Paid.
+
+It is queue-eligible but still requires Doctor assignment before actual queue entry.
+
+Do not silently convert Waived to Paid or Paid to Waived through normal payment UI.
+
+## 8.9 No partial payment UI
 
 Do not expose amount-paid/amount-due split controls for consultation or pharmacy V1.
 
-## 8.7 No refund UI
+## 8.10 No refund UI
 
 Do not expose refund action in V1.
 
-## 8.8 Payment correction
+A Paid -> Unpaid payment correction means the earlier record was wrong; it is not a refund.
 
-Recorded payment correction uses request/approval, not direct overwrite.
+## 8.11 Payment correction
 
-The correction request must show:
+Recorded payment correction uses request/Owner decision, not direct overwrite.
 
-- original state;
-- proposed state;
-- reason.
+Show:
+
+- payment/Visit identity;
+- captured current baseline;
+- proposed corrected record;
+- mandatory reason.
+
+Supported corrected fields may include effective Paid/Unpaid state, method, Other description, reference, and Visit-specific recorded amount.
+
+If proposed state is Paid, full-payment method rules apply.
+
+Before Owner applies a correction, revalidate the captured baseline. A changed baseline makes the old request stale/non-applicable until refreshed review.
+
+Do not use payment correction to silently create/revoke Waived.
+
+## 8.12 Unknown outcome / retry
+
+For Visit creation or Paid recording with unknown outcome:
+
+- do not blindly resubmit;
+- retrieve current Visit/payment state;
+- recover the already-created state if present;
+- only allow a new state-changing attempt once prior outcome is known safe.
 
 ---
 
@@ -520,9 +589,9 @@ If another browser/session already resolved the request, the current user must s
 **Bill void:** explicitly say inventory will not be restored.  
 **Inventory adjustment:** show stock before/proposed after.  
 **Transfer:** show source and destination.  
-**Payment correction:** show original/proposed financial state.  
+**Payment correction:** show captured baseline plus original/proposed financial fields; re-check baseline before applying.  
 **Visit cancellation:** show current Visit state and that history remains.  
-**Waiver:** show fee/payment status and queue eligibility effect.
+**Waiver:** show fee/current financial outcome/queue eligibility effect; approval is valid only while the current outcome remains Unpaid. If the Visit became Paid, the pending waiver is stale/non-actionable.
 
 ---
 
@@ -1150,7 +1219,19 @@ This interaction specification fails review if:
 - a stale demographic-correction request overwrites a newer value;
 - missing physical file blocks digital patient workflow or causes a new Patient ID;
 - an unknown-outcome Patient creation is blindly retried and can create a duplicate identity;
-- Patient ID is editable through a demographic-correction path.
+- Patient ID is editable through a demographic-correction path;
+- Visit creation creates/replaces Patient identity;
+- a Visit is forced to have a Doctor before it can exist even though active Unassigned Visits are permitted;
+- a Visit enters queue without both Doctor assignment and Paid/Waived eligibility;
+- confirmed Paid is erased because a subsequent queue step failed;
+- Doctor waiver request is only reachable from queue even though Unpaid Visits cannot enter queue;
+- duplicate Pending waiver requests are created for one Visit;
+- a stale waiver is approved after the Visit became Paid;
+- Owner direct waiver creates a redundant self-approval step;
+- a payment correction applies against a changed baseline;
+- Paid-to-Unpaid correction is presented as refund or erases prior operational history;
+- fee configuration silently rewrites an existing Visit amount;
+- unknown Visit/payment outcome is blindly retried and duplicates records.
 
 
 ---
@@ -1415,3 +1496,124 @@ If the create outcome is unknown:
 - only allow a new create when current state proves the prior create did not succeed.
 
 This requirement must later be reconciled with cross-product retry/idempotency rules in G14.
+
+---
+
+# 37. Visit, Consultation Payment, and Waiver Interaction Contract
+
+## 37.1 Visit creation
+
+Visit creation is a distinct state-changing action from queue entry.
+
+On successful create:
+
+- retain selected permanent Patient ID;
+- generate Visit ID;
+- capture Visit-specific consultation amount;
+- set financial outcome to Unpaid;
+- Doctor may remain Unassigned.
+
+Possible Duplicate status or missing physical file never blocks this action.
+
+## 37.2 Doctor assignment
+
+Doctor may be assigned at Visit creation or later.
+
+Doctor assignment is required before:
+- queue entry;
+- submitting a Visit-linked demographic correction when the active Visit was previously unassigned.
+
+Do not create a Visit merely to obtain a Doctor reviewer for a patient-level correction when no active Visit exists.
+
+## 37.3 Financial/queue state combinations
+
+Valid pre-queue combinations include:
+
+- Unpaid + Unassigned;
+- Unpaid + Doctor assigned;
+- Paid + Unassigned;
+- Paid + Doctor assigned but not yet queued;
+- Waived + Unassigned;
+- Waived + Doctor assigned but not yet queued.
+
+Only Paid/Waived + Doctor assigned is queue-entry eligible.
+
+## 37.4 Waiver request
+
+Waiver request exists only from Unpaid.
+
+- require specific reason;
+- one actionable Pending request per Visit;
+- repeated submit while Pending does not duplicate;
+- Pending does not change underlying Unpaid state;
+- rejection leaves Unpaid;
+- later new request after rejection is allowed while still Unpaid.
+
+If payment becomes Paid while Pending:
+- approval must be blocked;
+- request is presented as stale/non-actionable;
+- request history remains.
+
+## 37.5 Doctor waiver access before queue
+
+A Doctor assigned to an Unpaid Visit may request waiver from a separate assigned-pre-queue financial context.
+
+This context:
+- is not ordered queue;
+- does not count as queue entry;
+- does not expose consultation authoring solely due to assignment;
+- exists to make the locked Doctor waiver-request authority reachable.
+
+## 37.6 Owner direct waiver
+
+Direct Waiver is not a request.
+
+Require:
+- current Unpaid Visit;
+- amount;
+- specific reason;
+- explicit Owner-authority confirmation.
+
+Success -> Waived immediately.
+
+Do not create a second approval step.
+
+## 37.7 Payment correction baseline
+
+Every correction request is anchored to the current effective financial record that existed when submitted.
+
+If that baseline changes before Owner decision:
+- do not apply old proposal;
+- show stale-state feedback;
+- refresh current values.
+
+Only one simultaneously actionable request against the same baseline should exist.
+
+## 37.8 Non-destructive financial correction
+
+Financial correction never erases historical Visit/queue/clinical events.
+
+Before queue entry, corrected state changes future eligibility.
+
+After workflow has progressed, preserve already-existing operational/clinical history while showing the corrected financial state.
+
+## 37.9 Combined action partial failure
+
+A combined payment + queue UI does not justify hiding partial effective success.
+
+If Paid is confirmed but queue entry fails:
+- show Paid;
+- show Not Queued;
+- do not record Paid again;
+- retry only queue entry after validating current state.
+
+If payment is not confirmed:
+- do not queue.
+
+## 37.10 Fee configuration boundary
+
+The applied Visit amount is a Visit-level record.
+
+Changing clinic fee configuration does not rewrite existing Visit amounts.
+
+A Visit-specific corrected amount, when legitimately needed, uses the controlled financial-correction path and does not alter global configuration.

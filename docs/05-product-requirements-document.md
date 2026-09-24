@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.5 |
+| Version | 0.6 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -630,21 +630,41 @@ Locating/replacing the physical file remains an offline clinic procedure; V1 doe
 
 # 13. Visit Creation and Consultation Payment
 
-Source: FR-008–FR-016, FR-108–FR-114; BR-006, BR-010, BR-019–BR-022, BR-033, BR-047–BR-055.
+Source: FR-008–FR-016, FR-108–FR-114; BR-006, BR-010, BR-019–BR-022, BR-033, BR-047–BR-055; OD-004–OD-005, OD-033.
 
 ## 13.1 Create Visit
 
-### P-026 — New Visit ID
+### P-026 — New Visit ID and Patient boundary
 
-Every attendance creates a unique Visit ID linked to the permanent Patient ID.
+Every legitimate clinic attendance creates a unique Visit ID linked to the already-selected permanent Patient ID.
 
-### P-027 — Doctor assignment
+Visit creation:
 
-Reception selects a Doctor before an eligible visit enters the queue.
+- never creates or replaces Patient identity;
+- is allowed for a Patient carrying Possible Duplicate status;
+- is allowed when the physical paper file is unavailable;
+- generates the Visit ID only when effective Visit creation succeeds;
+- starts the consultation financial outcome as **Unpaid**.
 
-### P-028 — Consultation fee display
+V1 does not invent a one-Visit-per-patient-per-day restriction. Retry safety must distinguish an accidental repeated create attempt from a genuinely separate attendance.
 
-The applicable consultation fee is shown from clinic configuration. Fee values are configuration, not PRD policy.
+### P-027 — Doctor assignment and queue readiness
+
+A Visit may exist before Doctor assignment.
+
+Reception may assign the Doctor during Visit creation or later, but Doctor assignment is mandatory before queue entry.
+
+This also supports the locked demographic-correction rule: if an active Visit has no Doctor and Reception needs to submit a Visit-linked demographic correction, Doctor selection/assignment must occur before that request submits.
+
+No Visit is created solely to support a patient-level demographic correction when no active Visit exists.
+
+### P-028 — Consultation fee display and Visit-level amount
+
+The applicable consultation fee is shown from clinic configuration. Fee values remain configuration, not PRD policy.
+
+When the Visit is created, the applied consultation fee is captured for that Visit so a later configuration change does not silently rewrite an already-created Visit's financial record.
+
+A separately authorized Visit-specific financial correction may correct an incorrectly recorded Visit amount without changing clinic fee configuration.
 
 ## 13.2 Fast payment capture
 
@@ -655,59 +675,162 @@ Normal consultation payment methods:
 - Card;
 - Other.
 
-Selecting Other requires a text description.
+Selecting Other requires a short free-text method description.
 
-Payment reference is optional.
+Payment reference/transaction number is optional.
 
 ### P-029 — External payment
 
-The CRM does not initiate or settle the payment.
+The CRM does not initiate, authorize, settle, or wait for the underlying payment.
 
-### P-030 — Fast Paid action
+Reception verifies the external result and then records the payment information.
 
-Amount is prefilled where known, Reception selects payment method, optionally enters reference, and explicitly confirms Paid.
+### P-030 — Explicit Paid action
 
-### P-031 — Queue gate
+A Visit begins Unpaid.
 
-- Paid -> eligible;
-- Waived -> eligible;
-- Unpaid -> blocked.
+To record Paid:
+
+- use the full effective consultation amount for the Visit;
+- select UPI, Cash, Card, or Other;
+- enter Other description when applicable;
+- optionally enter external reference;
+- explicitly perform the final **Mark Paid** action.
+
+Selecting a payment method alone never changes financial state.
+
+A Visit already Paid or Waived does not expose the normal Mark Paid action again. Incorrect payment information uses the controlled correction flow.
+
+### P-031 — Queue gate combines financial eligibility and Doctor assignment
+
+Queue entry requires both:
+
+1. effective consultation outcome is **Paid** or **Waived**; and
+2. a Doctor is assigned.
+
+Therefore:
+
+- Paid + no Doctor -> financially eligible but not queued;
+- Waived + no Doctor -> financially eligible but not queued;
+- Doctor assigned + Unpaid -> queue-blocked;
+- Pending/rejected waiver + Unpaid -> queue-blocked.
+
+A combined **Mark Paid & Add to Queue** action may be offered only when a Doctor is already assigned.
+
+If payment is successfully recorded but queue insertion subsequently fails or becomes stale, the product preserves the confirmed Paid state, shows that the Visit is not queued, and allows a safe queue-entry retry after refresh. It must not erase a valid financial record merely to make the combined UI appear atomic.
+
+If payment success itself is unknown, queue entry does not proceed until financial eligibility is confirmed.
 
 ### P-032 — No partial consultation payment
 
 Partial consultation payment is not available.
 
+V1 does not expose amount-paid/amount-due split entry for consultation payment.
+
 ### P-033 — No consultation refund
 
 A paid consultation is non-refundable in V1.
+
+Changing an incorrectly recorded Paid state through Owner-approved payment correction is a record correction, not a refund.
 
 ## 13.3 Waiver
 
 ### P-034 — Request waiver
 
-Reception or Doctor can submit waiver request with mandatory reason.
+Reception or Doctor may request waiver only while the effective consultation financial outcome is **Unpaid**.
 
-### P-035 — Owner approval
+Each request requires a mandatory specific reason.
+
+Only one simultaneously actionable Pending waiver request may exist for a Visit. Repeated submission while Pending must not create duplicate Owner work.
+
+Underlying financial outcome remains Unpaid while Pending.
+
+Because an Unpaid Visit is not in the Doctor queue, an assigned Doctor must have a separate pre-queue financial-resolution context from which **Request Waiver** is reachable. This context is not an ordered queue and does not grant consultation access merely because the Doctor may request waiver.
+
+A rejected waiver remains historical; while the Visit remains Unpaid, a later new waiver request may be submitted with a new reason.
+
+### P-035 — Owner waiver decision
 
 Only Owner authority approves/rejects the waiver.
 
+Before decision, current financial state is revalidated.
+
+- approval from the current Unpaid state -> effective outcome becomes Waived;
+- rejection -> effective outcome remains Unpaid;
+- if the Visit became Paid while the request was pending, the request is stale/non-actionable and cannot later be approved into Waived against the newer Paid state.
+
+Requester, reason, Owner decision/authority, and timestamps remain attributable.
+
 ### P-036 — Owner direct waiver
 
-Owner may initiate an immediate approved Waived outcome with mandatory reason/audit.
+For a currently Unpaid Visit, Owner may perform **Direct Waiver** as an immediate Owner-authority action:
 
-### P-037 — Pending waiver gate
+- identify the Visit and current consultation amount;
+- enter mandatory specific reason;
+- explicitly confirm;
+- effective outcome immediately becomes Waived;
+- no second approval step or artificial pending request is created;
+- actor/Owner authority/reason/time are audited.
+
+Paid or already-Waived Visits do not expose normal Direct Waiver.
+
+### P-037 — Waiver queue effect
 
 Pending/rejected waiver does not make an Unpaid Visit queue-eligible.
+
+Approved/direct Waived makes the Visit financially eligible, but actual queue entry still requires Doctor assignment under P-031.
 
 ## 13.4 Incorrect payment record
 
 ### P-038 — Payment correction request
 
-Reception/Pharmacy cannot silently rewrite a payment state. Staff submit the proposed correction plus specific reason to Owner.
+Reception cannot silently rewrite an established consultation payment record. Pharmacy uses the same correction principle for its own payment records.
 
-### P-039 — Payment correction decision
+A consultation payment-correction request captures:
 
-Owner approval creates the corrected effective state while preserving original state and request history. Rejection keeps current state unchanged.
+- Visit/payment identity;
+- the current effective financial record used as the correction baseline;
+- proposed corrected financial record;
+- mandatory specific reason.
+
+The proposal may correct, where applicable:
+
+- Paid/Unpaid state when the recorded state was wrong;
+- payment method;
+- Other method description;
+- optional external reference;
+- the Visit-specific recorded consultation amount if that amount itself was recorded incorrectly.
+
+Correcting the Visit-specific amount does not alter clinic fee configuration.
+
+If the proposed effective state is Paid, it represents the full corrected effective consultation amount and must satisfy the same payment-method requirements as normal Paid capture. No partial-payment representation is introduced.
+
+Waiver is a separate Owner-controlled financial exception and is not silently created/revoked through payment correction.
+
+Only one simultaneously actionable correction request for the same current payment baseline should exist.
+
+### P-039 — Payment correction decision and non-destructive effect
+
+Owner approval creates the corrected effective financial record while preserving the original record, request, reason, Owner decision, and timestamps. Rejection keeps current effective state unchanged.
+
+Before approval, the product revalidates the correction baseline. If the effective payment record changed after the request was submitted, the old request is stale and cannot silently apply against the newer record.
+
+Financial correction does not retroactively delete or rewind already-created queue/clinical history:
+
+- before queue entry, the corrected financial state governs future queue eligibility;
+- after the Visit has already entered/progressed through queue/consultation, the corrected financial state is recorded and shown, while existing queue/clinical history remains intact.
+
+A Paid -> Unpaid correction means the earlier Paid record was erroneous; it does not represent or create a refund.
+
+### Retry/unknown-outcome safety
+
+Visit creation and Paid recording are state-changing operations.
+
+- disable duplicate final submit while the action is pending;
+- if outcome is unknown, refresh/check effective Visit/payment state before another create/Paid attempt;
+- do not knowingly create duplicate Visit/payment records through blind retry.
+
+Exact idempotency implementation remains technical design.
 
 ---
 

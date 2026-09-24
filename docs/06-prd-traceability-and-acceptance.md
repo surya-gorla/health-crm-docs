@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.5 |
+| Version | 0.6 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.5 |
+| Parent | Product Requirements Document v0.6 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -464,7 +464,19 @@ Release must fail if any of these are possible:
 35. allow a stale demographic correction to overwrite a newer effective value;
 36. allow missing physical file to block digital patient use or trigger a new Patient ID;
 37. blindly retry an unknown-outcome Patient creation in a way that may create a duplicate identity;
-38. allow Patient ID to be edited/replaced through demographic correction.
+38. allow Patient ID to be edited/replaced through demographic correction;
+39. create/replace Patient identity as part of Visit creation;
+40. require Doctor assignment before a Visit can exist, despite the locked unassigned-active-Visit case;
+41. queue a Visit unless both Doctor assignment and Paid/Waived eligibility are satisfied;
+42. erase/rollback a confirmed Paid record merely because a combined queue step failed;
+43. allow Doctor waiver authority only through the queue, making the locked pre-queue waiver request unreachable;
+44. create duplicate Pending waiver requests for the same Visit;
+45. approve a Pending waiver after the Visit has already become Paid;
+46. make Owner direct waiver wait for a second approval;
+47. apply a payment correction against a changed/stale payment baseline;
+48. treat Paid-to-Unpaid correction as a refund or delete prior queue/clinical history;
+49. silently rewrite an existing Visit amount when fee configuration changes;
+50. blindly retry unknown-outcome Visit/payment creation in a way that may duplicate financial/Visit records.
 
 ---
 
@@ -815,6 +827,83 @@ Supports: P-025, REC-04.
 **Then** the product checks current effective state before allowing another create attempt so a second Patient is not created by retry.
 
 Supports: P-021, P-111, REC-03, IX Sections 24 and 36.
+
+## UXA-037 — Visit creation reuses Patient identity
+
+**Given** Reception has selected an existing/newly-created Patient  
+**When** a Visit is created  
+**Then** one Visit ID is linked to that Patient ID and no new Patient identity is created because of Possible Duplicate status or missing paper file.
+
+Supports: P-026, REC-05, REM-018.
+
+## UXA-038 — Visit may exist before Doctor assignment
+
+**Given** Reception creates a Visit without selecting a Doctor  
+**Then** the Visit exists as Unassigned and Unpaid, but queue entry remains unavailable until a Doctor is assigned and financial eligibility is satisfied.
+
+Supports: P-027, REC-05, REM-019.
+
+## UXA-039 — Paid does not imply queued
+
+**Given** external payment was verified and Reception records Paid  
+**And** no Doctor is assigned or queue insertion fails  
+**Then** Paid remains effective while the Visit stays not queued; payment is not rolled back or duplicated.
+
+Supports: P-030–P-031, REC-05, IX Sections 8 and 37.
+
+## UXA-040 — Doctor can request waiver before queue
+
+**Given** an Unpaid Visit is assigned to a Doctor but cannot enter that Doctor's queue  
+**Then** the Doctor can access a separate assigned-pre-queue financial context and submit a waiver request without gaining consultation access.
+
+Supports: P-034, DOC-01, IX Section 37.
+
+## UXA-041 — One Pending waiver per Visit
+
+**Given** an Unpaid Visit already has an actionable Pending waiver request  
+**When** Reception/Doctor tries to submit another  
+**Then** the product does not create duplicate Owner work.
+
+Supports: P-034, REC-06, IX Section 37.
+
+## UXA-042 — Paid makes Pending waiver stale
+
+**Given** a waiver request is Pending while Visit is Unpaid  
+**When** the Visit becomes Paid before Owner decision  
+**Then** Owner cannot approve the stale waiver into Waived and the request remains historical/non-actionable.
+
+Supports: P-035, OWN-03, IX Sections 10 and 37.
+
+## UXA-043 — Owner direct waiver has no self-approval step
+
+**Given** Owner initiates Direct Waiver on an Unpaid Visit with a specific reason  
+**When** Owner confirms  
+**Then** outcome becomes Waived immediately and no second Pending approval is created.
+
+Supports: P-036, OWN-02, IX Section 37.
+
+## UXA-044 — Payment correction uses current baseline
+
+**Given** a payment-correction request was prepared against one effective payment record  
+**And** that effective record changed before Owner decision  
+**Then** the old correction cannot be applied silently and refreshed review is required.
+
+Supports: P-038–P-039, REC-09, OWN-03, IX Sections 25 and 37.
+
+## UXA-045 — Paid-to-Unpaid correction is not refund
+
+**Given** Owner approves a correction from incorrectly-recorded Paid to Unpaid  
+**Then** the corrected effective state is Unpaid, original Paid record remains auditable, and the product does not create/refund money or erase prior Visit history.
+
+Supports: P-033, P-039, REC-09, IX Sections 8 and 37.
+
+## UXA-046 — Fee configuration change is prospective
+
+**Given** a Visit already captured its applied consultation fee  
+**When** clinic fee configuration changes later  
+**Then** the existing Visit amount does not silently change.
+
+Supports: P-028, REC-05, IX Section 37.
 
 ---
 

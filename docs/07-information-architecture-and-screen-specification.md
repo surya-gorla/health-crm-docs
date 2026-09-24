@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.4 |
+| Version | 0.5 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.5 |
+| Parent | PRD v0.6 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -629,64 +629,123 @@ Missing physical file does not disable Create Visit or other digital patient wor
 
 ### Purpose
 
-Create the Visit, record external payment state, assign Doctor, and enter queue.
+Create the Visit against the selected Patient, establish the Visit's consultation amount/financial state, optionally assign Doctor, and enter queue only when all eligibility conditions are satisfied.
 
-### Required context
+### Patient / Visit boundary
+
+Before effective Visit creation show the selected Patient identity clearly.
+
+Effective **Create Visit**:
+
+- links only to that existing Patient ID;
+- creates one new Visit ID;
+- captures the current configured consultation fee as the Visit's applied amount;
+- initializes consultation financial outcome as Unpaid;
+- does not require the paper file;
+- does not require Doctor assignment yet.
+
+Possible Duplicate status does not disable this action.
+
+### Visit context after creation
 
 - Patient ID;
-- new Visit ID;
-- Doctor selection;
-- configured consultation fee;
-- payment state.
+- Visit ID;
+- current Doctor or **Unassigned**;
+- applied consultation amount;
+- effective financial outcome;
+- queue-entry status.
+
+### Doctor controls
+
+- Assign Doctor;
+- Change selected Doctor before queue entry.
+
+Doctor is required before queue entry, not before the Visit can exist.
 
 ### Payment controls
 
-Direct payment-method buttons:
+Available while effective outcome is Unpaid:
 
-- UPI
-- Cash
-- Card
-- Other
+- UPI;
+- Cash;
+- Card;
+- Other.
 
 If Other -> required description.
 
 Optional external reference.
 
+Payment method selection alone does not change state.
+
 ### Primary outcomes
 
-- **Mark Paid & Add to Queue** when Doctor is selected;
-- **Keep Unpaid**;
-- **Request Waiver**.
+- **Mark Paid** when external payment has been verified;
+- **Mark Paid & Add to Queue** only when Doctor is already assigned;
+- **Add to Queue** when already Paid/Waived and Doctor is assigned but Visit is not yet queued;
+- **Keep Unpaid** / leave Visit open for later resolution;
+- **Request Waiver** while Unpaid.
 
-### Safety
+### Queue-state safety
 
-- method selection alone does not mark Paid;
-- explicit final Paid confirmation is required;
-- Unpaid cannot enter queue;
-- partial payment option does not exist.
+- Unpaid is never queue-eligible;
+- Paid/Waived without Doctor is not yet queueable;
+- if Paid succeeds but queue insertion fails/stales, show **Paid — Not Queued** and preserve the payment;
+- if Paid outcome is unknown, do not queue until current state is confirmed;
+- queue retry re-evaluates current financial state and Doctor assignment.
+
+### Retry safety
+
+- duplicate Visit-create/Mark Paid final submit is disabled while pending;
+- unknown Visit/payment outcome is checked before another state-changing attempt.
+
+### Prohibited
+
+- no partial-payment controls;
+- no refund action;
+- no repeat normal Mark Paid action when already Paid/Waived.
 
 ---
 
 ## REC-06 — Waiver Request
 
-**Users:** Reception  
+**Users:** Reception; equivalent request behavior is available to Doctor from the assigned pre-queue financial context  
 **Source:** P-034–P-037
+
+### Eligibility
+
+Waiver request is available only while the effective consultation outcome is Unpaid.
+
+Do not expose it for Paid or Waived Visits.
 
 ### Required fields
 
 - Patient/Visit context;
-- consultation amount;
+- current consultation amount;
 - mandatory specific reason.
 
 ### Action
 
-Submit to Owner.
+**Submit Waiver Request** to Owner.
+
+Only one simultaneously actionable Pending waiver request may exist for the Visit.
 
 ### After submission
 
-Display Pending Owner Approval.
+Display:
 
-The Visit remains Unpaid and queue-blocked until approved.
+- Pending Owner Decision;
+- requester;
+- submitted reason/time;
+- current Unpaid outcome;
+- queue remains blocked.
+
+### Subsequent state
+
+- Owner approves -> Waived;
+- Owner rejects -> remains Unpaid;
+- if Visit becomes Paid before decision -> request becomes stale/non-actionable and cannot later be approved into Waived.
+
+A rejected request remains historical; another new request may be submitted later while the Visit remains Unpaid.
 
 ---
 
@@ -782,16 +841,42 @@ One of:
 
 ### Required content
 
-- current payment record;
-- proposed corrected state;
-- mandatory reason;
-- optional payment reference change where relevant.
+- Patient/Visit and payment identity;
+- current effective payment/financial record;
+- proposed corrected record;
+- mandatory specific reason.
 
-### Behavior
+The proposal may change, where applicable:
 
-Submission does not change effective payment state.
+- Paid/Unpaid state;
+- payment method;
+- Other method description;
+- optional reference;
+- Visit-specific recorded consultation amount.
+
+If proposed state is Paid, normal method/Other-description rules apply and the corrected record represents the full effective Visit amount.
+
+### Safety
+
+- submission does not change effective payment state;
+- waiver is not created/revoked through payment correction;
+- only one request against the same current baseline is simultaneously actionable;
+- the request retains the original baseline used to prepare the proposal.
+
+### Owner decision
 
 Owner approval is required.
+
+Before application, compare the current effective record with the captured baseline:
+
+- unchanged -> Owner may approve/reject;
+- changed -> request is stale and cannot overwrite the newer record.
+
+Approval preserves original/proposed/effective values, requester, reason, Owner decision, and time.
+
+If a correction changes Paid -> Unpaid, state clearly that this is a record correction, not a refund.
+
+The correction does not erase already-existing queue/clinical history.
 
 ---
 
@@ -811,15 +896,27 @@ Make the next clinical action immediately obvious.
 - Doctor identity;
 - ordered Waiting/Called queue;
 - current With Doctor patient if any;
+- **Assigned Visits Awaiting Financial Eligibility** shown separately from the ordered queue;
 - pending substitution requests;
 - queue counts/status.
+
+### Assigned Visits Awaiting Financial Eligibility
+
+For an Unpaid Visit already assigned to this Doctor but not queue-eligible, show only the minimum Patient/Visit/payment context needed to understand the financial gate.
+
+This list is **not** part of the Doctor queue and does not grant consultation access.
+
+Allowed action:
+
+- **Request Waiver** with mandatory reason when no actionable waiver request already exists.
 
 ### Primary actions
 
 - Call Patient;
 - Open Consultation;
 - view authorized patient history;
-- open substitution request.
+- open substitution request;
+- request waiver from eligible assigned pre-queue Visit.
 
 ### Restricted
 
@@ -1368,9 +1465,21 @@ Do not expose unrestricted diagnosis/clinical notes unless the account enters Do
 - requester;
 - date.
 
-### Primary action
+### Primary actions
 
-Open Approval Detail.
+- Open Approval Detail;
+- **Direct Consultation Waiver** for an eligible Unpaid Visit.
+
+Direct Consultation Waiver is an Owner-authority action, not a pending request:
+
+- identify Patient/Visit;
+- show current Unpaid amount;
+- require specific reason;
+- explicitly confirm;
+- effective outcome becomes Waived immediately;
+- no second approval step is created.
+
+Paid/Waived Visits are not eligible for this normal action.
 
 ---
 
@@ -1392,10 +1501,10 @@ Open Approval Detail.
 
 ### Type-specific context
 
-**Waiver:** amount, payment state, Visit.  
+**Waiver:** amount, current payment state, Visit, queue-eligibility effect; approval must re-check that financial outcome is still Unpaid.  
 **Visit cancellation:** current Visit state and existing clinical/financial/dispensing history.  
 **Bill void:** bill/payment and explicit “stock will not be restored” warning.  
-**Payment correction:** original vs proposed payment state.  
+**Payment correction:** captured baseline, original vs proposed financial fields, and explicit “record correction — not a refund” context where relevant.  
 **Inventory adjustment:** stock before, proposed delta, projected stock after.  
 **Transfer:** source, destination, quantity.  
 **Password reset:** staff identity, account status.
