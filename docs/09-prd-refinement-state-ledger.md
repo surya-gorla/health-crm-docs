@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.9 DRAFT |
 | Current group | G8 — Pharmacy Access, Prescription Retrieval & Dispensing |
-| Current stage | PREPARING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7 |
 | In-progress groups | G8 |
 | Not started | G9–G15 |
@@ -67,7 +67,7 @@ A group is COMPLETE only when all four gates pass:
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
-| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | PREPARING | — | — | — | Current group |
+| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | DECISIONS RESOLVED | — | — | — | Current group |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
@@ -1975,7 +1975,7 @@ Proceed directly to G8.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -2009,8 +2009,38 @@ Proceed directly to G8.
 
 ### Current action
 
-Perform full G8 source review before product reasoning.
+Apply resolved G8 pharmacy retrieval, version-aware dispensing, substitution, multi-unit, and concurrency rules to PRD layers.
 
 ### Blockers
 
 None.
+
+
+## 2026-09-25 — G8 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required.
+
+1. **Pharmacy-ready gate:** active dispensing requires current Visit state = Sent to Pharmacy plus a current Finalized prescription. A Finalized prescription still attached to With Doctor is not dispensable.
+2. **Patient ID lookup:** exact Patient ID is the required V1 lookup. If more than one relevant Visit/prescription is returned, show Visit ID/date/status/version and require explicit selection; never guess from name/phone.
+3. **Clinical boundary:** Pharmacist may see patient identity needed for fulfilment, current/previous prescriptions, known allergies, instructions, quantities, availability, billing/payment context. No unrestricted diagnosis, consultation notes, or Doctor longitudinal clinical history.
+4. **Version default:** current Finalized prescription is the only default dispensing source. Superseded/previous versions are read-only history. If the current version changes while a screen is open, dispense is stale and blocked.
+5. **Prescription-item lineage:** each finalized item has a stable fulfilment lineage across replacement when the same prescribed item is carried forward. A changed/new medicine identity creates a new lineage; removed lineages remain historical and cannot receive further dispensing.
+6. **Remaining allowable:** for each active item lineage, remaining allowable = max(0, current active prescribed quantity - cumulative quantity already dispensed against that lineage across all prescription versions and pharmacy units). If prior dispensing exceeds a reduced corrected quantity, remaining is 0 and the excess is shown as historical; nothing is reversed.
+7. **Dispense upper bound:** entered quantity must be >0 and cannot exceed both remaining allowable and valid available stock in the active pharmacy unit.
+8. **Partial fulfilment:** actual supplied quantity is recorded; only that quantity deducts stock and becomes billable. Unsupplied remainder is visible. No reservation/back-order/collect-later obligation is created.
+9. **Multiple units:** every dispensing transaction has one explicit pharmacy unit. Cumulative remaining allowance is clinic-wide across units. Another unit may subsequently dispense remaining quantity if the Visit/prescription is still active, but no stock is reserved for it.
+10. **Atomic dispense:** final dispense confirmation revalidates Visit active state, current prescription version, remaining allowance, active unit, non-expired valid stock, and current stock quantity. Success records dispensing and stock deduction together; unknown result is checked before retry.
+11. **Expired stock:** never selectable/dispensable. Owner cannot override the expired-dispense block through inventory approval.
+12. **Replacement race:** if Doctor replaces the prescription while Pharmacy is preparing dispense, the old screen cannot dispense. Refresh to latest current Finalized prescription and recompute remaining allowances.
+13. **Cancellation race:** if Visit becomes Cancelled/Voided before dispense commits, dispense is blocked. Already-committed dispensing and stock deduction remain. Resolves REM-036.
+14. **Substitution request:** request identifies current prescription version/item lineage, original item, proposed substitute, requested substitute quantity, and reason. Pending substitute is non-dispensable.
+15. **Substitution approval safety:** Doctor approval authorizes only the exact proposal. Pharmacist cannot infer a different strength/form/quantity. If units are not safely comparable, Doctor must explicitly confirm the substitute quantity; no automatic clinical conversion is invented.
+16. **Substitute fulfilment:** approved substitute dispensing is recorded with the approval reference and consumes the approved amount against the original item fulfilment allowance so original + substitute cannot silently exceed the permitted remaining fulfilment.
+17. **Substitution stale state:** request becomes non-actionable if prescription version/item is superseded, Visit is cancelled, or requested remaining quantity is no longer available because dispensing occurred first.
+18. **Unit context:** active pharmacy unit stays visible throughout dispensing. Changing unit with entered unsaved quantities requires explicit discard/review; no quantities silently move to another unit.
+19. **No returns:** no medicine-return/restock workflow is introduced.
+20. **Visit state:** dispensing itself does not mark Visit Completed; G9 owns billing/payment and final pharmacy completion.
+21. **G7 replacement lineage:** prior dispensing, stock, and bills remain attached to their original version/item/unit while the current active prescription controls future allowance. Resolves REM-045.
+22. **Clinical visibility:** G6 boundary is preserved exactly. Resolves REM-042.
+
+Technical implementation may choose row/version identifiers, optimistic locking, or transactions, but must preserve these product outcomes.
