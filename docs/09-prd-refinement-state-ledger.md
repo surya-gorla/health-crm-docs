@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.7 DRAFT |
 | Current group | G6 — Consultation & Longitudinal Clinical Record |
-| Current stage | PREPARING |
+| Current stage | GROUP REASONING |
 | Completed groups | G1, G2, G3, G4, G5 |
 | In-progress groups | G6 |
 | Not started | G7–G15 |
@@ -65,7 +65,7 @@ A group is COMPLETE only when all four gates pass:
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
-| G6 | Consultation & Longitudinal Clinical Record | PREPARING | — | — | — | Current group |
+| G6 | Consultation & Longitudinal Clinical Record | GROUP REASONING | — | — | — | Current group |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
@@ -1558,7 +1558,7 @@ Proceed directly to G6.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** GROUP REASONING
 
 ### Primary requirements
 
@@ -1587,7 +1587,7 @@ Proceed directly to G6.
 
 ### Current action
 
-Perform full G6 source review before product reasoning.
+Resolve the G6 consultation/history/amendment/cancellation-concurrency product gaps from the completed source review, then apply them to PRD layers.
 
 ### Blockers
 
@@ -1600,3 +1600,56 @@ None.
 - G6 started immediately after G5 closure.
 - Mandatory reminders loaded: REM-021, REM-034.
 - Next exact action: complete source review before product decisions.
+
+
+## 2026-09-25 — G6 SOURCE REVIEW COMPLETE
+
+### Files read
+
+- `docs/01-business-requirements-document.md`
+- `docs/02-workflows-and-state-model.md`
+- `docs/03-open-decisions-and-edge-cases.md`
+- `docs/04-requirements-traceability.md`
+- `docs/05-product-requirements-document.md`
+- `docs/06-prd-traceability-and-acceptance.md`
+- `docs/07-information-architecture-and-screen-specification.md`
+- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/10-prd-future-review-reminders.md`
+
+### Locked business conclusions confirmed
+
+1. Clinical authoring authority comes from Doctor role, not ownership.
+2. Current consultation content belongs to the correct Patient ID + Visit ID.
+3. Required clinical entry is chief complaint/patient problem plus assessment/diagnosis.
+4. Symptoms/history, examination, notes, advice, and follow-up are optional.
+5. Doctor interface is intentionally low-complexity with plain labels and limited mandatory entry.
+6. Doctor assigned to the current Visit may retrieve relevant longitudinal clinical archive across that Patient ID.
+7. Completed consultation is not destructively edited.
+8. Correction uses Doctor-authored amendment/new revision; original stays preserved; reason, actor, and time are mandatory/auditable.
+9. Current view shows latest effective clinical record while prior revisions remain accessible.
+10. Doctor may approve/reject Reception demographic-correction requests and may directly correct demographics with old/new audit detail.
+11. Owner/Admin/Reception/Pharmacist authority alone does not expose unrestricted diagnosis/clinical notes.
+12. G5 established explicit Called -> With Doctor for consultation start.
+13. Pending Visit cancellation does not freeze consultation, but effective cancellation stops future active workflow while preserving existing history.
+
+### Mandatory reminders
+
+- REM-021 — active in review.
+- REM-034 — active in review.
+
+### Product-definition gaps identified
+
+- authoring versus read-only access by Visit state is not explicit enough;
+- in-progress clinical draft/save behavior is underspecified;
+- consultation completion needs an explicit immutable-state boundary and state transition;
+- stale/concurrent Doctor saves need protection;
+- cancellation approved while Doctor has the form open needs safe write blocking without deleting already-saved clinical content;
+- longitudinal history must not combine Possible Duplicate Patient IDs;
+- Doctor demographic-correction review needs a reachable clinical-workspace contract;
+- completed consultation amendment needs explicit revision-chain semantics and stale amendment safety;
+- amendment behavior for Completed/Cancelled historical Visits needs clarification;
+- current patient identity/allergy/demographic context versus historical clinical content needs clearer visual separation.
+
+### Business input required
+
+None. All identified gaps can be resolved as derived product design without changing the locked clinical policy.
