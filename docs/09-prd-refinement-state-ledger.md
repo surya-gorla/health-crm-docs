@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.14 DRAFT |
+| Current PRD version | v0.15 DRAFT |
 | Current group | G13 — Reporting, Analytics & Owner Visibility |
-| Current stage | G13 DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | G13 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12 |
 | In-progress groups | G13 |
 | Not started | G14–G15 |
@@ -2921,6 +2921,30 @@ No new clinic/business input is required. The locked OD-029 definitions remain a
 ### Current action
 
 Apply deterministic report definitions to P-102–P-106, Owner/report screens, acceptance/traceability, and interaction contracts; then commit and validate.
+
+## 2026-09-25 — G13 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `6b301301da5f9e92c76297947c54d471663100dd`
+- Changed Documents 05–08.
+- PRD advanced to v0.15.
+
+### Validation result
+
+**PASS.**
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios extend through AC-082 with no duplicate IDs.
+- UX acceptance scenarios extend through UXA-151 with no duplicate IDs.
+- Screen contracts remain 49 with no duplicate IDs.
+- PRD/acceptance/interaction align at v0.15; Document 07 is v0.14 with Parent PRD v0.15.
+- Reporting interaction Section 43 appears exactly once.
+- Patients-seen, successful waiting journey, effective financial state, Paid+Voided no-refund reporting, dispense-based sales, movement-ledger inventory, canonical current prescription, effective exception outcomes, returning-patient identity and archived dimensions are explicit.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G12; reconcile any conflict before G13 forward-impact analysis.
 
 
 
