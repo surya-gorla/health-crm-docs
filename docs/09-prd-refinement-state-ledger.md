@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.11 DRAFT |
+| Current PRD version | v0.12 DRAFT |
 | Current group | G10 — Inventory, Stock Accountability & Pharmacy Transfers |
-| Current stage | G10 DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | G10 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9 |
 | In-progress groups | G10 |
 | Not started | G11–G15 |
@@ -69,7 +69,7 @@ A group is COMPLETE only when all four gates pass:
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
-| G10 | Inventory, Stock Accountability & Pharmacy Transfers | DECISIONS RESOLVED | — | — | — | Current group |
+| G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMMIT VALIDATED | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | IN PROGRESS | — | Current group |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
@@ -2382,5 +2382,34 @@ No new clinic/business input is required. These decisions preserve the locked an
 ### Current action
 
 Apply these decisions across PRD requirements, acceptance/traceability, inventory/Owner screens, and interaction contracts; then commit and validate G10 as one logical product refinement.
+
+## 2026-09-25 — G10 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7`
+- Changed Documents 05–08.
+- PRD advanced to v0.12.
+
+### Validation-fix commit
+
+- `e15ca69e32e3f2ba95a4017d687e7232d7ed4083`
+- Clarified one ambiguous P-089 sentence so Pending inventory requests explicitly do not reserve/own quantity.
+- No product behavior changed.
+
+### Validation result
+
+**PASS after validation-fix commit.**
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios extend through AC-048 with no duplicate IDs.
+- UX acceptance scenarios extend through UXA-110 with no duplicate IDs.
+- Screen contracts remain 49 with no duplicate screen IDs; G10 refined PHA-07–PHA-10 and OWN-03/OWN-04 rather than inventing new screens.
+- PRD/acceptance/interaction align at v0.12; Document 07 is v0.11 with Parent PRD v0.12.
+- Unit-ledger movement truth, package/base normalization, batch attribution, stale adjustment safety, Owner direct adjustment, expired-stock visibility, linked transfer atomicity, Admin boundary, and retry safety are represented across Documents 05–08.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G9; reconcile any conflict before G10 forward-impact analysis.
 
 
