@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.10 |
+| Version | 0.11 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.10 |
+| Parent | PRD v0.11 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -479,31 +479,50 @@ A Paid -> Unpaid payment correction means the earlier record was wrong; it is no
 
 Recorded payment correction uses request/Owner decision, not direct overwrite.
 
-Show:
+Every request shows:
 
-- payment/Visit identity;
-- captured current baseline;
-- proposed corrected record;
-- mandatory reason.
+- payment identity (Visit consultation payment or pharmacy bill payment);
+- captured current effective payment baseline;
+- proposed corrected payment record;
+- mandatory specific reason.
 
-Supported corrected fields may include effective Paid/Unpaid state, method, Other description, reference, and Visit-specific recorded amount.
+For consultation, supported fields may include effective Paid/Unpaid state, method, Other description, reference, and Visit-specific recorded amount.
+
+For pharmacy, supported fields may include effective Paid/Unpaid state, method, Other description, reference, or other payment-record metadata. Pharmacy payment correction **never** changes the established bill lines or bill total.
 
 If proposed state is Paid, full-payment method rules apply.
 
 Before Owner applies a correction, revalidate the captured baseline. A changed baseline makes the old request stale/non-applicable until refreshed review.
 
-Do not use payment correction to silently create/revoke Waived.
+Do not use payment correction to silently create/revoke Waived, create refund behavior, or repair a wrong pharmacy bill amount. Paid -> Unpaid means the earlier payment record was wrong.
+
+Only one simultaneously actionable request against the same current payment baseline should exist.
 
 ## 8.12 Unknown outcome / retry
 
-For Visit creation or Paid recording with unknown outcome:
+For a state-changing financial/Visit action with unknown outcome, do not blindly resubmit.
 
-- do not blindly resubmit;
-- retrieve current Visit/payment state;
+This applies at minimum to:
+
+- Visit creation;
+- consultation Paid recording;
+- pharmacy bill creation;
+- pharmacy Mark Paid;
+- Visit pharmacy-completion transition;
+- bill-void request/decision;
+- payment-correction request/decision.
+
+Instead:
+
+- retrieve current effective Visit/bill/payment/request state;
 - recover the already-created state if present;
-- only allow a new state-changing attempt once prior outcome is known safe.
+- prevent duplicate effective records/actions;
+- only allow a new state-changing attempt once the prior outcome is known safe.
 
+Exact idempotency/transaction implementation remains technical design.
 ---
+
+# 9. Reason-and-Approval Pattern---
 
 # 9. Reason-and-Approval Pattern
 
@@ -586,10 +605,10 @@ If another browser/session already resolved the request, the current user must s
 
 ## 10.4 Type-specific impact
 
-**Bill void:** explicitly say inventory will not be restored.  
+**Bill void:** show latest payment state and explicitly say inventory will not be restored; if Paid, explicitly say approval does not create a refund.  
 **Inventory adjustment:** show stock before/proposed after.  
 **Transfer:** show source and destination.  
-**Payment correction:** show captured baseline plus original/proposed financial fields; re-check baseline before applying.  
+**Payment correction:** show captured baseline plus original/proposed payment fields; re-check baseline before applying. Pharmacy correction must not expose bill lines/total as editable correction fields.  
 **Visit cancellation:** show current Visit state and that history remains.  
 **Waiver:** show fee/current financial outcome/queue eligibility effect; approval is valid only while the current outcome remains Unpaid. If the Visit became Paid, the pending waiver is stale/non-actionable.
 
@@ -1028,29 +1047,147 @@ If prescription becomes Superseded or Visit becomes Cancelled/Voided before comm
 
 # 16. Pharmacy Billing Pattern
 
-## 16.1 Bill source
+## 16.1 Billing source and pharmacy-unit ownership
 
-The bill is generated from actual supplied items, not all prescribed items.
+Bill only **committed actual dispensing**, never prescribed-but-unsupplied quantity.
 
-## 16.2 Price transparency
+The billing surface must keep the active pharmacy unit visible.
 
-Each line shows the price basis needed to understand the charge.
+Eligible bill source rows are supplied-but-not-yet-billed dispensing records for that Visit and unit.
 
-## 16.3 Payment
+- one committed dispensing quantity may belong to only one active/non-voided bill lineage;
+- if multiple units supplied one Visit, each unit may create its own bill;
+- prescription replacement does not make previously billed dispensing billable again.
 
-Use the same UPI/Cash/Card/Other pattern.
+Bill creation is explicit; opening billing does not automatically create a bill.
 
-## 16.4 Void
+## 16.2 Bill creation snapshot
+
+Before **Create Bill**, show medicine, actual supplied quantity, price basis, configured tax/amount fields where applicable, total, unit, and source dispensing references.
+
+On successful creation:
+
+- bill starts Unpaid;
+- bill lines/quantities/price basis/total/unit/source references are frozen;
+- later price/configuration or prescription changes do not silently recalculate the bill.
+
+Established bill lines/total are not edited in place. A wrong bill uses void; a wrong payment record uses payment correction.
+
+## 16.3 External payment
+
+Use UPI/Cash/Card/Other.
+
+- Other requires description;
+- reference is optional;
+- method selection alone does not change payment state;
+- explicit **Mark Paid** follows verified external full-payment success;
+- Paid represents the full bill total;
+- no partial-payment control;
+- no refund control.
+
+An existing bill may be marked Paid even after its Visit is Completed. That financial update does not reopen the Visit.
+
+## 16.4 Pharmacy payment correction
+
+Request payment correction rather than directly rewriting an established payment record.
+
+Show:
+
+- bill/payment identity;
+- current effective payment baseline;
+- proposed payment fields;
+- mandatory reason.
+
+Owner decision revalidates the baseline. If it changed, stale proposal cannot apply.
+
+Correction may change payment state/method/Other description/reference/payment metadata, but never bill lines/total. Paid -> Unpaid is record correction, not refund.
+
+## 16.5 Finish clinic-pharmacy fulfilment
+
+Dispensing one medicine or paying one bill does not complete the Visit.
+
+Expose an explicit **Finish Clinic Pharmacy Fulfilment** action while Visit = Sent to Pharmacy.
+
+Before commit, revalidate across the whole Visit:
+
+- no committed dispensing remains unbilled;
+- all intended clinic dispensing is finished;
+- unsupplied remainder is explicitly left outside with no reservation/back-order;
+- all participating pharmacy units' committed dispensing is accounted for in their unit bills;
+- no actionable substitution request still represents intended clinic fulfilment.
+
+Payment state does not gate completion.
+
+On success: Sent to Pharmacy -> Completed.
+
+Unsupplied remainder is compatible with Completed because V1 has no back-order.
+
+## 16.6 Multi-unit completion
+
+One unit's bill/payment cannot complete the Visit while another unit still has committed unbilled dispensing.
+
+Show enough Visit-level fulfilment context to explain why completion is enabled or blocked without merging unit-level financial attribution.
+
+## 16.7 Bill void request
 
 Void is a request, not direct destructive action.
+
+The request requires a specific reason and only one actionable Pending request per bill.
+
+While Pending:
+
+- bill remains active;
+- payment may still be recorded;
+- payment correction may still occur through its separate workflow;
+- stock is unchanged.
 
 The request dialog must state:
 
 - bill will leave active billing if approved;
-- prior bill/payment history remains;
-- stock will not automatically be restored.
+- prior bill/payment/request/decision history remains;
+- stock will not automatically be restored;
+- Paid bill approval does not create a refund.
+
+## 16.8 Owner void decision and concurrency
+
+Before decision, revalidate bill, request status, and **latest payment state**.
+
+If bill became Paid while Pending, Owner may still approve with explicit no-refund consequence.
+
+Approval -> Cancelled/Voided. Rejection -> active bill unchanged.
+
+A voided bill remains historical and its source dispensing is not silently regenerated into a new bill.
+
+## 16.9 Visit cancellation/completion boundary
+
+Effective Visit cancellation or Visit Completed blocks:
+
+- new dispensing;
+- new bill creation.
+
+Existing bills remain available according to authority for:
+
+- Mark Paid after external success;
+- payment-correction request/decision;
+- bill-void request/decision.
+
+Those actions do not reopen the Visit or permit more dispensing.
+
+## 16.10 Retry and stale-state safety
+
+For bill creation, Mark Paid, Visit completion, void request/decision, and payment correction:
+
+- disable duplicate final submission while pending;
+- revalidate current state before applying;
+- if result is unknown, refresh/check effective state before retry;
+- stale/resolved requests cannot apply again.
+
+Exact locking/transaction mechanics remain technical.
+
 
 ---
+
+# 17. Inventory Quantity and Unit Pattern---
 
 # 17. Inventory Quantity and Unit Pattern
 

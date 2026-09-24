@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.10 |
+| Version | 0.11 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.10 |
+| Parent | Product Requirements Document v0.11 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -281,6 +281,71 @@ Sources: FR-114, BR-055, OD-033.
 **Then** old password is never exposed and staff must change reset credential after next successful login.
 
 Sources: FR-101–FR-103, BR-044–BR-045, OD-021.
+
+## AC-031 — Unit-specific bill uses only unbilled committed supply
+
+**Given** Pharmacy Unit A has committed dispensing records for a Visit  
+**When** Pharmacist creates a bill  
+**Then** only Unit A quantities that were actually supplied and are not already assigned to another active/non-voided bill lineage may be billed.
+
+Supports: P-077, P-076, FR-057–FR-059, FR-118.
+
+## AC-032 — Bill snapshot is not rewritten
+
+**Given** a pharmacy bill was created  
+**When** medicine price/configuration later changes or Doctor replaces the prescription  
+**Then** the existing bill retains its original line/quantity/price/total/unit/source-dispensing snapshot and is not silently recalculated.
+
+Supports: P-077, REM-046, IX Section 16.
+
+## AC-033 — Pharmacy payment correction is baseline-safe
+
+**Given** Pharmacy submitted a payment-correction request with a captured current baseline  
+**When** the effective payment record changes before Owner decision  
+**Then** the stale request cannot overwrite the newer payment record; bill lines/total remain unchanged and Paid -> Unpaid is presented as record correction, not refund.
+
+Supports: P-078, P-038–P-039, OD-033, OWN-03, IX Sections 8 and 16.
+
+## AC-034 — Payment does not gate pharmacy completion
+
+**Given** all intended clinic-pharmacy fulfilment is finished and all committed dispensing is billed  
+**And** a pharmacy bill remains Unpaid  
+**When** Pharmacist explicitly completes clinic-pharmacy fulfilment  
+**Then** the Visit may move Sent to Pharmacy -> Completed while the Unpaid bill remains visible and actionable for later payment recording.
+
+Supports: P-078–P-080, PHA-04, IX Section 16.
+
+## AC-035 — Multi-unit and unsupplied remainder completion
+
+**Given** one Visit was supplied by multiple pharmacy units and still has prescribed quantity not supplied by the clinic  
+**When** every unit's committed dispensing is accounted for in its own bill, no actionable substitution remains, and the remainder is explicitly left unsupplied/outside  
+**Then** the Visit may complete without a back-order and without requiring every prescribed unit to have been supplied.
+
+Supports: P-069–P-076, PHA-04, REM-051, IX Section 16.
+
+## AC-036 — Visit closure blocks new billing but preserves bill administration
+
+**Given** a Visit is Completed or Cancelled/Voided  
+**Then** new dispensing and new pharmacy-bill creation are unavailable.  
+**And** an already-created non-voided bill may still be marked Paid after external payment, corrected through Owner-controlled payment correction, or voided through Owner control without reopening the Visit.
+
+Supports: P-047, P-077–P-084, REM-037, IX Section 16.
+
+## AC-037 — Pending void uses current payment state
+
+**Given** a bill-void request is Pending and the active bill later becomes Paid  
+**When** Owner reviews the request  
+**Then** the Owner sees/revalidates the current Paid state and may approve void only with explicit no-refund consequence; payment history remains preserved.
+
+Supports: P-081–P-084, PHA-05, OWN-03, IX Sections 9 and 16.
+
+## AC-038 — Pharmacy billing state changes are retry-safe
+
+**Given** the outcome of bill creation, Mark Paid, Visit completion, void request/decision, or payment correction is unknown  
+**When** the user retries  
+**Then** the product first retrieves current effective state and prevents a duplicate effective record/action.
+
+Supports: P-077–P-084, IX Sections 8, 16 and 25.
 
 ---
 
@@ -1311,6 +1376,73 @@ Supports: P-047, P-074, REM-036, IX Sections 38 and 41.
 **Then** product requires explicit discard/review and never submits those quantities under Unit B silently.
 
 Supports: P-075, PHA-03, IX Sections 15 and 30.
+
+## UXA-092 — Bill creation uses explicit unit-specific unbilled supply
+
+**Given** Pharmacist opens billing for a Visit  
+**Then** the product shows the active pharmacy unit and eligible supplied-but-not-yet-billed dispensing records, and never bills prescribed-but-unsupplied quantity.
+
+Supports: P-077, PHA-04, IX Section 16.
+
+## UXA-093 — Payment method selection does not mark pharmacy bill Paid
+
+**Given** Pharmacist selects UPI/Cash/Card/Other on an Unpaid bill  
+**Then** the bill stays Unpaid until explicit Mark Paid after external success.
+
+Supports: P-078, PHA-04, IX Sections 8 and 16.
+
+## UXA-094 — Pharmacy payment correction cannot edit bill amount
+
+**Given** an established pharmacy payment record is wrong  
+**When** Pharmacist requests correction  
+**Then** payment fields may be proposed against the captured baseline, but bill lines/total remain immutable and the request requires Owner decision.
+
+Supports: P-078, P-038–P-039, PHA-04, OWN-03.
+
+## UXA-095 — Pending bill void leaves bill operational
+
+**Given** a bill-void request is Pending  
+**Then** the bill remains active, payment may still be recorded, and the request itself does not restore stock or create a refund.
+
+Supports: P-081–P-084, PHA-05, IX Section 16.
+
+## UXA-096 — Unpaid bill can coexist with Completed Visit
+
+**Given** all pharmacy-fulfilment completion conditions are met  
+**And** one or more bills remain Unpaid  
+**Then** the completion action is not blocked solely by payment state and the outstanding financial status remains visible.
+
+Supports: P-078–P-080, PHA-04, IX Section 16.
+
+## UXA-097 — Visit completion considers all pharmacy units
+
+**Given** multiple units dispensed for one Visit  
+**When** one unit finishes billing  
+**Then** the Visit cannot complete while another unit still has committed unbilled dispensing or an actionable substitution still represents intended clinic fulfilment.
+
+Supports: P-075–P-077, PHA-04, REM-051.
+
+## UXA-098 — Completed or Cancelled Visit cannot create a new bill
+
+**Given** current Visit is Completed or Cancelled/Voided  
+**Then** Pharmacy cannot create another bill or dispense more medicine, while existing bill payment/correction/void history remains reachable according to authority.
+
+Supports: P-047, P-077–P-084, REM-037, IX Section 16.
+
+## UXA-099 — Voiding never re-bills or restores stock automatically
+
+**Given** Owner approves pharmacy bill void  
+**Then** the bill becomes historical Cancelled/Voided, its source dispensing remains historical, stock is not restored, and those dispensing records are not silently turned into a new bill.
+
+Supports: P-083–P-084, PHA-05, OWN-03.
+
+## UXA-100 — Unknown pharmacy billing outcome is checked before retry
+
+**Given** a pharmacy billing/completion/void/payment state-changing action returns an unknown outcome  
+**When** user attempts again  
+**Then** the current Visit/bill/request/payment state is refreshed before another effective action is allowed.
+
+Supports: P-077–P-084, IX Sections 16 and 25.
 
 ---
 

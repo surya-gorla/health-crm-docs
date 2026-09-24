@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.10 |
+| Version | 0.11 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -1661,45 +1661,163 @@ Technical locking/transaction implementation is deferred, but these product outc
 
 # 18. Pharmacy Billing and Payment
 
-## 18.1 Bill
+## 18.1 Bill creation and scope
 
-### P-077 — Bill only supplied items
+### P-077 — Bill only supplied items and prevent double billing
 
-Only actually supplied quantities appear as dispensed bill items.
+A pharmacy bill is created only from **committed dispensing records** for medicine quantities actually supplied by the clinic pharmacy.
 
-### P-078 — External payment recording
+Bill creation must satisfy all of the following:
 
-Pharmacy records Paid/Unpaid and UPI/Cash/Card/Other using the same V1 payment model.
+- prescribed-but-unsupplied quantity is never billed;
+- each bill belongs to the pharmacy unit that physically supplied the billed quantity;
+- Pharmacist explicitly creates a bill from supplied-but-not-yet-billed dispensing records for the current Visit and active pharmacy unit;
+- one committed dispensing quantity cannot be included in more than one active/non-voided bill lineage;
+- prescription replacement does not re-bill dispensing that was already billed under an earlier prescription version;
+- if multiple pharmacy units supply one Visit, each unit may create its own bill for that unit's dispensing records.
+
+On successful creation, the bill starts **Unpaid**.
+
+### Bill snapshot and ordinary immutability
+
+At bill creation, freeze the billing facts needed to understand that charge:
+
+- Visit and Patient identity;
+- pharmacy unit;
+- source dispensing references;
+- medicine/bill lines;
+- supplied quantities;
+- unit price / price basis;
+- configured tax/amount fields where applicable;
+- total amount.
+
+Later medicine-price/configuration changes or prescription replacement do not silently rewrite an existing bill.
+
+Established bill lines and total are not edited in place. If the bill itself is wrong, V1 uses the Owner-controlled bill-void path. Payment correction changes the **payment record**, not the bill lines or total.
+
+### P-078 — External pharmacy payment recording
+
+Pharmacy payment execution remains external to the CRM.
+
+For an active or historical non-voided bill, Pharmacy may record:
+
+- Unpaid or Paid;
+- UPI, Cash, Card, or Other;
+- mandatory short description when Other is selected;
+- optional external payment/reference number.
+
+Selecting a payment method does **not** mark the bill Paid. After staff verifies full external payment success, Pharmacist performs an explicit **Mark Paid** action.
+
+Paid means the full current bill total was externally paid. Existing bills may still be marked Paid after the Visit itself is Completed; recording payment never reopens the Visit.
+
+### Pharmacy payment correction
+
+Pharmacy uses the P-038/P-039 correction principle for an incorrect established payment record.
+
+A Pharmacy payment-correction request captures:
+
+- bill/payment identity;
+- current effective payment record as the correction baseline;
+- proposed corrected payment record;
+- mandatory specific reason.
+
+The proposal may correct Paid/Unpaid state, method, Other description, optional reference, or other payment-record metadata. It does **not** change bill lines or bill total.
+
+Owner approves/rejects. Before approval, the current payment baseline is revalidated; if it changed after request submission, the old request is stale and cannot overwrite the newer record. Paid -> Unpaid is a record correction, not a refund.
+
+Only one simultaneously actionable correction request for the same current payment baseline should exist.
 
 ### P-079 — No partial pharmacy payment
 
-Partial pharmacy payment is unavailable.
+Partial pharmacy payment is unavailable in V1.
+
+Do not expose amount-paid/amount-due split controls for a pharmacy bill.
 
 ### P-080 — No pharmacy refund
 
 Refunds are unavailable in V1.
 
-## 18.2 Bill cancellation / void
+A bill void or Paid -> Unpaid payment correction must never be presented as a refund.
+
+## 18.2 Visit-level pharmacy completion
+
+Dispensing or paying one bill does not by itself complete the Visit.
+
+While the Visit is **Sent to Pharmacy**, Pharmacist may explicitly finish clinic-pharmacy fulfilment and transition the Visit to **Completed** only when the product revalidates all of the following:
+
+- no committed dispensing record for the Visit remains unbilled;
+- all intended clinic-pharmacy dispensing work is finished;
+- any remaining prescription quantity is explicitly left unsupplied/outside with no reservation/back-order;
+- committed dispensing from every pharmacy unit involved in the Visit is accounted for in that unit's bill(s);
+- no actionable substitution request still represents intended clinic fulfilment.
+
+Payment state does **not** gate pharmacy completion. Bills may remain Unpaid after Visit completion because V1 has no locked pharmacy-payment gate equivalent to the consultation queue gate.
+
+Completion is Visit-level. One pharmacy unit's bill/payment cannot complete the Visit while another unit still has committed unbilled dispensing.
+
+After Visit = Completed:
+
+- no new dispensing is allowed;
+- no new bill may be created for that Visit;
+- existing bills may still receive external Paid recording, Owner-controlled payment correction, or Owner-controlled void administration;
+- those financial-history actions do not reopen the Visit.
+
+Unsupplied remainder is a legitimate final pharmacy outcome; Completed never means every prescribed unit was supplied.
+
+## 18.3 Bill cancellation / void
 
 ### P-081 — Pharmacist void request
 
-Pharmacist submits bill cancellation/void request with specific reason.
+Pharmacist may request cancellation/void of an existing non-voided bill with a mandatory specific reason.
+
+Only one simultaneously actionable Pending void request may exist for a bill.
+
+Effective Visit cancellation or Visit completion does not erase an already-created bill and does not prevent record-level bill administration; however, it does block new dispensing and new bill creation.
 
 ### P-082 — Pending bill remains active
 
-Pending cancellation request does not alter active bill.
+While bill-void request is Pending:
+
+- the bill remains active;
+- existing payment state remains effective;
+- external payment may still be recorded because the bill has not yet been voided;
+- payment correction may still occur through its separate Owner-controlled flow.
+
+Therefore Owner must not rely on the payment state captured when the void request was first submitted; current payment state is revalidated at decision time.
 
 ### P-083 — Owner decision
 
-Owner approve -> bill exits active billing and becomes Cancelled/Voided. Reject -> bill stays active. Original bill/payment state and decision history remain preserved.
+Owner decision revalidates the bill, request state, and latest payment state.
+
+- Approve -> bill exits active billing and becomes Cancelled/Voided.
+- Reject -> active bill remains unchanged.
+
+If the bill became Paid while the request was Pending, Owner may still approve void, but the UI must explicitly state that approval does **not** create a refund.
+
+Original bill snapshot, source dispensing, original/current payment history, requester, reason, Owner decision, authority, and timestamps remain preserved.
+
+A voided bill remains historical. V1 does not silently regenerate or automatically re-bill its source dispensing records.
 
 ### P-084 — No automatic stock restoration
 
 Bill void does not reverse dispensing or restore inventory.
 
+If a legitimate stock correction is required, it is a separate G10 inventory-adjustment workflow requiring the applicable Owner control.
+
+## 18.4 State-change and retry safety
+
+For bill creation, Mark Paid, Visit pharmacy completion, bill-void request/decision, and payment correction:
+
+- disable duplicate final submit while the action is pending;
+- revalidate current Visit/bill/request/payment state before applying;
+- if the outcome is unknown, refresh/check effective state before blind retry;
+- do not knowingly create duplicate bills, duplicate payment records, duplicate completion transitions, or duplicate requests/decisions.
+
+Exact transaction/idempotency mechanics remain technical design.
+
 ---
 
-# 19. Inventory Workspace
+# 19. Inventory Workspace# 19. Inventory Workspace
 
 Source: FR-051, FR-068, FR-086–FR-090, FR-094–FR-096, FR-115–FR-118; BR-017, BR-031–BR-032, BR-037, BR-040–BR-041, BR-056, BR-058.
 

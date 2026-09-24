@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.9 |
+| Version | 0.10 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.10 |
+| Parent | PRD v0.11 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -1531,7 +1531,7 @@ If historical dispensed quantity exceeds a reduced corrected prescribed quantity
 
 - Dispense;
 - Request Substitution;
-- Continue to Bill for quantities already supplied by this unit.
+- Continue to Bill for committed quantities already supplied by this unit that are not yet assigned to a bill.
 
 ### Final Dispense confirmation
 
@@ -1567,28 +1567,96 @@ Effective Visit cancellation or prescription replacement invalidates the old act
 ## PHA-04 — Pharmacy Bill and Payment
 
 **Users:** Pharmacist  
-**Source:** P-077–P-080
+**Source:** P-077–P-080 plus G9 Visit-completion/payment-correction rules
 
-### Content
+### Entry/context
 
-- only supplied items;
-- quantities;
-- prices;
+Show explicitly:
+
+- Patient ID / Visit ID / current Visit state;
+- active pharmacy unit;
+- latest relevant prescription/version context;
+- supplied-but-not-yet-billed dispensing records for this unit;
+- existing bills for this Visit/unit;
+- Visit-level fulfilment summary across pharmacy units.
+
+### Bill creation
+
+**Create Bill** is explicit and uses only eligible committed dispensing from the active unit.
+
+Before creation show:
+
+- medicine;
+- actual supplied quantity;
+- price basis/unit price;
+- configured tax/amount fields where applicable;
+- calculated total;
+- source dispensing references.
+
+On success:
+
+- bill starts Unpaid;
+- bill snapshot is frozen;
+- source dispensing is no longer eligible for another active/non-voided bill lineage.
+
+Do not silently recalculate an existing bill after price/configuration or prescription changes.
+
+### Existing bill content
+
+- pharmacy unit;
+- bill status: Unpaid / Paid / Cancelled-Voided where historical;
+- immutable bill lines and quantities;
 - total;
-- payment state;
-- payment method;
-- optional reference.
+- payment method and optional reference when recorded;
+- source dispensing linkage;
+- void/correction request status where applicable.
 
-### Actions
+### Payment actions
 
-- Record Paid;
-- leave Unpaid;
+- select UPI / Cash / Card / Other;
+- require Other description when applicable;
+- optional reference;
+- explicit **Mark Paid** only after external full-payment success;
+- **Request Payment Correction** for an incorrect established payment record.
+
+Payment correction captures current payment baseline, proposed payment fields, and mandatory reason. It never edits bill lines/total.
+
+### Visit-level pharmacy completion
+
+Show a distinct **Finish Clinic Pharmacy Fulfilment** action only while Visit = Sent to Pharmacy.
+
+Before enabling/confirming it, revalidate clinic-wide Visit fulfilment:
+
+- no committed dispensing remains unbilled;
+- intended clinic dispensing is finished;
+- remaining quantity is explicitly unsupplied/outside with no reservation/back-order;
+- all participating units' committed dispensing is billed;
+- no actionable substitution request still represents intended clinic fulfilment.
+
+Payment state is informational and does not gate this completion action.
+
+On success: Sent to Pharmacy -> Completed.
+
+One unit's bill/payment cannot complete a Visit while another unit still has committed unbilled dispensing.
+
+### After Visit completion/cancellation
+
+- no new dispensing;
+- no new bill creation;
+- existing bills remain reachable for permitted Mark Paid, payment-correction request, and void administration;
+- those actions do not reopen the Visit.
+
+### Other actions
+
 - print configured A4 summary if needed;
-- Request Void after creation.
+- Request Void for an existing non-voided bill.
 
 ### Restricted
 
-No partial payment and no refund action.
+- no partial payment;
+- no refund action;
+- no in-place edit of established bill lines/total;
+- no silent re-billing of a voided bill's source dispensing.
 
 ---
 
@@ -1599,19 +1667,32 @@ No partial payment and no refund action.
 
 ### Content
 
-- bill;
-- payment state;
-- dispensing summary;
+- Patient / Visit / bill identity;
+- pharmacy unit;
+- current bill state;
+- **current** payment state;
+- dispensing/source summary;
 - warning that bill void does not restore stock;
-- mandatory specific reason.
+- warning that Paid bill void does not create a refund;
+- mandatory specific reason;
+- current Pending request status if one exists.
+
+### Submission rules
+
+- one actionable Pending void request per bill;
+- Pending request does not change bill/payment state;
+- bill may become Paid while request is Pending because it remains active;
+- duplicate submit while Pending is blocked.
 
 ### Outcome
 
-Pending Owner approval. Bill remains active until approved.
+Pending Owner approval. Bill remains active until Owner approval makes the void effective.
+
+If Visit is already Completed or Cancelled/Voided, an existing bill may still be administered through this request without reopening the Visit.
 
 ---
 
-## PHA-06 — Substitution Request
+## PHA-06 — Substitution Request## PHA-06 — Substitution Request
 
 **Users:** Pharmacist  
 **Source:** P-072
@@ -1865,8 +1946,8 @@ Paid/Waived Visits are not eligible for this normal action.
 
 **Waiver:** amount, current payment state, Visit, queue-eligibility effect; approval must re-check that financial outcome is still Unpaid.  
 **Visit cancellation:** request-state baseline, current Visit state, current queue/workflow stage, existing clinical/prescription/dispensing/financial history, and explicit warning that approval removes future active workflow but does not refund/delete history. If current state is Completed or request is already resolved, approval is unavailable.  
-**Bill void:** bill/payment and explicit “stock will not be restored” warning.  
-**Payment correction:** captured baseline, original vs proposed financial fields, and explicit “record correction — not a refund” context where relevant.  
+**Bill void:** bill/payment with latest payment state, unit/source context, explicit “stock will not be restored” warning, and explicit “no refund” warning when Paid; decision must revalidate current bill/request/payment state.  
+**Payment correction:** captured current payment baseline, original vs proposed payment fields, explicit “record correction — not a refund” context where relevant, and stale-baseline blocking. For pharmacy, bill lines/total are not correction fields.  
 **Inventory adjustment:** stock before, proposed delta, projected stock after.  
 **Transfer:** source, destination, quantity.  
 **Password reset:** staff identity, account status.
@@ -2311,6 +2392,10 @@ The screen model is not ready for design/implementation sign-off if:
 - Unpaid Visit can reach queue action;
 - finalized prescription exposes in-place edit;
 - bill void implies inventory restoration;
+- pharmacy bill can include prescribed-but-unsupplied quantity or silently cross pharmacy-unit context;
+- one dispensing quantity can be actively billed more than once;
+- Visit pharmacy completion is incorrectly gated on bill being Paid;
+- Completed/Cancelled Visit can create new dispensing or a new pharmacy bill;
 - Admin can access Owner lifecycle controls;
 - Owner-only screen exposes unrestricted clinical content;
 - error/empty/pending states are undefined for a critical workflow.
