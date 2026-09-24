@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.15 DRAFT |
 | Current group | G13 — Reporting, Analytics & Owner Visibility |
-| Current stage | G13 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
+| Current stage | G13 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12 |
 | In-progress groups | G13 |
 | Not started | G14–G15 |
@@ -2945,6 +2945,36 @@ Apply deterministic report definitions to P-102–P-106, Owner/report screens, a
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G12; reconcile any conflict before G13 forward-impact analysis.
+
+## 2026-09-25 — G13 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1/G2/G12:** report scope never expands role authority; archived/disabled actor identity remains historical without preserving revoked access.
+- **G3:** Possible Duplicate Patient IDs remain separate, so returning-patient calculation does not silently merge identities.
+- **G4:** consultation revenue uses current effective Paid state, excludes Waived, preserves prior corrected records only as audit history, and keeps paid cancellation as recorded revenue because cancellation is not refund. REM-032 is satisfied.
+- **G5:** average wait uses the successful waiting segment while ordinary reassignment/Unresponded/move-to-end preserves the same queue journey. REM-039 is satisfied.
+- **G6:** patients seen anchors to original first Consultation Completed event; later amendment/cancellation does not create a second completion or erase historical completion. REM-043 is satisfied.
+- **G7:** most-prescribed standard aggregate uses canonical current final prescription version and does not double-count Superseded versions.
+- **G8:** medicine sales use committed dispensing rather than prescribed/unsupplied quantity.
+- **G9:** pharmacy revenue uses current effective Paid record/frozen bill total; Paid+Voided without refund remains recorded money received while void is shown separately. REM-060 is satisfied.
+- **G10:** stock reporting derives unit movement ledgers, separates expired/unavailable quantity, excludes transfers/adjustments from sales, and preserves unit/batch attribution. REM-065 is satisfied.
+- **G11:** effective business outcomes remain distinct from Pending/Rejected/Stale workflow activity and direct Owner actions are not double-counted. REM-068 is satisfied.
+- **G12:** archived staff/medicine/pharmacy-unit identities remain historical reporting dimensions. REM-070 is satisfied.
+
+### Mandatory reminder dispositions
+
+- REM-032 — SATISFIED.
+- REM-039 — SATISFIED.
+- REM-043 — SATISFIED.
+- REM-060 — SATISFIED.
+- REM-065 — SATISFIED.
+- REM-068 — SATISFIED.
+- REM-070 — SATISFIED.
+
+### Next exact action
+
+Evaluate G13 impact on G14–G15 and create only real downstream reminders.
 
 
 
