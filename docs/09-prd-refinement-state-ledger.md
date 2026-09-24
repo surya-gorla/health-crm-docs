@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.12 DRAFT |
 | Current group | G10 — Inventory, Stock Accountability & Pharmacy Transfers |
-| Current stage | G10 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
+| Current stage | G10 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9 |
 | In-progress groups | G10 |
 | Not started | G11–G15 |
@@ -69,7 +69,7 @@ A group is COMPLETE only when all four gates pass:
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
-| G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMMIT VALIDATED | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | IN PROGRESS | — | Current group |
+| G10 | Inventory, Stock Accountability & Pharmacy Transfers | BACKWARD PASS | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | PASS vs G1–G9 | IN PROGRESS | Current group |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
@@ -2411,5 +2411,33 @@ Apply these decisions across PRD requirements, acceptance/traceability, inventor
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G9; reconcile any conflict before G10 forward-impact analysis.
+
+## 2026-09-25 — G10 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1:** composable-role/authority model remains explicit. Pharmacist requests operational inventory changes, Owner authorizes/applies Owner-level controls, Admin configuration does not become Owner operational authority, and multi-role attribution remains visible.
+- **G2:** no authentication/account-state behavior changes; Owner inventory actions remain behind existing Owner authentication requirements.
+- **G3:** patient identity/demographic workflows are untouched.
+- **G4:** consultation-payment/fee behavior is untouched; G10 price-change control does not rewrite historical Visit financial records.
+- **G5:** queue/cancellation behavior is unchanged. Visit cancellation preserves already-committed dispensing/stock history.
+- **G6:** clinical records/authority remain isolated from inventory operations.
+- **G7:** prescription replacement/finalization never retroactively changes stock; prior dispense movement remains attributed to the original version. REM-047 is satisfied.
+- **G8:** atomic dispense -> active-unit stock deduction remains the normal stock-changing path, expired stock remains non-dispensable, unsupplied remainder creates no reservation, and batch/current-stock revalidation strengthens rather than changes G8. REM-052 is satisfied.
+- **G9:** billing/payment/correction/void/Visit completion remain financially/operationally separate from physical stock movement. Bill void still never restores stock; a legitimate correction uses this G10 adjustment flow. REM-056 is satisfied.
+
+### Owner direct adjustment compatibility
+
+Allowing Owner direct adjustment does not bypass the locked anti-theft rule. The locked requirement is that **pharmacy-initiated** non-dispensing changes require Owner authorization. A direct Owner-authority action therefore does not need a redundant Owner self-approval request, but still requires category, reason, current-state review, explicit confirmation, movement history, and audit attribution. This is consistent with the earlier direct-Owner-waiver principle and with OWN-04's pre-existing Owner-authorized-action boundary.
+
+### Mandatory reminder dispositions
+
+- REM-047 — SATISFIED.
+- REM-052 — SATISFIED.
+- REM-056 — SATISFIED.
+
+### Next exact action
+
+Evaluate G10 impact on G11–G15 and create only targeted reminders for real downstream dependencies.
 
 
