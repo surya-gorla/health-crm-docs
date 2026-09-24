@@ -22,13 +22,10 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Reminder | Why It Matters | Status |
 | --- | --- | --- | --- | --- | --- |
-| REM-005 | G1 | G11 | When reviewing Owner Approval Center, verify workflows where the same human holds requester and approver roles remain separately attributed by effective authority and are not silently collapsed. | P-096 distinguishes human identity from effective role/workspace. | OPEN |
 | REM-006 | G1 | G12 | When staff roles are added/removed/disabled, verify Administration behavior is compatible with G1's already-open workspace revocation rule and does not assume changes take effect only after a fresh login. | Role administration is the source of permission changes that G1 says must invalidate stale authority. | OPEN |
 | REM-007 | G1 | G14 | Audit/history must preserve effective role/workspace for material multi-role actions, including same-human actions under different roles. | P-096 requires cross-product audit support. | OPEN |
 | REM-008 | G1 | G14 | State-safety/concurrency review must include permission changes occurring while a protected workspace/tab is already open. | G1 requires safe handling of stale authority; G14 owns cross-product stale-state/safety behavior. | OPEN |
 | REM-009 | G1 | G14 | Multi-tab/session behavior must not blur authority context across tabs, and state changes in one context must not silently make another tab authoritative for a different role. | G1 explicitly permits independent permitted workspace contexts per tab/window. | OPEN |
-| REM-010 | G2 | G11 | Reconcile the generic Approval Center model with staff password reset: reset is **Pending -> Resolved by Set Temporary Credential**, not generic Approve/Reject. Decide how OWN-02/OWN-03 and P-094 present this action-specific workflow without changing the locked Owner-controlled recovery policy. | Current G11 baseline lists password reset among approval types and assumes Pending/Approved/Rejected + Approve/Reject, while G2 intentionally defines a different resolution action. | OPEN |
-| REM-011 | G2 | G11 | Ensure the Owner Approval Center prevents duplicate/stale password-reset action: only one reset request is simultaneously actionable as Pending, and a Resolved request cannot be acted again from a stale Owner screen/session. | G2 defines one active request and stale-request safety; G11 owns Owner request handling UI. | OPEN |
 | REM-012 | G2 | G12 | When creating an Owner account or granting Owner authority to an existing account, ensure Owner capability cannot be used until the mandatory TOTP enrollment/verification or second-factor gate is satisfied. Admin still cannot grant Owner. | G2 makes Owner security an account-level prerequisite, including Owner authority added during an existing non-Owner session. | OPEN |
 | REM-013 | G2 | G12 | Keep account lifecycle and password recovery separate: password reset must not re-enable an account; disablement stops protected use when detected; re-enable requires a fresh sign-in; role revocation removes only the affected authority/workspace. | G2 and reconciled G1 distinguish credential, account-status, and role-state transitions. | OPEN |
 | REM-014 | G2 | G14 | Audit/history for authentication and recovery events may record safe metadata but must never expose passwords, reset credentials, TOTP secrets/codes, or recovery-code values. | G2 introduces explicit secret-handling boundaries that G14 must preserve in cross-product audit UX. | OPEN |
@@ -39,12 +36,9 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-023 | G3 | G14 | Extend P-111 retry/idempotency review to Patient creation: an unknown registration outcome must be resolved by checking effective state before another create attempt, including concurrent candidate changes discovered at final submit. | Patient identity duplication is high-impact and G3 now defines product-level retry behavior. | OPEN |
 | REM-024 | G3 | G14 | Audit/history must cover Possible Duplicate provenance and demographic corrections without exposing unauthorized clinical content: candidate Patient IDs/actor/time for the marker; old/new/requester/Doctor decision/time for corrections; Doctor direct edits remain attributable. | G3 introduces auditable identity-risk and demographic-change metadata that G14 must present consistently. | OPEN |
 | REM-025 | G3 | G14 | Stale-state protection must explicitly cover demographic correction: if the captured current value changed before Doctor decision, the old proposal cannot overwrite newer truth; exact concurrency/version mechanism stays technical. | G3 establishes the stale business behavior; G14 owns the cross-product stale-state contract. | OPEN |
-| REM-029 | G4 | G11 | Approval Center must support consultation-waiver specifics: one actionable Pending request, Paid-before-decision makes the request stale/non-actionable, rejection preserves Unpaid and allows a later new request, and **Direct Waiver** is an Owner action rather than a request requiring self-approval. | G4 defines waiver lifecycle; G11 owns generic Owner approval UX/state. | OPEN |
-| REM-030 | G4 | G11 | Payment-correction approval must display/revalidate the captured payment baseline, block stale application, preserve original/proposed/effective values, and make clear Paid->Unpaid is record correction rather than refund. | G4 defines correction safety; G11 owns Owner decision presentation. | OPEN |
 | REM-031 | G4 | G12 | Consultation-fee configuration changes are prospective: changing clinic configuration must not silently rewrite the applied amount of already-created Visits. A Visit-specific correction does not change global fee configuration. | G4 establishes Visit-level fee snapshot semantics; G12 owns configuration UX. | OPEN |
 | REM-032 | G4 | G13 | Consultation revenue/financial reporting should use the current effective recorded financial state after approved corrections, count Paid consultation amounts, exclude Waived, and avoid double-counting superseded/original payment records retained for audit. | G4 preserves original financial history while defining one corrected effective record; G13 owns reporting definitions/presentation. | OPEN |
 | REM-033 | G4 | G14 | Cross-product retry/stale safety must cover Visit creation, Paid recording, combined Mark Paid + queue partial success, one Pending waiver/correction per relevant baseline, stale waiver after Paid, and stale payment-correction baseline. Exact idempotency/concurrency mechanisms remain technical. | G4 defines product-level safety outcomes that G14 must generalize. | OPEN |
-| REM-038 | G5 | G11 | Owner cancellation approval must support one Pending request, current-state revalidation, Completed-before-decision stale behavior, non-freezing Pending workflow, rejection leaving current state unchanged, and same-human Doctor-request/Owner-decision attribution. | G5 defines the cancellation lifecycle; G11 owns Approval Center behavior. | OPEN |
 | REM-039 | G5 | G13 | Average-wait reporting must respect queue history: ordinary reassignment/Unresponded/move-to-end preserve the queue-entry journey; actual removal for financial ineligibility plus later re-entry creates another queue-entry event. Define the deterministic reporting event without deleting earlier history. | OD-029 defines wait as queue entry -> With Doctor; G5 now allows multiple historical queue-entry events in one Visit. | OPEN |
 | REM-040 | G5 | G14 | Cross-product stale/concurrency review must include races among Call, Start Consultation, Reassign, Unresponded, move-to-end, financial correction, cancellation request/decision, and Visit completion. One Pending cancellation per Visit and stale decisions/actions must be enforced. | G5 depends heavily on current state/assignment and concurrent actors. | OPEN |
 | REM-043 | G6 | G13 | Patients-seen/day and related consultation counts should anchor to the original Consultation Completed event. Later clinical amendments must not create a second completed consultation or change the original completion event; evaluate how later Visit cancellation affects reporting without rewriting historical completion. | G6 separates completion from later amendment/cancellation history; G13 owns reporting. | OPEN |
@@ -56,16 +50,16 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-054 | G8 | G14 | Cross-product safety must cover dispense idempotency/unknown outcome, item-lineage remaining allowance across replacement, multi-unit races, prescription replacement/cancellation while dispense is open, and stale substitution requests after version/quantity changes. | G8 depends on concurrent state across prescription, Visit, stock, unit, and substitution decisions. | OPEN |
 | REM-055 | G8 | G15 | Pharmacy A4 dispensing/billing summary should faithfully show actual supplied quantity, unsupplied remainder, approved substitute supplied where relevant, and pharmacy-unit context without altering the original prescription version. | G8 defines fulfilment truth; G15 owns physical output. | OPEN |
 
-| REM-057 | G9 | G11 | Owner Approval Center bill-void review must revalidate the latest bill/request/payment state, allow only one actionable Pending request per bill, keep the bill active/payable while Pending, and show an explicit no-refund consequence if the bill became Paid before decision. Existing bill administration may remain after Visit Completed/Cancelled without reopening the Visit. | G9 defines bill-void/payment concurrency and post-Visit financial administration; G11 owns Owner decision UX. | OPEN |
-| REM-058 | G9 | G11 | Pharmacy payment-correction approval must be baseline-aware/stale-safe, preserve original/proposed/effective payment history, never expose bill lines/total as correction fields, and enforce one actionable correction per current payment baseline. Paid->Unpaid is record correction, not refund. | G9 specializes the shared payment-correction pattern for pharmacy bills; G11 owns approval presentation/decision safety. | OPEN |
 | REM-059 | G9 | G12 | Medicine price, tax/amount configuration, or other billing configuration changes must be prospective for new bills and must not silently recalculate an already-created bill snapshot. Reconcile this with the same prospective-configuration principle already used for consultation fees. | G9 freezes bill facts at creation; G12 owns configuration behavior. | OPEN |
 | REM-060 | G9 | G13 | Pharmacy financial reporting must define deterministic treatment of current/effective payment state after corrections, multi-unit bills, and Paid bills that are later Voided without refund. Avoid double-counting historical/superseded payment records and preserve pharmacy-unit attribution; do not conflate active charge state with actual recorded external payment history. | G9 preserves non-destructive bill/payment history and permits Paid+Voided history, creating a reporting-definition dependency. | OPEN |
 | REM-061 | G9 | G14 | Cross-product stale/idempotency review must include bill creation from unbilled dispensing, double-bill prevention, Mark Paid, payment-correction baseline races, bill-void decision concurrent with payment, Visit completion across multiple pharmacy units, post-Visit bill administration, and unknown-outcome retry safety. | G9 introduces concurrent state across dispensing, bill, payment, Visit completion, request/decision, and multiple units. | OPEN |
 | REM-062 | G9 | G15 | Pharmacy A4 bill/dispensing output must use the frozen bill snapshot and unit attribution, show actual supplied quantities/payment context where applicable, distinguish active versus Cancelled/Voided historical copies, and never recalculate historical bills from current prices, prescription state, or stock. Evaluate together with REM-055 for unsupplied remainder/substitute presentation. | G9 fixes immutable bill snapshot semantics while G15 owns physical-output presentation. | OPEN |
-| REM-063 | G10 | G11 | Owner Approval Center must present inventory-adjustment and stock-transfer decisions with captured baseline versus current state, unit/medicine/batch, normalized quantity, reason, projected result, and stale-state blocking. Owner direct adjustment is a direct Owner-authority action and must not be forced through a fake self-approval request. | G10 defines two distinct Owner paths: approving Pharmacist requests versus directly recording an Owner-authorized adjustment. | OPEN |
 | REM-064 | G10 | G12 | Inventory configuration review must preserve base-unit ledger truth when package conversions, thresholds, medicine metadata, or prices change. Historical movements keep the conversion/result used at the time; configuration changes are prospective. Reconcile Admin configuration authority with Pharmacist-proposed price changes that require Owner approval, without letting Admin operationally bypass Owner stock-control authority. | G10 separates operational stock control from configuration and freezes historical movement meaning. | OPEN |
 | REM-065 | G10 | G13 | Inventory reporting must derive current stock from unit ledgers, distinguish valid available from expired/unavailable recorded quantity, preserve unit/batch attribution, treat transfers as linked internal movements rather than sales/additions, and avoid counting corrective movements as new dispensing. | G10 formalizes movement categories and valid-availability semantics that G13 must aggregate without distorting operational truth. | OPEN |
 | REM-066 | G10 | G14 | Cross-product safety/audit must cover concurrent dispense/adjustment/transfer movements, stale stock baselines, no-reservation Pending requests, linked two-sided transfer atomicity, no-negative-stock guarantees, movement immutability, Owner direct adjustments, and unknown-outcome retry/idempotency. | G10 makes inventory correctness depend on current ledger state across several concurrent actors and unit ledgers. | OPEN |
+| REM-067 | G11 | G12 | Administration/account-role changes must not erase approval/reset history or silently change recorded requester/decision authority. If a pending non-Owner reset target gains Owner authority, that reset becomes non-actionable; disabling/resetting roles must not make an old Owner approval page retain revoked authority. Evaluate existing Pending requests when requester/target roles or account status change. | G11 makes request history authority-aware and password-reset eligibility dependent on current role/account state; G12 owns role/account lifecycle. | OPEN |
+| REM-068 | G11 | G13 | Waiver/cancellation/bill-void/payment-correction/inventory/transfer/password-reset reporting must distinguish Pending, effective Approved/Resolved/direct Owner actions, Rejected, and Stale/Non-actionable outcomes. Reports must not count rejected/stale requests as effective business changes or double-count direct Owner actions as both request and approval. | G11 defines type-specific request outcomes and direct actions; G13 owns reporting/aggregation. | OPEN |
+| REM-069 | G11 | G14 | Global audit/state-safety review must preserve requester and Owner effective-authority attribution, prevent duplicate/stale Owner actions across sessions, protect unknown-outcome retry, keep direct Owner actions distinct from requests, and exclude credentials/unrestricted clinical content from Owner approval/audit metadata. | G11 unifies exception work while relying on current-state revalidation and authority-aware audit across many workflows. | OPEN |
 ---
 
 ## Resolved Reminder History
@@ -85,6 +79,15 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Disposition | Status |
 | --- | --- | --- | --- | --- |
+| REM-005 | G1 | G11 | Resolved by G11/P-096: same human may act under distinct legitimate roles, with requester and Owner decision preserved as separate authority-attributed events. | RESOLVED |
+| REM-010 | G2 | G11 | Resolved by G11 password-reset lifecycle: Set Temporary Credential is the action and successful reset is Resolved, not generic Approved/Rejected. | RESOLVED |
+| REM-011 | G2 | G11 | Resolved by G11: only current eligible Pending reset is actionable; stale/resolved reset cannot act again and unknown result is refreshed before retry. | RESOLVED |
+| REM-029 | G4 | G11 | Resolved by G11 waiver rules: one Pending Unpaid request, Paid/Waived staleness, rejection leaves Unpaid, and Direct Owner Waiver stays outside self-approval. | RESOLVED |
+| REM-030 | G4 | G11 | Resolved by G11 payment-correction detail: captured/current/proposed records are distinct, changed baseline blocks application, and correction is not refund. | RESOLVED |
+| REM-038 | G5 | G11 | Resolved by G11 Visit-cancellation rules: one Pending request, workflow may continue, Completed-before-decision is stale, history remains, and same-human Doctor/Owner attribution is preserved. | RESOLVED |
+| REM-057 | G9 | G11 | Resolved by G11 bill-void review: latest payment state is revalidated, Pending bill stays active/payable, Paid approval warns no refund/no stock restoration, and post-Visit bill administration remains possible. | RESOLVED |
+| REM-058 | G9 | G11 | Resolved by G11 pharmacy payment-correction rules: baseline-safe/stale-safe, bill lines/total immutable, type-specific current/proposed/history context retained. | RESOLVED |
+| REM-063 | G10 | G11 | Resolved by G11 inventory/transfer review: captured/current stock shown, stale/invalid application blocked, linked transfer semantics preserved, and Direct Owner Adjustment is not self-approval. | RESOLVED |
 | REM-047 | G7 | G10 | Resolved by G10 movement model: prescription finalization/replacement never retroactively alters stock; prior deduction remains attached to the actual dispense/original version. | RESOLVED |
 | REM-052 | G8 | G10 | Resolved by G10 batch/base-unit ledger and stale-stock rules: dispense remains atomic with stock deduction, expired/insufficient stock cannot satisfy supply, Pending changes reserve nothing, and concurrent stock is revalidated. | RESOLVED |
 | REM-056 | G9 | G10 | Resolved by G10 physical-movement boundary: billing/payment/Visit completion/bill void do not mutate stock; legitimate correction is a separate Owner-authorized inventory movement. | RESOLVED |
@@ -114,13 +117,21 @@ G10 evaluated and resolved all inherited reminders targeting Inventory, Stock Ac
 
 Their dispositions are recorded in Resolved Reminder History.
 
-## Target G11 — Mandatory Reminders
+## Target G11 — Resolved
 
-When G11 begins, explicitly evaluate:
+G11 evaluated and resolved all inherited reminders targeting Owner Approval Center & Exception Control:
 
 - REM-005
 - REM-010
 - REM-011
+- REM-029
+- REM-030
+- REM-038
+- REM-057
+- REM-058
+- REM-063
+
+Their dispositions are recorded in Resolved Reminder History.
 
 ## Target G12 — Mandatory Reminders
 
@@ -170,13 +181,6 @@ When G14 begins, also explicitly evaluate:
 - REM-025
 
 
-## Target G11 — Additional Mandatory Reminders from G4
-
-When G11 begins, also explicitly evaluate:
-
-- REM-029
-- REM-030
-
 ## Target G12 — Additional Mandatory Reminder from G4
 
 When G12 begins, also explicitly evaluate:
@@ -207,11 +211,6 @@ REM-035 was resolved during G7.
 ## Target G8 — Reminder Resolved
 
 REM-036 was resolved during G8.
-
-## Target G11 — Additional Mandatory Reminder from G5
-
-When G11 begins, also evaluate:
-- REM-038
 
 ## Target G13 — Additional Mandatory Reminder from G5
 
@@ -282,11 +281,6 @@ When G15 begins, also evaluate:
 - REM-055
 
 
-## Target G11 — Additional Mandatory Reminders from G9
-When G11 begins, also evaluate:
-- REM-057
-- REM-058
-
 ## Target G12 — Additional Mandatory Reminder from G9
 When G12 begins, also evaluate:
 - REM-059
@@ -304,10 +298,6 @@ When G15 begins, also evaluate:
 - REM-062
 
 
-## Target G11 — Additional Mandatory Reminder from G10
-When G11 begins, also evaluate:
-- REM-063
-
 ## Target G12 — Additional Mandatory Reminder from G10
 When G12 begins, also evaluate:
 - REM-064
@@ -319,3 +309,16 @@ When G13 begins, also evaluate:
 ## Target G14 — Additional Mandatory Reminder from G10
 When G14 begins, also evaluate:
 - REM-066
+
+
+## Target G12 — Additional Mandatory Reminder from G11
+When G12 begins, also evaluate:
+- REM-067
+
+## Target G13 — Additional Mandatory Reminder from G11
+When G13 begins, also evaluate:
+- REM-068
+
+## Target G14 — Additional Mandatory Reminder from G11
+When G14 begins, also evaluate:
+- REM-069
