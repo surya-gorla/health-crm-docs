@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.6 DRAFT |
+| Current PRD version | v0.7 DRAFT |
 | Current group | G5 — Doctor Queue & Visit Flow Control |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G5 vs G1–G4 |
 | Completed groups | G1, G2, G3, G4 |
 | In-progress groups | G5 |
 | Not started | G6–G15 |
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | DECISIONS RESOLVED | — | — | — | Current group |
+| G5 | Doctor Queue & Visit Flow Control | COMMIT VALIDATED / BACKWARD CHECK | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | IN PROGRESS vs G1–G4 | — | Current group |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1322,7 +1322,7 @@ Proceed directly to G5 under the user's continuous-review instruction.
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -1353,7 +1353,7 @@ Proceed directly to G5 under the user's continuous-review instruction.
 
 ### Current action
 
-Apply the resolved G5 queue/reassignment/cancellation rules to PRD, acceptance, screen, and interaction specifications.
+Compare committed G5 behavior against completed G1–G4 contracts; reconcile any ambiguity/conflict before forward-impact analysis.
 
 ### Blockers
 
@@ -1444,3 +1444,30 @@ No new business input is required.
 15. **Concurrency:** every queue action revalidates state and Doctor assignment before applying; stale call/start/reassign/Unresponded/move/cancellation actions refresh instead of applying outdated state.
 
 Future checks are required for G6 clinical concurrency, G8/G9 cancellation after pharmacy handoff, G11 cancellation approvals, G13 waiting-time reporting, and G14 state/concurrency safety.
+
+
+## 2026-09-25 — G5 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- `eec1ae4e4b951456798eb008c710e0d305a1aa50`
+- Files changed:
+  - `docs/05-product-requirements-document.md`
+  - `docs/06-prd-traceability-and-acceptance.md`
+  - `docs/07-information-architecture-and-screen-specification.md`
+  - `docs/08-interaction-and-form-behavior-specification.md`
+
+### Validation result
+
+PASS.
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Screen inventory remains 49 unique screen IDs.
+- UX acceptance remains unique and now extends through UXA-056.
+- PRD/companion versions align at PRD v0.7.
+- Queue-end insertion, pre-queue separation, Waiting->Called->With Doctor boundary, reassignment-at-end, demographic reviewer transfer, Unresponded history, financial removal before consultation, non-destructive later correction, pending-cancellation behavior, Completed stale-cancellation protection, and queue-action concurrency are present.
+- One automated validation initially missed the cancellation-history requirement due to regex wording. P-047 was manually verified to preserve queue, financial, clinical, prescription, dispensing, billing, and request history; product text was not changed to satisfy the validator.
+
+### Next exact action
+
+Evaluate G5 cumulatively against G1 workspace/authority, G2 auth/account-state, G3 patient/demographic-correction, and G4 Visit/payment/waiver contracts.
