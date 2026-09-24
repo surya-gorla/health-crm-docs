@@ -1817,7 +1817,7 @@ Exact transaction/idempotency mechanics remain technical design.
 
 ---
 
-# 19. Inventory Workspace# 19. Inventory Workspace
+# 19. Inventory Workspace
 
 Source: FR-051, FR-068, FR-086–FR-090, FR-094–FR-096, FR-115–FR-118; BR-017, BR-031–BR-032, BR-037, BR-040–BR-041, BR-056, BR-058.
 

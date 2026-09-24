@@ -522,8 +522,6 @@ Instead:
 Exact idempotency/transaction implementation remains technical design.
 ---
 
-# 9. Reason-and-Approval Pattern---
-
 # 9. Reason-and-Approval Pattern
 
 This pattern is shared by:
@@ -1186,8 +1184,6 @@ Exact locking/transaction mechanics remain technical.
 
 
 ---
-
-# 17. Inventory Quantity and Unit Pattern---
 
 # 17. Inventory Quantity and Unit Pattern
 

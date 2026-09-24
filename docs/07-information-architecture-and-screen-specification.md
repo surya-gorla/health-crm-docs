@@ -1692,7 +1692,7 @@ If Visit is already Completed or Cancelled/Voided, an existing bill may still be
 
 ---
 
-## PHA-06 — Substitution Request## PHA-06 — Substitution Request
+## PHA-06 — Substitution Request
 
 **Users:** Pharmacist  
 **Source:** P-072
