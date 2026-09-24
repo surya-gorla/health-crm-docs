@@ -18,11 +18,11 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.5 DRAFT |
-| Current group | None — G3 complete; awaiting G4 start |
-| Current stage | G3 COMPLETE / WAITING |
+| Current group | G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction |
+| Current stage | PREPARING |
 | Completed groups | G1, G2, G3 |
-| In-progress groups | None |
-| Not started | G4–G15 |
+| In-progress groups | G4 |
+| Not started | G5–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 21 — see Document 10 |
 | Latest group closure commit | `a54e3d23dea2d1765d3ae467e26c00d3d78d3c74` |
@@ -63,7 +63,7 @@ A group is COMPLETE only when all four gates pass:
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
-| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
+| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | PREPARING | — | — | — | Current group |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
@@ -879,3 +879,59 @@ G3 strengthens G1 patient-context safety through explicit selection, stays withi
 ### Stop condition
 
 G3 is complete. G4 has not been started.
+
+
+# G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-026 — New Visit ID
+- P-027 — Doctor assignment
+- P-028 — Consultation fee display
+- P-029 — External payment
+- P-030 — Fast Paid action
+- P-031 — Queue gate
+- P-032 — No partial consultation payment
+- P-033 — No consultation refund
+- P-034 — Request waiver
+- P-035 — Owner approval
+- P-036 — Owner direct waiver
+- P-037 — Pending waiver gate
+- P-038 — Payment correction request
+- P-039 — Payment correction decision
+
+### Mandatory prior-group reminders
+
+- REM-018 — preserve the Patient-to-Visit boundary; Visit creation links the existing/newly-created Patient ID; Possible Duplicate/missing physical file do not block Visit creation.
+- REM-019 — active Visit without Doctor must support Doctor selection before a Visit-linked demographic correction can submit; no fake Visit is created solely for a correction when no active Visit exists.
+
+### Required source review
+
+- locked BRD Visit/payment/waiver/payment-correction requirements and business rules;
+- workflow/state model for Visit creation, payment gate, waiver, payment corrections;
+- decision-register entries OD-004, OD-005 and payment-related decisions;
+- locked traceability;
+- current PRD P-026–P-039;
+- Reception/Owner Visit/payment/waiver/correction screens;
+- interaction contracts for payment capture, approvals, reason fields, stale state, retries, confirmations;
+- accepted G1–G3 contracts and REM-018/REM-019.
+
+### Current action
+
+Perform full G4 source review before product reasoning.
+
+### Blockers
+
+None.
+
+---
+
+## 2026-09-25 — G4 PREPARING checkpoint
+
+- G4 started immediately after G3 closure.
+- Mandatory prior reminders: REM-018, REM-019.
+- No product changes are being made until source review is complete.
