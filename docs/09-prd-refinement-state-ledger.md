@@ -25,7 +25,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Not started | G4–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 21 — see Document 10 |
-| Latest checkpoint commit | `b8691d8c526aa5953d1e48cd67afe088abf15493` |
+| Latest group closure commit | `a54e3d23dea2d1765d3ae467e26c00d3d78d3c74` |
 
 ---
 
