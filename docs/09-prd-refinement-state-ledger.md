@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.13 DRAFT |
 | Current group | G12 — Administration, Staff Access & Clinic Configuration |
-| Current stage | G12 PREPARING |
+| Current stage | G12 DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11 |
 | In-progress groups | G12 |
 | Not started | G13–G15 |
@@ -2712,6 +2712,45 @@ Perform full G12 source review before autonomous product reasoning.
 ### Blockers
 
 None.
+
+## 2026-09-25 — G12 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required. These decisions preserve the locked Owner/Admin separation, account-security model, and the snapshot/history semantics already established by G4/G7/G9/G10/G11.
+
+1. **Individual account lifecycle:** staff accounts are individual clinic-context accounts. Historical accounts are disabled, never hard-deleted from normal administration.
+2. **Admin account scope:** Administrator may create/manage/disable/re-enable **non-Owner** staff and assign/revoke non-Owner roles. Admin cannot grant/revoke Owner authority, disable an Owner account, or use account-edit UI as an Owner-lifecycle bypass.
+3. **Owner account scope:** Owner authority controls Owner-role lifecycle. Product prevents a role/account change that would leave the clinic with zero active Owner accounts.
+4. **Owner grant security gate:** when Owner authority is newly granted to an existing/non-Owner account, that new Owner capability is unavailable until required Owner TOTP enrollment/verification gate is satisfied. Existing non-Owner roles may continue according to their normal permissions. Admin still cannot perform the grant. Resolves REM-012.
+5. **Role revocation while signed in:** removing a role invalidates that authority/workspace on next protected navigation/action/permission refresh; already-open page does not preserve stale authority. Whole-account disablement ends protected use when detected. Resolves REM-006.
+6. **Disable versus roles:** disablement is whole-account status; role revocation is authority-specific. Disabling does not silently delete role/history. Re-enable restores account availability but requires a fresh sign-in; it is separate from role edits.
+7. **Password recovery separation:** password/reset credential changes never enable/disable an account and never assign/revoke roles. Disabling/re-enabling never silently changes password-reset state. Resolves REM-013.
+8. **Pending business-request preservation:** disabling a requester or later changing their roles does not erase already-submitted waiver/cancellation/bill/inventory/transfer/payment-correction history. The request keeps the request-time actor/effective-authority attribution and remains governed by its target/current-state lifecycle rather than being silently deleted.
+9. **Pending staff-reset eligibility:** if a non-Owner password-reset target later gains Owner authority, the old non-Owner reset request becomes non-actionable. Disabling the target does not make reset enable the account; if reset is performed while disabled, the account stays disabled. Resolves REM-067.
+10. **Safe Owner/admin account display:** Admin may see enough Owner-account metadata to understand that the account exists/has protected Owner authority, but Owner-management actions are absent/denied. Admin cannot use direct URL/API action to modify protected Owner authority.
+11. **Configuration categories are permission-specific:** P-101 is not a blanket “Admin can edit anything.” Configuration surfaces distinguish non-financial catalogue/inventory configuration from Owner-controlled financial/operational settings.
+12. **Medicine catalogue:** authorized Admin/Owner may maintain current medicine catalogue identity/configuration used for future authoring. Existing finalized prescriptions, dispensing, bills, and audit history retain their stored historical medicine identity/context and are not silently rewritten by later catalogue edits.
+13. **Medicine retirement:** a medicine with history is archived/disabled for future selection rather than hard-deleted. Historical references remain readable. Exact preload content remains clinic-supplied.
+14. **Inventory base/package configuration:** authorized Admin/Owner may manage base/package conversion and threshold configuration where permitted, but changing conversion affects future entry/display only; current stock remains base-unit ledger truth and historical movements retain their original normalized quantity/conversion meaning. Resolves REM-064 conversion portion.
+15. **Threshold configuration:** low-stock/near-expiry threshold changes may immediately change current alert classification because alerts are derived current-state views; they do not rewrite movement history.
+16. **Operational stock boundary:** Admin configuration cannot create/add/remove/correct physical stock, approve inventory adjustments/transfers, or perform Direct Owner Adjustment. Operational stock changes remain G10 Owner-controlled movement workflows.
+17. **Financial configuration authority:** consultation fee values and pharmacy price/tax values are Owner-controlled financial configuration in V1. Admin may view or maintain non-financial configuration but cannot directly publish a financial value change merely through Admin role.
+18. **Pharmacist-proposed price change:** remains request -> Owner approval from G10/G11. Owner may directly set financial configuration. Neither path creates stock quantity movement.
+19. **Consultation-fee prospectivity:** new fee configuration applies only to future Visits created after the configuration becomes effective; existing Visit applied amounts stay frozen and are corrected only through Visit/payment-specific workflow. Resolves REM-031.
+20. **Pharmacy billing-price/tax prospectivity:** changed price/tax configuration applies to future bill snapshots/eligible future dispensing-billing use; existing created bills remain frozen and are not recalculated. Resolves REM-059.
+21. **Price/config versus historical stock:** purchase/selling-price/config changes do not reinterpret historical movement quantities or already-created bill/prescription records. Resolves REM-064 price/history portion.
+22. **Pharmacy unit lifecycle:** pharmacy units with history are archived/disabled rather than deleted. Disabled unit remains available in history/report drill-down but is unavailable for new dispensing or as a normal transfer destination/source. Unit lifecycle is Owner-controlled because it affects operational inventory accountability; Admin may maintain permitted non-operational metadata.
+23. **Configuration audit:** material configuration changes record actor/account, effective authority, field/category, prior value, resulting value, and effective time. Secret/authenticator values are never included.
+24. **No historical rewrite:** consultation fee, medicine identity, package conversion, thresholds, prices/tax, pharmacy-unit metadata, and output configuration changes never mutate already-stored historical business records merely because current configuration changed.
+25. **Configuration validation:** do not allow invalid package conversion (non-positive), impossible self-referential unit setup, or configuration save that would erase required base-unit identity. Exact internal conversion representation remains technical.
+26. **A4 output configuration boundary:** layout/config may be maintained as configured, but historical clinical/bill facts used in reprint remain the preserved record snapshots. Exact reprint-template behavior is reviewed in G15.
+27. **Permission/current-state safety:** all Admin/Owner configuration actions revalidate current account authority before save. An already-open Admin/Owner page cannot preserve revoked authority.
+28. **Unknown outcome/retry:** create account, disable/re-enable, role assignment/removal, Owner-role lifecycle action, and material configuration save check current effective account/config state before blind retry if outcome is unknown. Exact idempotency mechanism remains G14 technical design.
+29. **No silent cascading deletion:** disabling/archiving staff, medicine, or pharmacy-unit configuration never erases existing Visits, prescriptions, dispensing, bills, inventory movements, approval history, or audit lineage.
+
+### Current action
+
+Apply G12 account/role/configuration boundaries across P-097–P-101, administration screens, acceptance/traceability, and interaction contracts; then commit and validate.
+
 
 
 
