@@ -923,10 +923,11 @@ The contract applies to every valid multi-role combination, not only Owner + Doc
 
 ## 29.1 Entry and switching
 
-- a single-workspace user enters that workspace directly after authentication;
-- a multi-workspace user chooses among permitted workspaces and retains an always-reachable workspace-switch control;
+- a single-workspace user enters that workspace directly after all applicable authentication/credential gates succeed;
+- a multi-workspace user chooses among assigned workspaces whose applicable authentication gates are satisfied for the current session and retains an always-reachable workspace-switch control;
 - one human uses one account across all assigned roles;
-- Owner-containing accounts still follow the Owner TOTP requirement.
+- ordinary switching among already-authentication-qualified workspaces does not require a second username/password login or repeat Owner TOTP solely because of the switch;
+- if Owner authority is newly granted to a session that has not satisfied the Owner second-factor requirement, Owner-capable access remains gated by P-009 / Section 35 before it becomes normally switchable.
 
 ## 29.2 Authority context
 
@@ -946,9 +947,13 @@ The contract applies to every valid multi-role combination, not only Owner + Doc
 
 A multi-role user may keep different permitted workspaces open in different tabs/windows. Each tab/window retains its own visible workspace/authority context. Changing one must not silently alter another.
 
-## 29.5 Role changes while signed in
+## 29.5 Role and account changes while signed in
 
 If a role is revoked while its workspace is open, stale authority must not remain usable. The next protected action/navigation or permission refresh re-evaluates access and safely returns the user to a permitted workspace when required.
+
+If Owner authority is newly granted, the new Owner capability remains unavailable until the Owner second-factor requirement is satisfied for that session.
+
+If the entire account is disabled, P-015 / Section 35 applies: protected account use ends when disablement is detected and the user returns to the sign-in boundary.
 
 ## 29.6 Cross-workspace attention
 

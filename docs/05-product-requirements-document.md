@@ -258,7 +258,7 @@ Recommended V1 workspaces:
 4. **Owner**
 5. **Administration**
 
-A user with exactly one permitted workspace enters that workspace directly after successful authentication. A user with more than one permitted workspace is presented with a workspace choice and must also have an always-reachable workspace-switch control in the application shell.
+A user with exactly one permitted workspace enters that workspace directly after successful completion of all applicable authentication/credential gates. A user with more than one permitted workspace is presented with a workspace choice and must also have an always-reachable workspace-switch control in the application shell.
 
 Multi-role behavior applies to every valid role combination, not only Owner + Doctor. One human uses one account; roles add permitted authority without creating separate identities.
 
@@ -282,7 +282,9 @@ Functionality for which the current account lacks authority must not be exposed 
 
 ### P-003 — Multi-role switching
 
-A multi-role account uses one identity and may switch among all assigned workspaces without a second login. Single-workspace accounts enter directly; multi-workspace accounts receive a workspace selector plus an always-reachable switch control.
+A multi-role account uses one identity and may switch without a second username/password login among assigned workspaces whose applicable authentication gates are already satisfied for the current session. Single-workspace accounts enter directly after applicable authentication/credential gates succeed; multi-workspace accounts receive a workspace selector plus an always-reachable switch control.
+
+Ordinary workspace switching does not repeat Owner TOTP merely because the workspace changes. If security-sensitive Owner authority is newly granted to a session that had not satisfied Owner authentication requirements, Owner-capable access remains gated by P-009 before that newly available authority can be used.
 
 ### P-004 — Workspace-scoped context preservation
 

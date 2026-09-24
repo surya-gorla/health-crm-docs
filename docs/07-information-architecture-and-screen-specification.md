@@ -43,7 +43,7 @@ The screen model may be implemented with pages, drawers, panels, dialogs, or oth
 
 Reception, Doctor, Pharmacy, Owner, and Administration are distinct workspaces.
 
-A single-workspace user enters that workspace directly after authentication. A multi-role user uses one identity, selects among permitted workspaces, and can switch without signing into a second account. The switch control remains reachable from the application shell.
+A single-workspace user enters that workspace directly after all applicable authentication/credential gates succeed. A multi-role user uses one identity, selects among permitted workspaces, and can switch without signing into a second account. The switch control remains reachable from the application shell. A workspace whose security prerequisite has not yet been satisfied for the current session is not treated as normally switchable until that prerequisite is completed.
 
 The active workspace/authority must remain visible. Multi-role behavior applies to all valid combinations, not only Owner + Doctor.
 
@@ -398,7 +398,9 @@ For an already fully authenticated Owner:
 
 Choose or switch the effective authority context when more than one workspace is permitted.
 
-A single-workspace account bypasses this choice after authentication. A multi-workspace account sees the selector on entry and retains an always-reachable switch control in the application shell.
+A single-workspace account bypasses this choice after all applicable authentication/credential gates succeed. A multi-workspace account sees the selector on entry and retains an always-reachable switch control in the application shell.
+
+The selector/switcher exposes only authority that is currently safe to enter. Newly granted Owner authority that has not yet satisfied the Owner second-factor gate remains gated by the authentication flow rather than becoming an ordinary one-click workspace switch.
 
 ### Example
 
@@ -415,7 +417,8 @@ The same pattern applies to other valid combinations such as Reception + Pharmac
 - switching does not silently carry an active patient, Visit, queue, pharmacy unit, or protected record into the target workspace;
 - a legitimate cross-workspace transition enters the target workspace/authority before opening protected content;
 - separate tabs/windows may retain different permitted workspace contexts independently;
-- if the current role is revoked, the next protected navigation/action or permission refresh denies further access and routes the user to a permitted workspace.
+- if the current role is revoked, the next protected navigation/action or permission refresh denies further access and routes the user to a permitted workspace;
+- if the entire account becomes disabled, authentication rule P-015 applies and protected account use returns to the sign-in boundary rather than merely switching workspaces.
 
 ### Acceptance
 

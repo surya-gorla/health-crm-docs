@@ -678,10 +678,11 @@ Supports: P-003, SH-06, IX Section 29.
 
 ## UXA-020 — Multi-role switch control remains reachable
 
-**Given** an authenticated user has more than one permitted workspace  
-**Then** the user has an always-reachable workspace-switch control without needing to sign out or use another account.
+**Given** an authenticated user has more than one permitted workspace whose applicable authentication gates are satisfied for the current session  
+**Then** the user has an always-reachable workspace-switch control without needing to sign out or use another account.  
+**And** if newly granted Owner authority has not yet satisfied the Owner second-factor gate, Owner-capable access remains gated by AU-005 rather than being treated as an ordinary switch.
 
-Supports: P-003, SH-06, IX Section 29.
+Supports: P-003, P-009, SH-06, AU-005, AU-012, IX Sections 29 and 35.
 
 ## UXA-021 — Permission absence versus state unavailability
 
