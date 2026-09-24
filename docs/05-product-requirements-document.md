@@ -1130,10 +1130,10 @@ On success:
 
 - the current clinical content becomes the completed effective consultation record;
 - Doctor/time are recorded;
-- Visit moves to **Consultation Completed**;
+- the **Consultation Completed** event/state transition is recorded;
 - ordinary clinical fields become read-only.
 
-Completion does not itself finalize a prescription or perform pharmacy progression; prescription progression is governed by G7.
+Completion does not itself finalize a prescription. After the Consultation Completed transition, apply the G7 pharmacy-readiness rule: if a current Finalized prescription already exists, the Visit may immediately advance from Consultation Completed to **Sent to Pharmacy**. If not, current state remains Consultation Completed awaiting prescription finalization.
 
 A stale/duplicate completion action cannot create another completed clinical record.
 

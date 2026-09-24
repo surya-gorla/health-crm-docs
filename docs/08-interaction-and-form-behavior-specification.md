@@ -756,10 +756,10 @@ Before completion:
 
 Success:
 - current effective clinical record becomes completed;
-- Visit -> Consultation Completed;
+- record Consultation Completed;
 - ordinary clinical fields become read-only.
 
-Completion does not implicitly finalize prescription.
+Completion does not implicitly finalize prescription. After recording Consultation Completed, apply G7 readiness: a pre-existing current Finalized prescription allows immediate progression to Sent to Pharmacy; otherwise remain Consultation Completed awaiting prescription finalization.
 
 ## 12.6 Amendment
 

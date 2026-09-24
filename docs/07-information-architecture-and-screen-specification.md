@@ -1043,8 +1043,9 @@ If state/assignment changed after screen load, switch to safe read-only/current-
 - explicit final action;
 - requires chief complaint/problem + assessment/diagnosis;
 - revalidates With Doctor/current Doctor/current saved content;
-- success -> Consultation Completed;
-- ordinary clinical editor becomes read-only.
+- records Consultation Completed;
+- ordinary clinical editor becomes read-only;
+- then applies G7 pharmacy-readiness: if a current Finalized prescription already exists, current Visit advances to Sent to Pharmacy; otherwise it remains Consultation Completed awaiting prescription finalization.
 
 ### Cancellation safety
 
