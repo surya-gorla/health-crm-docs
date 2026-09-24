@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.6 DRAFT |
 | Current group | G5 — Doctor Queue & Visit Flow Control |
-| Current stage | PREPARING |
+| Current stage | GROUP REASONING |
 | Completed groups | G1, G2, G3, G4 |
 | In-progress groups | G5 |
 | Not started | G6–G15 |
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | PREPARING | — | — | — | Current group |
+| G5 | Doctor Queue & Visit Flow Control | GROUP REASONING | — | — | — | Current group |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1322,7 +1322,7 @@ Proceed directly to G5 under the user's continuous-review instruction.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** GROUP REASONING
 
 ### Primary requirements
 
@@ -1353,7 +1353,7 @@ Proceed directly to G5 under the user's continuous-review instruction.
 
 ### Current action
 
-Perform full G5 source review before product reasoning.
+Resolve G5 queue/state/cancellation edge cases from the completed source review, then apply them to the PRD layers.
 
 ### Blockers
 
@@ -1366,3 +1366,58 @@ None.
 - G5 started immediately after G4 closure.
 - Mandatory reminders loaded: REM-020, REM-026, REM-027.
 - Next exact action: complete source review before product decisions.
+
+
+## 2026-09-25 — G5 SOURCE REVIEW COMPLETE
+
+### Files read
+
+- `docs/01-business-requirements-document.md`
+- `docs/02-workflows-and-state-model.md`
+- `docs/03-open-decisions-and-edge-cases.md`
+- `docs/04-requirements-traceability.md`
+- `docs/05-product-requirements-document.md`
+- `docs/06-prd-traceability-and-acceptance.md`
+- `docs/07-information-architecture-and-screen-specification.md`
+- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/10-prd-future-review-reminders.md`
+
+### Locked business conclusions confirmed
+
+1. Consultation queues are Visit-based and Doctor-specific.
+2. Reception sees active Doctor queues; each Doctor sees that Doctor's queue; Owner sees clinic-wide status; Pharmacy has no Doctor-queue controls.
+3. Queue states are Waiting, Called, Unresponded, With Doctor, Consultation Completed, Sent to Pharmacy, Completed, Cancelled/Voided.
+4. Unresponded is transient and returns to Waiting after repositioning five positions downward, or end if fewer remain.
+5. Doctor may call a selected queued patient; Reception sees the call.
+6. Reception may reassign a queued Visit between Doctors and reassignment is audited.
+7. No urgent-priority flag/request/reordering exists.
+8. Paid patient leaving before consultation is moved to the end of the assigned Doctor queue.
+9. Reception cannot cancel Visit.
+10. Doctor may request cancellation from Waiting, Called, Unresponded, With Doctor, Consultation Completed, or Sent to Pharmacy with specific reason.
+11. Owner approves/rejects; Pending leaves Visit active; approval -> Cancelled/Voided and removes it from active workflow while preserving all history; Completed is not cancellable.
+12. No refund occurs because of Visit cancellation.
+
+### Mandatory reminder issues confirmed
+
+- REM-020: reassignment must transfer pending demographic-correction reviewer authority to current Doctor.
+- REM-026: pre-queue assigned financial Visits must remain visually/semantically separate from actual queue.
+- REM-027: later financial correction must preserve queue history while defining safe current operational behavior.
+
+### Product-definition gaps identified
+
+- default queue insertion/order semantics are not explicit;
+- callable/start-consultation state boundaries are underspecified;
+- reassignment eligibility, destination position, and Called-state behavior are not explicit;
+- reassignment impact on pending demographic correction is not yet represented in queue interaction;
+- Unresponded reposition needs current-state/stale protection;
+- patient-leaves action scope and state result need explicit behavior;
+- G4's Paid/Waived pre-queue list must not bleed into actual queue counts/order;
+- G4 financial correction to Unpaid after queue entry needs safe current handling without erasing queue history;
+- pending cancellation may coexist with active workflow, but stale decision after Visit becomes Completed is not defined;
+- duplicate Pending cancellation requests should be prevented;
+- cancellation approval during concurrent Doctor/Pharmacy work needs stale-state protection;
+- queue waiting-time timestamp must not be silently reset by ordinary reassignment/repositioning.
+
+### Business input required
+
+None. The gaps can be resolved as derived product design while preserving the locked state model.
