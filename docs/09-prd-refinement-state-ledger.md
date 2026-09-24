@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.7 DRAFT |
 | Current group | G6 — Consultation & Longitudinal Clinical Record |
-| Current stage | GROUP REASONING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5 |
 | In-progress groups | G6 |
 | Not started | G7–G15 |
@@ -65,7 +65,7 @@ A group is COMPLETE only when all four gates pass:
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
-| G6 | Consultation & Longitudinal Clinical Record | GROUP REASONING | — | — | — | Current group |
+| G6 | Consultation & Longitudinal Clinical Record | DECISIONS RESOLVED | — | — | — | Current group |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
@@ -1558,7 +1558,7 @@ Proceed directly to G6.
 
 ## Current checkpoint
 
-**Stage:** GROUP REASONING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -1587,7 +1587,7 @@ Proceed directly to G6.
 
 ### Current action
 
-Resolve the G6 consultation/history/amendment/cancellation-concurrency product gaps from the completed source review, then apply them to PRD layers.
+Apply resolved G6 consultation, history, correction, amendment, and cancellation-concurrency rules to PRD layers.
 
 ### Blockers
 
@@ -1653,3 +1653,22 @@ None.
 ### Business input required
 
 None. All identified gaps can be resolved as derived product design without changing the locked clinical policy.
+
+
+## 2026-09-25 — G6 DECISIONS RESOLVED
+
+1. Clinical authoring begins only after explicit Called -> With Doctor and only for the currently assigned Doctor.
+2. With Doctor uses an editable in-progress consultation draft. Save Draft is explicit and does not complete the Visit. Required complaint + assessment fields are enforced at completion, not every draft save.
+3. Draft saves are stale-safe: changed Visit state, Doctor assignment, cancellation, or newer saved draft blocks silent overwrite.
+4. Complete Consultation is explicit, Doctor-only, revalidates state/assignment, requires the two mandatory fields, creates the completed effective clinical record, records Doctor/time, moves Visit to Consultation Completed, and makes ordinary clinical fields read-only.
+5. Consultation completion does not itself finalize prescription or perform pharmacy progression; G7 owns that boundary.
+6. Longitudinal history remains scoped to the actual Patient ID. Possible Duplicate context may be shown, but candidate Patient histories are never auto-combined.
+7. Doctor workspace exposes demographic-correction tasks. Approval/rejection revalidates current value and reviewer authority; stale requests cannot overwrite newer demographics. Doctor direct demographic correction remains a separate audited action. Resolves REM-021.
+8. Completed consultation correction uses a new effective amendment revision with mandatory reason. Prior revisions remain read-only and the latest effective revision is default. Stale amendment baseline blocks overwrite.
+9. Amendment corrects an already-completed clinical record and may remain available after the Visit later becomes Completed or Cancelled/Voided; it does not reopen workflow.
+10. If cancellation occurs while With Doctor before completion, saved partial content remains historical/read-only but is not relabelled as a completed consultation and does not get the completed-consultation amendment flow.
+11. Pending cancellation does not freeze consultation. Effective cancellation blocks future saves/completion from stale Doctor views while preserving already-saved content. Resolves REM-034.
+12. Owner-only/Admin-only/Reception/Pharmacist authority does not expose unrestricted clinical content; Owner+Doctor uses Doctor authority for full clinical access.
+13. Exact save-version/concurrency mechanics remain technical and must be generalized in G14.
+
+No new business input is required.
