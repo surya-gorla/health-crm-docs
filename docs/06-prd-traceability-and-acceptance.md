@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.11 |
+| Version | 0.12 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.11 |
+| Parent | Product Requirements Document v0.12 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -346,6 +346,83 @@ Supports: P-081–P-084, PHA-05, OWN-03, IX Sections 9 and 16.
 **Then** the product first retrieves current effective state and prevents a duplicate effective record/action.
 
 Supports: P-077–P-084, IX Sections 8, 16 and 25.
+## AC-039 — Inventory changes are ledger movements, not silent stock edits
+
+**Given** an authorized quantity-changing inventory event occurs  
+**Then** the product preserves an attributable movement with unit/medicine/batch where relevant, normalized quantity, before/delta/after, source/actor/time rather than silently overwriting current stock.
+
+Supports: P-085, P-087–P-090, FR-071, BR-037.
+
+## AC-040 — Package entry preserves base-unit effect
+
+**Given** staff enters a configured package quantity for adjustment or transfer  
+**Then** the product shows the conversion and normalized base-unit effect before submission and preserves that movement meaning historically.
+
+Supports: P-085, FR-086, OD-015.
+
+## AC-041 — Pending inventory adjustment changes nothing
+
+**Given** Pharmacist submits a stock addition/loss/damage/expiry/correction request  
+**When** request is Pending  
+**Then** stock is neither changed nor reserved and the live ledger remains usable for legitimate dispensing/movements.
+
+Supports: P-088–P-089, FR-068, OD-030.
+
+## AC-042 — Stale stock adjustment cannot silently apply
+
+**Given** an inventory request captured a stock baseline  
+**And** intervening dispensing/adjustment/transfer changed the relevant unit/batch stock  
+**When** Owner attempts approval  
+**Then** the product revalidates the baseline/result and blocks stale or negative application instead of partially applying it.
+
+Supports: P-090, OWN-03, PHA-09, IX Section 17.
+
+## AC-043 — Owner direct adjustment remains controlled
+
+**Given** Owner directly records a non-dispensing stock adjustment  
+**Then** no redundant self-approval request is created, but category, mandatory reason, current-state review, confirmation, and full before/delta/after audit are required.
+
+Supports: P-090, OWN-04, BR-031, BR-037.
+
+## AC-044 — Expiry blocks availability without erasing quantity history
+
+**Given** a batch reaches expiry  
+**Then** it is excluded from valid dispensing/available stock immediately, remains visible as expired recorded quantity, and leaves inventory only through controlled disposition/adjustment.
+
+Supports: P-091, FR-089, BR-032.
+
+## AC-045 — Transfer Pending reserves nothing
+
+**Given** Pharmacist submits an inter-pharmacy transfer request  
+**When** it is Pending  
+**Then** neither ledger changes and source stock is not reserved; later approval must revalidate current transferable source quantity.
+
+Supports: P-092–P-093, FR-096, BR-041.
+
+## AC-046 — Approved transfer is linked and atomic
+
+**Given** a current valid transfer request  
+**When** Owner approves  
+**Then** source decreases and destination increases by the same normalized quantity under one transfer identity, preserving batch continuity and changing neither side partially.
+
+Supports: P-093, FR-096, BR-041.
+
+## AC-047 — Billing/void does not mutate stock
+
+**Given** medicine was already dispensed  
+**When** bill is created, paid, corrected, voided, or Visit later completes/cancels  
+**Then** the original stock movement remains unchanged unless a separate Owner-authorized inventory adjustment is performed.
+
+Supports: P-087, P-084, REM-056, BR-056.
+
+## AC-048 — Inventory state changes are retry-safe
+
+**Given** an adjustment/direct-adjustment/transfer submit or approval has unknown outcome  
+**When** user attempts again  
+**Then** the product checks request/ledger state first and prevents duplicate or double-applied stock movement.
+
+Supports: P-088–P-093, IX Sections 17 and 25.
+
 
 ---
 
@@ -1443,6 +1520,78 @@ Supports: P-083–P-084, PHA-05, OWN-03.
 **Then** the current Visit/bill/request/payment state is refreshed before another effective action is allowed.
 
 Supports: P-077–P-084, IX Sections 16 and 25.
+## UXA-101 — Manual stock cannot be edited directly
+
+**Given** Pharmacist views inventory quantity  
+**Then** there is no ordinary direct quantity edit; exceptional stock changes use the request workflow and normal dispense remains automatic.
+
+Supports: P-087–P-090, PHA-08–PHA-09.
+
+## UXA-102 — Adjustment request shows entered and normalized effect
+
+**Given** Pharmacist prepares quantity adjustment using a package unit  
+**Then** the request shows entered quantity/unit, conversion to base units, current baseline, delta, and projected result before submission.
+
+Supports: P-085, P-088, PHA-09, IX Section 17.
+
+## UXA-103 — Stock-count correction exposes derived delta
+
+**Given** Pharmacist enters a counted/resulting quantity  
+**Then** product derives and displays the difference from captured current stock rather than hiding the correction as an unexplained replacement number.
+
+Supports: P-088, PHA-09.
+
+## UXA-104 — Owner sees current state before inventory approval
+
+**Given** an adjustment request is Pending  
+**When** Owner opens it after other inventory movement occurred  
+**Then** captured baseline and current stock are distinguishable and stale application is blocked when result no longer matches reviewed proposal.
+
+Supports: P-090, OWN-03, IX Section 17.
+
+## UXA-105 — Expired quantity is visible but non-dispensable
+
+**Given** batch is expired  
+**Then** inventory views show it as expired/unavailable rather than silently zeroing/removing it, and dispensing controls cannot select it.
+
+Supports: P-091, PHA-07–PHA-08.
+
+## UXA-106 — Transfer keeps source and destination explicit
+
+**Given** Pharmacist prepares transfer  
+**Then** source, destination, medicine/batch, entered/base quantity, current transferable source quantity, and reason stay visible through request and Owner decision.
+
+Supports: P-092–P-093, PHA-10, OWN-03.
+
+## UXA-107 — Pending transfer does not reserve stock
+
+**Given** transfer request is Pending  
+**Then** source inventory remains ordinarily usable; approval rechecks actual source quantity and becomes stale rather than partially transferring if insufficient.
+
+Supports: P-092–P-093, IX Section 17.
+
+## UXA-108 — Transfer approval updates both ledgers together
+
+**Given** Owner approves valid transfer  
+**Then** both source and destination movements become effective under the same transfer reference; UI never presents only one side as successfully completed.
+
+Supports: P-093, OWN-03, OWN-04.
+
+## UXA-109 — Inventory history preserves physical movement despite billing lifecycle
+
+**Given** stock was deducted by dispense  
+**Then** later prescription replacement/bill/payment/void/Visit state changes do not rewrite the movement or its unit/batch/source attribution.
+
+Supports: P-087, REM-047, REM-056.
+
+## UXA-110 — Inventory unknown outcome is checked before retry
+
+**Given** inventory request/direct action/approval/transfer returns unknown outcome  
+**When** user retries  
+**Then** current request and ledger state are refreshed first so the product cannot knowingly double-apply a movement.
+
+Supports: P-088–P-093, IX Sections 17 and 25.
+
 
 ---
 

@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.10 |
+| Version | 0.11 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.11 |
+| Parent | PRD v0.12 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -1743,19 +1743,25 @@ Pharmacist cannot infer an unapproved strength/form/quantity conversion.
 **Users:** Pharmacist within permitted pharmacy scope; Owner; authorized Admin  
 **Source:** P-085–P-091
 
+### Context
+
+Always show active pharmacy unit for unit-scoped views.
+
 ### Content
 
-- active pharmacy unit;
 - medicine;
-- current available stock;
+- current valid available stock;
+- recorded stock context including expired/unavailable quantity where applicable;
 - base/package-unit representation;
 - low-stock state;
 - nearest expiry;
-- Out of Stock state.
+- Out of Stock state;
+- unit/batch drill-down;
+- recent movement cue.
 
 ### Filters
 
-- search medicine;
+- medicine search;
 - low stock;
 - out of stock;
 - near expiry;
@@ -1767,7 +1773,11 @@ Pharmacist cannot infer an unapproved strength/form/quantity conversion.
 - Request Inventory Change;
 - Request Transfer.
 
+### Restricted
+
 No direct unapproved manual quantity edit.
+
+Expired quantity may be inspected but is never offered as valid dispensing availability.
 
 ---
 
@@ -1779,21 +1789,34 @@ No direct unapproved manual quantity edit.
 ### Content
 
 - medicine identity;
-- base unit and package conversions;
-- batches;
-- expiry;
+- active pharmacy unit;
+- base unit and configured package conversions;
+- per-batch/lot recorded quantity;
+- valid available quantity;
+- expiry/unavailable state;
 - manufacturer;
 - purchase/selling price;
-- current quantities;
-- recent stock movements.
+- low-stock / near-expiry context;
+- movement history.
+
+### Movement row
+
+Where applicable show:
+
+- time;
+- movement category;
+- batch/lot;
+- entered quantity/unit;
+- normalized base-unit delta;
+- before -> after;
+- source reference;
+- actor/effective authority.
 
 ### Actions
 
-Role-dependent:
-
-- Pharmacist -> submit change request;
-- Owner -> review control history / enter Owner-authorized actions where applicable;
-- Admin -> permitted configuration only.
+- Pharmacist -> submit change request / transfer request;
+- Owner -> review control history or perform direct Owner-authorized adjustment;
+- Admin -> permitted configuration only, never operational stock approval merely by Admin role.
 
 ---
 
@@ -1804,23 +1827,48 @@ Role-dependent:
 
 ### Request categories
 
+Quantity-changing:
 - stock addition;
 - damage;
 - loss;
-- correction;
-- permitted price change;
-- expired-stock disposition/adjustment where appropriate.
+- expired-stock disposition;
+- quantity correction.
 
-### Required fields
+Non-quantity:
+- permitted purchase/selling-price change.
 
-- medicine/batch where relevant;
-- proposed change;
-- quantity or price value;
-- mandatory reason.
+### Quantity-request content
 
-### Outcome
+- active pharmacy unit;
+- medicine;
+- batch/lot where relevant;
+- current captured stock baseline;
+- entered quantity and unit;
+- visible package -> base conversion;
+- normalized base-unit delta/result;
+- mandatory specific reason.
 
-Pending Owner approval. Stock does not change while pending.
+For count correction, user may enter the intended counted/resulting quantity; show the derived delta explicitly.
+
+### Price-request content
+
+- current captured price/value;
+- proposed price/value;
+- mandatory specific reason.
+
+Do not present a price change as a stock movement.
+
+### Submission result
+
+Pending Owner approval.
+
+While Pending:
+- stock/price does not change;
+- stock is not reserved;
+- request shows captured baseline;
+- ordinary valid movements may continue.
+
+Duplicate final submit is disabled while request submission is pending. Unknown result is checked before another request attempt.
 
 ---
 
@@ -1831,21 +1879,34 @@ Pending Owner approval. Stock does not change while pending.
 
 ### Required fields
 
-- source pharmacy;
-- destination pharmacy;
-- medicine/batch where relevant;
-- quantity;
-- mandatory reason.
+- source pharmacy unit;
+- destination pharmacy unit;
+- medicine;
+- batch/lot where relevant;
+- entered quantity/unit;
+- visible normalized base-unit quantity;
+- captured current transferable source quantity;
+- mandatory specific reason.
 
 ### Validation
 
-- source and destination must differ;
-- requested quantity cannot exceed transferable source availability;
-- request itself does not alter stock.
+- source and destination differ;
+- quantity > 0;
+- requested amount cannot exceed current valid transferable source quantity at submission;
+- expired/unavailable quantity is not transferable as valid stock through this normal transfer flow.
 
-### Outcome
+### Pending behavior
 
-Pending Owner approval.
+Request creates no stock movement and no reservation.
+
+Because source stock remains live, Owner approval must revalidate transferable source quantity.
+
+### Result
+
+- Owner approval -> linked source decrease + destination increase under one transfer reference;
+- rejection/stale request -> neither side changes;
+- no partial transfer approval;
+- transferred physical batch identity/expiry/manufacturer context is preserved.
 
 ---
 
@@ -1948,8 +2009,8 @@ Paid/Waived Visits are not eligible for this normal action.
 **Visit cancellation:** request-state baseline, current Visit state, current queue/workflow stage, existing clinical/prescription/dispensing/financial history, and explicit warning that approval removes future active workflow but does not refund/delete history. If current state is Completed or request is already resolved, approval is unavailable.  
 **Bill void:** bill/payment with latest payment state, unit/source context, explicit “stock will not be restored” warning, and explicit “no refund” warning when Paid; decision must revalidate current bill/request/payment state.  
 **Payment correction:** captured current payment baseline, original vs proposed payment fields, explicit “record correction — not a refund” context where relevant, and stale-baseline blocking. For pharmacy, bill lines/total are not correction fields.  
-**Inventory adjustment:** stock before, proposed delta, projected stock after.  
-**Transfer:** source, destination, quantity.  
+**Inventory adjustment:** category/reason, unit/medicine/batch, entered/base quantity, captured baseline, current stock, proposed delta/result; stale baseline blocks application. Price-only request shows current/proposed price and no stock delta.  
+**Transfer:** source, destination, medicine/batch, entered/base quantity, captured/current transferable source stock, one linked transfer reference, and stale-source protection.  
 **Password reset:** staff identity, account status.
 
 ### Acceptance
@@ -1965,17 +2026,55 @@ Owner cannot approve an already-resolved request as if it were still Pending.
 
 ### Views
 
-- clinic consolidated;
-- pharmacy-unit view;
-- stock movement history;
-- damage/loss/correction history;
-- pending inventory approvals;
+- clinic consolidated stock;
+- pharmacy-unit stock;
+- medicine/batch drill-down;
+- current valid available versus expired/unavailable recorded quantity;
+- package/base-unit representation;
+- immutable movement history;
+- normal dispensing movements;
+- additions;
+- damage/loss/corrections;
+- expiry disposition;
+- pending/resolved inventory approvals;
 - transfers;
-- expiry risk.
-
-### Acceptance
+- low-stock/expiry risk.
 
 Consolidated totals never replace unit-level attribution.
+
+### Movement history
+
+Show, as applicable:
+
+- unit;
+- medicine/batch;
+- category;
+- entered/unit quantity;
+- normalized base delta;
+- before/after;
+- source/request/transfer reference;
+- actor/effective authority;
+- reason;
+- time.
+
+### Direct Owner adjustment
+
+Owner may initiate direct adjustment without self-approval.
+
+Require:
+- category;
+- unit/medicine/batch context;
+- current state;
+- entered/base effect;
+- mandatory reason;
+- projected result;
+- explicit consequence confirmation.
+
+A direct action becomes an attributed movement immediately only after final current-state validation. It cannot create negative stock.
+
+### Alerts/drill-down
+
+Owner can move from low-stock/near-expiry/expired summaries to the exact unit/batch context.
 
 ---
 
@@ -2396,6 +2495,12 @@ The screen model is not ready for design/implementation sign-off if:
 - one dispensing quantity can be actively billed more than once;
 - Visit pharmacy completion is incorrectly gated on bill being Paid;
 - Completed/Cancelled Visit can create new dispensing or a new pharmacy bill;
+- Pharmacist can directly overwrite operational stock quantity outside controlled movement/request flow;
+- Pending inventory adjustment or transfer silently reserves/changes stock;
+- stale adjustment/transfer approval applies against changed stock without revalidation;
+- approved transfer updates only source or only destination;
+- expired quantity disappears from inventory history merely because it became non-dispensable;
+- billing/payment/void/Visit lifecycle silently alters previously committed stock movement;
 - Admin can access Owner lifecycle controls;
 - Owner-only screen exposes unrestricted clinical content;
 - error/empty/pending states are undefined for a critical workflow.

@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.11 |
+| Version | 0.12 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -1821,61 +1821,235 @@ Exact transaction/idempotency mechanics remain technical design.
 
 Source: FR-051, FR-068, FR-086–FR-090, FR-094–FR-096, FR-115–FR-118; BR-017, BR-031–BR-032, BR-037, BR-040–BR-041, BR-056, BR-058.
 
-## 19.1 Inventory model
+## 19.1 Inventory model and ledger truth
 
 Inventory supports:
 
-- base stock/dispensing unit;
-- configured package conversions;
+- medicine-specific base stock/dispensing unit;
+- configured higher package units and conversion factors;
 - batch/lot;
 - expiry;
 - manufacturer;
 - purchase price;
 - selling price;
-- low-stock threshold;
-- near-expiry threshold.
+- configurable low-stock threshold;
+- configurable near-expiry threshold.
 
-### P-085 — Pharmacy-unit stock
+Quantity-changing inventory behavior is represented as attributable **movements/events**, not silent replacement of a current-stock number.
 
-Each pharmacy unit maintains independent stock ledger.
+Normal dispensing, approved additions, approved reductions/corrections, expiry disposition, and approved transfers all leave movement history. Later corrections create new controlled movements rather than rewriting prior movement history.
+
+### P-085 — Pharmacy-unit stock and movement ledger
+
+Each pharmacy unit maintains an independent stock ledger.
+
+For every quantity-changing movement preserve, as applicable:
+
+- pharmacy unit;
+- medicine;
+- batch/lot;
+- entered quantity and entered unit;
+- normalized base-unit quantity;
+- movement category;
+- stock before;
+- delta;
+- stock after;
+- source reference such as prescription/dispense, adjustment, or transfer;
+- actor/effective authority;
+- timestamp.
+
+Clinic-wide stock is derived from pharmacy-unit ledgers. Consolidated totals must never replace unit-level attribution.
+
+### Base/package conversion
+
+Every medicine has a configured base unit. Higher package quantities may be used for entry/display when configured.
+
+Before a material quantity-changing request is submitted or approved:
+
+- show the package-to-base conversion;
+- show the normalized base-unit effect;
+- retain the conversion/result used for the movement so later configuration changes do not rewrite historical movement meaning.
+
+### Batch attribution
+
+Where inventory is held by batch/lot, quantity-changing movements identify the concrete batch/lot and preserve its expiry/manufacturer context.
+
+A dispense must resolve actual valid/non-expired batch stock before commit. Expired or insufficient batch quantity cannot be used invisibly to satisfy a dispense.
+
+Exact default ordering/suggestion among multiple valid batches remains implementation design; the committed batch attribution is mandatory.
 
 ### P-086 — Consolidated Owner view
 
-Owner can see per-unit and clinic-total inventory.
+Owner can view:
 
-### P-087 — Automatic movement visibility
+- current stock by pharmacy unit;
+- clinic-wide consolidated totals;
+- base/package representation;
+- unit/batch drill-down;
+- low/out-of-stock state;
+- near-expiry/expired state;
+- automatic dispensing movements;
+- stock additions;
+- damage/loss/corrections;
+- expiry disposition;
+- transfers;
+- request/decision history;
+- before/delta/after values where quantity changes.
 
-Normal prescription dispensing appears as an attributable stock movement without Owner approval.
+### P-087 — Automatic dispensing movement visibility
+
+Normal prescription dispensing automatically creates the attributable negative stock movement in the active pharmacy unit and does **not** require Owner approval.
+
+Physical dispensing remains the stock-changing event. The following do not retroactively change inventory:
+
+- prescription finalization/replacement;
+- pharmacy bill creation;
+- payment recording/correction;
+- bill void;
+- Visit completion/cancellation;
+- reporting.
+
+Prior stock deduction remains attributed to the original dispense/prescription version even if that prescription later becomes Superseded.
 
 ## 19.2 Manual/non-dispensing inventory changes
 
-### P-088 — Change request
+### P-088 — Pharmacist inventory-change request
 
-Pharmacist submits stock addition, loss, damage, correction, or permitted price-change request with reason.
+Pharmacist cannot directly apply an operational manual stock change.
 
-### P-089 — No change while pending
+For stock addition, damage, loss, expired-stock disposition, or quantity correction, the request records:
 
-The inventory record does not change until Owner approval.
+- category;
+- pharmacy unit;
+- medicine;
+- affected batch/lot where relevant;
+- entered quantity and unit;
+- normalized base-unit effect;
+- current captured stock baseline;
+- projected resulting quantity;
+- mandatory specific reason.
 
-### P-090 — Owner approve/reject
+For a physical stock-count correction, staff may enter the intended counted/resulting quantity; the product derives and displays the delta against the captured baseline before submission.
 
-Decision, requester, reason, resulting stock change, and timestamps are auditable.
+A Pharmacist-proposed purchase/selling-price change uses the same controlled request pattern but is explicitly **non-quantity-changing**. It captures current value, proposed value, reason, requester, and time.
 
-### P-091 — Expired stock
+### P-089 — No change or reservation while Pending
 
-Expired stock cannot be dispensed. Owner receives the relevant disposition/adjustment control; physical disposal process is outside CRM scope.
+Submitting an inventory-change request does not change stock, reserve stock, or alter price while Pending.
+
+The live ledger remains authoritative while the request waits for Owner review.
+
+Only one request should not be treated as ownership of the underlying quantity; ordinary dispensing/other valid movements may still occur, so approval must revalidate current state.
+
+### P-090 — Owner inventory-adjustment decision
+
+Owner sees:
+
+- requester;
+- category/reason;
+- pharmacy unit;
+- medicine/batch;
+- entered and normalized quantity;
+- captured stock baseline;
+- current stock at review time;
+- proposed delta/result;
+- relevant movement history.
+
+Before applying a quantity change, Owner decision revalidates current unit/batch stock.
+
+If intervening dispensing/adjustment/transfer means the reviewed proposed result is stale or would create invalid/negative stock:
+
+- do not silently apply the old proposal;
+- do not partially apply it;
+- show stale-state feedback and require refreshed review/new proposal.
+
+Approval creates the controlled movement and records requester, Owner authority, reason, before/delta/after, and timestamps. Rejection leaves inventory unchanged and remains historical.
+
+For a non-quantity price request, revalidate the captured current price/value; stale baseline blocks silent overwrite.
+
+#### Owner direct adjustment
+
+Owner may perform the same non-dispensing adjustment directly without a redundant self-approval request.
+
+Direct Owner adjustment still requires:
+
+- category;
+- mandatory reason;
+- current state review;
+- explicit confirmation;
+- the same movement/old-new audit detail.
+
+Admin authority alone does not grant this operational stock-control power.
+
+### P-091 — Expired stock and alerts
+
+Expired batch quantity is immediately unavailable for dispensing and excluded from valid available-stock calculations.
+
+Expiry itself does **not** silently erase the physically recorded quantity from inventory history.
+
+The expired batch remains visible as expired/unavailable until its removal/disposition is recorded through the controlled Owner-authorized inventory-adjustment flow.
+
+Owner receives expiry visibility/notification. Physical disposal remains outside CRM V1.
+
+Low-stock and near-expiry state use configured medicine/inventory thresholds rather than hard-coded global values. Consolidated Owner views retain unit/batch drill-down.
 
 ## 19.3 Pharmacy transfer
 
-### P-092 — Linked transfer
+### P-092 — Linked transfer request
 
-Inter-pharmacy transfer is one linked transaction with source, destination, medicine, quantity, requester, Owner decision, and shared transfer reference.
+A Pharmacist transfer request identifies:
 
-### P-093 — Atomic business outcome
+- source pharmacy unit;
+- different destination pharmacy unit;
+- medicine;
+- concrete batch/lot where relevant;
+- entered quantity/unit;
+- normalized base-unit quantity;
+- captured transferable source availability;
+- mandatory specific reason.
 
-Approved transfer decreases source and increases destination as one controlled business event; rejected transfer changes neither.
+Submitting the request:
 
----
+- changes neither source nor destination stock;
+- creates no hidden stock reservation;
+- retains one linked transfer identity/reference.
+
+Source and destination must differ. Requested quantity must be positive and cannot exceed the captured transferable valid source quantity at submission.
+
+### P-093 — Owner transfer decision and atomic business outcome
+
+Before decision, Owner revalidates:
+
+- request still Pending/current;
+- source/destination;
+- current source valid transferable quantity;
+- medicine/batch identity;
+- normalized quantity.
+
+If source stock fell below requested transferable quantity, the request is stale/non-actionable until refreshed/replaced. V1 does not partially approve a stale transfer.
+
+Approval is one atomic business event under one transfer ID/reference:
+
+- source unit decreases by the normalized quantity;
+- destination unit increases by the same normalized quantity;
+- destination movement preserves the physical stock's batch/lot/expiry/manufacturer identity and transfer linkage;
+- both movements remain separately visible in their unit ledgers and jointly traceable through the transfer.
+
+Rejection/stale failure changes neither side.
+
+Transfer does not rewrite prior source movement history or create an unrelated destination batch identity.
+
+## 19.4 Inventory state-change and retry safety
+
+For inventory adjustment submission, Owner direct adjustment, adjustment approval, transfer submission, and transfer approval:
+
+- disable duplicate final submit while pending;
+- revalidate current request/stock baseline before apply;
+- if outcome is unknown, refresh/check current request and ledger state before blind retry;
+- stale/resolved request cannot apply again;
+- quantity-changing outcome cannot produce negative stock.
+
+Exact transaction, lock, and movement-storage mechanisms remain technical design.
 
 # 20. Owner Workspace
 

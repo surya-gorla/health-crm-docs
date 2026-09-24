@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.11 |
+| Version | 0.12 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.11 |
+| Parent | PRD v0.12 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -604,8 +604,8 @@ If another browser/session already resolved the request, the current user must s
 ## 10.4 Type-specific impact
 
 **Bill void:** show latest payment state and explicitly say inventory will not be restored; if Paid, explicitly say approval does not create a refund.  
-**Inventory adjustment:** show stock before/proposed after.  
-**Transfer:** show source and destination.  
+**Inventory adjustment:** show category/reason, captured baseline and current stock, entered/base quantity, proposed delta/result; stale baseline must block application.  
+**Transfer:** show source/destination, medicine/batch, captured/current transferable quantity, normalized quantity, and linked transfer consequence.  
 **Payment correction:** show captured baseline plus original/proposed payment fields; re-check baseline before applying. Pharmacy correction must not expose bill lines/total as editable correction fields.  
 **Visit cancellation:** show current Visit state and that history remains.  
 **Waiver:** show fee/current financial outcome/queue eligibility effect; approval is valid only while the current outcome remains Unpaid. If the Visit became Paid, the pending waiver is stale/non-actionable.
@@ -1185,43 +1185,201 @@ Exact locking/transaction mechanics remain technical.
 
 ---
 
-# 17. Inventory Quantity and Unit Pattern
+# 17. Inventory Quantity, Movement and Transfer Pattern
 
-## 17.1 Base unit
+## 17.1 Base-unit truth
 
-Inventory calculations use configured base unit.
+Every medicine has a configured base stock/dispensing unit.
 
-## 17.2 Package display
+Higher package units may be used for human entry/display where configured, but quantity-changing inventory logic uses normalized base units.
 
-Higher packaging may be used for human entry/display where configuration exists.
+## 17.2 Package conversion visibility
 
-## 17.3 Conversion visibility
+When staff enters package quantity for an adjustment/transfer:
 
-When an entered package quantity converts to base units, show the resulting base quantity before a material adjustment/transfer request is submitted.
+- show entered quantity/unit;
+- show conversion factor/result;
+- show normalized base-unit quantity;
+- preserve the conversion/result used for the eventual movement.
 
-## 17.4 Manual change
+Do not silently reinterpret a historical movement after package configuration changes.
 
-Pharmacist sees current stock and proposed delta/result before submitting request.
+## 17.3 Movement-first stock model
 
-## 17.5 Negative stock prevention
+Operational stock quantity is the result of attributable movements.
 
-Do not allow a request to present an impossible resulting source quantity without explicit validation feedback.
+Do not offer Pharmacist a generic “edit current stock” field.
 
-The exact concurrency implementation is technical.
+Movement categories include, as applicable:
+
+- automatic prescription dispense;
+- approved stock addition;
+- approved damage/loss/expiry reduction;
+- approved correction;
+- Owner direct adjustment;
+- transfer source;
+- transfer destination.
+
+Historical movement is read-only. Later correction is another controlled movement.
+
+## 17.4 Batch and valid availability
+
+Where batch/lot applies, movement identifies the concrete batch.
+
+Valid available quantity excludes expired/unavailable batch stock.
+
+A quantity-changing action must not silently use another batch, expired stock, or insufficient batch quantity simply to make totals fit.
+
+## 17.5 Adjustment request preview
+
+Before Pharmacist submits quantity change, show:
+
+- pharmacy unit;
+- medicine/batch;
+- current captured baseline;
+- entered quantity/unit;
+- normalized base-unit effect;
+- category;
+- projected result;
+- mandatory reason.
+
+For count correction, show entered counted/resulting quantity **and** derived delta.
+
+For a price-only request, show current -> proposed price and no stock delta.
+
+## 17.6 Pending adjustment
+
+Pending request:
+
+- changes no stock/price;
+- creates no reservation;
+- keeps captured baseline for Owner review;
+- remains historical even after resolution.
+
+Normal legitimate inventory movements may continue while Pending.
+
+## 17.7 Adjustment approval/stale state
+
+Owner review shows captured baseline beside current unit/batch state.
+
+Before approval:
+
+- revalidate current stock/value;
+- block if old proposal would no longer produce the reviewed result or would create invalid/negative stock;
+- do not partially apply a stale request;
+- require refreshed/new proposal when needed.
+
+Approval creates the movement/value change once. Rejection changes nothing.
+
+## 17.8 Owner direct adjustment
+
+Owner direct adjustment is an Owner-authority action, not a self-approval request.
+
+Require the same category/reason/current state/projected effect, plus explicit confirmation and full audit.
+
+## 17.9 Expired stock
+
+When batch reaches expiry:
+
+- mark it expired/unavailable immediately;
+- exclude it from valid dispense availability;
+- keep recorded expired quantity visible;
+- do not automatically erase quantity from ledger;
+- disposition/removal uses controlled Owner-authorized adjustment.
+
+Owner authority cannot override expired-stock dispensing prohibition.
+
+## 17.10 Low-stock and near-expiry
+
+Evaluate configured thresholds against current valid inventory/batch context.
+
+Show unit context and retain drill-down from Owner consolidated view.
+
+Exact threshold values are configuration.
+
+## 17.11 Transfer request
+
+Transfer always keeps source and destination visible.
+
+Before submit show:
+
+- source/destination;
+- medicine/batch;
+- current valid transferable source quantity;
+- entered package/base quantity;
+- normalized base quantity;
+- mandatory reason.
+
+Source and destination must differ.
+
+Pending transfer changes/reserves nothing.
+
+## 17.12 Transfer decision
+
+Owner review revalidates source transferable quantity.
+
+If current source quantity cannot satisfy the full request:
+
+- mark/block stale action;
+- do not partially transfer;
+- require refreshed/replacement request.
+
+Approval is one effective linked event:
+
+- source -Q;
+- destination +Q;
+- same transfer ID/reference;
+- same physical batch/expiry/manufacturer identity;
+- both unit ledgers updated together.
+
+Reject/stale failure changes neither ledger.
+
+## 17.13 Negative-stock prevention
+
+No dispensing, approved adjustment, direct adjustment, or transfer may produce negative stock.
+
+If stock changed since form load, refresh/review rather than silently clipping the requested quantity.
+
+## 17.14 Inventory retry/unknown outcome
+
+For adjustment request/direct adjustment/approval and transfer request/approval:
+
+- disable duplicate final action while pending;
+- if outcome is unknown, retrieve request + ledger state first;
+- recover already-applied movement if present;
+- do not knowingly apply the same movement twice.
+
+Exact transaction/locking implementation remains technical.
 
 ---
 
 # 18. Inventory Table Pattern
 
-Recommended columns vary by screen, but the inventory table should support:
+Recommended columns vary by screen, but inventory tables should support:
 
 - medicine;
 - pharmacy unit;
-- available stock;
+- valid available stock;
+- recorded expired/unavailable quantity where useful;
 - base/package representation;
+- batch/lot;
 - nearest expiry;
-- low-stock/out-of-stock state;
-- action appropriate to role.
+- low-stock state;
+- near-expiry state;
+- Out of Stock state.
+
+Movement/history table should support:
+
+- time;
+- movement category;
+- unit;
+- medicine/batch;
+- entered quantity/unit;
+- normalized delta;
+- before -> after;
+- source/request/transfer reference;
+- actor/effective authority;
+- reason where applicable.
 
 Filters:
 
@@ -1229,9 +1387,12 @@ Filters:
 - out of stock;
 - near expiry;
 - expired;
-- medicine search.
+- medicine search;
+- pharmacy unit where permitted.
 
-Owner consolidated views must allow drill-down to the unit-level ledger.
+Owner consolidated views must allow drill-down to the unit/batch ledger.
+
+Do not visually mix current valid availability with expired/unavailable quantity as if both were dispensable.
 
 ---
 
