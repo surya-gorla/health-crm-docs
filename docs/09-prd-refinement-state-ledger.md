@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.8 DRAFT |
 | Current group | G7 — Prescription Authoring & Prescription Lifecycle |
-| Current stage | GROUP REASONING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6 |
 | In-progress groups | G7 |
 | Not started | G8–G15 |
@@ -66,7 +66,7 @@ A group is COMPLETE only when all four gates pass:
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
-| G7 | Prescription Authoring & Prescription Lifecycle | GROUP REASONING | — | — | — | Current group |
+| G7 | Prescription Authoring & Prescription Lifecycle | DECISIONS RESOLVED | — | — | — | Current group |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
@@ -1765,7 +1765,7 @@ Proceed directly to G7.
 
 ## Current checkpoint
 
-**Stage:** GROUP REASONING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -1797,7 +1797,7 @@ Proceed directly to G7.
 
 ### Current action
 
-Resolve prescription draft/finalization, pharmacy-handoff, replacement, availability-snapshot, and cancellation-state behavior from the completed source review.
+Apply the resolved G7 prescription draft/finalization/replacement/pharmacy-readiness rules to PRD layers.
 
 ### Blockers
 
@@ -1851,3 +1851,25 @@ REM-035 and REM-041 are active in this review.
 ### Business input required
 
 None for the locked prescription path. A no-prescription direct-completion bypass is not introduced because the locked V1 flow does not define one.
+
+
+## 2026-09-25 — G7 DECISIONS RESOLVED
+
+1. **Authoring states:** one current unfinalized prescription draft may exist for the Visit while it is active. Doctor may build/edit it during With Doctor and Consultation Completed. Sent to Pharmacy uses replacement, not ordinary draft editing. Completed/Cancelled/Voided does not allow new active authoring.
+2. **Draft identity:** prescription draft is tied to Patient ID + Visit ID + Doctor context. Draft save does not finalize, print, or make it dispensable.
+3. **Finalization validation:** explicit Doctor action; at least one complete medicine row; required medicine/strength/dose/frequency/duration and a resolved quantity for every row; current Visit must be active and not Cancelled/Voided/Completed.
+4. **Quantity:** deterministic quantity is system-calculated from configured inputs/unit; otherwise Doctor quantity is required. Finalization cannot proceed with unresolved quantity.
+5. **Availability:** while editing, availability is current informational data and never blocks prescribing. Immediately before finalization, refresh current clinic-wide/per-unit availability. Freeze clinic-wide availability-at-finalization per item for print marker/history.
+6. **Finalized version:** finalization freezes Patient/Visit, Doctor/time, item instructions/quantities, and availability snapshot. Ordinary in-place editing is disabled.
+7. **Pharmacy readiness:** Consultation Completed and a current Finalized prescription are independent prerequisites for **Sent to Pharmacy**. Whichever event satisfies the second prerequisite triggers the state transition. Finalizing during With Doctor does not itself move Visit; completing consultation later can satisfy readiness. Finalizing after Consultation Completed can satisfy readiness immediately.
+8. **No-prescription bypass:** locked V1 does not define a direct Consultation Completed -> Completed path without prescription/pharmacy. G7 does not invent one.
+9. **Replacement:** Doctor may replace the current finalized prescription while Visit remains active (With Doctor, Consultation Completed, Sent to Pharmacy). Replacement begins from current active version, requires mandatory correction reason, is stale-safe, makes old version Superseded and new version Finalized/current, and preserves links/actor/time.
+10. **Prior dispensing:** replacement never reverses prior dispensing, stock, or bill history. Prior dispensed quantities are shown in replacement context. Subsequent dispensing must respect the active corrected prescription plus preserved prior dispensing; G8 owns exact remaining-dispensable behavior.
+11. **Pharmacy latest version:** Pharmacy defaults to the latest current finalized prescription and receives a superseded-version warning. An old pharmacy screen cannot continue dispensing silently after replacement; G8/G14 will enforce refresh/stale behavior.
+12. **Cancellation:** Pending cancellation does not freeze otherwise-valid prescription work. Effective Cancelled/Voided blocks new draft save/finalize/replacement/pharmacy handoff; existing Draft/Finalized/Superseded versions and dispensing history remain read-only history.
+13. **Completed Visit:** no new active prescription finalization/replacement is introduced after Completed because that would reopen fulfillment and is not defined in locked V1.
+14. **Reprint:** reprint uses the same finalized version and its finalization-time availability snapshot; current stock changes do not rewrite ** markers or create a new version. Default print/reprint follows the current finalized version rather than a Superseded version.
+15. **Clinical amendment isolation:** later clinical amendment does not silently alter prescription. A prescription change, while the Visit is still active, requires the prescription replacement workflow.
+16. **Concurrency:** finalization/replacement revalidates Visit state, current prescription version, and finalization-time availability. Stale action cannot overwrite a newer replacement or effective cancellation.
+
+REM-035 and REM-041 are resolved by these rules subject to final validation.
