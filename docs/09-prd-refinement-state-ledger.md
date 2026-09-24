@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.5 DRAFT |
 | Current group | G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction |
-| Current stage | GROUP REASONING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3 |
 | In-progress groups | G4 |
 | Not started | G5–G15 |
@@ -63,7 +63,7 @@ A group is COMPLETE only when all four gates pass:
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
-| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | GROUP REASONING | — | — | — | Current group |
+| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | DECISIONS RESOLVED | — | — | — | Current group |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
@@ -885,7 +885,7 @@ G3 is complete. G4 has not been started.
 
 ## Current checkpoint
 
-**Stage:** GROUP REASONING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -922,7 +922,7 @@ G3 is complete. G4 has not been started.
 
 ### Current action
 
-Resolve the product-state and interaction gaps identified by the completed G4 source review, then apply them to the PRD layers.
+Apply the resolved G4 Visit/payment/waiver/correction decisions to PRD, acceptance, screen, and interaction specifications.
 
 ### Blockers
 
@@ -989,3 +989,201 @@ None.
 ### Business input required
 
 None. These gaps can be resolved as derived product behavior without changing the locked payment/waiver policy.
+
+
+## 2026-09-25 — G4 DECISIONS RESOLVED
+
+No new clinic/business input is required. These decisions are derived product behavior consistent with the locked Visit/payment rules.
+
+### D-G4-01 — Visit creation is distinct from queue entry
+
+- A Visit is created only against the already selected/newly created permanent Patient ID; Visit creation never creates or replaces patient identity.
+- Possible Duplicate status and missing paper file do not block Visit creation.
+- Effective Visit creation generates the Visit ID and establishes the Visit as the attendance record.
+- The initial consultation financial outcome is **Unpaid** until Paid or Waived becomes effective.
+- Doctor assignment is optional at the moment the Visit is created because FR-006/G3 explicitly allow an active Visit with no Doctor yet assigned.
+- Doctor assignment becomes mandatory before queue entry.
+- Reception may assign the Doctor at Visit creation or later.
+- If G3 needs a Visit-linked demographic correction while the Visit is unassigned, Doctor selection/assignment must occur before that request submits.
+- No fake Visit is created for a demographic correction when no active Visit exists.
+- No artificial “one Visit per patient per day” rule is introduced; separate legitimate attendances remain possible.
+
+Disposition: REM-018 and REM-019 are satisfied subject to post-commit validation.
+
+### D-G4-02 — Consultation fee is a Visit-level applied amount
+
+- REC-05 displays the applicable fee from clinic configuration.
+- When the Visit is effectively created, the applied consultation fee is captured for that Visit so later configuration changes do not silently rewrite historical/current Visit financial records.
+- Future fee-configuration changes are prospective for newly created Visits unless a separately authorized correction is applied to a specific Visit.
+- This does not define the clinic fee value itself; the value remains configuration.
+
+### D-G4-03 — Consultation financial-state model
+
+Normal effective outcomes:
+
+- **Unpaid** — default at Visit creation; queue-blocked.
+- **Paid** — queue-eligible.
+- **Waived** — Owner-approved/direct financial exception; queue-eligible and distinct from Paid.
+
+Normal transitions:
+- Unpaid -> Paid through explicit payment confirmation;
+- Unpaid -> Waived through Owner-approved request or Owner direct waiver.
+
+Normal UI does not provide:
+- Paid -> refund;
+- partial payment;
+- Waived -> Paid;
+- Paid -> Waived.
+
+Incorrect recorded payment information is handled only through the controlled payment-correction workflow.
+
+### D-G4-04 — Paid capture is explicit and auditable
+
+To record Paid:
+- use the Visit's full effective consultation amount;
+- select UPI/Cash/Card/Other;
+- Other requires description;
+- reference is optional;
+- perform an explicit final **Mark Paid** action;
+- record actor/time and the effective payment information.
+
+Selecting a payment method alone never changes state.
+
+A Visit already Paid or Waived does not expose the normal Mark Paid action again; incorrect records use payment correction.
+
+### D-G4-05 — Financial eligibility and Doctor assignment independently gate queue entry
+
+Queue entry requires both:
+1. financial eligibility = Paid or Waived;
+2. Doctor assigned.
+
+Therefore:
+- Paid + no Doctor -> Paid, not queued; assign Doctor later.
+- Waived + no Doctor -> Waived, not queued; assign Doctor later.
+- Doctor assigned + Unpaid -> not queued.
+- Pending/rejected waiver + Unpaid -> not queued.
+
+A high-velocity **Mark Paid & Add to Queue** action may be offered only when a Doctor is already assigned.
+
+If Paid is confirmed but queue insertion subsequently fails or becomes stale:
+- do not hide/rollback the confirmed Paid record merely to make the combined UI look atomic;
+- show the Visit as Paid but not queued;
+- allow safe queue-entry retry after current state is refreshed.
+
+If payment outcome itself is unknown, do not queue until Paid is confirmed.
+
+### D-G4-06 — Waiver request applicability and lifecycle
+
+A waiver request may be created only while the effective consultation financial outcome is Unpaid.
+
+For Reception/Doctor request:
+- mandatory specific reason;
+- one simultaneously actionable Pending waiver request per Visit;
+- repeat submission while Pending does not create duplicate Owner work;
+- underlying financial outcome remains Unpaid while Pending;
+- Owner approval -> Waived;
+- Owner rejection -> remains Unpaid;
+- rejected request remains historical and a later new request may be submitted while still Unpaid with a new reason.
+
+If the Visit becomes Paid while a waiver request is Pending:
+- the pending waiver becomes stale/non-actionable;
+- Owner cannot later approve it into Waived against the newer Paid state;
+- request/history remains visible.
+- Exact generic stale/no-longer-applicable representation is deferred to G11/G14, but duplicate/stale approval is prohibited now.
+
+Waiver is not offered for already Paid or already Waived Visits.
+
+### D-G4-07 — Doctor-requested waiver must be reachable without queue entry
+
+Because an Unpaid Visit cannot enter the Doctor queue, Doctor waiver authority cannot depend on queue presence.
+
+For a Visit assigned to a Doctor but not yet queue-eligible:
+- Doctor workspace exposes a separate **assigned Visits awaiting financial eligibility** context;
+- this context is not part of the ordered Doctor queue;
+- it shows only enough Patient/Visit/payment context for the Doctor to submit a waiver request;
+- it does not open clinical consultation merely because the Doctor can request waiver.
+
+This must be reconciled with G5 Doctor Home/queue design later.
+
+### D-G4-08 — Owner direct waiver is an immediate Owner-authority action
+
+For an Unpaid Visit, Owner may explicitly choose **Direct Waiver**:
+- identify Visit/current Unpaid amount;
+- enter mandatory specific reason;
+- explicitly confirm;
+- effective outcome immediately becomes Waived;
+- no second approval/request record is created;
+- actor/Owner authority/reason/time are audited.
+
+A multi-role Owner+Doctor uses Owner authority for this action.
+
+Paid/Waived Visits do not expose direct waiver as a normal action.
+
+G11 must provide a reachable Owner path for this action without pretending it is a pending request.
+
+### D-G4-09 — Payment correction operates on a captured baseline
+
+A Reception consultation-payment correction request includes:
+- Visit/payment identity;
+- current effective financial record;
+- proposed corrected financial record;
+- mandatory specific reason.
+
+The proposed correction may adjust:
+- Paid/Unpaid status where the recorded status itself was wrong;
+- payment method;
+- Other method description;
+- optional external reference;
+- the Visit-specific recorded consultation amount if that amount itself was recorded incorrectly.
+
+A Visit-specific amount correction does not change clinic fee configuration.
+
+If proposed effective state is Paid:
+- it represents the full corrected effective consultation amount;
+- method requirements apply;
+- no partial-payment representation is introduced.
+
+Waiver is a separate Owner financial-exception record and is not silently created/revoked through payment correction.
+
+### D-G4-10 — Payment correction is non-destructive and stale-safe
+
+- only one simultaneously actionable payment-correction request for the same current payment baseline should exist;
+- Pending request does not change effective payment/queue state;
+- Owner approval creates the corrected effective financial record while preserving original/request/reason/decision/time;
+- rejection leaves effective record unchanged;
+- if the effective payment baseline changes before Owner decision, the pending request is stale and cannot be applied against the newer record.
+
+A Paid -> Unpaid correction means the original Paid record was wrong; it is explicitly **not a refund**.
+
+### D-G4-11 — Payment correction does not rewind already-created clinical/queue history
+
+Financial correction changes the effective financial record, not historical reality.
+
+- before queue entry, corrected state immediately governs future queue eligibility;
+- after the Visit has already entered/progressed through the queue/consultation workflow, a later correction does not delete, rewind, or silently undo queue/clinical history;
+- the corrected financial state remains visible/auditable.
+
+G5 must evaluate how an already-active queued Visit displays/handles a later financial correction without inventing retroactive deletion.
+
+### D-G4-12 — Payment/Visit retry safety
+
+- prevent duplicate final payment confirmation while submitting;
+- if payment outcome is unknown, refresh/check effective Visit/payment state before another Paid attempt;
+- do not create duplicate payment records by blind retry;
+- Visit creation has the same unknown-outcome protection: determine whether the Visit already exists before repeating create;
+- exact idempotency mechanism remains technical and is a G14 review obligation.
+
+### Explicitly not introduced
+
+- CRM payment processing/gateway wait;
+- partial consultation payment;
+- refund;
+- automatic Paid state from method selection;
+- auto queue entry without Doctor assignment;
+- automatic rollback of a valid Paid record because queue insertion failed;
+- waiver approval by Reception or Doctor-only authority;
+- normal waiver of a Paid Visit;
+- direct Owner payment correction without a staff request;
+- retroactive deletion/rewind of queue or clinical history after financial correction;
+- one-Visit-per-day restrictions;
+- fee configuration values.
