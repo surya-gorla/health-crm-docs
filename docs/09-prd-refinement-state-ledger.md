@@ -2325,9 +2325,9 @@ Proceed directly to G10 under the user's continuous-review instruction.
 - P-086 — Consolidated Owner view
 - P-087 — Automatic movement visibility
 - P-088 — Inventory adjustment request
-- P-089 — Owner inventory-adjustment decision
-- P-090 — Expired stock
-- P-091 — Low-stock / near-expiry visibility
+- P-089 — No change while adjustment is Pending
+- P-090 — Owner inventory-adjustment decision
+- P-091 — Expired stock
 - P-092 — Pharmacy stock-transfer request
 - P-093 — Owner transfer decision
 
