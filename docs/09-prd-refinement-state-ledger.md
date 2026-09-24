@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.4 DRAFT |
 | Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
-| Current stage | PREPARING |
+| Current stage | GROUP REASONING |
 | Completed groups | G1, G2 |
 | In-progress groups | G3 |
 | Not started | G4–G15 |
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | PREPARING | — | — | — | Current group |
+| G3 | Patient Search, Identity, Registration & Patient Profile | GROUP REASONING | — | — | — | Current group |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -544,7 +544,7 @@ G2 is complete. Do not start G3 until explicitly instructed.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** GROUP REASONING
 
 ### Primary requirements
 
@@ -576,7 +576,7 @@ Document 10 currently contains no reminder targeted to G3.
 
 ### Current action
 
-Move to SOURCE REVIEW and identify product-definition gaps without changing the locked business policy.
+Resolve G3 product-design gaps from the completed source review, then apply them to PRD layers in one logical Group 3 commit.
 
 ### Blockers
 
@@ -591,3 +591,58 @@ None.
 - No prior reminder is currently targeted to G3.
 - PRD version checkpoint corrected from stale v0.3 to current v0.4.
 - Next exact action: perform full G3 source review before product reasoning.
+
+
+## 2026-09-25 — G3 SOURCE REVIEW COMPLETE
+
+### Files read
+
+- `docs/01-business-requirements-document.md`
+- `docs/02-workflows-and-state-model.md`
+- `docs/03-open-decisions-and-edge-cases.md`
+- `docs/04-requirements-traceability.md`
+- `docs/05-product-requirements-document.md`
+- `docs/06-prd-traceability-and-acceptance.md`
+- `docs/07-information-architecture-and-screen-specification.md`
+- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/09-prd-refinement-state-ledger.md`
+- `docs/10-prd-future-review-reminders.md`
+
+### Locked business conclusions confirmed
+
+1. Patient ID is the permanent unique patient identifier and survives across visits.
+2. Reception searches by Patient ID, phone, or name before new registration.
+3. Phone/name are matching attributes, not unique identifiers; multiple patients may share a phone.
+4. Similar candidates must be reviewed with the patient; similarity cannot auto-select or auto-merge.
+5. If no candidate can be confidently confirmed, Reception may create a usable new profile marked **Possible Duplicate**.
+6. Duplicate merge is outside V1.
+7. Required registration fields are full name, phone, DOB, gender, address, email; age is derived.
+8. Emergency contact, blood group, allergies, guardian/parent, and Government ID are optional.
+9. Missing physical file does not justify a new Patient ID.
+10. Reception cannot directly overwrite established demographics after registration.
+11. Reception correction requests require Doctor authority; for an active Visit they route to the assigned Doctor, and an unassigned active Visit requires Doctor selection before submission.
+12. Doctor may directly correct demographics; Patient ID never changes and prior/new values, actor, and time are auditable.
+13. Reception may use only limited prior-Visit information for identity confirmation; unrestricted clinical history remains outside Reception authority.
+
+### Product-definition gaps identified
+
+- Exact Patient ID results should be prioritized without silently auto-entering patient context.
+- Search result rows need a precise minimum identity set and a controlled way to expose limited prior-Visit identity context.
+- New registration should re-check duplicate candidates at final submit so it does not rely only on an earlier manual search.
+- When duplicate candidates exist, the product needs an explicit branch between selecting an existing patient and deliberately creating a Possible Duplicate.
+- A Possible Duplicate marker needs useful provenance without creating V1 merge/resolution behavior.
+- Reception patient profile wording currently risks implying longitudinal clinical-history access; it should be explicitly operational/identity-level only.
+- The boundary between editable pre-registration data and post-registration demographic correction should be explicit.
+- Demographic correction needs a safe no-active-Visit path while preserving Doctor authority.
+- Pending demographic correction needs stale-value protection if the patient value changes before Doctor decision.
+- Patient ID must remain immutable through every correction path.
+- Unknown registration-submit outcome/retry must not create a second patient record.
+- Physical-file association must not become a blocking CRM dependency or create a duplicate patient workflow.
+
+### Prior reminders
+
+No Document 10 reminder targets G3.
+
+### Business input required
+
+None. All identified gaps can be resolved as derived product design without changing the locked BRD.
