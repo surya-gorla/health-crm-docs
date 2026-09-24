@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.3 |
+| Version | 0.4 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.3 |
+| Parent | PRD v0.4 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -1035,7 +1035,15 @@ This interaction specification fails review if:
 - material unsaved work is discarded by workspace switching without warning;
 - revoked authority remains usable because the workspace was already open;
 - switching workspace in one browser tab silently changes another tab's authority context;
-- cross-workspace notifications expose protected detail/action outside the correct workspace.
+- cross-workspace notifications expose protected detail/action outside the correct workspace;
+- an Owner-containing account reaches any normal workspace before required Owner 2FA completes;
+- a non-Owner reset credential reaches normal product content before forced password replacement succeeds;
+- Forgot Password reveals whether an arbitrary identifier exists, is disabled, or contains Owner authority;
+- repeated Forgot Password submissions create duplicate simultaneously actionable Owner reset requests;
+- a password reset silently changes account enabled/disabled state;
+- a used or invalidated recovery code can be reused;
+- normal audit/history exposes passwords, reset credentials, TOTP secrets/codes, or recovery-code values;
+- a detected disabled account continues normal protected use through an already-open session.
 
 
 ---
@@ -1081,3 +1089,131 @@ Rules:
 7. A role revoked during an open session cannot remain usable merely because its page was already open.
 8. Separate browser tabs/windows may use different permitted workspaces, but each must keep its authority context explicit.
 9. If the same human performs separate workflow actions under different legitimate roles, audit history preserves the same human identity and the distinct authority used for each action.
+
+---
+
+# 35. Authentication and Credential-Recovery Interaction Contract
+
+## 35.1 Authentication sequencing
+
+The product treats authentication as a sequence of required gates rather than assuming password success always means normal workspace entry.
+
+1. Validate username/login + password in the fixed clinic context.
+2. If the account is disabled, block normal product entry.
+3. If a non-Owner account used an Owner-reset credential, require SH-04 Forced Password Change.
+4. If the account contains Owner authority and TOTP is not enrolled, require SH-05 initial enrollment.
+5. If the account contains Owner authority and TOTP is enrolled, require SH-02 TOTP/recovery-code verification.
+6. Only after all applicable gates succeed does the product apply G1 single-/multi-workspace entry.
+
+An Owner-containing account cannot choose a Doctor or other workspace to bypass the Owner second-factor gate.
+
+## 35.2 Normal workspace switching after authentication
+
+Once the current session has satisfied all authentication requirements for its assigned roles, switching among already-permitted workspaces does not require another username/password login or repeated TOTP solely because of the switch.
+
+If Owner authority is added to a session that did not previously contain it, this rule does not make the new Owner capability immediately usable. Owner second-factor satisfaction is required before Owner-capable access is exposed.
+
+## 35.3 Forgot Password
+
+The unauthenticated Forgot Password response is non-enumerating.
+
+- no self-service password change;
+- no indication that an arbitrary identifier exists;
+- no indication that the account is disabled;
+- no indication that the account contains Owner authority;
+- only an eligible enabled non-Owner account creates/retains the actionable Pending Owner reset request;
+- repeat submissions while Pending do not create duplicate simultaneously actionable requests.
+
+Owner accounts do not enter the non-Owner staff-reset workflow.
+
+## 35.4 Staff reset-request lifecycle
+
+V1 uses a minimal lifecycle:
+
+**Pending -> Resolved by successful Owner reset**
+
+Owner action sets/replaces a temporary credential. It is not modeled as a generic Approve/Reject decision.
+
+A resolved/stale request cannot be applied again as Pending.
+
+Resetting the credential does not:
+
+- modify roles;
+- enable a disabled account;
+- delete history.
+
+## 35.5 Forced password replacement
+
+A valid reset credential allows entry only into the mandatory replacement gate.
+
+Until replacement succeeds:
+
+- normal navigation is unavailable;
+- workspace selector/switcher is unavailable;
+- protected workflow content is unavailable.
+
+After successful replacement:
+
+- the temporary credential no longer authenticates;
+- G1 normal workspace-entry behavior resumes.
+
+## 35.6 Owner TOTP enrollment and recovery codes
+
+Initial enrollment:
+
+- occurs only after password authentication;
+- requires verification with a generated TOTP;
+- shows recovery codes only after successful factor verification;
+- completes before normal workspace entry.
+
+Recovery code:
+
+- is an alternative second factor, not an alternative to the password;
+- is single-use;
+- is rejected when used/invalidated;
+- is replaced as a set when recovery codes are regenerated.
+
+Recovery-code regeneration is explicit and warns that the prior set becomes invalid.
+
+## 35.7 Disabled account during an active session
+
+Disabled account state overrides otherwise valid credentials/session state.
+
+When disablement is detected during an already-open session:
+
+- protected actions/navigation stop;
+- the user returns to the sign-in boundary;
+- re-enabling later requires a fresh normal sign-in rather than reviving the terminated session.
+
+Exact propagation/session-revocation mechanics remain technical.
+
+## 35.8 Authentication secret handling
+
+Normal UI history/audit may show safe metadata for required events, such as:
+
+- reset requester;
+- target account;
+- Owner actor;
+- action;
+- outcome/state;
+- timestamp.
+
+It must not show:
+
+- current/old/new passwords;
+- temporary/reset credential values;
+- TOTP secret;
+- TOTP codes;
+- recovery-code values.
+
+## 35.9 Explicitly deferred security controls
+
+The PRD does not define:
+
+- inactivity/session timeout;
+- password-strength policy values;
+- brute-force/rate-limit/lockout implementation;
+- cryptographic credential/secret storage;
+- exact cross-device live-session invalidation mechanism;
+- catastrophic Owner recovery mechanism;
+- general authenticator device replacement/migration beyond the specified enrollment/recovery-code behavior.

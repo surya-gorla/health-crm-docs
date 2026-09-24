@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.3 |
+| Version | 0.4 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -327,51 +327,138 @@ Financial, cancellation, approval, prescription-finalization, and inventory-adju
 
 # 10. Authentication and Account Entry
 
-Source: FR-084–FR-085, FR-100–FR-104; BR-035, BR-043–BR-046; OD-021.
+Source: FR-084–FR-085, FR-100–FR-104; BR-035, BR-043–BR-046; OD-021–OD-022.
+
+The locked business policy is intentionally simple: one individual account per person, password authentication for everyone, mandatory TOTP for every account containing Owner authority, no required 2FA for accounts without Owner authority, and Owner-controlled password recovery for non-Owner staff.
+
+The following sequencing and safety rules are **DERIVED PRODUCT DESIGN** and do not alter that business policy.
 
 ### P-008 — Individual account login
 
-Every user signs in through an individual username/login and password in the fixed clinic context.
+Every user signs in through an individual username/login and password in the fixed clinic context. V1 does not require a clinic/tenant selector.
+
+Invalid username/password outcomes must use a generic authentication response that does not identify which credential was incorrect or confirm arbitrary account existence.
 
 ### P-009 — Owner TOTP
 
-Any account containing Owner role must complete Google Authenticator-compatible TOTP after password authentication.
+Any account containing Owner authority must satisfy the Owner second-factor requirement after password authentication and **before any normal application workspace is entered**, regardless of which workspace the user intends to use.
+
+- If TOTP is already enrolled, the user completes Google Authenticator-compatible TOTP or an unused recovery-code alternative.
+- If TOTP is not yet enrolled, successful password authentication routes to mandatory TOTP enrollment before normal workspace entry.
+- Choosing Doctor or another non-Owner workspace cannot bypass the Owner 2FA requirement.
+- If Owner authority is newly granted during an already-authenticated non-Owner session, Owner-capable workspace/actions remain unavailable until the Owner second-factor requirement is satisfied for that session. Exact step-up/session mechanics are technical design.
+
+After an Owner-containing session has fully satisfied authentication, ordinary switching among already-permitted workspaces does not require another login or repeated TOTP solely because of the switch.
 
 ### P-010 — Non-Owner login
 
-Doctor-only, Reception, Pharmacist, and Administrator-only accounts do not require 2FA in V1.
+Doctor-only, Reception, Pharmacist, Administrator-only, and other valid multi-role accounts that do **not** contain Owner authority are not required to complete 2FA in V1.
+
+After valid normal credentials, the user proceeds through the G1 single-/multi-workspace entry rules unless a mandatory credential-replacement gate applies.
 
 ### P-011 — Staff Forgot Password
 
-Non-Owner staff can submit Forgot Password, which creates a reset request for Owner.
+The V1 in-app Forgot Password flow is for **enabled non-Owner staff accounts** and is not self-service password reset.
+
+- submission uses the staff login identifier;
+- the unauthenticated response is non-enumerating and does not confirm whether the identifier exists, is disabled, or has Owner authority;
+- for an eligible non-Owner account, the system creates or retains one Pending Owner-visible reset request;
+- repeat submissions while one request is Pending must not create multiple simultaneously actionable Owner requests;
+- Owner accounts are not routed into this staff-reset workflow; Owner password/account recovery remains the controlled Owner recovery path.
 
 ### P-012 — Owner reset
 
-Owner can set a temporary/reset credential for the staff account without viewing the existing password.
+From a Pending eligible staff-reset request, Owner authority may set/replace a temporary/reset credential without viewing or retrieving the existing password.
+
+A successful reset:
+
+- replaces the current sign-in credential;
+- resolves that reset request so the same stale request cannot be actioned again as Pending;
+- does not change assigned roles;
+- does not enable a disabled account;
+- records safe audit metadata without recording credential values.
+
+The password-reset workflow is an Owner action to set a temporary credential; V1 does not invent a generic Approve/Reject decision for this request type.
 
 ### P-013 — Forced credential replacement
 
-After successful login using an Owner-reset credential, staff must replace it before normal application use.
+A valid Owner-reset credential may authenticate the staff member into the credential-replacement gate, but it does **not** grant normal workspace access.
 
-### P-014 — Owner recovery codes
+The staff member must successfully enter and confirm a replacement password before normal product navigation/content becomes available.
 
-Owner TOTP enrollment/regeneration exposes one-time recovery codes according to the locked derived security control.
+After successful replacement:
+
+- the temporary/reset credential is no longer valid;
+- the user proceeds through the normal G1 workspace-entry rules;
+- if replacement is abandoned or fails, the forced-change gate remains on the next valid reset-credential login.
+
+If the account becomes disabled before replacement completes, the user cannot continue into the product.
+
+Password-strength specifics remain a security/technical policy dependency.
+
+### P-014 — Owner TOTP enrollment and recovery codes
+
+For an Owner-containing account without an enrolled TOTP factor:
+
+1. password authentication succeeds;
+2. the product enters mandatory TOTP enrollment;
+3. the user receives the authenticator secret/QR representation;
+4. the user proves enrollment by entering a valid generated TOTP;
+5. only after successful factor verification are recovery codes shown;
+6. recovery codes are shown only for that enrollment/regeneration event and must be acknowledged before normal continuation.
+
+A valid unused recovery code may satisfy the Owner second-factor step only after password authentication.
+
+Recovery-code rules:
+
+- each code becomes invalid after use;
+- regenerating recovery codes invalidates the previous set;
+- replacement codes are shown only at regeneration;
+- recovery-code values, TOTP codes, TOTP secrets, passwords, and temporary/reset credentials are never exposed through normal audit/history.
+
+Broader TOTP-factor replacement/device-migration design and catastrophic Owner recovery remain security/technical dependencies unless separately approved.
 
 ### P-015 — Disabled account
 
-Disabled staff accounts cannot sign in and remain preserved for historical attribution.
+Disabled accounts remain preserved for historical attribution but cannot enter the product.
+
+Account-disabled state overrides otherwise valid normal/reset credentials.
+
+If an account is disabled while a session is already active, normal protected use must stop on the next protected navigation/action or authentication-state refresh and the user returns to the sign-in boundary. Exact real-time propagation/session invalidation is technical design.
+
+Re-enabling an account does not revive a previously terminated disabled session; the user signs in again normally.
 
 ### Product states
 
-- login default;
-- invalid credentials;
-- TOTP required;
-- invalid/expired TOTP;
-- reset request submitted;
-- reset credential must be changed;
-- account disabled.
+Authentication/credential flows must explicitly support, where applicable:
 
-Catastrophic Owner recovery remains a technical security dependency.
+- login default;
+- submitting/authenticating;
+- generic invalid credentials;
+- account unavailable/disabled;
+- Owner TOTP required;
+- Owner TOTP enrollment required;
+- TOTP/recovery-code verifying;
+- invalid/used second-factor code;
+- recovery code accepted;
+- staff reset request submitted;
+- staff reset request Pending;
+- staff reset request Resolved;
+- reset credential accepted but replacement required;
+- forced password change submitting/success/failure;
+- temporary authentication/service error.
+
+### Explicitly deferred security/technical details
+
+This PRD does not invent:
+
+- inactivity/session timeout;
+- password-strength rules;
+- brute-force/rate-limit/lockout mechanics;
+- cryptographic credential/TOTP-secret storage;
+- exact live-session invalidation transport;
+- catastrophic Owner recovery when usable password/authenticator/recovery credentials are unavailable;
+- broader authenticator-factor replacement/device-migration behavior beyond the locked enrollment/recovery-code requirements.
 
 ---
 

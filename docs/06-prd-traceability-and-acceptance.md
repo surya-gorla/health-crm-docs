@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.3 |
+| Version | 0.4 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.3 |
+| Parent | Product Requirements Document v0.4 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -326,23 +326,100 @@ Sources: FR-064, FR-098, BR-039, OD-022, OD-023.
 
 # 5. Authentication Acceptance
 
-## AU-001 — Owner 2FA mandatory
+## AU-001 — Owner 2FA mandatory for the whole account login
 
-Account containing Owner role cannot complete normal login using password alone.
+**Given** an account contains Owner authority  
+**When** the password is valid  
+**Then** the account cannot enter Doctor, Owner, or any other normal workspace until the Owner second-factor requirement is satisfied.
 
 Sources: FR-085, BR-043, OD-021.
 
 ## AU-002 — Staff no 2FA
 
-Non-Owner Doctor/Reception/Pharmacist/Admin accounts are not required to complete 2FA in V1.
+**Given** an account has no Owner authority  
+**Then** Doctor/Reception/Pharmacist/Admin or other valid non-Owner role combinations are not required to complete 2FA in V1.
 
 Sources: FR-100, BR-043, OD-021.
 
 ## AU-003 — Disabled account
 
-Disabled account cannot log in and historical actions remain attributable.
+**Given** an account is disabled  
+**Then** it cannot enter the application even with otherwise valid normal/reset credentials and historical actions remain attributable.  
+**And** if disablement occurs during an active session, protected use stops on the next protected action/navigation or authentication-state refresh.
 
-Sources: OD-022 staff lifecycle.
+Sources: OD-022 staff lifecycle; supports P-015 and G1 stale-authority handling.
+
+## AU-004 — Initial Owner TOTP enrollment gate
+
+**Given** valid password authentication for an Owner-containing account with no enrolled TOTP factor  
+**Then** the product requires TOTP enrollment and successful generated-code verification before normal workspace entry.  
+**And** recovery codes are shown only after factor verification.
+
+Sources: FR-085, FR-104, BR-043, BR-046, OD-021.
+
+## AU-005 — Owner authority added during an active non-Owner session
+
+**Given** an authenticated session did not contain Owner authority when login completed  
+**And** Owner authority is subsequently granted  
+**Then** Owner-capable workspace/actions do not become usable until the Owner second-factor requirement is satisfied for that session.
+
+Supports: P-009, BR-043, G1 authority-context rules. Exact step-up/session mechanism remains technical.
+
+## AU-006 — Forgot Password does not enumerate accounts
+
+**Given** an unauthenticated user submits Forgot Password  
+**Then** the response does not reveal whether the identifier exists, is disabled, or contains Owner authority.  
+**And** only an eligible enabled non-Owner account creates/retains an actionable Owner reset request.
+
+Sources: FR-101, BR-044, OD-021.
+
+## AU-007 — One actionable staff reset request
+
+**Given** an eligible non-Owner staff account already has a Pending reset request  
+**When** Forgot Password is submitted again  
+**Then** the product does not create another simultaneously actionable Owner reset request.
+
+Supports: P-011 derived request-safety behavior.
+
+## AU-008 — Owner reset resolves request without changing account status
+
+**Given** Owner acts on a Pending staff reset request  
+**When** a temporary/reset credential is successfully set  
+**Then** the request becomes Resolved, the old password remains undisclosed, roles remain unchanged, and disabled/enabled account state is not changed by the reset.
+
+Sources: FR-102–FR-103, BR-044–BR-045, OD-021–OD-022.
+
+## AU-009 — Forced password change blocks normal work
+
+**Given** non-Owner staff signs in with a valid Owner-reset credential  
+**Then** normal workspace navigation/content remains unavailable until replacement password save succeeds.  
+**And** after success the temporary credential is no longer valid and normal G1 workspace routing resumes.
+
+Sources: FR-103, BR-045, OD-021.
+
+## AU-010 — Recovery code is a one-time second factor
+
+**Given** an Owner has a valid unused recovery code  
+**When** password authentication has already succeeded  
+**Then** the recovery code may satisfy the second-factor step for that login and becomes invalid after use.  
+**And** recovery-code regeneration invalidates the previous set.
+
+Sources: FR-104, BR-046, OD-021.
+
+## AU-011 — Authentication secrets are not audit content
+
+**Given** authentication/recovery actions are logged or shown in history  
+**Then** audit may identify safe metadata such as actor, target, action, outcome, and time, but must not expose passwords, reset credentials, TOTP secrets/codes, or recovery-code values.
+
+Supports: FR-103–FR-104, BR-045–BR-046 and the locked secret-handling intent.
+
+## AU-012 — Normal workspace switching does not repeat authentication
+
+**Given** the current session has already satisfied all authentication requirements for its assigned roles  
+**When** the user switches among already-permitted workspaces  
+**Then** the switch does not require a second login or repeated TOTP solely because of the workspace change.
+
+Supports: P-003, P-009, G1 multi-role contract.
 
 ---
 
@@ -369,7 +446,16 @@ Release must fail if any of these are possible:
 17. mark payment correction without preserving original state;
 18. cancel/void and hard-delete the original history;
 19. mix Pharmacy A and Pharmacy B stock without unit attribution;
-20. allow Owner account to bypass required TOTP.
+20. allow Owner account to bypass required TOTP;
+21. allow an Owner-containing account to enter a non-Owner workspace before required Owner 2FA completes;
+22. treat Forgot Password as self-service password reset;
+23. expose whether an arbitrary Forgot Password identifier exists, is disabled, or is an Owner account;
+24. create duplicate simultaneously actionable staff reset requests for repeated submissions;
+25. allow a reset credential to enter a normal workspace before forced password replacement succeeds;
+26. let password reset implicitly re-enable a disabled account;
+27. allow a used recovery code or a code from an invalidated recovery-code set to authenticate;
+28. expose password/TOTP/recovery-code secret values in normal audit/history;
+29. allow a disabled account's already-open session to continue protected use after disablement is detected.
 
 ---
 

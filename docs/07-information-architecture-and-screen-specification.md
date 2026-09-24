@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.2 |
+| Version | 0.3 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.3 |
+| Parent | PRD v0.4 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -209,12 +209,12 @@ A screen ID does not require a one-to-one browser route.
 
 ## SH-01 — Login
 
-**Users:** all enabled users  
-**Source:** P-008, P-009, P-010, P-015
+**Users:** all users attempting account entry  
+**Source:** P-008–P-010, P-013, P-015
 
 ### Purpose
 
-Authenticate an individual user into the fixed clinic context.
+Authenticate an individual user into the fixed clinic context and route the account into the next required authentication/credential gate.
 
 ### Required content
 
@@ -226,22 +226,29 @@ Authenticate an individual user into the fixed clinic context.
 
 ### Behavior
 
-1. Valid non-Owner credentials -> enter the user's permitted workspace or workspace selector if multiple workspaces are available.
-2. Valid account containing Owner role -> proceed to SH-02 TOTP.
-3. Disabled account -> block login.
-4. Invalid credentials -> generic authentication error without exposing whether username or password was wrong.
+1. Invalid credentials -> generic authentication error without identifying which credential failed or confirming arbitrary account existence.
+2. Correct credentials for a disabled account -> block product entry with safe account-unavailable guidance.
+3. Valid non-Owner normal credential -> enter the permitted workspace or SH-06 workspace selector according to G1.
+4. Valid non-Owner Owner-reset credential -> proceed to SH-04 Forced Password Change before any normal workspace.
+5. Valid Owner-containing account with enrolled TOTP -> proceed to SH-02 Owner TOTP Verification.
+6. Valid Owner-containing account without enrolled TOTP -> proceed to mandatory SH-05 Owner TOTP Enrollment.
+7. Forgot Password opens SH-03; it does not imply that Owner accounts use the staff reset process.
 
 ### States
 
 - default;
 - submitting;
-- invalid credentials;
-- account disabled;
+- generic invalid credentials;
+- account unavailable/disabled;
+- next gate: forced credential change;
+- next gate: Owner TOTP;
+- next gate: Owner TOTP enrollment;
 - temporary service error.
 
 ### Acceptance
 
-- password alone never completes login for an Owner-role account;
+- password alone never completes login for an Owner-containing account;
+- a reset credential never enters normal work before SH-04 succeeds;
 - disabled accounts cannot enter the application;
 - failure does not expose another user's account details.
 
@@ -249,12 +256,12 @@ Authenticate an individual user into the fixed clinic context.
 
 ## SH-02 — Owner TOTP Verification
 
-**Users:** account containing Owner role  
-**Source:** P-009, AU-001
+**Users:** account containing Owner role with TOTP already enrolled  
+**Source:** P-009, P-014, AU-001, AU-010
 
 ### Purpose
 
-Complete mandatory Owner two-factor authentication.
+Complete the mandatory Owner second-factor step after password authentication.
 
 ### Required content
 
@@ -263,49 +270,63 @@ Complete mandatory Owner two-factor authentication.
 - recovery-code alternative;
 - Back/Sign out action.
 
+### Behavior
+
+- a valid current TOTP completes the second-factor step;
+- an unused valid recovery code may be used instead and becomes invalid after use;
+- invalid, expired, already-used, or invalidated recovery codes/TOTP values do not complete authentication;
+- second-factor values are never shown later in normal history/audit;
+- once the fully authenticated session is established, ordinary switching among already-permitted workspaces does not repeat TOTP solely because of the switch.
+
 ### States
 
 - awaiting code;
 - verifying;
-- invalid code;
+- invalid/expired code;
+- invalid/used recovery code;
 - recovery code accepted;
 - temporary error.
 
 ### Acceptance
 
-Successful verification is required before access to any Owner-capable session.
+Successful second-factor verification is required before **any normal application workspace** is available to an account containing Owner authority.
 
 ---
 
 ## SH-03 — Staff Forgot Password Request
 
-**Users:** non-Owner staff  
-**Source:** P-011, P-012
+**Users:** unauthenticated staff entry; actionable requests apply only to enabled non-Owner accounts  
+**Source:** P-011, AU-006–AU-007
 
 ### Purpose
 
-Submit an Owner-visible reset request.
+Request Owner-controlled password recovery without providing self-service reset or account-enumeration signals.
 
 ### Required content
 
 - staff login identifier;
-- submit action;
-- non-sensitive confirmation.
+- Submit Request action;
+- non-sensitive generic confirmation;
+- static guidance that Owner-account recovery is not performed through the non-Owner staff-reset workflow.
 
 ### Behavior
 
-Submitting creates a reset request; it does not self-reset the password.
+- submission never changes the password directly;
+- for an eligible enabled non-Owner account, create a Pending reset request unless one is already Pending;
+- repeat submissions while a request is Pending do not create duplicate simultaneously actionable Owner work;
+- unknown, disabled, and Owner identifiers receive the same non-enumerating submission response and are not exposed as such to the unauthenticated user;
+- Owner accounts are not routed into the non-Owner reset workflow.
 
 ### Acceptance
 
-The screen never displays an old password or reveals whether an arbitrary username belongs to another staff member beyond the safe workflow needed by the clinic.
+The screen does not reveal whether an arbitrary identifier exists, whether the account is disabled, or whether it contains Owner authority.
 
 ---
 
 ## SH-04 — Forced Password Change
 
-**Users:** non-Owner staff after Owner reset  
-**Source:** P-013
+**Users:** non-Owner staff after valid Owner-reset credential authentication  
+**Source:** P-013, AU-009
 
 ### Purpose
 
@@ -315,7 +336,16 @@ Replace a temporary/reset credential before normal use.
 
 - new password;
 - confirm new password;
-- Save and Continue.
+- Save and Continue;
+- sign-out/back-to-login action.
+
+### Behavior
+
+- no normal workspace navigation or protected product content is exposed while this gate is active;
+- validation preserves entered values where safe and follows the configured password policy when that policy is defined;
+- successful save invalidates the temporary/reset credential and continues through G1's normal single-/multi-workspace routing;
+- if replacement is abandoned or fails, the next valid reset-credential login returns to this gate;
+- if the account becomes disabled, the flow cannot continue into the product.
 
 ### Acceptance
 
@@ -323,25 +353,39 @@ Normal workspace navigation is blocked until replacement succeeds.
 
 ---
 
-## SH-05 — Owner TOTP Enrollment / Recovery Codes
+## SH-05 — Owner TOTP Enrollment & Recovery Codes
 
-**Users:** Owner  
-**Source:** P-014
+**Users:** Owner-containing account requiring initial TOTP enrollment; fully authenticated Owner when regenerating recovery codes  
+**Source:** P-009, P-014, AU-004, AU-010
 
 ### Purpose
 
-Enroll/regenerate the Owner TOTP factor and display one-time recovery codes.
+Complete initial mandatory Owner TOTP enrollment and manage recovery-code regeneration without exposing persistent readable secrets.
 
-### Required content
+### Initial enrollment sequence
 
-- enrollment secret/QR representation as implemented;
-- verification step;
-- recovery-code display;
-- acknowledgement that recovery codes must be stored safely.
+1. password authentication has already succeeded;
+2. show the authenticator secret/QR representation as implemented;
+3. require a generated TOTP to verify that enrollment works;
+4. after successful factor verification, display the recovery-code set once;
+5. require acknowledgement that recovery codes must be stored safely;
+6. only then allow normal authenticated continuation.
+
+### Recovery-code regeneration
+
+For an already fully authenticated Owner:
+
+- regeneration is an explicit security-sensitive action;
+- warn that the previous recovery-code set will become invalid;
+- after successful regeneration, show the replacement set only for that regeneration event;
+- do not expose the prior or replacement recovery-code values in normal history/audit.
 
 ### Safety
 
-Recovery codes are shown only at enrollment/regeneration and are not presented later as readable stored secrets.
+- login is not considered complete for an Owner-containing account until required TOTP enrollment/verification succeeds;
+- recovery codes are shown only at enrollment/regeneration and are not presented later as readable stored secrets;
+- TOTP secrets/codes, recovery codes, passwords, and reset credentials are not normal audit/history content;
+- broader authenticator-factor replacement/device-migration is a security/technical dependency and is not implied by this screen.
 
 ---
 
@@ -1425,19 +1469,28 @@ Exact chart style remains design implementation.
 ## OWN-09 — Staff Password Reset
 
 **Users:** Owner  
-**Source:** P-011–P-013
+**Source:** P-011–P-013, AU-007–AU-009
 
 ### Content
 
 - staff identity;
-- role;
-- account status;
+- role(s);
+- account enabled/disabled status;
 - request time;
-- reset action.
+- request state;
+- Set Temporary Credential action for a current Pending request.
 
 ### Behavior
 
-Owner sets temporary/reset credential but never sees old password.
+- only one reset request for the staff account is simultaneously actionable as Pending;
+- Owner sets/replaces the temporary/reset credential but never sees/retrieves the old password;
+- successful reset resolves the request;
+- a stale/resolved copy cannot perform the reset again as though still Pending;
+- password reset does not change assigned roles or enabled/disabled account state;
+- if the account is disabled, the UI must not imply that setting a reset credential restores access;
+- credential values are not written into normal audit/history.
+
+This request type is resolved by the Owner reset action; it is not forced into a generic Approve/Reject pattern unless a later locked product decision explicitly changes that behavior.
 
 ---
 
