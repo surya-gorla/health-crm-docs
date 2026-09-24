@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.11 DRAFT |
 | Current group | G9 — Pharmacy Billing, Payment & Bill Cancellation |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
+| Current stage | BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8 |
 | In-progress groups | G9 |
 | Not started | G10–G15 |
@@ -68,7 +68,7 @@ A group is COMPLETE only when all four gates pass:
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
-| G9 | Pharmacy Billing, Payment & Bill Cancellation | COMMIT VALIDATED | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | IN PROGRESS | — | Current group |
+| G9 | Pharmacy Billing, Payment & Bill Cancellation | BACKWARD PASS | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | IN PROGRESS | Current group |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
@@ -2228,3 +2228,27 @@ Technical transaction/idempotency mechanisms remain downstream, but these effect
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G8, reconciling any conflict before forward-impact analysis.
+
+## 2026-09-25 — G9 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1:** role/workspace authority remains intact. Pharmacist performs bill/payment/request actions; Owner performs approvals; same-human multi-role actions remain separately attributable.
+- **G2:** G9 introduces no authentication/account-state exception. Owner decisions remain behind the existing Owner authentication boundary.
+- **G3:** Patient identity and Possible Duplicate behavior are unchanged; billing references the existing Visit/Patient and never creates or merges identity.
+- **G4:** pharmacy payment uses the same explicit external-payment and baseline-safe correction principles without importing consultation waiver. Paid -> Unpaid remains correction, not refund.
+- **G5:** effective Visit cancellation blocks new active dispensing/bill creation while preserving existing financial history. Existing-bill administration after cancellation does not reopen Visit workflow and therefore does not conflict with cancellation semantics.
+- **G6:** consultation completion/amendment behavior is unaffected. Pharmacy financial administration does not reopen clinical authoring.
+- **G7:** prescription replacement never erases or re-bills prior dispensing/billing history. G9 bills committed supply and preserves the original prescription/version lineage.
+- **G8:** dispensing remains the stock-changing event; G9 does not change or reverse it. G8 intentionally delegated final Visit completion to G9, and G9 now defines that Visit-level completion without treating one dispense or one bill/payment as completion.
+
+### Mandatory reminder dispositions
+
+- REM-028 — SATISFIED by explicit external payment/correction/no-partial/no-refund rules.
+- REM-037 — SATISFIED by cancellation preserving existing bill/payment history while blocking new billing/dispensing.
+- REM-046 — SATISFIED by source-dispensing bill lineage and no rebilling after prescription replacement.
+- REM-051 — SATISFIED by Visit-level completion across all units, explicit unsupplied remainder, and payment-independent completion.
+
+### Next exact action
+
+Scan G10–G15 for downstream dependencies introduced by G9 and write targeted reminders before final closure.
