@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.9 |
+| Version | 0.10 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.9 |
+| Parent | PRD v0.10 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -915,44 +915,114 @@ Historical-copy labeling for Superseded/cancelled-context output is finalized in
 
 # 15. Dispensing Interaction Pattern
 
-## 15.1 Quantity model
+## 15.1 Entry gate
 
-Per item show:
+Dispensing requires:
 
-- prescribed total;
-- already dispensed;
+- Visit = Sent to Pharmacy;
+- latest current Finalized prescription;
+- active permitted pharmacy unit.
+
+A Finalized prescription while Visit is With Doctor is not dispensable.
+
+Superseded/previous prescriptions are historical only.
+
+## 15.2 Prescription-item lineage
+
+Current item shows fulfilment across the prescription version lineage.
+
+For an item lineage:
+
+**remaining allowable = max(0, current active prescribed quantity - cumulative committed dispensed quantity across versions/units for that lineage).**
+
+If corrected quantity is now below already-dispensed quantity:
+- remaining = 0;
+- show historical overage;
+- do not reverse prior stock/dispensing.
+
+A materially changed/new medicine item receives a new fulfilment lineage; removed lineages cannot dispense further.
+
+## 15.3 Quantity model
+
+Per active item show:
+
+- current prescribed total;
+- cumulative already dispensed;
 - remaining allowable;
-- current unit availability;
-- quantity to dispense.
+- current active-unit valid availability;
+- quantity to dispense;
+- resulting unsupplied remainder.
 
-## 15.2 Upper bound
+## 15.4 Upper bound
 
-The entered quantity cannot exceed:
+Entered quantity must be >0 and cannot exceed:
 
-- remaining allowable prescription quantity; or
-- available valid stock.
+- current remaining allowable; or
+- current valid/non-expired active-unit stock.
 
-## 15.3 Expired stock
+Recompute both before final confirmation.
 
-Expired stock is not selectable as dispensable stock.
+## 15.5 Atomic dispense
 
-## 15.4 Partial fulfilment
+Before commit revalidate:
+
+- Visit state;
+- current prescription version;
+- item lineage/remaining allowance;
+- pharmacy unit;
+- current valid stock.
+
+Success records dispensing and stock deduction together.
+
+If result is unknown, refresh/check before retry.
+
+## 15.6 Expired stock
+
+Expired stock is never selectable or dispensable.
+
+Owner inventory authority cannot approve an expired-stock dispense.
+
+## 15.7 Partial fulfilment
 
 If less is supplied:
 
-- show supplied quantity;
+- record supplied quantity;
 - show unsupplied remainder;
-- bill supplied quantity only.
+- bill supplied quantity only;
+- do not rewrite prescription;
+- do not reserve the remainder.
 
-## 15.5 Substitution
+## 15.8 Substitution
 
-A requested substitute is not treated as dispensable until Doctor approval.
+Pending substitute is non-dispensable.
 
-## 15.6 Multi-pharmacy
+Request identifies current prescription item, proposed substitute, proposed quantity, and reason.
 
-Every dispense shows/records pharmacy unit.
+Doctor approval authorizes only the approved proposal.
 
-Cumulative prescription limit spans units.
+Approved substitute supply:
+- records approval reference;
+- consumes the original item fulfilment allowance;
+- cannot combine with original supply to exceed allowed remaining fulfilment.
+
+If units/strength/form are not safely comparable, require Doctor-confirmed quantity rather than Pharmacist inference.
+
+## 15.9 Multi-pharmacy
+
+Every dispense shows/records active pharmacy unit.
+
+Stock deduction is unit-specific.
+
+Remaining prescription allowance is clinic-wide across units.
+
+Unit switch with unsaved dispense quantities requires explicit discard/review.
+
+## 15.10 Replacement/cancellation concurrency
+
+If prescription becomes Superseded or Visit becomes Cancelled/Voided before commit:
+- block the old dispense action;
+- preserve committed dispensing;
+- refresh to current state.
 
 ---
 
@@ -1444,7 +1514,20 @@ This interaction specification fails review if:
 - Superseded prescription remains Pharmacy's silent default;
 - active prescription work continues after effective Visit cancellation or Completed state;
 - clinical amendment silently mutates prescription;
-- implementation invents a no-prescription Consultation Completed -> Completed shortcut.
+- implementation invents a no-prescription Consultation Completed -> Completed shortcut;
+- Pharmacy dispenses a Finalized prescription before Visit reaches Sent to Pharmacy;
+- historical/Superseded prescription becomes active dispensing source;
+- Pharmacist sees unrestricted diagnosis/notes/Doctor longitudinal history;
+- prescription replacement resets prior dispensed quantity;
+- original plus substitute supply exceeds the permitted fulfilment allowance;
+- stale multi-unit dispense exceeds current remaining allowance;
+- dispensing record and stock deduction diverge;
+- expired stock is dispensed;
+- partial fulfilment creates a back-order/reservation;
+- stale substitution survives replacement/cancellation/changed remaining quantity;
+- dispensing continues after effective Visit cancellation;
+- unsaved dispense quantities silently carry to another pharmacy unit;
+- dispensing alone marks Visit Completed.
 
 
 ---
@@ -2102,3 +2185,89 @@ A clinical amendment changes clinical revision only.
 It never silently edits/finalizes/replaces prescription.
 
 Prescription correction during an active Visit uses the explicit replacement workflow.
+
+---
+
+# 41. Pharmacy Retrieval, Fulfilment Lineage, and Dispense-Safety Contract
+
+## 41.1 Pharmacy-ready truth
+
+Pharmacy dispensing truth is the conjunction of:
+
+- current Visit state = Sent to Pharmacy;
+- current prescription version = Finalized/current;
+- active permitted pharmacy unit.
+
+Any stale copy of those facts is non-authoritative.
+
+## 41.2 Historical prescription visibility
+
+Pharmacy may inspect previous/Superseded prescriptions and known allergies for permitted fulfilment context.
+
+Historical prescription visibility never grants:
+- unrestricted diagnosis/notes;
+- dispensing from Superseded version;
+- editing/finalizing prescription.
+
+## 41.3 Fulfilment lineage across replacement
+
+A carried-forward prescription item keeps its fulfilment lineage so prior dispensing counts against corrected/current allowed quantity.
+
+New materially different medicine identity begins a new lineage.
+
+Removed lineages remain historical and non-dispensable.
+
+## 41.4 Reduced corrected quantity below prior dispense
+
+Replacement is not reversed merely because prior dispensing exceeds the newly corrected quantity.
+
+Instead:
+- historical dispensing remains;
+- remaining allowable becomes 0;
+- no further supply for that lineage;
+- warning/audit exposes the mismatch.
+
+## 41.5 Multi-session/unit concurrency
+
+Before each dispense, derive remaining allowance from current committed history across all units.
+
+A quantity visible earlier is not a reservation.
+
+If another unit/session supplied first, reject stale excess and refresh.
+
+## 41.6 Dispense transaction outcome
+
+Successful dispense creates:
+- attributable dispensing record;
+- unit-specific stock deduction;
+- billable supplied quantity for later G9 processing.
+
+Those outcomes correspond to the same effective dispense operation.
+
+Do not create a stock deduction without its dispensing record or vice versa.
+
+## 41.7 Substitute fulfilment
+
+Doctor-approved substitution authorizes only the approved proposal.
+
+Substitute supply is tied back to:
+- original prescription item;
+- substitution decision;
+- current prescription version;
+- actual pharmacy unit;
+- actual supplied quantity.
+
+It consumes fulfilment allowance rather than creating an unrelated extra allowance.
+
+## 41.8 Visit cancellation
+
+Effective cancellation:
+- blocks future dispense;
+- leaves all prior dispense/stock/billing history intact;
+- does not auto-restock.
+
+## 41.9 Visit completion ownership
+
+Dispensing alone does not mark Visit Completed.
+
+G9 determines billing/payment and final pharmacy workflow completion.

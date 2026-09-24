@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.8 |
+| Version | 0.9 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.9 |
+| Parent | PRD v0.10 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -1334,22 +1334,38 @@ If another replacement became current or cancellation became effective, block su
 
 ### Content
 
-- patient/Visit;
-- prescribing Doctor context;
-- original medicine;
+- Patient ID / Visit ID;
+- current Visit state;
+- current prescription version/item;
+- original medicine/instructions;
+- original remaining fulfilment;
 - proposed substitute;
+- proposed substitute quantity;
 - pharmacist/requester;
 - request reason;
-- relevant availability information.
+- relevant availability information;
+- request status.
 
 ### Actions
 
-- Approve;
+- Approve exact proposal;
 - Reject.
+
+### Decision validation
+
+Before decision revalidate:
+
+- Visit still active/Sent to Pharmacy;
+- prescription version/item still current;
+- requested quantity still applicable.
+
+If proposal uses a strength/form/unit that is not safely comparable, Doctor must explicitly confirm the quantity/instruction; Pharmacist cannot infer conversion.
 
 ### Acceptance
 
 No substitute may be dispensed before approval.
+
+A stale request cannot be approved against a newer prescription or changed remaining quantity.
 
 ---
 
@@ -1407,14 +1423,20 @@ If the Visit reaches Completed before Owner decision, request becomes stale/non-
 
 - active pharmacy unit;
 - Patient ID lookup;
-- pending dispensing work;
+- pharmacy-ready Visits / pending dispensing work;
 - pending substitution requests;
 - low-stock/near-expiry alerts;
 - My Requests status.
 
+### Pending dispensing
+
+Only Visits currently Sent to Pharmacy with a current Finalized prescription appear as active dispensing work.
+
+A finalized prescription still attached to With Doctor is not shown as pharmacy-ready work.
+
 ### Acceptance
 
-In a multi-pharmacy clinic, unit context is always visible.
+In a multi-pharmacy clinic, unit context is always visible and no dispensing action silently crosses unit context.
 
 ---
 
@@ -1429,11 +1451,38 @@ Patient ID.
 
 ### Results
 
-Show relevant current finalized prescription/Visit.
+Show clearly separated Visit/prescription results with:
 
-### Restricted
+- Visit ID;
+- Visit date/state;
+- prescription version/status;
+- current vs historical indicator;
+- Doctor where useful.
 
-No general diagnosis/full clinical-note access.
+Current pharmacy-ready result is prioritized but never silently selected when more than one relevant result exists.
+
+### Dispense eligibility
+
+**Open Dispensing** is available only when:
+
+- Visit = Sent to Pharmacy;
+- prescription = latest current Finalized version.
+
+A current Finalized prescription while Visit is With Doctor may be visible only where permitted as context, but is not dispensable.
+
+Superseded/previous prescriptions open read-only.
+
+### Clinical boundary
+
+Visible:
+- current/previous prescriptions;
+- known allergies;
+- dispensing instructions.
+
+Restricted:
+- general diagnosis/assessment;
+- full consultation notes;
+- unrestricted Doctor longitudinal history.
 
 ---
 
@@ -1442,39 +1491,76 @@ No general diagnosis/full clinical-note access.
 **Users:** Pharmacist  
 **Source:** P-067–P-076
 
+### Entry gate
+
+Require:
+
+- Visit currently Sent to Pharmacy;
+- latest current Finalized prescription;
+- active permitted pharmacy unit.
+
+If Visit/prescription state changes after load, switch to stale/read-only feedback and block dispense until refreshed.
+
 ### Patient header
 
 - patient name;
 - Patient ID;
-- Visit ID;
-- allergies;
-- current prescription identity/version.
+- Visit ID / Visit state;
+- known allergies;
+- current prescription identity/version;
+- active pharmacy unit;
+- Superseded/replacement warning when lineage exists.
 
 ### Medicine table
 
-Per item:
+Per current active item lineage:
 
 - prescribed medicine;
-- prescribed quantity;
-- previously dispensed quantity;
+- current prescribed quantity;
+- cumulative previously dispensed quantity across versions/units for that lineage;
 - remaining allowable quantity;
-- current pharmacy-unit availability;
+- current pharmacy-unit valid availability;
 - quantity to dispense;
-- unsupplied remainder;
-- selling price/billing context.
+- resulting unsupplied remainder;
+- selling price/billing context;
+- approved substitution context where applicable.
+
+If historical dispensed quantity exceeds a reduced corrected prescribed quantity, show remaining = 0 plus a clear historical-overage warning; do not reverse prior dispensing.
 
 ### Actions
 
 - Dispense;
 - Request Substitution;
-- Continue to Bill.
+- Continue to Bill for quantities already supplied by this unit.
+
+### Final Dispense confirmation
+
+Before commit, revalidate:
+
+- Visit still Sent to Pharmacy;
+- prescription version still current;
+- item/remaining quantity still current;
+- active unit unchanged;
+- stock still valid/non-expired and sufficient.
+
+On success, dispensing + unit stock deduction are one effective operation.
 
 ### Validation
 
-- cannot exceed remaining prescribed quantity;
-- expired stock cannot be selected for dispensing;
-- stock cannot go below available quantity;
-- actual dispensed quantity drives stock deduction.
+- quantity > 0;
+- cannot exceed remaining allowable;
+- cannot exceed valid unit stock;
+- expired stock cannot be selected;
+- Superseded version cannot dispense;
+- actual supplied quantity drives stock deduction.
+
+### Unit switch
+
+If unsaved quantities exist and user switches pharmacy unit, require explicit discard/review. Never carry entered quantities silently into another unit.
+
+### Cancellation/replacement
+
+Effective Visit cancellation or prescription replacement invalidates the old active dispense form before commit.
 
 ---
 
@@ -1530,18 +1616,44 @@ Pending Owner approval. Bill remains active until approved.
 **Users:** Pharmacist  
 **Source:** P-072
 
+### Eligibility
+
+Current Visit remains Sent to Pharmacy and current prescription/item lineage remains active.
+
 ### Content
 
-- original prescribed medicine;
-- proposed substitute;
-- availability;
-- request reason.
+- Patient ID / Visit ID;
+- current prescription version;
+- original prescription item/lineage;
+- current remaining allowable quantity;
+- proposed substitute medicine;
+- proposed substitute quantity;
+- relevant availability;
+- mandatory request reason.
 
 ### Outcome
 
 Pending Doctor approval.
 
 The proposed substitute remains non-dispensable until approved.
+
+### After decision
+
+**Approved**
+- exact approved substitute/quantity becomes dispensable only while the request/prescription/Visit remains current;
+- dispense records approval reference;
+- supplied substitute consumes the original item's fulfilment allowance.
+
+**Rejected**
+- no substitute dispensing.
+
+**Stale**
+- prescription superseded;
+- Visit cancelled;
+- remaining quantity changed such that proposal no longer fits;
+- other state invalidates request.
+
+Pharmacist cannot infer an unapproved strength/form/quantity conversion.
 
 ---
 

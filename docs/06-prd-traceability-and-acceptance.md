@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.9 |
+| Version | 0.10 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.9 |
+| Parent | Product Requirements Document v0.10 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -514,7 +514,20 @@ Release must fail if any of these are possible:
 85. let Pharmacy silently continue a Superseded prescription as the current source;
 86. allow new active prescription finalization/replacement after effective Visit cancellation or Completed state;
 87. let a clinical amendment silently change prescription content;
-88. invent a no-prescription Consultation Completed -> Completed shortcut outside locked V1.
+88. invent a no-prescription Consultation Completed -> Completed shortcut outside locked V1;
+89. allow dispensing from a Finalized prescription before Visit reaches Sent to Pharmacy;
+90. silently select a historical/wrong Visit or Superseded prescription for dispensing;
+91. expose unrestricted diagnosis/consultation notes/Doctor longitudinal history to Pharmacist;
+92. reset prior dispensed quantity when a prescription is replaced;
+93. allow cumulative original + substitute fulfilment beyond the current permitted allowance;
+94. allow a stale pharmacy unit/session to over-dispense after another unit supplied first;
+95. create stock deduction without matching dispensing record or dispensing record without its stock effect;
+96. select/dispense expired stock;
+97. create a back-order/reservation from unsupplied remainder;
+98. let a stale substitution request survive prescription replacement/cancellation/changed remaining quantity;
+99. continue dispensing after effective Visit cancellation;
+100. carry unsaved dispense quantities silently across pharmacy-unit switch;
+101. mark Visit Completed merely because dispensing occurred.
 
 ---
 
@@ -1204,6 +1217,100 @@ Supports: P-053, P-061, IX Sections 39 and 40.
 **Then** implementation does not silently mark it Completed through an invented no-prescription shortcut.
 
 Supports: locked workflow baseline, P-059, IX Section 40.
+
+## UXA-080 — Finalized but not pharmacy-ready cannot dispense
+
+**Given** prescription is Finalized but Visit is still With Doctor  
+**When** Pharmacist finds the Patient  
+**Then** prescription is not offered as active dispensable work.
+
+Supports: P-065, P-074, REM-045, IX Sections 15 and 41.
+
+## UXA-081 — Patient ID lookup requires explicit Visit/version choice
+
+**Given** Patient ID has multiple relevant Visits/prescriptions  
+**When** Pharmacy lookup returns results  
+**Then** Visit/state/version are shown and Pharmacist explicitly selects the intended pharmacy-ready current prescription.
+
+Supports: P-065, PHA-02.
+
+## UXA-082 — Pharmacy clinical boundary remains narrow
+
+**Given** Pharmacist opens current/previous prescription context  
+**Then** known allergies and dispensing instructions are visible but unrestricted diagnosis/notes/Doctor longitudinal history are not.
+
+Supports: P-066, REM-042, PHA-02, IX Section 41.
+
+## UXA-083 — Replacement lineage reduces future allowance
+
+**Given** old prescription prescribed 10 units and 4 were already dispensed  
+**And** replacement carries the same item lineage with corrected quantity 8  
+**Then** current remaining allowable is 4, not 8 or a reset allowance.
+
+Supports: P-062, P-067, P-071, REM-045, IX Sections 15 and 41.
+
+## UXA-084 — Corrected quantity below prior dispense does not reverse history
+
+**Given** 6 units were already dispensed  
+**And** replacement corrects the same lineage to 4  
+**Then** remaining allowable is 0, historical 6 remain recorded, and no stock is restored automatically.
+
+Supports: P-062, P-067–P-071, IX Section 41.
+
+## UXA-085 — Multi-unit concurrent dispense cannot overfill prescription
+
+**Given** two pharmacy units view the same remaining quantity  
+**When** Unit A dispenses first  
+**Then** Unit B must recompute remaining allowance and cannot commit a stale quantity that would exceed the active prescription.
+
+Supports: P-071, P-075, IX Sections 15, 30, 41.
+
+## UXA-086 — Dispense and stock deduction stay together
+
+**Given** Pharmacist confirms a valid dispense  
+**Then** actual supplied quantity and active-unit stock deduction become effective together; unknown outcome is checked before retry.
+
+Supports: P-067–P-068, PHA-03, IX Section 41.
+
+## UXA-087 — Partial dispensing creates no reservation
+
+**Given** Pharmacy supplies less than remaining prescription quantity  
+**Then** supplied amount is recorded/billable, remainder is visible, and no collect-later reservation is created.
+
+Supports: P-069–P-070, IX Section 15.
+
+## UXA-088 — Approved substitute consumes original allowance
+
+**Given** Doctor approved a substitute proposal for an original prescription item  
+**When** Pharmacy dispenses the approved substitute  
+**Then** supply is linked to the approval/original item and consumes that item's permitted fulfilment rather than adding an extra allowance.
+
+Supports: P-072, PHA-06, DOC-08, IX Sections 15 and 41.
+
+## UXA-089 — Stale substitution request cannot be approved/dispensed
+
+**Given** a substitution request was created  
+**And** prescription was replaced or remaining quantity changed before decision  
+**Then** stale proposal cannot be approved/dispensed without refreshed current review.
+
+Supports: P-072, DOC-08, PHA-06, IX Sections 25 and 41.
+
+## UXA-090 — Effective Visit cancellation blocks future dispense
+
+**Given** Pharmacy has a valid dispense form open  
+**And** Owner cancellation becomes effective first  
+**When** Pharmacist confirms dispense  
+**Then** stale dispense is blocked while already-committed dispensing/stock remains.
+
+Supports: P-047, P-074, REM-036, IX Sections 38 and 41.
+
+## UXA-091 — Pharmacy-unit switch does not carry unsaved quantity silently
+
+**Given** Pharmacist entered dispense quantities in Pharmacy Unit A  
+**When** switching to Unit B  
+**Then** product requires explicit discard/review and never submits those quantities under Unit B silently.
+
+Supports: P-075, PHA-03, IX Sections 15 and 30.
 
 ---
 

@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.9 |
+| Version | 0.10 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -1413,80 +1413,249 @@ A stale action cannot overwrite a newer replacement or continue active prescript
 
 # 17. Pharmacy Workspace
 
-Source: FR-045–FR-063, FR-082–FR-083, FR-105–FR-118; BR-013, BR-017–BR-018, BR-040–BR-042, BR-047–BR-058.
+Source: FR-045–FR-056, FR-082–FR-083, FR-094–FR-095, FR-118; BR-013, BR-017–BR-018, BR-040–BR-042, BR-058; OD-013–OD-014, OD-017, OD-032, OD-037.
 
-## 17.1 Pharmacy Home
+## 17.1 Pharmacy retrieval and access
 
 **Classification: DERIVED PRODUCT DESIGN.**
 
 Recommended focus:
 
-- Patient ID / prescription lookup;
+- Patient ID / pharmacy-ready Visit lookup;
 - current pharmacy unit;
 - pending dispensing;
-- pharmacy bill/payment;
 - substitution requests;
+- pharmacy bill/payment;
 - inventory alerts;
 - inventory-change/transfer requests.
 
-### P-065 — Patient ID lookup
+### P-065 — Patient ID lookup and pharmacy-ready selection
 
 Patient ID is the required V1 pharmacy lookup.
 
-### P-066 — Clinical visibility
+Lookup results must distinguish Visits/prescriptions clearly enough to avoid selecting the wrong attendance:
 
-Pharmacist sees:
+- Patient ID;
+- Visit ID;
+- Visit date/time where useful;
+- Visit state;
+- prescription version/status;
+- Doctor where useful.
 
+Dispensing action is available only when:
+
+- current Visit state is **Sent to Pharmacy**;
+- a current **Finalized** prescription exists;
+- current prescription version is still the latest current version.
+
+A Finalized prescription attached to a Visit still With Doctor is not pharmacy-ready.
+
+If more than one relevant Visit/prescription exists, Pharmacist explicitly selects the intended one; the product does not guess from name/phone or silently choose a historical Visit.
+
+### P-066 — Clinical visibility boundary
+
+Pharmacist may see only the clinical context required for fulfilment:
+
+- patient identity needed for dispensing;
 - current prescription;
-- previous prescriptions;
+- previous prescriptions as read-only history;
 - known allergies;
-- dispensing-relevant instructions.
+- dispensing-relevant medicine instructions;
+- prescribed/remaining quantities;
+- pharmacy availability;
+- billing/payment context.
 
-No unrestricted diagnosis/full clinical notes.
+Pharmacist must not receive unrestricted:
+
+- diagnosis/assessment;
+- consultation notes;
+- Doctor longitudinal clinical history;
+- unrelated clinical content.
+
+Superseded/previous prescriptions remain visually historical and do not become the default dispensing source.
 
 ## 17.2 Dispensing
 
+### Prescription-item fulfilment lineage
+
+Each finalized prescription item participates in a fulfilment lineage across prescription replacement.
+
+When replacement carries forward the same prescribed item identity, prior dispensing remains attributable to that lineage.
+
+If Doctor materially changes/adds a medicine identity, it is a new fulfilment lineage. Removed lineages remain historical and cannot receive further dispensing.
+
+The implementation may use stable item IDs or an equivalent mechanism; product behavior must preserve lineage outcomes.
+
 ### P-067 — Dispense actual quantity
 
-Pharmacist records quantity actually supplied per prescription item.
+For each current active prescription item show:
 
-### P-068 — Automatic stock deduction
+- current prescribed quantity;
+- cumulative quantity already dispensed against that item lineage across all prescription versions/units;
+- remaining allowable quantity;
+- current active pharmacy-unit valid stock;
+- quantity to dispense;
+- resulting unsupplied remainder.
 
-Inventory decreases only by actual quantity dispensed.
+Remaining allowable is:
+
+**max(0, current active prescribed quantity − cumulative prior dispensed quantity attributable to that lineage).**
+
+If prior dispensing already exceeds a later corrected prescribed quantity, remaining allowable is 0. The historical excess is displayed/audited; stock/dispensing is not reversed.
+
+Entered dispense quantity must be greater than 0 and no greater than both:
+
+- remaining allowable quantity; and
+- current valid available stock in the active pharmacy unit.
+
+### P-068 — Atomic dispensing and automatic stock deduction
+
+Final **Dispense** confirmation revalidates:
+
+- Visit is still Sent to Pharmacy and not Cancelled/Voided;
+- prescription version is still current Finalized;
+- item lineage/current prescribed quantity;
+- remaining allowable after any other dispensing action;
+- active pharmacy unit;
+- current valid/non-expired stock quantity.
+
+On success:
+
+- record actual supplied quantity;
+- record prescription version/item lineage;
+- record pharmacy unit and Pharmacist/time;
+- reduce only that pharmacy unit's valid inventory by the actual supplied quantity.
+
+Dispensing record and stock deduction must succeed as one effective operation. If outcome is unknown, current state is checked before retry so duplicate dispensing is not intentionally created.
 
 ### P-069 — Partial dispensing
 
-If available quantity is lower than prescribed quantity, Pharmacy can supply available quantity, bill only supplied quantity, and mark remainder unsupplied.
+Pharmacy may supply less than the current remaining allowable quantity.
 
-### P-070 — No back-order
+For each item:
 
-V1 does not create collect-later reservations.
+- record actual supplied quantity;
+- deduct only supplied stock;
+- mark/display the unsupplied remainder;
+- bill only supplied quantity.
 
-### P-071 — Over-dispense prevention
+Partial supply never rewrites the prescription.
 
-Cumulative quantity across all dispensing actions/pharmacy units cannot exceed active prescription quantity.
+A remaining quantity is not an inventory reservation.
 
-### P-072 — Substitution request
+### P-070 — No back-order / no stock reservation
 
-Pharmacist cannot independently substitute. Pharmacist requests alternative; Doctor approves/rejects before dispensing.
+V1 does not create:
+
+- collect-later orders;
+- reserved stock;
+- promised future pharmacy fulfilment;
+- automatic replenishment/back-order records.
+
+Another permitted pharmacy unit may later dispense a still-allowable remainder while the Visit/prescription remains active, but no unit has stock reserved by the CRM merely because a remainder exists.
+
+### P-071 — Over-dispense and concurrency prevention
+
+Across all dispensing actions, prescription versions in the same active item lineage, and pharmacy units, cumulative fulfilment cannot exceed the latest current active prescription allowance.
+
+Before every dispense, recompute remaining allowance using current committed dispensing history.
+
+If another session/unit dispensed first, stale quantity is rejected and Pharmacy refreshes current remaining allowance.
+
+A Superseded prescription screen cannot be used to continue dispensing.
+
+### P-072 — Substitution request and approved substitute fulfilment
+
+Pharmacist cannot independently substitute.
+
+A substitution request must identify:
+
+- current prescription version;
+- original prescription item/lineage;
+- proposed substitute medicine;
+- proposed substitute quantity;
+- mandatory reason.
+
+Pending substitute remains non-dispensable.
+
+Doctor approval authorizes only the approved proposal.
+
+If substitute strength/form/unit is not safely comparable, Pharmacist must not infer conversion; Doctor must explicitly confirm the substitute quantity/instruction needed for dispensing.
+
+Approved substitute dispensing:
+
+- records the substitution approval reference;
+- records actual substitute supplied;
+- consumes the approved amount against the original prescription item's remaining fulfilment allowance;
+- prevents original + substitute supply from silently exceeding the permitted remaining fulfilment.
+
+A substitution request becomes stale/non-actionable if:
+
+- prescription version/item is superseded;
+- Visit becomes Cancelled/Voided;
+- requested remaining quantity is no longer available because dispensing occurred first;
+- another state change makes the proposal no longer current.
 
 ### P-073 — No medicine return
 
-No medicine-return workflow exists in V1.
+No medicine-return, restock-from-return, or refund-through-return workflow exists in V1.
 
-### P-074 — Prescription-required dispensing
+Already-dispensed medicine is corrected only through separately authorized inventory/financial mechanisms where applicable; it is not undone by a return UI.
 
-General non-prescription retail is not available in V1 CRM.
+### P-074 — Prescription-required and Visit-state-required dispensing
+
+V1 CRM dispensing requires:
+
+- pharmacy-ready Visit state = Sent to Pharmacy;
+- a current Finalized prescription;
+- active valid prescription item;
+- permitted active pharmacy unit.
+
+General non-prescription retail/pharmacy-only dispensing is outside V1.
+
+Effective Visit cancellation immediately blocks future dispensing while preserving all prior dispensing/stock history.
+
+Dispensing itself does not mark the Visit Completed; pharmacy billing/payment/completion is governed by G9.
 
 ## 17.3 Multi-pharmacy fulfilment
 
 ### P-075 — Unit-specific dispensing
 
-Every dispensing transaction is associated with the pharmacy unit that supplied the medicine.
+Every dispensing transaction belongs to the pharmacy unit that physically supplied the medicine.
 
-### P-076 — Unit-specific billing
+The active pharmacy unit remains visible throughout dispensing.
 
-If multiple units fulfil one prescription, each unit bills only the quantity it dispensed.
+If a Pharmacist changes pharmacy unit while unsaved dispense quantities are entered, the product requires explicit discard/review; quantities never silently move between units.
+
+Cumulative fulfilment allowance is clinic-wide across units even though stock ledgers remain unit-specific.
+
+### P-076 — Unit-specific billing handoff
+
+Each pharmacy unit hands off to billing only the quantities that unit actually dispensed.
+
+If multiple units fulfil one prescription:
+
+- each unit records its own dispensing;
+- each unit later bills only its own supplied quantities;
+- prescription-wide remaining allowance is still shared across all units;
+- unit-level audit history remains intact even when Owner reporting later consolidates it.
+
+### Replacement/cancellation stale-state rules
+
+If Doctor replaces the prescription while Pharmacy has a dispense screen open:
+
+- old version becomes non-dispensable immediately;
+- pending unsaved quantities on the old version cannot be committed;
+- refresh to latest current Finalized prescription;
+- recompute remaining allowance from preserved prior dispensing.
+
+If Visit cancellation becomes effective before Dispense commits:
+
+- block the stale dispense;
+- preserve already-committed dispensing and stock deduction;
+- do not automatically restore stock.
+
+Technical locking/transaction implementation is deferred, but these product outcomes are mandatory.
 
 ---
 
