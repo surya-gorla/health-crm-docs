@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.14 DRAFT |
 | Current group | G13 — Reporting, Analytics & Owner Visibility |
-| Current stage | G13 PREPARING |
+| Current stage | G13 DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12 |
 | In-progress groups | G13 |
 | Not started | G14–G15 |
@@ -2880,6 +2880,48 @@ Perform full G13 source review before autonomous product reasoning.
 ### Blockers
 
 None.
+
+## 2026-09-25 — G13 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required. The locked OD-029 definitions remain authoritative; G13 makes them deterministic across the history/correction semantics introduced in G4–G12.
+
+1. **Clinic local date/time basis:** day-based reports use the configured clinic local date/time context. Exact timezone implementation remains technical.
+2. **Patients seen per day:** count each Visit once when it first reaches Consultation Completed. Later clinical amendment or later Visit cancellation does not create another seen event or erase the original historical completion count. Resolves REM-043.
+3. **Average waiting time:** measure from the queue-entry event for the waiting journey that actually leads to the Visit's first With Doctor transition.
+4. **Same waiting journey:** doctor reassignment, Called, Unresponded, move-five-slots, or move-to-end preserve the existing waiting journey and original queue-entry timestamp.
+5. **Removed/re-entered waiting journey:** when financial ineligibility or another rule removes the Visit from queue membership and a later eligible action inserts it again, that re-entry starts a new waiting segment. The report uses the segment that immediately precedes the first With Doctor transition; earlier abandoned segments remain history but do not inflate the successful wait duration. Resolves REM-039.
+6. **Consultation revenue:** sum the current effective consultation payment records whose effective state is Paid; Waived/Unpaid are excluded. Approved corrections replace the effective reporting value/state while original/superseded records remain audit history and are never double-counted. Resolves REM-032.
+7. **Consultation cancellation after Paid:** because V1 cancellation is not a refund, later cancellation/void does not erase a still-effective Paid external payment from recorded revenue. Cancellation is reported separately.
+8. **Pharmacy revenue:** sum current effective pharmacy payment records in Paid state, using each bill's frozen amount and pharmacy-unit attribution. A later bill void without refund does not erase a still-effective Paid external payment from recorded revenue; the void is separately visible. Payment correction to Unpaid removes it from effective paid revenue. Resolves REM-060.
+9. **Recorded revenue date:** for day-bucketed financial reporting, attribute recorded revenue to the effective Paid recording date/time, not merely Visit/bill creation date. A later approved correction that changes the effective Paid/Unpaid outcome must be reflected without double-counting prior historical state; exact historical-as-of reporting is not introduced in V1.
+10. **Daily total recorded revenue:** consultation recorded revenue + pharmacy recorded revenue under the same selected date/time/filter basis.
+11. **Payment-method breakdown:** use the current effective Paid payment method; historical superseded payment methods remain audit history but are not double-counted.
+12. **Medicine sales quantity:** actual committed dispensed base quantity, not prescribed quantity, not billed quantity, and not stock adjustment/transfer quantity.
+13. **Medicine sales value:** use the actual frozen bill-line value for billed supplied medicine where available; do not recalculate past sales from current price configuration. Unsupplied quantity contributes zero sales.
+14. **Inventory current stock:** derive from current pharmacy-unit movement ledgers. Consolidated total is the sum of units; preserve unit drill-down.
+15. **Valid versus expired stock:** current available stock excludes expired/unavailable quantity; expired recorded quantity is separately reportable and not silently merged into available stock.
+16. **Low/out-of-stock/expiring:** use the current configured thresholds/current batch-expiry state. These are current-state reports and may change when threshold configuration changes; that does not rewrite movement history.
+17. **Transfers:** linked pharmacy-to-pharmacy transfer is an internal movement, not medicine sale, stock addition, or clinic-wide stock gain/loss. Consolidated stock should net to zero for the transfer while unit positions change.
+18. **Corrections/adjustments:** inventory corrections, loss/damage, expired disposition, and Owner direct adjustments retain their movement category and must not be counted as medicine sales. Resolves REM-065.
+19. **Most prescribed medicines:** count finalized prescription-line prescribing events/quantities from the finalized version that was active for the Visit at the relevant time; replacement/supersession must not silently double-count both versions as independent current prescriptions. Historical version history remains inspectable. For the standard V1 aggregate, use the final current prescription version per Visit as the canonical prescription contribution.
+20. **Waivers:** report effective approved/direct Owner waivers, not Pending/Rejected/Stale waiver requests. Preserve request counts/status separately where approval activity is shown.
+21. **Cancellations/voids:** report effective approved/direct cancellation/void outcomes separately from request volume. Pending, Rejected, and Stale/Non-actionable requests may be reported as workflow activity but never as effective cancellations.
+22. **Password reset / approval activity:** when audit/approval reporting includes Owner work, distinguish Pending, Approved, Rejected, Resolved, Stale/Non-actionable and direct Owner actions; never count a direct action twice as both request and approval. Resolves REM-068.
+23. **Returning patients:** a Patient is returning when a new Visit is created for a Patient ID that already has at least one earlier Visit. Multiple Visits for the same Patient ID on the same day still follow that historical Visit rule. Possible Duplicate profiles remain separate Patients until a future merge workflow exists.
+24. **Archived identities:** disabling staff, archiving medicine, or archiving pharmacy unit does not remove or reassign historical report attribution. Reports may show current label plus archived indicator, but stable identity/history remains preserved. Resolves REM-070.
+25. **Audit activity reporting:** counts/events use the actual audit event stream, preserve actor/effective authority, and respect the clinical-content/secret boundaries. Audit-event count is not a proxy for successful business outcomes.
+26. **Filters:** Owner reports support at least date range and relevant entity/unit filters where the report has that dimension. Filtering must not silently broaden unauthorized Admin/Pharmacist scope.
+27. **Role access:** Owner receives clinic-wide report scope; Admin only authorized non-clinical report scope; Pharmacist unit-scoped pharmacy/inventory reports; Reception operational queue/reception information; Doctor-only does not inherit clinic-wide financial/inventory analytics.
+28. **No bank-settlement claim:** financial reports remain recorded CRM financial status, not proof of bank settlement.
+29. **No invented KPI targets:** G13 defines calculations and scope but does not invent business success thresholds or chart preferences.
+30. **No destructive report recomputation:** current reports may reflect current effective corrections/configured thresholds, but source historical events/snapshots remain preserved.
+31. **Empty/loading distinction:** reporting UI must distinguish loading, no-data-for-filter, and access-restricted states.
+32. **Export:** exact report export format remains downstream/technical unless later configured; G13 does not introduce a required export file format.
+
+### Current action
+
+Apply deterministic report definitions to P-102–P-106, Owner/report screens, acceptance/traceability, and interaction contracts; then commit and validate.
+
 
 
 
