@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.12 DRAFT |
 | Current group | G11 — Owner Approval Center & Exception Control |
-| Current stage | G11 PREPARING |
+| Current stage | G11 DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10 |
 | In-progress groups | G11 |
 | Not started | G12–G15 |
@@ -70,7 +70,7 @@ A group is COMPLETE only when all four gates pass:
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMPLETE | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | PASS vs G1–G9 | COMPLETE — REM-063–REM-066 recorded | Closed |
-| G11 | Owner Approval Center & Exception Control | PREPARING | — | — | — | Current group |
+| G11 | Owner Approval Center & Exception Control | DECISIONS RESOLVED | — | — | — | Current group |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
 | G14 | Cross-Product State, Audit, History & Safety | NOT STARTED | — | — | — | |
@@ -2532,6 +2532,38 @@ Perform full G11 source review before autonomous product reasoning.
 ### Blockers
 
 None.
+
+## 2026-09-25 — G11 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required. G11 unifies Owner work discovery/presentation while preserving the distinct lifecycle already accepted for each exception type.
+
+1. **One inbox, type-specific lifecycle:** OWN-02 is a single Owner work queue for actionable Owner-controlled requests, but the product must not force every item into identical Approve/Reject semantics.
+2. **Pending-first work queue:** default view prioritizes currently actionable Pending work. History remains filterable by type, requester, time, and final outcome. No unconfirmed urgency/risk ranking is invented.
+3. **Common request identity:** every queued request preserves request type, request ID, requester human identity, requester effective authority/workspace, affected target, mandatory source reason where required, created time, current request state, and type-specific baseline.
+4. **Common stale rule:** loading a request never freezes underlying business state. At final Owner action the product revalidates request state, target state, authority, and the type-specific baseline/current facts. A stale/resolved request cannot apply twice.
+5. **Type-specific action controls:** OWN-03 renders only the valid action for that request type. Standard approval types use Approve/Reject; staff password reset uses **Set Temporary Credential**; direct Owner actions such as Direct Consultation Waiver and Direct Inventory Adjustment are not turned into self-approval requests.
+6. **Same-human multi-role behavior:** a user who legitimately holds requester role + Owner may perform separate sides of a workflow if the locked rules allow it. The product does not invent a separation-of-duties prohibition. The two events remain separately attributed to the same human under the distinct effective authorities/workspaces. Resolves REM-005.
+7. **Clinical-content boundary:** Owner Approval Center shows operational state/risk context required for decision, but Owner-only authority does not reveal unrestricted diagnosis/clinical notes. If the same account also has Doctor authority, clinical access occurs under Doctor context rather than being silently leaked into Owner approval UI.
+8. **Consultation waiver request:** only one actionable Pending waiver request for an eligible Unpaid Visit. Owner revalidates current financial outcome before decision. Paid/Waived makes old request non-actionable/stale. Approval -> Waived; rejection leaves Unpaid and historical request, and a later new request may be submitted. Resolves REM-029.
+9. **Direct Consultation Waiver:** Owner may apply waiver directly to an eligible current Unpaid Visit with mandatory reason and explicit confirmation. It is an immediate Owner action, not a Pending request requiring self-approval.
+10. **Visit cancellation:** one actionable Pending cancellation request per Visit. Pending does not freeze workflow. Owner decision revalidates current Visit state; Completed-before-decision makes cancellation request non-actionable/stale. Approval -> Cancelled/Voided with prior history preserved/no refund; rejection leaves current active state unchanged. Same-human Doctor request/Owner decision remains separately attributed. Resolves REM-038.
+11. **Bill void:** one actionable Pending request per bill. Pending leaves bill/payment active. Payment may change while Pending, so current payment state is revalidated at decision time rather than treating that change as automatic staleness. Approval -> Cancelled/Voided; Paid approval requires explicit no-refund warning and never restores stock. Existing bill administration remains possible after Visit Completed/Cancelled where G9 permits. Resolves REM-057.
+12. **Payment correction:** consultation/pharmacy payment correction preserves captured baseline, proposed record, current effective record, and original/effective history. If the captured baseline no longer matches current effective payment record, the request is stale/non-applicable; it cannot overwrite newer truth. Approval applies proposed payment record; rejection preserves current effective state. Paid->Unpaid is correction, not refund. Pharmacy correction cannot change bill lines/total. Resolves REM-030 and REM-058.
+13. **Inventory adjustment:** Owner sees captured stock/value baseline alongside current unit/medicine/batch state and proposed effect. Stale/invalid/negative application is blocked. Quantity approval creates one controlled movement; rejection changes nothing. Price-only approval changes the controlled value, not stock quantity. Direct Owner adjustment stays outside the Pending approval queue. Resolves REM-063 adjustment portion.
+14. **Stock transfer:** Owner sees source/destination, medicine/batch, requested normalized quantity, captured source availability, and current source availability. If current source cannot satisfy full request, approval is blocked/stale; no partial approval. If source changed but still valid, show the current value and apply only after explicit current-state confirmation. Approval creates linked source/destination movements under one transfer reference; rejection changes neither. Resolves REM-063 transfer portion.
+15. **Staff password reset:** this request type is Pending -> Resolved by **Set Temporary Credential**, not Approved/Rejected. One actionable Pending reset per eligible non-Owner staff account. Owner never sees old password. Successful set resolves request; stale/resolved copy cannot act again. Reset does not enable disabled account or change roles. If target is no longer eligible for the non-Owner reset flow (for example now holds Owner authority), the old request becomes non-actionable rather than bypassing Owner recovery policy. Resolves REM-010 and REM-011.
+16. **Approval list outcomes:** history supports at least Pending, Approved, Rejected, Resolved, and Stale/Non-actionable presentation as applicable to request type. Do not label password reset “Approved” when its effective outcome is Resolved by credential set.
+17. **Action-specific confirmations:** high-impact Owner actions require an explicit final action with consequence text. Avoid generic row-click approval and avoid extra double-confirmation unless the consequence materially benefits from it.
+18. **Decision outcome visibility:** after successful Owner action, show the resulting effective state and keep request history read-only. Rejection explicitly says the underlying business record remains unchanged where applicable.
+19. **Unknown outcome/retry:** Owner decision/reset action and direct Owner exception actions are protected against duplicate final submit. If action result is unknown, refresh request/target/effective state before retry. Exact transaction/idempotency mechanism remains technical for G14.
+20. **Cross-workspace request visibility:** notification/badge may identify that Owner work exists, but protected details and decision controls belong to the Owner workspace. Workspace switching follows G1/G2 authority/authentication rules.
+21. **No generic self-approval artifacts:** Direct Waiver and Direct Inventory Adjustment are recorded/audited as direct Owner actions. They do not create artificial requester=Owner + approver=Owner Pending records solely to fit OWN-02.
+22. **Audit minimum:** material request/decision history retains actor account, effective authority/workspace, request type, affected entity, source reason where applicable, outcome, prior/resulting state/value where applicable, and timestamps, while secrets and unauthorized clinical content remain excluded.
+
+### Current action
+
+Apply G11 lifecycle-specific Approval Center behavior across PRD P-094–P-096, acceptance/traceability, OWN-02/OWN-03/OWN-09, and shared approval interactions; then commit and validate.
+
 
 
 
