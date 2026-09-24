@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.4 DRAFT |
 | Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
-| Current stage | GROUP REASONING |
+| Current stage | DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2 |
 | In-progress groups | G3 |
 | Not started | G4–G15 |
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | GROUP REASONING | — | — | — | Current group |
+| G3 | Patient Search, Identity, Registration & Patient Profile | DECISIONS RESOLVED | — | — | — | Current group |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -544,7 +544,7 @@ G2 is complete. Do not start G3 until explicitly instructed.
 
 ## Current checkpoint
 
-**Stage:** GROUP REASONING
+**Stage:** DECISIONS RESOLVED / READY TO EDIT
 
 ### Primary requirements
 
@@ -576,7 +576,7 @@ Document 10 currently contains no reminder targeted to G3.
 
 ### Current action
 
-Resolve G3 product-design gaps from the completed source review, then apply them to PRD layers in one logical Group 3 commit.
+Apply the resolved G3 patient-identity decisions to PRD, acceptance, screen, and interaction specifications in one logical Group 3 commit.
 
 ### Blockers
 
@@ -646,3 +646,112 @@ No Document 10 reminder targets G3.
 ### Business input required
 
 None. All identified gaps can be resolved as derived product design without changing the locked BRD.
+
+
+## 2026-09-25 — G3 DECISIONS RESOLVED
+
+No new clinic/business input is required. These are DERIVED PRODUCT DESIGN clarifications that preserve the locked patient-identity model.
+
+### D-G3-01 — Search results require explicit human confirmation
+
+- Search supports Patient ID, phone, and name exactly as locked.
+- A valid exact Patient ID match is visually prioritized as the strongest identity result because Patient ID is unique, but the product still requires an explicit **Select Patient** action before entering patient context.
+- Phone/name matches remain candidate results, never automatic identity proof.
+- Each candidate row shows the minimum useful identity set: patient name, Patient ID, phone, DOB/derived age context, a compact address cue where useful, and Possible Duplicate status if present.
+- Limited prior-Visit identity-confirmation context may be deliberately opened where needed, but Reception does not receive unrestricted diagnosis, clinical notes, or prescription content.
+- Patients sharing the same phone remain distinct rows; results are never collapsed into one identity because of phone equality.
+
+### D-G3-02 — Final registration performs a current duplicate-candidate check
+
+- Search remains the visually dominant entry path, but duplicate protection cannot rely only on the receptionist having performed an earlier manual search.
+- Before effective Patient creation, the product re-evaluates current candidate matches using the entered identifying data.
+- If no candidate requires review, registration may proceed.
+- If candidates are surfaced, Patient creation pauses and Reception must explicitly either:
+  1. select an existing confirmed patient, abandoning the new identity creation; or
+  2. deliberately continue with **Create New as Possible Duplicate** when the patient cannot confidently confirm an existing candidate.
+- A candidate appearing at final submit because of concurrent/recent data is handled the same way; the system does not silently create a second Patient.
+- Exact matching/scoring thresholds remain solution design.
+
+### D-G3-03 — Possible Duplicate is usable, visible, and traceable
+
+- Creating a new patient after unresolved candidate review automatically applies the visible **Possible Duplicate** marker.
+- The marker is informational and does not block Visit creation or normal patient use.
+- The product retains non-clinical provenance sufficient to understand why the marker exists: candidate Patient IDs surfaced at creation, creating actor, and time.
+- No auto-merge, auto-link, or silent marker clearing is introduced in V1.
+- Duplicate resolution/merge remains future scope.
+
+### D-G3-04 — Registration edit boundary is explicit
+
+- Before successful Patient creation, Reception may freely correct the unsaved registration fields.
+- Required fields remain exactly: full name, phone, DOB, gender, address, email.
+- Optional fields remain exactly: emergency contact, blood group, known allergies, guardian/parent details, Government ID.
+- Phone is not unique; email is required but not an identity key; age remains derived from DOB.
+- Structurally invalid input is rejected (for example, unusable required values or an impossible/future DOB), without inventing a new business field taxonomy.
+- Patient ID is generated only after effective Patient creation succeeds, then becomes non-editable and immutable.
+- After creation, established demographics move to the Doctor-controlled correction workflow rather than direct Reception overwrite.
+
+### D-G3-05 — Registration retry/unknown outcome must protect identity
+
+- Duplicate final submission is disabled while Patient creation is pending.
+- If the client cannot determine whether Patient creation succeeded, it must not blindly submit another create request.
+- The product first checks/refreshes effective state so a successful Patient creation is recovered rather than producing a second Patient.
+- Detailed idempotency implementation remains technical and is a future G14 safety check.
+
+### D-G3-06 — Physical file is an association, never an identity gate
+
+- After Patient creation, the generated Patient ID is displayed copy-friendly so Reception can associate it with the physical clinic file.
+- Missing/unavailable physical paper file does not block digital patient use, Visit creation, payment, queueing, or later retrieval.
+- A missing file never causes another Patient ID.
+- Locating/replacing the physical file remains offline clinic procedure; G3 does not invent a CRM file-replacement workflow.
+
+### D-G3-07 — Reception patient profile is identity/operational, not clinical history
+
+Reception Patient Profile may show:
+- Patient ID and demographics;
+- optional intake/operational safety context already permitted to Reception, including recorded allergy information where captured;
+- Possible Duplicate marker;
+- active Visit operational summary;
+- prior Visit **identity/operational summaries sufficient for matching**, not longitudinal clinical content;
+- physical-file Patient ID reference.
+
+Unrestricted diagnoses, consultation notes, prescriptions, and Doctor longitudinal clinical history remain outside Reception authority.
+
+### D-G3-08 — Demographic correction lifecycle is explicit
+
+- Patient ID itself is immutable and is never a demographic-correction target.
+- Reception cannot directly overwrite an established demographic.
+- Each proposed demographic field change is independently attributable with current value and proposed value; the UI may collect more than one change, but each field must preserve its own old/new audit detail.
+- While a Reception request is Pending, the effective patient value does not change.
+- Approved -> proposed value becomes effective and old/new, requester, Doctor decision, and time are retained.
+- Rejected -> effective value remains unchanged and decision history remains.
+- A Doctor may directly correct demographics without a Reception request, but old/new value, actor, and time remain audited.
+
+### D-G3-09 — Doctor routing works with and without an active Visit
+
+For a Reception-originated correction:
+- if an active Visit has an assigned Doctor, route to that Doctor;
+- if an active Visit exists but has no assigned Doctor, a Doctor must be selected/assigned before the request can be submitted, matching FR-006;
+- if there is **no active Visit**, do not create a fake Visit merely to correct demographics; Reception selects an authorized Doctor reviewer and the request remains a patient-level correction.
+
+A submitted request does not disappear merely because the Visit later completes.
+
+If the active Visit is reassigned before the pending request is decided, the correction should follow the current assigned Doctor so the business rule “route to the Visit's assigned Doctor” remains true. This requires a future G5 compatibility check.
+
+### D-G3-10 — Stale demographic correction cannot overwrite newer truth
+
+- A Reception correction request captures the current field value it is proposing to replace.
+- If that value has changed before Doctor decision, the pending request becomes stale for application purposes.
+- The Doctor must review refreshed current data; the stale proposal cannot silently overwrite the newer value.
+- The Doctor may reject/recreate the request path or directly perform an audited correction using current data.
+- Exact concurrency/version mechanism remains technical and is a future G14 safety check.
+
+### Explicitly not introduced
+
+- duplicate merge;
+- automatic identity selection solely by similarity score;
+- retrospective auto-merging/linking;
+- DOB-only, email-only, Government-ID-only, or pharmacy-expanded search requirements;
+- mandatory clinical detail exposure to Reception;
+- physical-file replacement workflow;
+- new required registration fields;
+- Patient ID editing/replacement.
