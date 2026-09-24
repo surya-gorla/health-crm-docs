@@ -18,11 +18,11 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.7 DRAFT |
-| Current group | None — G5 complete; starting G6 next |
-| Current stage | G5 COMPLETE / TRANSITIONING |
+| Current group | G6 — Consultation & Longitudinal Clinical Record |
+| Current stage | PREPARING |
 | Completed groups | G1, G2, G3, G4, G5 |
-| In-progress groups | None |
-| Not started | G6–G15 |
+| In-progress groups | G6 |
+| Not started | G7–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 31 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
@@ -65,7 +65,7 @@ A group is COMPLETE only when all four gates pass:
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
-| G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
+| G6 | Consultation & Longitudinal Clinical Record | PREPARING | — | — | — | Current group |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
@@ -1552,3 +1552,51 @@ Run all four G5 closure gates; if PASS, close G5 and proceed directly to G6.
 ### Transition
 
 Proceed directly to G6.
+
+
+# G6 — Consultation & Longitudinal Clinical Record
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-048 — Assigned Visit access
+- P-049 — Longitudinal history
+- P-050 — Required clinical entry
+- P-051 — Optional clinical entry
+- P-052 — Complete consultation
+- P-053 — Clinical amendment
+- P-054 — Clinical access boundary
+
+### Mandatory prior-group reminders
+
+- REM-021 — Doctor demographic-correction approval/direct edit must preserve old/new audit and stale protection; Possible Duplicate Patient IDs must never cause automatic clinical-history combination.
+- REM-034 — Start Consultation must preserve Called -> With Doctor; Pending cancellation does not freeze consultation, but effective cancellation while With Doctor stops future active authoring/saves while preserving already-saved clinical history.
+
+### Required source review
+
+- locked BRD clinical documentation, Doctor authority, longitudinal archive, amendments, and access boundaries;
+- workflow/state model for consultation start/completion/history/corrections;
+- clinical OD decisions;
+- current PRD P-048–P-054;
+- Doctor consultation/history/amendment screens and demographic-correction paths;
+- interaction contracts for forms, history, stale state, unsaved changes, cancellation concurrency;
+- G1–G5 accepted contracts and REM-021/REM-034.
+
+### Current action
+
+Perform full G6 source review before product reasoning.
+
+### Blockers
+
+None.
+
+---
+
+## 2026-09-25 — G6 PREPARING checkpoint
+
+- G6 started immediately after G5 closure.
+- Mandatory reminders loaded: REM-021, REM-034.
+- Next exact action: complete source review before product decisions.
