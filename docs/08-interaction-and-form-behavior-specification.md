@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.6 |
+| Version | 0.7 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.6 |
+| Parent | PRD v0.7 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -601,37 +601,97 @@ If another browser/session already resolved the request, the current user must s
 
 Doctor-specific queues remain visually separated.
 
-If tabs/filters are used, the selected Doctor must stay visible.
+If tabs/filters are used, selected Doctor remains visible.
 
-## 11.2 Position
+Do not include assigned-but-financially-ineligible Visits in queue count/order. Show those in the separate pre-queue financial context defined by G4.
 
-Queue position is a display of current ordering, not an editable free-form number.
+## 11.2 Default ordering and position
 
-## 11.3 Call
+Queue position is current persisted ordering, not editable free-form data.
 
-Doctor Call Patient is explicit.
+- new eligible entry -> queue end;
+- reassignment -> destination queue end;
+- Unresponded -> five positions down/end;
+- patient leaves -> same-Doctor queue end.
 
-Reception sees the call state/notification.
+Do not offer arbitrary drag/drop or priority insertion.
+
+Ordinary repositioning preserves queue-entry history.
+
+## 11.3 Call and Start Consultation
+
+**Call Patient**
+- Doctor only;
+- current Waiting only;
+- sets Called;
+- records actor/time;
+- Reception sees call.
+
+**Start Consultation**
+- Doctor only;
+- current Called only;
+- Visit must still be assigned to that Doctor;
+- sets With Doctor.
+
+Viewing a row does not imply either state change.
 
 ## 11.4 Unresponded
 
-Reception marks Unresponded only from Called.
+Reception marks Unresponded only from current Called.
 
-After the rule executes:
+After success:
 
-- event remains in history;
-- Visit returns to Waiting;
+- record Unresponded event;
+- move five positions down or end;
+- current state becomes Waiting;
 - new position is visible.
+
+If Called state changed first, action is stale and refresh is required.
 
 ## 11.5 Reassign
 
-Reassign requires selecting destination Doctor.
+Reassign is Reception-only from Waiting or Called.
 
-Show current Doctor and destination before confirmation.
+Require:
+- current source Doctor;
+- destination Doctor different from source;
+- explicit confirmation.
 
-## 11.6 Urgent case
+Success:
+- remove source membership;
+- set new Doctor;
+- append to destination end as Waiting;
+- preserve source queue/call/reassignment history.
 
-Do not create a priority star, emergency reorder button, or hidden priority score in V1.
+If a Visit-linked demographic correction is Pending, reviewer authority follows the new Doctor.
+
+Do not reassign With Doctor or later.
+
+## 11.6 Patient leaves before consultation
+
+From Waiting or Called, Reception may move a financially eligible Paid/Waived Visit to the same queue end.
+
+- current state Waiting;
+- prior Call remains historical;
+- financial state unchanged;
+- not cancellation/refund.
+
+## 11.7 Financial correction while queued
+
+If current effective financial outcome becomes Unpaid before With Doctor:
+
+- Waiting/Called membership leaves active queue;
+- preserve existing queue history;
+- show Not Queued / Unpaid outside queue;
+- renewed eligibility requires explicit new queue entry at end.
+
+If correction occurs at With Doctor or later, do not rewind clinical state.
+
+## 11.8 Urgent case
+
+Do not create priority star, urgency score, priority request, emergency reorder button, arbitrary drag/drop priority, or hidden priority score.
+
+Urgent communication remains outside software.
 
 ---
 
@@ -1231,7 +1291,19 @@ This interaction specification fails review if:
 - a payment correction applies against a changed baseline;
 - Paid-to-Unpaid correction is presented as refund or erases prior operational history;
 - fee configuration silently rewrites an existing Visit amount;
-- unknown Visit/payment outcome is blindly retried and duplicates records.
+- unknown Visit/payment outcome is blindly retried and duplicates records;
+- assigned-but-Unpaid pre-queue Visit is counted/ordered as actual queue member;
+- consultation starts from Waiting without explicit Called -> With Doctor;
+- With Doctor/later Visit is reassigned or inserted with arbitrary priority;
+- prior Doctor can decide Visit-linked demographic correction after reassignment;
+- Unresponded history disappears when current state returns to Waiting;
+- Waiting/Called Visit remains actively queued after effective state becomes Unpaid;
+- queue history is deleted when current membership is removed for financial correction;
+- Pending cancellation freezes workflow despite locked active behavior;
+- cancellation is approved after Visit reached Completed;
+- duplicate Pending cancellation requests are created;
+- cancellation deletes prior clinical/pharmacy/financial history or implies refund;
+- stale queue/cancellation action applies after state/assignment changed.
 
 
 ---
@@ -1617,3 +1689,86 @@ The applied Visit amount is a Visit-level record.
 Changing clinic fee configuration does not rewrite existing Visit amounts.
 
 A Visit-specific corrected amount, when legitimately needed, uses the controlled financial-correction path and does not alter global configuration.
+
+---
+
+# 38. Queue State, Reassignment, and Visit Cancellation Contract
+
+## 38.1 Queue-state transition rules
+
+Normal queue transition path:
+
+**Waiting -> Called -> With Doctor**
+
+Unresponded is a transient event from Called that repositions and returns to Waiting.
+
+State-changing controls are only visible/enabled where the transition is currently valid.
+
+## 38.2 Queue-entry history
+
+Preserve queue-entry/reassignment/reposition/call events.
+
+Reassignment, Unresponded, and move-to-end do not pretend the Visit newly arrived.
+
+Actual removal from queue followed by later re-entry creates a new current queue-entry event while prior entries remain history.
+
+## 38.3 Financial loss of eligibility before consultation
+
+When a queued Waiting/Called Visit becomes effectively Unpaid:
+
+- remove active queue membership;
+- do not delete past queue history;
+- show the Visit in pre-queue financial resolution;
+- renewed eligibility requires explicit re-entry at end.
+
+If With Doctor or later, do not rewind clinical progression.
+
+## 38.4 Cancellation request
+
+Cancellation request is Doctor-authority action with mandatory reason.
+
+- one Pending request per Visit;
+- Pending does not freeze workflow;
+- current Visit state continues independently;
+- request remains visible to authorized users.
+
+If state reaches Completed before Owner decision, the request is stale/non-actionable.
+
+## 38.5 Cancellation decision
+
+Owner revalidates request and current Visit state.
+
+Approve only while current state is one of the locked cancellable states.
+
+Approval:
+- Cancelled/Voided;
+- leaves active workflow;
+- preserves every existing historical record;
+- does not create refund.
+
+Reject:
+- leaves current state unchanged;
+- preserves request/decision history.
+
+## 38.6 Concurrent workflow changes
+
+Queue/cancellation actions depend on current state/assignment.
+
+If another user/session:
+- reassigns Visit;
+- starts consultation;
+- marks Unresponded;
+- moves Visit;
+- completes Visit;
+- resolves cancellation;
+
+then stale action from old view must not apply.
+
+## 38.7 Cancellation after downstream work exists
+
+Cancellation is non-destructive even after clinical/pharmacy artifacts exist.
+
+Later group reviews must ensure:
+- Doctor workspace stops future active authoring when cancellation becomes effective;
+- Pharmacy does not continue future active Visit fulfilment after cancellation;
+- already-created clinical/prescription/dispensing/billing history remains viewable to authorized roles.

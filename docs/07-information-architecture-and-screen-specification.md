@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.5 |
+| Version | 0.6 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.6 |
+| Parent | PRD v0.7 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -756,11 +756,19 @@ A rejected request remains historical; another new request may be submitted late
 
 ### Purpose
 
-Coordinate doctor-specific queues.
+Coordinate true Doctor-queue membership without mixing in pre-queue financial Visits.
 
 ### Layout
 
-Support one column/section per Doctor or a Doctor filter while preserving clearly separated queues.
+Support one column/section per Doctor or a Doctor filter while preserving clearly separated Doctor queues.
+
+Assigned Visits Awaiting Financial Eligibility are not counted or ordered here.
+
+### Default ordering
+
+New eligible queue entries append to end.
+
+No free-form position input or drag/drop reorder.
 
 ### Queue row
 
@@ -768,25 +776,58 @@ Support one column/section per Doctor or a Doctor filter while preserving clearl
 - patient name;
 - Patient ID;
 - Visit ID;
-- status;
-- payment eligibility;
+- current status;
+- financial eligibility;
 - waiting duration;
-- current Doctor.
+- current Doctor;
+- Called time where applicable;
+- Pending Cancellation indicator where applicable.
 
-### Actions
+### State-based actions
 
-- mark Unresponded for Called Visit;
-- reassign Doctor;
+**Waiting**
 - open Visit;
-- react to Doctor Call.
+- reassign Doctor;
+- Move to End — Patient Left.
+
+**Called**
+- open Visit;
+- mark Unresponded;
+- reassign Doctor;
+- Move to End — Patient Left;
+- respond to Doctor call/coordination.
+
+**With Doctor or later**
+- no ordinary Reception queue reassign/reposition controls.
 
 ### Reassignment
 
-Requires explicit destination Doctor and confirmation.
+- Waiting/Called only;
+- explicit destination Doctor different from current;
+- confirmation shows source/destination;
+- destination receives Visit at end as Waiting;
+- Called event remains historical if reassigned from Called.
+
+If a Visit-linked demographic-correction request is Pending, the new Doctor becomes current reviewer; old reviewer stale action cannot decide.
+
+### Financial correction
+
+If effective consultation outcome becomes Unpaid while current state is Waiting/Called, remove current queue membership and show Visit in the non-queued financial-resolution area; preserve all prior queue events.
+
+If the Visit later regains Paid/Waived, it must explicitly re-enter at queue end.
+
+### Unresponded
+
+Only current Called can be marked Unresponded.
+
+After success show:
+- event recorded;
+- current state Waiting;
+- new position five places lower or end.
 
 ### Urgent case
 
-No software priority/reorder action is provided.
+No priority flag, urgency score, approval, drag/reorder control, or automatic queue jump is provided.
 
 ---
 
@@ -910,10 +951,22 @@ Allowed action:
 
 - **Request Waiver** with mandatory reason when no actionable waiver request already exists.
 
+### Queue state actions
+
+**Waiting**
+- Call Patient.
+
+**Called**
+- Start Consultation -> With Doctor.
+
+Opening/viewing a row does not itself transition state.
+
+If assignment/state changed, stale Call/Start action is blocked.
+
 ### Primary actions
 
-- Call Patient;
-- Open Consultation;
+- Call Patient from Waiting;
+- Start Consultation from Called;
 - view authorized patient history;
 - open substitution request;
 - request waiver from eligible assigned pre-queue Visit.
@@ -1127,22 +1180,44 @@ No substitute may be dispensed before approval.
 
 ## DOC-09 — Visit Cancellation Request
 
-**Users:** Doctor  
+**Users:** Doctor with authorized Visit access  
 **Source:** P-046–P-047
+
+### Eligibility
+
+Request action is available only while current Visit state is:
+
+- Waiting;
+- Called;
+- Unresponded if still current;
+- With Doctor;
+- Consultation Completed;
+- Sent to Pharmacy.
+
+Completed and Cancelled/Voided do not offer it.
+
+Only one actionable Pending cancellation request may exist per Visit.
 
 ### Content
 
-- Visit state;
-- existing clinical/prescription/dispensing/payment-history warning;
-- mandatory specific reason.
+- current Visit state;
+- current Doctor/Visit identity;
+- existing clinical/prescription/dispensing/payment-history impact warning;
+- mandatory specific reason;
+- existing Pending request status if one exists.
 
 ### Action
 
-Submit to Owner.
+**Submit Cancellation Request** to Owner.
 
-### Safety
+### After submission
 
-Completed Visit does not offer this flow.
+- Visit remains active/current state unchanged;
+- Pending Cancellation indicator is visible;
+- active workflow may continue while decision is pending;
+- duplicate Pending request is unavailable.
+
+If the Visit reaches Completed before Owner decision, request becomes stale/non-actionable rather than cancelling Completed.
 
 ---
 
@@ -1502,7 +1577,7 @@ Paid/Waived Visits are not eligible for this normal action.
 ### Type-specific context
 
 **Waiver:** amount, current payment state, Visit, queue-eligibility effect; approval must re-check that financial outcome is still Unpaid.  
-**Visit cancellation:** current Visit state and existing clinical/financial/dispensing history.  
+**Visit cancellation:** request-state baseline, current Visit state, current queue/workflow stage, existing clinical/prescription/dispensing/financial history, and explicit warning that approval removes future active workflow but does not refund/delete history. If current state is Completed or request is already resolved, approval is unavailable.  
 **Bill void:** bill/payment and explicit “stock will not be restored” warning.  
 **Payment correction:** captured baseline, original vs proposed financial fields, and explicit “record correction — not a refund” context where relevant.  
 **Inventory adjustment:** stock before, proposed delta, projected stock after.  

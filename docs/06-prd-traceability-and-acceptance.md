@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.6 |
+| Version | 0.7 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.6 |
+| Parent | Product Requirements Document v0.7 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -476,7 +476,19 @@ Release must fail if any of these are possible:
 47. apply a payment correction against a changed/stale payment baseline;
 48. treat Paid-to-Unpaid correction as a refund or delete prior queue/clinical history;
 49. silently rewrite an existing Visit amount when fee configuration changes;
-50. blindly retry unknown-outcome Visit/payment creation in a way that may duplicate financial/Visit records.
+50. blindly retry unknown-outcome Visit/payment creation in a way that may duplicate financial/Visit records;
+51. count assigned-but-Unpaid pre-queue Visits as actual queue members;
+52. start consultation directly from Waiting without the explicit Called -> With Doctor transition;
+53. reassign With Doctor/later Visit or insert reassigned Visit at arbitrary priority position;
+54. let old Doctor decide a Visit-linked demographic correction after reassignment;
+55. erase Unresponded event when current state returns to Waiting;
+56. keep a Waiting/Called Visit actively queued after its effective financial state becomes Unpaid;
+57. delete queue history when financial correction removes current queue membership;
+58. treat Pending cancellation as automatic workflow freeze;
+59. approve cancellation after Visit reached Completed;
+60. allow duplicate simultaneously actionable cancellation requests;
+61. cancel/void by deleting existing clinical/prescription/dispensing/financial history or implying refund;
+62. apply stale queue/cancellation action after current state or Doctor assignment changed.
 
 ---
 
@@ -904,6 +916,84 @@ Supports: P-033, P-039, REC-09, IX Sections 8 and 37.
 **Then** the existing Visit amount does not silently change.
 
 Supports: P-028, REC-05, IX Section 37.
+
+## UXA-047 — New queue entry appends to Doctor queue end
+
+**Given** an eligible Visit has Paid/Waived and an assigned Doctor  
+**When** Reception adds it to queue  
+**Then** current state becomes Waiting and it is appended to that Doctor's queue end without arbitrary priority insertion.
+
+Supports: P-040, REC-07, IX Sections 11 and 38.
+
+## UXA-048 — Pre-queue financial Visits are not queue members
+
+**Given** a Visit is assigned to Doctor but still Unpaid  
+**Then** it may appear in Assigned Visits Awaiting Financial Eligibility but does not count/order as a Doctor queue Visit.
+
+Supports: P-040, DOC-01, REM-026.
+
+## UXA-049 — Start Consultation requires current Called assignment
+
+**Given** Doctor sees a Waiting Visit  
+**Then** opening it does not create With Doctor.  
+**When** Doctor Calls it and later explicitly starts consultation while still assigned  
+**Then** Called -> With Doctor.
+
+Supports: P-041, DOC-01, IX Sections 11 and 38.
+
+## UXA-050 — Reassignment goes to destination end and transfers correction reviewer
+
+**Given** Reception reassigns a Waiting/Called Visit from Doctor A to Doctor B  
+**Then** Visit appears at Doctor B queue end as Waiting, prior queue/call history remains, and any Pending Visit-linked demographic-correction reviewer becomes Doctor B.
+
+Supports: P-042, REC-07, REM-020, IX Sections 11 and 38.
+
+## UXA-051 — Unresponded is historical event plus current Waiting
+
+**Given** current state is Called  
+**When** Reception marks Unresponded  
+**Then** Unresponded event is retained, Visit moves five places down/end, and current state becomes Waiting.
+
+Supports: P-043, REC-07, IX Section 11.
+
+## UXA-052 — Financial correction to Unpaid removes pre-consult queue membership non-destructively
+
+**Given** a Waiting/Called queued Visit later receives an approved correction to Unpaid  
+**Then** it leaves active queue membership, all prior queue history remains, and renewed eligibility requires explicit queue re-entry at end.
+
+Supports: P-039, P-040, REM-027, IX Sections 11 and 38.
+
+## UXA-053 — Pending cancellation does not freeze Visit
+
+**Given** Doctor submits a valid cancellation request  
+**Then** request becomes Pending but current Visit remains active and may progress until Owner decision.
+
+Supports: P-046, DOC-09, IX Section 38.
+
+## UXA-054 — Completed-before-decision makes cancellation stale
+
+**Given** cancellation is Pending  
+**When** Visit reaches Completed before Owner decides  
+**Then** Owner cannot approve cancellation through this flow and request remains historical/non-actionable.
+
+Supports: P-046–P-047, DOC-09, OWN-03, IX Section 38.
+
+## UXA-055 — Cancellation approval preserves downstream history
+
+**Given** cancellable Visit already has clinical/prescription/dispensing/financial history  
+**When** Owner approves cancellation  
+**Then** Visit becomes Cancelled/Voided and future active workflow stops, but existing history remains and no refund is created.
+
+Supports: P-047, OWN-03, IX Section 38.
+
+## UXA-056 — Stale queue action cannot overwrite newer state
+
+**Given** one user loaded a queue row  
+**And** another user changed its state/Doctor  
+**When** the first user tries Call/Reassign/Unresponded/Start/Move using stale state  
+**Then** the product blocks the outdated action and refreshes current state.
+
+Supports: P-041–P-044, IX Sections 25 and 38.
 
 ---
 

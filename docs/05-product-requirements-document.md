@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.6 |
+| Version | 0.7 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -836,57 +836,206 @@ Exact idempotency implementation remains technical design.
 
 # 14. Doctor Queue
 
-Source: FR-017–FR-025, FR-080–FR-081, FR-092–FR-093; BR-007–BR-010, BR-026–BR-029.
+Source: FR-017–FR-025, FR-080–FR-081, FR-092–FR-093; BR-007–BR-010, BR-026–BR-029, BR-049; OD-006–OD-007, OD-019.
 
-## 14.1 Queue view
+## 14.1 Queue membership and ordering
 
-Each Doctor has a separate ordered queue.
+Each Doctor has a separate persisted ordered queue.
 
-Reception sees the Doctor queues needed to operate reception.
+A Visit becomes a queue member only after G4 requirements are satisfied:
 
-Owner sees clinic-wide queue status.
+- Doctor is assigned;
+- effective consultation financial outcome is Paid or Waived.
 
-### P-040 — Queue row information
+On first queue entry:
 
-Each queue row should expose the minimum operational context required to act:
+- current queue state becomes **Waiting**;
+- Visit is appended to the end of the selected Doctor's current queue;
+- queue-entry event/time is recorded.
+
+Assigned Visits that are not financially eligible remain outside queue membership, counts, and ordering.
+
+Reception sees Doctor queues needed for operations. Each Doctor sees only that Doctor's queue actions. Owner may see clinic-wide queue status. Pharmacist does not gain Doctor-queue controls.
+
+The product does not expose arbitrary queue-position editing, drag/drop reordering, hidden priority, or urgent-priority insertion.
+
+Order changes only through defined operations: new entry, reassignment, Unresponded reposition, patient-leaves move-to-end, or cancellation/removal.
+
+### P-040 — Queue row information and current membership
+
+Each active queue row exposes the minimum operational context required to act:
 
 - queue position;
 - patient identity;
 - Visit ID;
+- current Doctor;
 - current queue state;
-- payment eligibility state;
-- relevant timestamps;
-- actions allowed for the current role.
+- current financial eligibility;
+- waiting/call timestamps as relevant;
+- Pending Cancellation indicator where applicable;
+- actions currently valid for the current role/state.
 
-### P-041 — Doctor call
+Historical queue events remain distinct from current queue membership.
 
-Doctor can call a selected queued patient. Reception receives the call action and physically calls/directs the patient.
+Ordinary reassignment/repositioning preserves the existing queue-entry journey rather than pretending the Visit just arrived.
+
+### P-041 — Doctor call and consultation start boundary
+
+Doctor may **Call Patient** only while the Visit is currently Waiting in that Doctor's queue.
+
+Call Patient:
+
+- sets current queue state to Called;
+- records Doctor/time;
+- makes the call state visible to Reception.
+
+Viewing/opening a queue row does not itself change state.
+
+**Start Consultation** is a separate explicit Doctor action:
+
+- allowed from Called only;
+- requires Visit still assigned to that Doctor;
+- transitions current Visit state to With Doctor.
+
+If state/assignment changed first, stale Call/Start action is blocked and refreshed.
 
 ### P-042 — Reassignment
 
-Reception can move an active queued Visit to another Doctor queue. Reassignment is audited.
+Reception may reassign a currently queued Visit only while current state is Waiting or Called.
+
+Reassignment:
+
+- requires explicit destination Doctor different from current Doctor;
+- requires confirmation showing source/destination;
+- removes current membership from source Doctor queue;
+- changes assigned Doctor;
+- inserts Visit at the **end** of destination Doctor queue as Waiting;
+- preserves prior queue/call/reassignment history;
+- if source state was Called, that Call remains historical but is no longer current.
+
+Reassignment is unavailable from With Doctor or later.
+
+If a pending Visit-linked demographic-correction request exists, reviewer routing follows the newly assigned Doctor and stale prior-Doctor decision is blocked.
 
 ### P-043 — Unresponded
 
-Reception can mark a Called patient Unresponded. The Visit is moved five positions down; if fewer than five later positions exist, it moves to the end, then returns to Waiting.
+Reception may mark Unresponded only from current Called state.
 
-### P-044 — Patient leaves
+On success:
 
-A paid patient who leaves before consultation is moved to the end of the assigned Doctor queue.
+1. record Unresponded event/actor/time;
+2. move Visit five positions down in current Doctor queue;
+3. if fewer than five later positions exist, move to end;
+4. set current queue state back to Waiting;
+5. display new position.
+
+Unresponded remains visible as history even though current state returns to Waiting.
+
+If state/assignment changed first, stale Unresponded action does not apply.
+
+### P-044 — Patient leaves before consultation
+
+Before With Doctor, Reception may explicitly move a financially eligible queue member (Paid or Waived) to the end when the patient temporarily leaves.
+
+Available from Waiting or Called.
+
+On success:
+
+- current state becomes/remains Waiting;
+- Visit moves to end of same Doctor queue;
+- prior Call remains historical if applicable;
+- financial state is unchanged;
+- action is not cancellation and creates no refund.
+
+### Financial correction while queue is active
+
+If Owner-approved payment correction changes the effective financial outcome to Unpaid while current state is Waiting or Called:
+
+- remove current active queue membership;
+- preserve all prior queue/call/reassignment/reposition history;
+- show active Visit outside queue as Not Queued / Unpaid;
+- renewed Paid/Waived eligibility does not restore old position; explicit re-entry appends at end and records a new active queue-entry event.
+
+If correction to Unpaid occurs at With Doctor or later, do not unwind clinical workflow; show the corrected financial state/history without destructive rollback.
 
 ### P-045 — Urgent case
 
-No software priority control is shown. Urgent escalation remains direct Reception-to-Doctor communication outside the CRM.
+No software priority control is shown.
+
+Do not add priority flag/star, urgency score, priority request, arbitrary reorder shortcut, or automated queue jump.
+
+Urgent escalation remains direct Reception-to-Doctor communication outside the CRM.
+
+Doctor may still call a selected Waiting Visit as allowed by the locked workflow; that selection does not silently rewrite persisted queue order.
 
 ## 14.2 Consultation cancellation
 
-### P-046 — Doctor request
+### P-046 — Doctor cancellation request
 
-Doctor can request cancellation while the Visit remains active and must provide a specific reason.
+Doctor with authorized Visit access may request cancellation while current Visit state is:
 
-### P-047 — Owner decision
+- Waiting;
+- Called;
+- Unresponded where the transient state is still current/observable;
+- With Doctor;
+- Consultation Completed;
+- Sent to Pharmacy.
 
-Owner approves/rejects. Approved Visit becomes Cancelled/Voided and exits active workflow while preserving all existing history. Completed Visits are corrected through amendment/correction flows instead of cancellation.
+Completed and Cancelled/Voided do not expose this request.
+
+Request requires a mandatory specific free-text reason.
+
+Only one simultaneously actionable Pending cancellation request may exist per Visit.
+
+Submitting the request:
+
+- does not change current Visit state;
+- does not freeze active workflow;
+- records requester/reason/time;
+- shows Pending Cancellation to authorized operational users.
+
+If Visit progresses while Pending, the request follows the Visit. If current state reaches Completed before Owner decision, the request becomes stale/non-actionable and cannot be approved through cancellation flow.
+
+### P-047 — Owner cancellation decision
+
+Before decision, Owner view revalidates:
+
+- request still Pending;
+- current Visit state remains cancellable;
+- current downstream history/impact.
+
+Approve:
+
+- current Visit becomes Cancelled/Voided;
+- Visit leaves active queue/workflow;
+- all existing queue, financial, clinical, prescription, dispensing, billing, and request history remains;
+- no refund is created.
+
+Reject:
+
+- current Visit state remains whatever valid state it has reached by decision time;
+- request/rejection history remains.
+
+If Visit was resolved/completed/cancelled by another state change/session first, stale Owner decision is blocked.
+
+Same-human Owner+Doctor actions remain separately attributable by authority.
+
+### Cancellation effect by current stage
+
+When approval applies:
+
+- Waiting/Called -> remove active queue membership;
+- With Doctor -> stop further active consultation progression while preserving saved clinical history;
+- Consultation Completed -> preserve clinical content but stop remaining active downstream Visit progression;
+- Sent to Pharmacy -> stop future active Visit workflow while preserving already-created prescription/dispensing/billing history.
+
+Completed Visits use applicable correction/amendment workflows instead of cancellation.
+
+### Queue action concurrency
+
+Every queue-changing action must revalidate current state and Doctor assignment before applying.
+
+Stale action never silently overwrites newer queue state.
 
 ---
 
