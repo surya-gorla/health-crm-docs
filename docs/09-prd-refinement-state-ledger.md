@@ -18,13 +18,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.8 DRAFT |
-| Current group | G6 — Consultation & Longitudinal Clinical Record |
-| Current stage | FINAL GROUP VALIDATION — G6 |
-| Completed groups | G1, G2, G3, G4, G5 |
-| In-progress groups | G6 |
+| Current group | None — G6 complete; starting G7 next |
+| Current stage | G6 COMPLETE / TRANSITIONING |
+| Completed groups | G1, G2, G3, G4, G5, G6 |
+| In-progress groups | None |
 | Not started | G7–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 31 — see Document 10 |
+| Open future reminders | 33 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
 
 ---
@@ -65,7 +65,7 @@ A group is COMPLETE only when all four gates pass:
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
-| G6 | Consultation & Longitudinal Clinical Record | FINAL VALIDATION | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Current group |
+| G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
@@ -1727,3 +1727,35 @@ No unique G6-specific reminder was required for G9–G12 or G15 beyond existing 
 ### Next exact action
 
 Run all four G6 closure gates; if PASS, close G6 and proceed directly to G7.
+
+
+## 2026-09-25 — G6 FINAL CLOSURE
+
+### Final gate results
+
+- Gate A — Current-group validation: PASS
+- Gate B — Backward compatibility with G1–G5: PASS
+- Gate C — Forward impact/reminders: COMPLETE
+- Gate D — Ledger/checkpoint currency: PASS
+
+### Main Group 6 commit
+
+`762524428d1c62976519d7cd126ebe199054e2b2`
+
+### Forward-reminder commit
+
+`1dd3be10d12e0ae52eac6ecf62093ce199502b68`
+
+### Final verdict
+
+- BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness: HIGH
+- New business input required: NONE
+- REM-021/034 resolved.
+- REM-041–REM-044 created.
+- No unresolved backward conflict remains.
+
+### Transition
+
+Proceed directly to G7.
