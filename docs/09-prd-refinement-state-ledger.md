@@ -18,13 +18,13 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.13 DRAFT |
-| Current group | G11 — Owner Approval Center & Exception Control |
-| Current stage | G11 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
-| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10 |
-| In-progress groups | G11 |
-| Not started | G12–G15 |
+| Current group | G12 — Administration, Staff Access & Clinic Configuration |
+| Current stage | G12 PREPARING |
+| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11 |
+| In-progress groups | G12 |
+| Not started | G13–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 43 — see Document 10 |
+| Open future reminders | 37 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
 
 ---
@@ -70,7 +70,7 @@ A group is COMPLETE only when all four gates pass:
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMPLETE | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | PASS vs G1–G9 | COMPLETE — REM-063–REM-066 recorded | Closed |
-| G11 | Owner Approval Center & Exception Control | BACKWARD PASS | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | IN PROGRESS | Current group |
+| G11 | Owner Approval Center & Exception Control | COMPLETE | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | COMPLETE — REM-067–REM-069 recorded | Closed |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
 | G14 | Cross-Product State, Audit, History & Safety | NOT STARTED | — | — | — | |
@@ -2617,6 +2617,103 @@ Run cumulative backward compatibility against G1–G10 and reconcile any conflic
 ### Next exact action
 
 Evaluate G11 impact on G12–G15 and create only targeted reminders for downstream dependencies.
+
+## 2026-09-25 — G11 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Resolved inherited reminders
+
+- REM-005
+- REM-010
+- REM-011
+- REM-029
+- REM-030
+- REM-038
+- REM-057
+- REM-058
+- REM-063
+
+### Targeted reminders created
+
+- REM-067 -> G12: role/account lifecycle changes must preserve request history and current reset/Owner eligibility.
+- REM-068 -> G13: exception reporting must distinguish effective/direct/resolved outcomes from rejected/stale work.
+- REM-069 -> G14: global request/audit safety must preserve authority attribution, stale/duplicate protection, unknown-outcome handling, and content/secret boundaries.
+
+### Reminder-register commit
+
+`2cc84b573246ebc8d78234e60786b39a03e07833`
+
+Open reminder count after G11: **37**.
+
+## 2026-09-25 — G11 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G10:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint state:** CURRENT
+
+### Main Group 11 commit
+
+`0f03e96b76247cd4accbc9d47a874bb376b5b549`
+
+### Final verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- Nine inherited G11 reminders resolved.
+- REM-067–REM-069 created.
+- No unresolved backward conflict remains.
+- Owner Approval Center is unified for work discovery but lifecycle-specific for actions.
+
+### Transition
+
+Proceed directly to G12 under the user's continuous-review instruction.
+
+# G12 — Administration, Staff Access & Clinic Configuration
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-097 — Staff accounts
+- P-098 — Role assignment
+- P-099 — Account disablement
+- P-100 — Owner role boundary
+- P-101 — Configuration
+- P-103 — (cross-linked administration/configuration behavior where applicable)
+
+### Mandatory prior-group reminders
+
+- REM-006 — role changes must be compatible with already-open workspace revocation.
+- REM-012 — newly created/granted Owner authority cannot be used until Owner TOTP enrollment/second-factor requirement is satisfied; Admin cannot grant Owner.
+- REM-013 — account lifecycle and password recovery remain separate; reset never re-enables; disablement stops protected use; re-enable needs fresh sign-in.
+- REM-031 — consultation-fee configuration changes are prospective and do not rewrite existing Visit applied amounts.
+- REM-059 — medicine price/tax/billing configuration changes are prospective and do not rewrite frozen pharmacy bills.
+- REM-064 — package conversions/thresholds/medicine metadata/prices must preserve historical base-unit movement truth; reconcile Admin configuration authority with Owner-controlled operational price requests.
+- REM-067 — role/account lifecycle changes must preserve approval/reset history and current eligibility; pending non-Owner reset becomes non-actionable if target gains Owner authority.
+
+### Required source review
+
+- locked BRD account/role/Admin/Owner boundaries and clinic-configuration rules;
+- current P-097–P-101 and adjacent configuration requirements;
+- Administration screens ADM-01 onward and Owner staff/access screen;
+- authentication/account-state interactions from G1/G2;
+- financial/inventory configuration snapshots from G4/G9/G10;
+- G11 request-history and reset-eligibility rules.
+
+### Current action
+
+Perform full G12 source review before autonomous product reasoning.
+
+### Blockers
+
+None.
+
 
 
 
