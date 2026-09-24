@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.6 DRAFT |
 | Current group | G4 — Visit Creation, Consultation Payment, Waiver & Payment Correction |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G4 vs G1–G3 |
+| Current stage | FORWARD IMPACT ANALYSIS — G4 to G5–G15 |
 | Completed groups | G1, G2, G3 |
 | In-progress groups | G4 |
 | Not started | G5–G15 |
@@ -63,7 +63,7 @@ A group is COMPLETE only when all four gates pass:
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
-| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMMIT VALIDATED / BACKWARD CHECK | `38df611096205195a219abbaf498187563c10e90` | IN PROGRESS vs G1–G3 | — | Current group |
+| G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | FORWARD IMPACT ANALYSIS | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | IN PROGRESS | Current group |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
@@ -922,7 +922,7 @@ G3 is complete. G4 has not been started.
 
 ### Current action
 
-Compare committed G4 behavior against all completed groups G1–G3 and reconcile any conflict before forward-impact analysis.
+Scan G5–G15 for future dependencies introduced by G4, record targeted reminders, resolve REM-018/REM-019, then run final closure gates.
 
 ### Blockers
 
@@ -1214,3 +1214,32 @@ PASS.
 ### Next exact action
 
 Evaluate G4 compatibility cumulatively against G1 workspace/authority rules, G2 authentication/account-state rules, and G3 patient identity/demographic-correction rules.
+
+
+## 2026-09-25 — G4 BACKWARD COMPATIBILITY COMPLETE
+
+### Compared against
+
+- G1 workspace, authority, multi-role, direct-navigation, and audit-attribution contracts;
+- G2 authentication/account-state contracts;
+- G3 Patient identity, Possible Duplicate, physical-file, and demographic-correction contracts.
+
+### Result
+
+**PASS — no reconciliation commit required.**
+
+### Compatibility reasoning
+
+- Owner direct waiver and Owner waiver decisions remain explicitly Owner-authority actions, consistent with G1.
+- Doctor-requested waiver remains Doctor authority and does not grant Owner approval power.
+- G2 authentication boundaries remain unchanged.
+- Visit creation always links the already-selected Patient ID and never creates/replaces patient identity.
+- Possible Duplicate and missing paper file remain non-blocking for Visit creation.
+- Active Visit may exist Unassigned, matching the G3/BRD demographic-correction edge case.
+- Doctor assignment is required before a Visit-linked demographic correction can submit, satisfying REM-019.
+- No fake Visit is created solely for a no-active-Visit demographic correction.
+- REM-018 and REM-019 are therefore resolved by G4 subject to final reminder-register update.
+
+### Next exact action
+
+Evaluate G4 against G5–G15 and create only targeted future reminders.
