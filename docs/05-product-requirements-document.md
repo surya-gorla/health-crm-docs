@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.4 |
+| Version | 0.5 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -481,29 +481,51 @@ Reception Home should optimize the common clinic flow around:
 
 ### P-016 — Search-first entry
 
-Patient search is the primary entry action before new registration.
+Patient search is the primary entry action before new registration. New Patient remains deliberate and visually secondary.
 
-### P-017 — Search keys
+The product must not rely only on an earlier manual search to prevent duplicate identity creation: the effective registration action performs a current duplicate-candidate check before creating the Patient.
+
+### P-017 — Search keys and explicit selection
 
 Reception can search by Patient ID, phone, or name.
 
+- an exact valid Patient ID match is visually prioritized because Patient ID is unique;
+- search never silently enters patient context solely because a result scored strongly;
+- Reception explicitly selects the intended Patient before the workspace begins acting on that identity.
+
 ### P-018 — Shared-phone handling
 
-Search results must not imply that a matching phone uniquely identifies a patient.
+Phone is a matching attribute, not identity proof.
+
+A phone search may return multiple distinct patients, including family members. Those records remain separate result candidates and are not collapsed, auto-selected, or treated as the same person because they share a phone number.
 
 ### P-019 — Duplicate candidates
 
-When similar records exist, candidates are shown for receptionist + patient confirmation; similarity must never auto-select or auto-merge the patient.
+When similar records exist, candidates are shown for receptionist + patient confirmation.
+
+Candidate presentation must provide enough non-clinical identity information to distinguish records, including Patient ID, name, phone, DOB/age context, and other limited identity cues where useful.
+
+Limited prior-Visit context may be opened only to support identity confirmation. Reception does not gain unrestricted diagnosis, notes, or prescription access through the duplicate-review flow.
+
+Similarity may surface candidates but must never auto-select or auto-merge the patient.
 
 ### P-020 — Possible Duplicate
 
-If identity cannot be confidently matched, Reception may create a normal patient record carrying a visible Possible Duplicate marker.
+If identity cannot be confidently matched, Reception may deliberately create a normal patient record carrying a visible **Possible Duplicate** marker.
+
+When this path is used:
+
+- the marker does not block normal patient/Visit use;
+- the product retains enough non-clinical provenance to explain the marker, including the candidate Patient IDs surfaced at creation plus actor/time;
+- no auto-merge, auto-link, or silent marker clearing is introduced in V1.
+
+Duplicate resolution/merge remains outside V1.
 
 ---
 
 # 12. Patient Registration and Patient Profile
 
-Source: FR-001–FR-007, FR-075–FR-079; BR-001–BR-005, BR-025.
+Source: FR-001–FR-007, FR-075–FR-079; BR-001–BR-005, BR-025; OD-001–OD-003.
 
 ## 12.1 New Patient
 
@@ -526,31 +548,83 @@ Optional:
 
 Age is derived from DOB.
 
+Before successful Patient creation:
+
+- Reception may correct unsaved registration values directly;
+- required-field validation applies without adding new business fields;
+- phone is not globally unique;
+- email is required but is not an identity key;
+- DOB is the entered source value and age is derived;
+- structurally impossible values such as a future DOB are rejected.
+
+Immediately before effective Patient creation, the product evaluates current duplicate candidates from the entered identifying data. If candidates require review, creation pauses until Reception either selects a confirmed existing Patient or explicitly chooses **Create New as Possible Duplicate**.
+
+If the outcome of Patient creation is unknown because of a service/client failure, the product must check effective state before another create attempt rather than blindly creating a second Patient.
+
 ### P-021 — Permanent ID
 
-Successful registration creates a permanent Patient ID.
+Successful effective registration creates one permanent Patient ID.
+
+Patient ID is generated only after Patient creation succeeds, is displayed clearly/copy-friendly, and is not editable or replaceable through demographic correction.
 
 ### P-022 — Non-semantic ID presentation
 
 Displayed Patient/Visit IDs use stable non-semantic human-readable values; they must not expose DOB, phone, diagnosis, or other personal meaning.
 
-### P-023 — Patient profile summary
+### P-023 — Reception patient profile summary
 
-Patient profile should clearly separate:
+Reception Patient Profile is an identity/operational view, not longitudinal clinical-history access.
 
-- identity/demographics;
-- alerts/allergies;
-- active visit if one exists;
-- longitudinal visit history;
-- Possible Duplicate marker if applicable.
+It may show:
+
+- Patient ID and demographics;
+- intake/operational safety context already permitted to Reception, including recorded allergy information where captured;
+- active Visit operational summary;
+- prior Visit identity/operational summaries sufficient for identity matching;
+- Possible Duplicate marker and its safe provenance where applicable;
+- physical-file Patient ID reference.
+
+It must not expose unrestricted diagnosis, clinical notes, prescriptions, or Doctor longitudinal clinical history solely because Reception opened the patient profile.
 
 ### P-024 — Demographic correction
 
-Reception does not directly overwrite established demographics. Reception submits a correction request to the Doctor assigned to the active Visit. Doctor may approve/reject, while Doctor can also directly correct demographics with audit history.
+The boundary is explicit:
+
+- before successful Patient creation, Reception may edit unsaved registration data;
+- after creation, Reception may not directly overwrite established demographics;
+- Patient ID is never a demographic-correction target.
+
+For a Reception correction request:
+
+1. current value and proposed value are captured for each changed demographic field;
+2. the effective Patient value remains unchanged while Pending;
+3. if an active Visit has an assigned Doctor, the request routes to that Doctor;
+4. if an active Visit exists without an assigned Doctor, a Doctor must be selected/assigned before submission;
+5. if no active Visit exists, the product does not create a fake Visit solely for correction; Reception selects an authorized Doctor reviewer and the request remains patient-level;
+6. Approved applies the proposed value and preserves old/new value, requester, approving Doctor, and time;
+7. Rejected leaves the effective value unchanged and preserves decision history.
+
+A submitted request does not disappear merely because the Visit later completes.
+
+If an active Visit is reassigned before decision, the pending correction follows the current assigned Doctor so the locked rule remains “route to the Visit's assigned Doctor.”
+
+If the captured current value changes before Doctor decision, the request is stale for application purposes and cannot silently overwrite the newer value. The Doctor must review refreshed current data.
+
+Doctor may also directly correct demographics without a Reception request, with old/new value, actor, and time preserved.
+
+Exact concurrency/version-control mechanism is technical design.
 
 ### P-025 — No physical-file dependency
 
-Missing physical paper file must not force creation of another Patient ID.
+The generated Patient ID is shown in a copy-friendly form so Reception can associate it with the physical clinic file.
+
+Missing/unavailable physical paper file:
+
+- does not block use of the digital patient identity;
+- does not block Visit creation, payment, queueing, or later retrieval;
+- must never trigger creation of another Patient ID.
+
+Locating/replacing the physical file remains an offline clinic procedure; V1 does not invent a CRM physical-file replacement workflow.
 
 ---
 

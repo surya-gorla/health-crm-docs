@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.3 |
+| Version | 0.4 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.4 |
+| Parent | PRD v0.5 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -471,11 +471,11 @@ Patient search is visually dominant over New Patient to reduce accidental duplic
 ## REC-02 — Patient Search and Identity Confirmation
 
 **Users:** Reception  
-**Source:** P-017–P-020
+**Source:** P-016–P-020
 
 ### Purpose
 
-Find the correct existing patient before registration.
+Find and explicitly confirm the correct existing patient before creating another identity.
 
 ### Search inputs
 
@@ -485,38 +485,49 @@ Find the correct existing patient before registration.
 
 ### Result row
 
-Should expose enough identity to distinguish records without exposing unnecessary clinical detail:
+Each candidate remains a separate patient row and should expose enough identity to distinguish records without exposing unnecessary clinical detail:
 
 - patient name;
 - Patient ID;
 - phone;
-- DOB/age context;
-- address summary where useful;
+- DOB / derived age context;
+- compact address cue where useful;
 - Possible Duplicate marker;
-- limited prior-visit identity context where permitted.
+- explicit indication of exact Patient ID match where applicable.
+
+An exact Patient ID match is visually prioritized but still requires **Select Patient** before patient context changes.
+
+### Identity-confirmation detail
+
+Reception may deliberately open limited prior-Visit identity context permitted by the BRD, such as visit dates and other identity-confirmation cues needed to help the patient recognize the record.
+
+This view must not expose unrestricted diagnosis, clinical notes, or prescription content.
 
 ### Actions
 
 - Select Patient;
 - View Patient;
+- Review limited identity-confirmation context;
 - Continue to New Patient when no candidate is confidently confirmed.
 
 ### Safety
 
-- no auto-select solely from similarity;
+- no auto-select solely from exact/similarity confidence;
 - no auto-merge;
-- shared phone number is not presented as unique proof.
+- shared phone number is not presented as unique proof;
+- same-phone patients are not collapsed into one result;
+- loading/error state is distinct from “no matching patient.”
 
 ### Empty state
 
-“No matching patient confirmed” with a deliberate **Register New Patient** action.
+Only after search completes successfully: “No matching patient confirmed” with a deliberate **Register New Patient** action.
 
 ---
 
 ## REC-03 — New Patient Registration
 
 **Users:** Reception  
-**Source:** P-021–P-022
+**Source:** P-016, P-020–P-022
 
 ### Required fields
 
@@ -542,48 +553,72 @@ Age is computed from DOB and not separately editable.
 ### Actions
 
 - Register Patient;
-- Cancel/return to search.
+- Cancel/return to search;
+- when final duplicate review surfaces candidates: **Select Existing Patient** or **Create New as Possible Duplicate**.
 
 ### Validation
 
 - required-field validation is field-specific;
 - phone is not globally unique;
+- email is required but is not an identity key;
 - Government ID is not required;
-- registration must not silently create a second record after an ambiguous search without user confirmation.
+- future/impossible DOB is rejected;
+- registration submit performs a current duplicate-candidate check rather than trusting only an earlier manual search;
+- if current candidates require review, effective Patient creation pauses until Reception makes an explicit identity decision.
+
+### Pending/unknown outcome safety
+
+- disable duplicate final submit while Patient creation is in progress;
+- do not show a generated Patient ID until effective creation is confirmed;
+- if the client cannot determine whether creation succeeded, refresh/check effective state before allowing another create attempt.
+
+### Possible Duplicate path
+
+When Reception deliberately creates a new record after unresolved candidate review:
+
+- apply the visible Possible Duplicate marker automatically;
+- retain candidate Patient IDs plus creating actor/time as safe provenance;
+- do not block normal Patient/Visit use;
+- do not auto-merge or silently clear the marker.
 
 ### Success
 
-Display newly created Patient ID clearly and proceed to patient profile / Visit creation.
+Display the newly created permanent Patient ID clearly/copy-friendly and proceed to patient profile / Visit creation.
 
 ---
 
 ## REC-04 — Reception Patient Profile
 
 **Users:** Reception  
-**Source:** P-023–P-025
+**Source:** P-021, P-023–P-025
 
 ### Purpose
 
-Operate on patient identity without granting clinical access.
+Operate on patient identity without granting longitudinal clinical access.
 
 ### Visible sections
 
-- Patient ID and demographics;
-- allergies if permitted for operational safety;
-- Possible Duplicate marker;
-- active Visit summary;
-- prior Visit identity summaries sufficient for matching;
+- permanent Patient ID and demographics;
+- recorded allergies/intake safety context already permitted to Reception;
+- Possible Duplicate marker and safe provenance where applicable;
+- active Visit operational summary;
+- prior Visit identity/operational summaries sufficient for matching;
 - physical-file Patient ID reference.
 
 ### Actions
 
 - Create Visit;
 - submit Demographic Correction Request;
-- view operational Visit state.
+- view operational Visit state;
+- copy Patient ID for physical-file association.
 
 ### Restricted
 
-Do not expose unrestricted diagnosis or clinical notes.
+Do not expose unrestricted diagnosis, consultation notes, prescriptions, or Doctor longitudinal clinical history.
+
+Patient ID is read-only and is never offered as an editable demographic field.
+
+Missing physical file does not disable Create Visit or other digital patient workflow actions.
 
 ---
 
@@ -703,19 +738,40 @@ No software priority/reorder action is provided.
 
 ### Required content
 
-- current value;
-- proposed new value;
+For each proposed demographic field change:
+
 - field being corrected;
-- reason/context if captured by implementation;
-- assigned Doctor.
+- current effective value;
+- proposed new value;
+- Doctor reviewer/routing context.
+
+Optional:
+- reason/context; the locked BRD does not require a mandatory reason for demographic correction.
+
+Patient ID is never available as a correction field.
+
+### Doctor routing
+
+- active Visit + assigned Doctor -> route to that Doctor;
+- active Visit + no assigned Doctor -> Doctor must be selected/assigned before submission;
+- no active Visit -> select an authorized Doctor reviewer without creating a Visit solely for the correction.
 
 ### Behavior
 
-Reception does not directly change the patient record.
+- Reception does not directly change the patient record;
+- effective value remains unchanged while Pending;
+- if the active Visit is reassigned before decision, the pending request follows the current assigned Doctor;
+- Visit completion does not silently discard a submitted request;
+- if the captured current value changes before decision, the proposal is stale and cannot be applied without refreshed review.
 
 ### Result
 
-Pending Doctor decision.
+One of:
+
+- Pending;
+- Approved — proposed value becomes effective with old/new/requester/Doctor/time history;
+- Rejected — effective value remains unchanged and decision history is retained;
+- Stale — current value changed before decision and refreshed review is required.
 
 ---
 

@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.4 |
+| Version | 0.5 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.4 |
+| Parent | PRD v0.5 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -187,13 +187,19 @@ The UI may use one smart search field or separate controls as long as all three 
 
 ## 5.2 Exact Patient ID
 
-A valid exact Patient ID should be visually prioritized because it is the unique patient identifier.
+A valid exact Patient ID is visually prioritized because it is the unique patient identifier.
+
+Exact match does not silently change active patient context. Reception performs an explicit **Select Patient** action before subsequent work uses that identity.
 
 ## 5.3 Phone results
 
 A phone search may return multiple patients.
 
-Result design must make shared-phone cases understandable.
+Result design must make shared-phone cases understandable:
+
+- each patient remains a distinct candidate row;
+- equal phone values do not collapse identities;
+- phone match alone is never presented as confirmation.
 
 ## 5.4 Name similarity
 
@@ -205,9 +211,26 @@ The UI must describe them as candidates, not “the patient,” until Reception/
 
 No interaction, score, or duplicate warning can auto-merge patient records in V1.
 
-## 5.6 New patient action
+## 5.6 Candidate identity presentation
 
-When search is ambiguous, “Register New Patient” remains deliberate and visually separate from selecting a candidate.
+Candidate rows expose enough identity for confirmation without turning search into clinical-history access.
+
+Minimum useful result context:
+
+- patient name;
+- Patient ID;
+- phone;
+- DOB / derived age context;
+- compact address cue where useful;
+- Possible Duplicate status.
+
+Limited prior-Visit identity-confirmation context may be opened deliberately where permitted. Do not expose unrestricted diagnosis, clinical notes, or prescriptions to Reception through search.
+
+## 5.7 New patient action
+
+When search is ambiguous, **Register New Patient** remains deliberate and visually separate from selecting a candidate.
+
+Starting registration does not itself certify that no duplicate exists; final registration still performs the current candidate check defined in Section 6.
 
 ---
 
@@ -224,6 +247,8 @@ Required:
 - address;
 - email.
 
+Required fields reject blank/unusable values. DOB cannot be a future/impossible date.
+
 ## 6.2 Optional group
 
 Optional fields should be visually secondary:
@@ -234,11 +259,79 @@ Optional fields should be visually secondary:
 - guardian/parent;
 - Government ID.
 
-## 6.3 Possible Duplicate warning
+Do not promote optional fields to required merely for implementation convenience.
 
-If candidate records were surfaced before new registration, keep a visible warning/context so Reception understands why the new profile may receive Possible Duplicate.
+## 6.3 Pre-creation edit boundary
 
-The warning must not block the user when the patient cannot confidently identify an existing profile.
+Before effective Patient creation, Reception may freely correct unsaved registration values.
+
+After creation, established demographics follow the Doctor-controlled correction contract rather than direct Reception overwrite.
+
+Patient ID is system-generated only after successful creation and is never an editable registration/correction input.
+
+## 6.4 Final duplicate-candidate check
+
+Before the create action becomes effective, evaluate current candidate matches from the entered identity data.
+
+If no candidate requires review:
+- creation may proceed.
+
+If candidates are surfaced:
+- pause effective creation;
+- show the candidate set;
+- allow explicit **Select Existing Patient**; or
+- allow explicit **Create New as Possible Duplicate** when the patient cannot confidently confirm an existing record.
+
+A candidate appearing only at final submit because another record was recently created is handled the same way. Do not silently create the new Patient.
+
+Exact similarity-scoring thresholds remain technical/solution design.
+
+## 6.5 Possible Duplicate behavior
+
+If Reception deliberately continues after unresolved candidate review:
+
+- apply the Possible Duplicate marker automatically;
+- keep the profile fully usable;
+- retain safe provenance: candidate Patient IDs surfaced at creation, creating actor, and time;
+- do not auto-merge, auto-link, or silently clear the marker.
+
+The warning informs identity risk; it does not block legitimate creation when the patient cannot confidently identify an existing profile.
+
+## 6.6 Pending and unknown create outcome
+
+While Patient creation is submitting:
+
+- prevent duplicate final submit;
+- retain entered context;
+- do not show success or a Patient ID until effective creation is confirmed.
+
+If the outcome is unknown:
+- do not blindly send another create request;
+- refresh/check effective patient state first;
+- recover the successful Patient creation if it already occurred.
+
+Exact idempotency implementation remains technical.
+
+## 6.7 Physical-file association
+
+After successful creation, display Patient ID in copy-friendly form for association with the paper file.
+
+A missing physical file:
+- does not block digital Patient use;
+- does not block Visit creation/payment/queue flow;
+- does not justify another Patient ID.
+
+Physical-file locating/replacement stays outside the CRM workflow.
+
+## 6.8 Reception patient-history boundary
+
+Reception may see only identity/operational prior-Visit summaries needed for patient matching and reception work.
+
+Do not use Patient Profile or search expansion to expose unrestricted:
+- diagnosis;
+- clinical notes;
+- prescriptions;
+- Doctor longitudinal clinical history.
 
 ---
 
@@ -1048,7 +1141,16 @@ This interaction specification fails review if:
 - a password reset silently changes account enabled/disabled state;
 - a used or invalidated recovery code can be reused;
 - normal audit/history exposes passwords, reset credentials, TOTP secrets/codes, or recovery-code values;
-- a detected disabled account continues normal protected use through an already-open session.
+- a detected disabled account continues normal protected use through an already-open session;
+- a patient is auto-selected or auto-merged solely from phone/name/similarity confidence;
+- final Patient creation proceeds despite surfaced duplicate candidates without explicit identity decision;
+- Possible Duplicate status blocks otherwise valid Patient/Visit use;
+- Reception patient search/profile exposes unrestricted clinical history;
+- Reception directly overwrites established demographics after Patient creation;
+- a stale demographic-correction request overwrites a newer value;
+- missing physical file blocks digital patient workflow or causes a new Patient ID;
+- an unknown-outcome Patient creation is blindly retried and can create a duplicate identity;
+- Patient ID is editable through a demographic-correction path.
 
 
 ---
@@ -1222,3 +1324,94 @@ The PRD does not define:
 - exact cross-device live-session invalidation mechanism;
 - catastrophic Owner recovery mechanism;
 - general authenticator device replacement/migration beyond the specified enrollment/recovery-code behavior.
+
+---
+
+# 36. Patient Identity and Demographic-Correction Interaction Contract
+
+## 36.1 Identity selection boundary
+
+Search result confidence never silently becomes active patient context.
+
+Even an exact Patient ID match requires an explicit **Select Patient** action before the workspace acts on that patient.
+
+## 36.2 Possible Duplicate provenance
+
+Possible Duplicate is an informational identity-risk marker, not a workflow lock.
+
+When created from unresolved candidate review, preserve safe provenance sufficient for later understanding:
+
+- candidate Patient IDs shown;
+- creating actor;
+- creation time.
+
+Do not expose extra clinical detail merely because candidate provenance exists.
+
+## 36.3 Established-demographic boundary
+
+Reception may edit registration values until Patient creation succeeds.
+
+After creation:
+- Reception proposes correction;
+- Doctor authority decides/applies correction;
+- Patient ID is immutable.
+
+## 36.4 Demographic correction state
+
+A Reception-originated correction has:
+
+- current value captured at request time;
+- proposed value;
+- Doctor routing/reviewer;
+- status.
+
+Normal states:
+- Pending;
+- Approved;
+- Rejected;
+- Stale when current value changed before decision.
+
+Pending does not mutate the patient.
+
+## 36.5 Doctor routing
+
+- active Visit with Doctor -> route to current assigned Doctor;
+- active Visit without Doctor -> require Doctor selection/assignment before submit;
+- no active Visit -> choose authorized Doctor reviewer without creating a fake Visit.
+
+If active Visit assignment changes before decision, the pending request follows the current assigned Doctor.
+
+Visit completion does not silently discard an already-submitted patient-level correction request.
+
+## 36.6 Stale correction safety
+
+Before applying approval, compare the request's captured current value with the patient's current effective value.
+
+If they differ:
+- do not overwrite the newer value;
+- mark/present the request as stale;
+- refresh current data;
+- require Doctor review again.
+
+Exact version/concurrency implementation remains technical.
+
+## 36.7 Doctor direct correction
+
+Doctor may directly correct demographics where authorized.
+
+Direct correction:
+- acts on current patient state;
+- preserves old/new value;
+- records actor/time;
+- never changes Patient ID.
+
+## 36.8 Patient registration unknown outcome
+
+Patient creation is identity-sensitive.
+
+If the create outcome is unknown:
+- do not automatically repeat it;
+- first determine whether the Patient was already created;
+- only allow a new create when current state proves the prior create did not succeed.
+
+This requirement must later be reconciled with cross-product retry/idempotency rules in G14.

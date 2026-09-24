@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.4 |
+| Version | 0.5 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.4 |
+| Parent | Product Requirements Document v0.5 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -455,7 +455,16 @@ Release must fail if any of these are possible:
 26. let password reset implicitly re-enable a disabled account;
 27. allow a used recovery code or a code from an invalidated recovery-code set to authenticate;
 28. expose password/TOTP/recovery-code secret values in normal audit/history;
-29. allow a disabled account's already-open session to continue protected use after disablement is detected.
+29. allow a disabled account's already-open session to continue protected use after disablement is detected;
+30. auto-select or auto-merge a patient solely from similarity/phone matching;
+31. create a new Patient after current duplicate candidates were surfaced without an explicit existing-vs-Possible-Duplicate decision;
+32. treat a Possible Duplicate marker as a reason to block normal Patient/Visit use;
+33. expose unrestricted clinical history through Reception patient search/profile;
+34. let Reception directly overwrite established demographics after Patient creation;
+35. allow a stale demographic correction to overwrite a newer effective value;
+36. allow missing physical file to block digital patient use or trigger a new Patient ID;
+37. blindly retry an unknown-outcome Patient creation in a way that may create a duplicate identity;
+38. allow Patient ID to be edited/replaced through demographic correction.
 
 ---
 
@@ -739,6 +748,73 @@ Supports: P-005, IX Sections 21 and 29.
 **Then** the request and approval remain two separately attributable events showing the same human identity but different effective authorities.
 
 Supports: P-096, FR-098, BR-039, IX Sections 28–29.
+
+## UXA-028 — Exact Patient ID still requires explicit selection
+
+**Given** search returns an exact Patient ID match  
+**Then** that result is visually prioritized but the workspace does not silently enter patient context until Reception explicitly selects it.
+
+Supports: P-017, REC-02, IX Sections 5 and 36.
+
+## UXA-029 — Final registration rechecks current duplicate candidates
+
+**Given** Reception completed a new-patient form  
+**When** final registration is submitted  
+**Then** current duplicate candidates are evaluated before effective Patient creation even if an earlier manual search found none.
+
+Supports: P-016, P-019–P-020, REC-03, IX Section 6.
+
+## UXA-030 — Candidate review requires an explicit identity branch
+
+**Given** final duplicate review surfaces similar patients  
+**Then** effective creation pauses until Reception either selects an existing confirmed patient or deliberately chooses **Create New as Possible Duplicate**.
+
+Supports: P-019–P-020, REC-02–REC-03, IX Sections 5–6.
+
+## UXA-031 — Possible Duplicate remains usable and traceable
+
+**Given** Reception deliberately creates a new patient after unresolved candidate review  
+**Then** the profile is usable, visibly marked Possible Duplicate, and retains candidate Patient IDs plus actor/time provenance without auto-merge.
+
+Supports: P-020, REC-03–REC-04, IX Sections 6 and 36.
+
+## UXA-032 — Reception patient profile does not become clinical history
+
+**Given** Reception opens a Patient Profile or prior-Visit identity context  
+**Then** the product may show identity/operational summaries needed for reception work but not unrestricted diagnosis, clinical notes, prescriptions, or Doctor longitudinal clinical history.
+
+Supports: P-023, REC-02, REC-04, IX Sections 6 and 36.
+
+## UXA-033 — No-active-Visit demographic correction remains Doctor-controlled
+
+**Given** Reception needs to correct established demographics and no active Visit exists  
+**Then** Reception selects an authorized Doctor reviewer and submits a patient-level correction without creating a fake Visit or directly changing the patient.
+
+Supports: P-024, REC-08, IX Section 36.
+
+## UXA-034 — Stale demographic correction cannot overwrite newer value
+
+**Given** a Reception correction request captured an old current value  
+**And** that patient value changed before Doctor decision  
+**When** the Doctor tries to apply the pending request  
+**Then** the product blocks silent overwrite and requires refreshed review.
+
+Supports: P-024, REC-08, IX Sections 25 and 36.
+
+## UXA-035 — Missing physical file never creates new identity
+
+**Given** a returning patient has no physical paper file  
+**When** Reception finds the existing digital patient  
+**Then** the existing Patient ID remains usable and Visit creation is not blocked by the missing paper file.
+
+Supports: P-025, REC-04.
+
+## UXA-036 — Unknown Patient-create outcome is not blindly retried
+
+**Given** Patient registration was submitted but the client cannot determine whether creation succeeded  
+**Then** the product checks current effective state before allowing another create attempt so a second Patient is not created by retry.
+
+Supports: P-021, P-111, REC-03, IX Sections 24 and 36.
 
 ---
 
