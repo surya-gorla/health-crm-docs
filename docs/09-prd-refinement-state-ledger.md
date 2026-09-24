@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.10 DRAFT |
 | Current group | G8 — Pharmacy Access, Prescription Retrieval & Dispensing |
-| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G8 vs G1–G7 |
+| Current stage | FINAL GROUP VALIDATION — G8 |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7 |
 | In-progress groups | G8 |
 | Not started | G9–G15 |
@@ -67,7 +67,7 @@ A group is COMPLETE only when all four gates pass:
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
-| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMMIT VALIDATED / BACKWARD CHECK | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | IN PROGRESS vs G1–G7 | — | Current group |
+| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | FINAL VALIDATION | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Current group |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
@@ -2066,3 +2066,32 @@ PASS.
 ### Next exact action
 
 Run cumulative backward compatibility against G1–G7.
+
+
+## 2026-09-25 — G8 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- G5 effective cancellation remains non-destructive but blocks future dispense.
+- G6 clinical-content boundary is preserved.
+- G7 latest-current prescription/version lineage is implemented rather than redefined.
+- Prior dispensing remains immutable and constrains future allowance.
+- Multi-role/auth/patient/financial contracts remain compatible.
+
+## 2026-09-25 — G8 FORWARD IMPACT ANALYSIS COMPLETE
+
+Created:
+- REM-051 -> G9 final pharmacy/Visit completion.
+- REM-052 -> G10 atomic unit/batch stock behavior.
+- REM-053 -> G13 actual-supplied medicine-sales reporting.
+- REM-054 -> G14 dispensing/version/substitution concurrency.
+- REM-055 -> G15 supplied/unsupplied/substitute pharmacy output.
+
+Resolved:
+- REM-036
+- REM-042
+- REM-045
+
+### Next exact action
+
+Run all four G8 closure gates; if PASS, close G8 and proceed directly to G9.
