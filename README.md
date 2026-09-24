@@ -18,6 +18,10 @@ The V1 core business workflow is locked. Remaining items are explicitly classifi
 | [02 — Workflows and State Model](docs/02-workflows-and-state-model.md) | End-to-end patient journey, queue lifecycle, prescription/pharmacy flow, and record lifecycle. |
 | [03 — V1 Decision Register and Edge Cases](docs/03-open-decisions-and-edge-cases.md) | Canonical record of confirmed, derived/delegated, future, configuration, technical, and compliance decisions. |
 | [04 — Requirements Traceability](docs/04-requirements-traceability.md) | Maps confirmed product decisions to BRD requirements and identifies future/out-of-scope items. |
+| [05 — Product Requirements Document](docs/05-product-requirements-document.md) | DRAFT product specification derived from the locked BRD: users, workspaces, interaction behavior, feature requirements, product states, and release scope. |
+| [06 — PRD Acceptance & Traceability](docs/06-prd-traceability-and-acceptance.md) | DRAFT product-level acceptance scenarios and traceability from PRD behavior back to the locked BRD. |
+| [07 — Information Architecture & Screen Specification](docs/07-information-architecture-and-screen-specification.md) | DRAFT screen inventory, role navigation, screen contracts, visible states, actions, and transitions. |
+| [08 — Interaction & Form Behavior Specification](docs/08-interaction-and-form-behavior-specification.md) | DRAFT interaction rules for forms, tables, queues, approvals, payments, inventory, errors, and common UI states. |
 
 ## Product boundary
 
@@ -49,3 +53,10 @@ The initial product does **not** include laboratory management, inpatient/bed ma
 ## Documentation rule
 
 Locked requirements may only change through explicit change control. Derived/delegated decisions remain identified as such; configuration and technical/compliance dependencies must not be used to silently alter V1 business behavior.
+
+
+## PRD workstream
+
+PRD development is isolated on branch `prd/v1-product-requirements`.
+
+The locked BRD on `main` remains the business source of truth. PRD drafts may add product interaction detail but may not silently change locked business behavior.
