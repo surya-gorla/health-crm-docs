@@ -18,14 +18,14 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.7 DRAFT |
-| Current group | G5 — Doctor Queue & Visit Flow Control |
-| Current stage | FINAL GROUP VALIDATION — G5 |
-| Completed groups | G1, G2, G3, G4 |
-| In-progress groups | G5 |
+| Current group | None — G5 complete; starting G6 next |
+| Current stage | G5 COMPLETE / TRANSITIONING |
+| Completed groups | G1, G2, G3, G4, G5 |
+| In-progress groups | None |
 | Not started | G6–G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 27 — see Document 10 |
-| Latest group closure commit | `a54e3d23dea2d1765d3ae467e26c00d3d78d3c74` |
+| Open future reminders | 31 — see Document 10 |
+| Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
 
 ---
 
@@ -64,7 +64,7 @@ A group is COMPLETE only when all four gates pass:
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
 | G3 | Patient Search, Identity, Registration & Patient Profile | COMPLETE | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Closed |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
-| G5 | Doctor Queue & Visit Flow Control | FINAL VALIDATION | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Current group |
+| G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
 | G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
@@ -1524,3 +1524,31 @@ No unique G5-specific reminder was required for G10, G12, or G15.
 ### Next exact action
 
 Run all four G5 closure gates; if PASS, close G5 and proceed directly to G6.
+
+
+## 2026-09-25 — G5 FINAL CLOSURE
+
+### Final gate results
+
+- Gate A — Current-group validation: PASS
+- Gate B — Backward compatibility: PASS after G4 reconciliation `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f`
+- Gate C — Forward impact/reminders: COMPLETE
+- Gate D — Ledger/checkpoint currency: PASS
+
+### Main Group 5 commit
+
+`eec1ae4e4b951456798eb008c710e0d305a1aa50`
+
+### Final verdict
+
+- BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness: HIGH
+- New business input required: NONE
+- REM-020/026/027 resolved.
+- REM-034–REM-040 created.
+- No unresolved backward conflict remains.
+
+### Transition
+
+Proceed directly to G6.
