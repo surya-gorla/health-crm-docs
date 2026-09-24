@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.9 DRAFT |
+| Current PRD version | v0.10 DRAFT |
 | Current group | G8 — Pharmacy Access, Prescription Retrieval & Dispensing |
-| Current stage | DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK — G8 vs G1–G7 |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7 |
 | In-progress groups | G8 |
 | Not started | G9–G15 |
@@ -67,7 +67,7 @@ A group is COMPLETE only when all four gates pass:
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
 | G7 | Prescription Authoring & Prescription Lifecycle | COMPLETE | `7dfa93fe469ae36b793aa0b8ca17d4931db34832` | PASS after `e7020544866df081bd98e469890c61ea3f95c1c7` | COMPLETE — REM-045–REM-050 recorded | Closed |
-| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | DECISIONS RESOLVED | — | — | — | Current group |
+| G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMMIT VALIDATED / BACKWARD CHECK | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | IN PROGRESS vs G1–G7 | — | Current group |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
 | G11 | Owner Approval Center & Exception Control | NOT STARTED | — | — | — | |
@@ -1975,7 +1975,7 @@ Proceed directly to G8.
 
 ## Current checkpoint
 
-**Stage:** DECISIONS RESOLVED / READY TO EDIT
+**Stage:** COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK
 
 ### Primary requirements
 
@@ -2009,7 +2009,7 @@ Proceed directly to G8.
 
 ### Current action
 
-Apply resolved G8 pharmacy retrieval, version-aware dispensing, substitution, multi-unit, and concurrency rules to PRD layers.
+Compare committed G8 behavior cumulatively against G1–G7; reconcile any conflict before forward-impact analysis.
 
 ### Blockers
 
@@ -2044,3 +2044,25 @@ No new clinic/business input is required.
 22. **Clinical visibility:** G6 boundary is preserved exactly. Resolves REM-042.
 
 Technical implementation may choose row/version identifiers, optimistic locking, or transactions, but must preserve these product outcomes.
+
+
+## 2026-09-25 — G8 GROUP COMMIT + COMMIT VALIDATION
+
+### Group commit
+
+- `f9cff596b9124cb2a5659b43882d5f19209b8b2a`
+- Changed docs 05–08.
+
+### Validation
+
+PASS.
+
+- P requirements remain P-001 through P-116.
+- Screen inventory remains 49 unique IDs.
+- UX acceptance extends uniquely through UXA-091.
+- PRD/companion versions align at PRD v0.10.
+- Sent-to-Pharmacy gating, latest-current prescription enforcement, narrow clinical visibility, item-lineage remaining-quantity formula, reduced-corrected-quantity handling, atomic dispensing/stock deduction, partial no-reservation behavior, substitution quantity safety, multi-unit stale prevention, cancellation blocking, and non-completion-on-dispense are present.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G7.
