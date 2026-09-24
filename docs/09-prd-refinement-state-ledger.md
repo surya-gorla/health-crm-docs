@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.8 DRAFT |
 | Current group | G7 — Prescription Authoring & Prescription Lifecycle |
-| Current stage | PREPARING |
+| Current stage | GROUP REASONING |
 | Completed groups | G1, G2, G3, G4, G5, G6 |
 | In-progress groups | G7 |
 | Not started | G8–G15 |
@@ -66,7 +66,7 @@ A group is COMPLETE only when all four gates pass:
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
-| G7 | Prescription Authoring & Prescription Lifecycle | PREPARING | — | — | — | Current group |
+| G7 | Prescription Authoring & Prescription Lifecycle | GROUP REASONING | — | — | — | Current group |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
@@ -1765,7 +1765,7 @@ Proceed directly to G7.
 
 ## Current checkpoint
 
-**Stage:** PREPARING
+**Stage:** GROUP REASONING
 
 ### Primary requirements
 
@@ -1797,7 +1797,7 @@ Proceed directly to G7.
 
 ### Current action
 
-Perform full G7 source review before product reasoning.
+Resolve prescription draft/finalization, pharmacy-handoff, replacement, availability-snapshot, and cancellation-state behavior from the completed source review.
 
 ### Blockers
 
@@ -1809,3 +1809,45 @@ None.
 
 - G7 started immediately after G6 closure.
 - Mandatory reminders loaded: REM-035, REM-041.
+
+
+## 2026-09-25 — G7 SOURCE REVIEW COMPLETE
+
+### Locked conclusions confirmed
+
+- medicine identity uses display name + strength + dosage form; manufacturer is stored/context; generic/molecule may be searchable;
+- prescribing availability is In Stock / Out of Stock / Not Stocked and is informational, not a prescribing block;
+- multi-pharmacy prescribing shows clinic total + per-unit availability read-only;
+- item fields are medicine, strength, dose, frequency, duration, optional timing/food/instruction, and quantity;
+- quantity is auto-calculated when deterministic, otherwise Doctor enters it;
+- prescription finalization is explicit Doctor authority;
+- finalized prescription is immutable in place;
+- correction uses Doctor replacement; old version becomes Superseded; mandatory reason/actor/time; pharmacy defaults latest active;
+- prior dispensing against superseded prescription remains;
+- print ** marker uses clinic-wide Out of Stock/Not Stocked status at finalization; later partial dispensing/current stock changes do not rewrite it;
+- reprint does not create a new version;
+- current finalized prescription is required for V1 dispensing;
+- G6 consultation completion does not itself finalize prescription or define pharmacy progression;
+- G5 cancellation stops future active Visit progression but preserves prescription history.
+
+### Product gaps identified
+
+- prescription draft availability across With Doctor vs Consultation Completed;
+- exact readiness rule for Sent to Pharmacy;
+- finalization validation and availability refresh/snapshot;
+- whether finalization before consultation completion changes Visit state;
+- replacement availability by Visit state;
+- replacement stale-state behavior;
+- handling prior dispensing during replacement;
+- latest-active vs Superseded pharmacy/default print behavior;
+- cancellation after finalization;
+- reprint behavior when a newer replacement exists or Visit is cancelled;
+- no-prescription bypass is not defined in the locked source and must not be invented silently.
+
+### Mandatory reminders
+
+REM-035 and REM-041 are active in this review.
+
+### Business input required
+
+None for the locked prescription path. A no-prescription direct-completion bypass is not introduced because the locked V1 flow does not define one.
