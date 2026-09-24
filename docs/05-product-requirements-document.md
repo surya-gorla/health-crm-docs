@@ -1939,7 +1939,7 @@ Submitting an inventory-change request does not change stock, reserve stock, or 
 
 The live ledger remains authoritative while the request waits for Owner review.
 
-Only one request should not be treated as ownership of the underlying quantity; ordinary dispensing/other valid movements may still occur, so approval must revalidate current state.
+A Pending request does not reserve or own the underlying quantity; ordinary dispensing and other valid movements may still occur, so Owner approval must revalidate current state.
 
 ### P-090 — Owner inventory-adjustment decision
 
