@@ -49,22 +49,23 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-040 | G5 | G14 | Cross-product stale/concurrency review must include races among Call, Start Consultation, Reassign, Unresponded, move-to-end, financial correction, cancellation request/decision, and Visit completion. One Pending cancellation per Visit and stale decisions/actions must be enforced. | G5 depends heavily on current state/assignment and concurrent actors. | OPEN |
 | REM-043 | G6 | G13 | Patients-seen/day and related consultation counts should anchor to the original Consultation Completed event. Later clinical amendments must not create a second completed consultation or change the original completion event; evaluate how later Visit cancellation affects reporting without rewriting historical completion. | G6 separates completion from later amendment/cancellation history; G13 owns reporting. | OPEN |
 | REM-044 | G6 | G14 | Generalize stale/audit safety for clinical drafts and amendments: concurrent draft saves must not overwrite newer content, stale amendment baseline must refresh, effective cancellation must reject stale clinical writes, and clinical revision audit must preserve current vs prior revisions without exposing content to unauthorized audit roles. | G6 defines product-level clinical concurrency/revision behavior; G14 owns cross-product safety/audit. | OPEN |
-| REM-047 | G7 | G10 | Prescription replacement/finalization must not retroactively alter stock. Inventory movements remain driven by actual dispensing; prior stock deductions stay attributed to the original dispensing/version even when that prescription becomes Superseded. | G7 makes replacement non-retroactive; G10 owns inventory accountability. | OPEN |
 | REM-048 | G7 | G13 | Most-prescribed/prescription reporting must not double-count superseded replacement versions as independent new clinical intent. Define reporting around current/effective prescription lineage while preserving raw version history for audit. | G7 introduces version lineage with multiple finalized versions for one Visit. | OPEN |
 | REM-049 | G7 | G14 | Cross-product stale/idempotency review must cover prescription draft/finalization/replacement: duplicate finalization must not create multiple current versions, stale replacement cannot supersede newer current version, effective cancellation blocks stale prescription writes, and current vs Superseded history remains explicit/auditable. | G7 defines version-state/concurrency behavior; G14 owns global safety/audit. | OPEN |
 | REM-050 | G7 | G15 | Printing must use the selected finalized version's stored finalization-time availability snapshot. Current Finalized is the default print/reprint target; any historical Superseded/Cancelled-context copy must be unmistakably historical and must never look like the current dispensable prescription. | G7 fixes snapshot/reprint semantics but G15 owns physical-output presentation. | OPEN |
-| REM-052 | G8 | G10 | Inventory design must preserve atomic dispense -> unit stock deduction, valid/non-expired stock only, no reservation for unsupplied remainder, and concurrent unit stock changes. Batch/lot allocation must not let expired or insufficient stock satisfy a dispense. | G8 defines dispense safety outcomes; G10 owns inventory ledger/batch behavior. | OPEN |
 | REM-053 | G8 | G13 | Medicine-sales reporting must use actual supplied quantities/value, including the actual approved substitute medicine supplied where applicable, and exclude unsupplied remainder. Unit-level activity may consolidate without erasing pharmacy-unit attribution. | G8 distinguishes prescribed intent from actual fulfilment; G13 owns reporting. | OPEN |
 | REM-054 | G8 | G14 | Cross-product safety must cover dispense idempotency/unknown outcome, item-lineage remaining allowance across replacement, multi-unit races, prescription replacement/cancellation while dispense is open, and stale substitution requests after version/quantity changes. | G8 depends on concurrent state across prescription, Visit, stock, unit, and substitution decisions. | OPEN |
 | REM-055 | G8 | G15 | Pharmacy A4 dispensing/billing summary should faithfully show actual supplied quantity, unsupplied remainder, approved substitute supplied where relevant, and pharmacy-unit context without altering the original prescription version. | G8 defines fulfilment truth; G15 owns physical output. | OPEN |
 
-| REM-056 | G9 | G10 | Inventory/accountability must treat physical dispensing—not billing, payment, Visit completion, payment correction, or bill void—as the stock-changing event. Bill void must not restore stock; any legitimate correction remains a separate Owner-controlled inventory adjustment, with pharmacy-unit and source-dispensing attribution preserved. | G9 separates financial-record lifecycle from physical medicine movement; G10 owns the authoritative inventory ledger/adjustment model. | OPEN |
 | REM-057 | G9 | G11 | Owner Approval Center bill-void review must revalidate the latest bill/request/payment state, allow only one actionable Pending request per bill, keep the bill active/payable while Pending, and show an explicit no-refund consequence if the bill became Paid before decision. Existing bill administration may remain after Visit Completed/Cancelled without reopening the Visit. | G9 defines bill-void/payment concurrency and post-Visit financial administration; G11 owns Owner decision UX. | OPEN |
 | REM-058 | G9 | G11 | Pharmacy payment-correction approval must be baseline-aware/stale-safe, preserve original/proposed/effective payment history, never expose bill lines/total as correction fields, and enforce one actionable correction per current payment baseline. Paid->Unpaid is record correction, not refund. | G9 specializes the shared payment-correction pattern for pharmacy bills; G11 owns approval presentation/decision safety. | OPEN |
 | REM-059 | G9 | G12 | Medicine price, tax/amount configuration, or other billing configuration changes must be prospective for new bills and must not silently recalculate an already-created bill snapshot. Reconcile this with the same prospective-configuration principle already used for consultation fees. | G9 freezes bill facts at creation; G12 owns configuration behavior. | OPEN |
 | REM-060 | G9 | G13 | Pharmacy financial reporting must define deterministic treatment of current/effective payment state after corrections, multi-unit bills, and Paid bills that are later Voided without refund. Avoid double-counting historical/superseded payment records and preserve pharmacy-unit attribution; do not conflate active charge state with actual recorded external payment history. | G9 preserves non-destructive bill/payment history and permits Paid+Voided history, creating a reporting-definition dependency. | OPEN |
 | REM-061 | G9 | G14 | Cross-product stale/idempotency review must include bill creation from unbilled dispensing, double-bill prevention, Mark Paid, payment-correction baseline races, bill-void decision concurrent with payment, Visit completion across multiple pharmacy units, post-Visit bill administration, and unknown-outcome retry safety. | G9 introduces concurrent state across dispensing, bill, payment, Visit completion, request/decision, and multiple units. | OPEN |
 | REM-062 | G9 | G15 | Pharmacy A4 bill/dispensing output must use the frozen bill snapshot and unit attribution, show actual supplied quantities/payment context where applicable, distinguish active versus Cancelled/Voided historical copies, and never recalculate historical bills from current prices, prescription state, or stock. Evaluate together with REM-055 for unsupplied remainder/substitute presentation. | G9 fixes immutable bill snapshot semantics while G15 owns physical-output presentation. | OPEN |
+| REM-063 | G10 | G11 | Owner Approval Center must present inventory-adjustment and stock-transfer decisions with captured baseline versus current state, unit/medicine/batch, normalized quantity, reason, projected result, and stale-state blocking. Owner direct adjustment is a direct Owner-authority action and must not be forced through a fake self-approval request. | G10 defines two distinct Owner paths: approving Pharmacist requests versus directly recording an Owner-authorized adjustment. | OPEN |
+| REM-064 | G10 | G12 | Inventory configuration review must preserve base-unit ledger truth when package conversions, thresholds, medicine metadata, or prices change. Historical movements keep the conversion/result used at the time; configuration changes are prospective. Reconcile Admin configuration authority with Pharmacist-proposed price changes that require Owner approval, without letting Admin operationally bypass Owner stock-control authority. | G10 separates operational stock control from configuration and freezes historical movement meaning. | OPEN |
+| REM-065 | G10 | G13 | Inventory reporting must derive current stock from unit ledgers, distinguish valid available from expired/unavailable recorded quantity, preserve unit/batch attribution, treat transfers as linked internal movements rather than sales/additions, and avoid counting corrective movements as new dispensing. | G10 formalizes movement categories and valid-availability semantics that G13 must aggregate without distorting operational truth. | OPEN |
+| REM-066 | G10 | G14 | Cross-product safety/audit must cover concurrent dispense/adjustment/transfer movements, stale stock baselines, no-reservation Pending requests, linked two-sided transfer atomicity, no-negative-stock guarantees, movement immutability, Owner direct adjustments, and unknown-outcome retry/idempotency. | G10 makes inventory correctness depend on current ledger state across several concurrent actors and unit ledgers. | OPEN |
 ---
 
 ## Resolved Reminder History
@@ -84,6 +85,9 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Disposition | Status |
 | --- | --- | --- | --- | --- |
+| REM-047 | G7 | G10 | Resolved by G10 movement model: prescription finalization/replacement never retroactively alters stock; prior deduction remains attached to the actual dispense/original version. | RESOLVED |
+| REM-052 | G8 | G10 | Resolved by G10 batch/base-unit ledger and stale-stock rules: dispense remains atomic with stock deduction, expired/insufficient stock cannot satisfy supply, Pending changes reserve nothing, and concurrent stock is revalidated. | RESOLVED |
+| REM-056 | G9 | G10 | Resolved by G10 physical-movement boundary: billing/payment/Visit completion/bill void do not mutate stock; legitimate correction is a separate Owner-authorized inventory movement. | RESOLVED |
 | REM-028 | G4 | G9 | Resolved by G9 external-payment/payment-correction contract: explicit Paid confirmation, UPI/Cash/Card/Other, Other description, optional reference, no partial/refund, baseline-safe Owner correction, and unknown-outcome checking; consultation waiver was not imported into pharmacy billing. | RESOLVED |
 | REM-037 | G5 | G9 | Resolved by G9 Visit-cancellation boundary: cancellation blocks new dispensing/new bill creation while preserving existing bill/payment history and allowing record-level payment/correction/void administration without reopening the Visit. | RESOLVED |
 | REM-046 | G7 | G9 | Resolved by G9 source-dispensing bill lineage: prescription replacement does not erase or re-bill previously supplied/billed quantities; only new committed supply becomes newly billable. | RESOLVED |
@@ -99,6 +103,16 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 | REM-027 | G4 | G5 | Resolved by G5 financial-correction rule plus G4 reconciliation commit `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f`: Waiting/Called may leave current queue non-destructively; With Doctor or later is not unwound. | RESOLVED |
 
 ---
+
+## Target G10 — Resolved
+
+G10 evaluated and resolved all inherited reminders targeting Inventory, Stock Accountability & Pharmacy Transfers:
+
+- REM-047
+- REM-052
+- REM-056
+
+Their dispositions are recorded in Resolved Reminder History.
 
 ## Target G11 — Mandatory Reminders
 
@@ -242,10 +256,6 @@ G9 evaluated and resolved all inherited reminders targeting Pharmacy Billing, Pa
 
 Their dispositions are recorded in Resolved Reminder History.
 
-## Target G10 — Mandatory Reminder from G7
-When G10 begins, evaluate:
-- REM-047
-
 ## Target G13 — Additional Mandatory Reminder from G7
 When G13 begins, also evaluate:
 - REM-048
@@ -259,10 +269,6 @@ When G15 begins, evaluate:
 - REM-050
 
 
-## Target G10 — Additional Mandatory Reminder from G8
-When G10 begins, also evaluate:
-- REM-052
-
 ## Target G13 — Additional Mandatory Reminder from G8
 When G13 begins, also evaluate:
 - REM-053
@@ -275,10 +281,6 @@ When G14 begins, also evaluate:
 When G15 begins, also evaluate:
 - REM-055
 
-
-## Target G10 — Additional Mandatory Reminder from G9
-When G10 begins, also evaluate:
-- REM-056
 
 ## Target G11 — Additional Mandatory Reminders from G9
 When G11 begins, also evaluate:
@@ -300,3 +302,20 @@ When G14 begins, also evaluate:
 ## Target G15 — Additional Mandatory Reminder from G9
 When G15 begins, also evaluate:
 - REM-062
+
+
+## Target G11 — Additional Mandatory Reminder from G10
+When G11 begins, also evaluate:
+- REM-063
+
+## Target G12 — Additional Mandatory Reminder from G10
+When G12 begins, also evaluate:
+- REM-064
+
+## Target G13 — Additional Mandatory Reminder from G10
+When G13 begins, also evaluate:
+- REM-065
+
+## Target G14 — Additional Mandatory Reminder from G10
+When G14 begins, also evaluate:
+- REM-066
