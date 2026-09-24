@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.12 DRAFT |
+| Current PRD version | v0.13 DRAFT |
 | Current group | G11 — Owner Approval Center & Exception Control |
-| Current stage | G11 DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | G11 COMMIT VALIDATED / BACKWARD COMPATIBILITY CHECK |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10 |
 | In-progress groups | G11 |
 | Not started | G12–G15 |
@@ -70,7 +70,7 @@ A group is COMPLETE only when all four gates pass:
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | COMPLETE | `f9cff596b9124cb2a5659b43882d5f19209b8b2a` | PASS vs G1–G7 | COMPLETE — REM-051–REM-055 recorded | Closed |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMPLETE | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | PASS vs G1–G9 | COMPLETE — REM-063–REM-066 recorded | Closed |
-| G11 | Owner Approval Center & Exception Control | DECISIONS RESOLVED | — | — | — | Current group |
+| G11 | Owner Approval Center & Exception Control | COMMIT VALIDATED | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | IN PROGRESS | — | Current group |
 | G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
 | G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
 | G14 | Cross-Product State, Audit, History & Safety | NOT STARTED | — | — | — | |
@@ -2563,6 +2563,29 @@ No new clinic/business input is required. G11 unifies Owner work discovery/prese
 ### Current action
 
 Apply G11 lifecycle-specific Approval Center behavior across PRD P-094–P-096, acceptance/traceability, OWN-02/OWN-03/OWN-09, and shared approval interactions; then commit and validate.
+
+## 2026-09-25 — G11 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `0f03e96b76247cd4accbc9d47a874bb376b5b549`
+- Changed Documents 05–08.
+- PRD advanced to v0.13.
+
+### Validation result
+
+**PASS.**
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios extend through AC-058 with no duplicate IDs.
+- UX acceptance scenarios extend through UXA-123 with no duplicate IDs.
+- Screen contracts remain 49 with no duplicate screen IDs; G11 refines OWN-02, OWN-03 and OWN-09 rather than adding screens.
+- PRD/acceptance/interaction align at v0.13; Document 07 is v0.12 with Parent PRD v0.13.
+- Type-specific Owner action semantics, password-reset resolution, stale/current-state comparison, same-human multi-role attribution, direct Owner action separation, and clinical-content boundary are represented across Documents 05–08.
+
+### Next exact action
+
+Run cumulative backward compatibility against G1–G10 and reconcile any conflict before forward-impact analysis.
 
 
 
