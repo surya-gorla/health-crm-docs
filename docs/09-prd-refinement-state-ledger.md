@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.5 DRAFT |
 | Current group | G3 — Patient Search, Identity, Registration & Patient Profile |
-| Current stage | FORWARD IMPACT ANALYSIS — G3 to G4–G15 |
+| Current stage | FINAL GROUP VALIDATION — G3 |
 | Completed groups | G1, G2 |
 | In-progress groups | G3 |
 | Not started | G4–G15 |
@@ -62,7 +62,7 @@ A group is COMPLETE only when all four gates pass:
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
 | G2 | Authentication, Account Access & Credential Recovery | COMPLETE | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | PASS after `5fe2bcc7151092307aa1d527d3b42863ec7e6144` | COMPLETE — REM-010–REM-017 recorded | Closed |
-| G3 | Patient Search, Identity, Registration & Patient Profile | FORWARD IMPACT ANALYSIS | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | IN PROGRESS | Current group |
+| G3 | Patient Search, Identity, Registration & Patient Profile | FINAL VALIDATION | `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438` | PASS vs G1–G2 | COMPLETE — REM-018–REM-025 recorded | Current group |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
 | G6 | Consultation & Longitudinal Clinical Record | NOT STARTED | — | — | — | |
@@ -806,3 +806,38 @@ Evaluate G3 compatibility cumulatively against G1 workspace/authority rules and 
 ### Next exact action
 
 Evaluate G3 against all future groups G4–G15 and write targeted reminders only where a real dependency exists.
+
+
+## 2026-09-25 — G3 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Future groups scanned
+
+G4 through G15 were reviewed against the committed G3 identity/correction behavior.
+
+### Targeted reminders created
+
+**G4 — Visit Creation & Payment**
+- REM-018 — Visit creation links the existing/newly-created permanent Patient ID; Possible Duplicate/missing physical file never create/block identity.
+- REM-019 — active Visit without Doctor must support Doctor selection before a Visit-linked demographic correction can submit; no fake Visit for no-active-Visit correction.
+
+**G5 — Queue & Visit Flow**
+- REM-020 — pending demographic correction follows current assigned Doctor after reassignment.
+
+**G6 — Consultation & Clinical History**
+- REM-021 — Doctor correction/approval + stale protection; no automatic clinical-history combination across Possible Duplicate Patient IDs.
+
+**G13 — Reporting**
+- REM-022 — unique/returning patient metrics respect actual Patient IDs; no similarity-based reporting dedupe in V1.
+
+**G14 — Cross-Product State/Audit/Safety**
+- REM-023 — Patient-create unknown outcome/idempotency and concurrent duplicate-candidate check.
+- REM-024 — Possible Duplicate provenance and demographic-correction audit metadata.
+- REM-025 — stale demographic-correction protection.
+
+### No targeted G3 reminder required
+
+No unique unresolved G3 dependency was found for G7–G12 except the groups explicitly listed above, or for G15. Existing permanent Patient ID and role rules are sufficient for those areas.
+
+### Next exact action
+
+Run all four G3 closure gates, then update the PR checklist if all pass.
