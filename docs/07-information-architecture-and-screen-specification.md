@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.11 |
+| Version | 0.12 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.12 |
+| Parent | PRD v0.13 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -1941,30 +1941,39 @@ Do not expose unrestricted diagnosis/clinical notes unless the account enters Do
 **Users:** Owner  
 **Source:** P-094
 
-### Approval types
+### Purpose
+
+One Owner inbox for current Owner-controlled requests; request types keep their own valid lifecycle/action.
+
+### Included request types
 
 - consultation waiver;
 - consultation/Visit cancellation;
 - pharmacy bill void;
 - payment correction;
-- inventory adjustment;
+- inventory adjustment / controlled price change;
 - stock transfer;
-- staff password reset request.
+- staff password reset.
 
-### List item
+### Pending-first list item
 
-- type;
+- request type;
+- request ID;
 - requester;
+- requester effective authority/workspace where material;
 - affected entity;
-- specific reason summary;
+- reason summary where applicable;
 - requested time;
-- current status.
+- current request state;
+- concise stale/current warning where known.
 
-### Filters
+### Filters/history outcomes
 
 - Pending;
 - Approved;
 - Rejected;
+- Resolved;
+- Stale / Non-actionable;
 - request type;
 - requester;
 - date.
@@ -1972,18 +1981,22 @@ Do not expose unrestricted diagnosis/clinical notes unless the account enters Do
 ### Primary actions
 
 - Open Approval Detail;
-- **Direct Consultation Waiver** for an eligible Unpaid Visit.
+- **Direct Consultation Waiver** shortcut for eligible Unpaid Visit.
 
-Direct Consultation Waiver is an Owner-authority action, not a pending request:
+Direct Consultation Waiver:
 
-- identify Patient/Visit;
-- show current Unpaid amount;
-- require specific reason;
-- explicitly confirm;
-- effective outcome becomes Waived immediately;
-- no second approval step is created.
+- identifies Patient/Visit;
+- shows current Unpaid amount;
+- requires specific reason;
+- explicitly confirms consequence;
+- immediately records Waived under Owner authority;
+- creates no Pending self-approval request.
 
-Paid/Waived Visits are not eligible for this normal action.
+Direct Owner Inventory Adjustment remains on OWN-04 rather than being represented as a fake Approval Center request.
+
+### Acceptance
+
+Row selection never executes the decision. Protected details/actions remain inside Owner workspace.
 
 ---
 
@@ -1992,30 +2005,96 @@ Paid/Waived Visits are not eligible for this normal action.
 **Users:** Owner  
 **Source:** P-094–P-096
 
-### Common layout
+### Common context
 
-1. request type;
-2. requester;
-3. affected record;
-4. current state;
-5. proposed change/action;
-6. exact reason;
-7. risk/impact context;
-8. Approve / Reject.
+1. request type and request ID;
+2. requester human identity;
+3. requester effective authority/workspace where material;
+4. affected record;
+5. captured/request-time baseline;
+6. **current** effective target state;
+7. proposed change/action;
+8. exact source reason where required;
+9. risk/impact context;
+10. request state and created time.
+
+### Action area
+
+Render only lifecycle-valid action:
+
+- standard Owner decision request -> Approve / Reject;
+- staff password reset -> link/route to **Set Temporary Credential** action;
+- stale/resolved/non-actionable -> read-only, no final action.
+
+All final actions revalidate current request + target state before application.
 
 ### Type-specific context
 
-**Waiver:** amount, current payment state, Visit, queue-eligibility effect; approval must re-check that financial outcome is still Unpaid.  
-**Visit cancellation:** request-state baseline, current Visit state, current queue/workflow stage, existing clinical/prescription/dispensing/financial history, and explicit warning that approval removes future active workflow but does not refund/delete history. If current state is Completed or request is already resolved, approval is unavailable.  
-**Bill void:** bill/payment with latest payment state, unit/source context, explicit “stock will not be restored” warning, and explicit “no refund” warning when Paid; decision must revalidate current bill/request/payment state.  
-**Payment correction:** captured current payment baseline, original vs proposed payment fields, explicit “record correction — not a refund” context where relevant, and stale-baseline blocking. For pharmacy, bill lines/total are not correction fields.  
-**Inventory adjustment:** category/reason, unit/medicine/batch, entered/base quantity, captured baseline, current stock, proposed delta/result; stale baseline blocks application. Price-only request shows current/proposed price and no stock delta.  
-**Transfer:** source, destination, medicine/batch, entered/base quantity, captured/current transferable source stock, one linked transfer reference, and stale-source protection.  
-**Password reset:** staff identity, account status.
+**Waiver**
+- fee/current payment outcome and queue consequence;
+- one Pending per eligible Unpaid Visit;
+- Paid/Waived makes old request stale;
+- rejection leaves Unpaid.
 
-### Acceptance
+**Visit cancellation**
+- current Visit state and active workflow stage;
+- existence/status of prior clinical/prescription/dispensing/financial history without leaking unrestricted clinical content;
+- Pending does not freeze workflow;
+- Completed-before-decision -> stale;
+- approval preserves history and creates no refund.
 
-Owner cannot approve an already-resolved request as if it were still Pending.
+**Bill void**
+- bill/unit/source context;
+- latest payment state, not only request-time state;
+- explicit no-refund warning when Paid;
+- explicit stock-will-not-be-restored warning;
+- Pending bill remains active/payable.
+
+**Payment correction**
+- captured payment baseline;
+- current effective payment record;
+- proposed record;
+- original/history context;
+- explicit correction-not-refund language;
+- changed baseline -> stale/block;
+- Pharmacy bill lines/total not editable here.
+
+**Inventory adjustment / price change**
+- category/reason;
+- unit/medicine/batch;
+- entered/base quantity where applicable;
+- captured baseline;
+- current stock/value;
+- proposed delta/result or current->proposed price;
+- stale/negative application blocked.
+
+**Transfer**
+- source/destination;
+- medicine/batch;
+- requested normalized quantity;
+- captured/current source availability;
+- linked transfer consequence;
+- insufficient current source -> stale/block, no partial approval.
+
+**Password reset**
+- staff identity and current role(s);
+- current enabled/disabled state;
+- request time/state;
+- no Approve/Reject control here;
+- Set Temporary Credential is the valid Owner resolution action in OWN-09;
+- if target is no longer eligible non-Owner staff, request is non-actionable.
+
+### After action
+
+On success show resulting effective state and keep request read-only in history.
+
+Rejected request clearly states the requested business change did not take effect where applicable.
+
+Unknown final outcome triggers current-state refresh before another final action.
+
+### Clinical boundary
+
+Owner-only authority sees only operational decision context. Full diagnosis/clinical notes require Doctor authority outside this Owner approval screen.
 
 ---
 
@@ -2179,28 +2258,42 @@ Exact chart style remains design implementation.
 ## OWN-09 — Staff Password Reset
 
 **Users:** Owner  
-**Source:** P-011–P-013, AU-007–AU-009
+**Source:** P-011–P-013, P-094, AU-007–AU-009
 
 ### Content
 
 - staff identity;
-- role(s);
+- current role(s);
 - account enabled/disabled status;
 - request time;
 - request state;
-- Set Temporary Credential action for a current Pending request.
+- eligibility for non-Owner reset path;
+- **Set Temporary Credential** action only for a current eligible Pending request.
 
 ### Behavior
 
-- only one reset request for the staff account is simultaneously actionable as Pending;
-- Owner sets/replaces the temporary/reset credential but never sees/retrieves the old password;
-- successful reset resolves the request;
-- a stale/resolved copy cannot perform the reset again as though still Pending;
-- password reset does not change assigned roles or enabled/disabled account state;
-- if the account is disabled, the UI must not imply that setting a reset credential restores access;
-- credential values are not written into normal audit/history.
+- only one reset request for the eligible staff account is simultaneously actionable as Pending;
+- Owner sets/replaces temporary/reset credential but never sees/retrieves old password;
+- successful credential set -> request **Resolved**;
+- no generic Approve/Reject lifecycle is shown;
+- stale/resolved copy cannot perform reset again;
+- reset does not change assigned roles or enabled/disabled state;
+- disabled account remains disabled and UI says credential reset does not restore access;
+- if target now holds Owner authority or otherwise no longer qualifies for non-Owner reset flow, old request becomes non-actionable;
+- credential values never enter normal audit/history;
+- if final reset result is unknown, refresh account/request state before retry.
 
-This request type is resolved by the Owner reset action; it is not forced into a generic Approve/Reject pattern unless a later locked product decision explicitly changes that behavior.
+### Audit
+
+Record safe metadata only:
+
+- requester account;
+- target account;
+- Owner actor/effective authority;
+- request/result state;
+- timestamps.
+
+Do not record old/new credential values.
 
 ---
 
@@ -2498,6 +2591,10 @@ The screen model is not ready for design/implementation sign-off if:
 - Pharmacist can directly overwrite operational stock quantity outside controlled movement/request flow;
 - Pending inventory adjustment or transfer silently reserves/changes stock;
 - stale adjustment/transfer approval applies against changed stock without revalidation;
+- Approval Center renders generic Approve/Reject for staff password reset;
+- direct Owner waiver/inventory adjustment creates a fake self-approval request;
+- same-human multi-role request/decision is collapsed into one unattributed user event;
+- Owner approval detail exposes unrestricted clinical notes solely because user is Owner;
 - approved transfer updates only source or only destination;
 - expired quantity disappears from inventory history merely because it became non-dispensable;
 - billing/payment/void/Visit lifecycle silently alters previously committed stock movement;

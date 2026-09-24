@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.12 |
+| Version | 0.13 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.12 |
+| Parent | PRD v0.13 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -522,93 +522,191 @@ Instead:
 Exact idempotency/transaction implementation remains technical design.
 ---
 
-# 9. Reason-and-Approval Pattern
+# 9. Reason, Request and Controlled-Action Pattern
 
-This pattern is shared by:
+This section supplies shared interaction primitives for reasoned requests/controlled actions. It does **not** mean every workflow has the same approver or the same Approve/Reject lifecycle.
 
-- waiver;
+Request-based Owner-controlled types include:
+
+- consultation waiver request;
 - Visit cancellation;
 - pharmacy bill void;
 - payment correction;
-- inventory adjustment;
+- inventory adjustment / controlled price change;
 - stock transfer;
-- clinical amendment;
-- prescription replacement.
+- staff password reset.
 
-Not all use the same approver, but the interaction contract is consistent.
+Other reasoned actions such as clinical amendment or prescription replacement use their own Doctor-controlled version workflow.
+
+Direct Owner Consultation Waiver and Direct Owner Inventory Adjustment are direct Owner actions and do not create fake self-approval requests.
 
 ## 9.1 Request step
 
-Show:
+Show, as applicable:
 
 - affected record;
-- current state;
+- current/request-time baseline;
 - proposed action/change;
-- mandatory reason;
+- mandatory reason where required;
+- requester/effective authority;
 - Submit Request.
+
+Submission does not imply requested business change already occurred.
 
 ## 9.2 Pending state
 
 After submit:
 
 - show Pending;
-- identify approver role;
-- do not imply effective state changed.
+- identify responsible Owner action;
+- do not imply effective target state changed;
+- do not freeze underlying record unless its owning workflow explicitly says so.
 
-## 9.3 Decision step
+Underlying state may continue changing, so final Owner action revalidates current truth.
 
-Approver sees:
+## 9.3 Owner action type
 
-- requester;
-- reason;
-- current state;
-- proposed result;
-- important impact warning;
-- Approve;
-- Reject.
+Do not assume generic Approve/Reject.
 
-## 9.4 Decision confirmation
+- waiver/cancellation/bill void/payment correction/inventory adjustment/transfer -> Approve / Reject while actionable;
+- staff password reset -> Set Temporary Credential;
+- direct Owner waiver/inventory adjustment -> direct confirm/apply outside Pending inbox.
 
-High-impact approvals should require an explicit final click.
+## 9.4 Final action confirmation
 
-Avoid double confirmations unless the impact is unusually high and the extra step materially prevents error.
+High-impact action uses explicit labeled final control with consequence-oriented confirmation.
 
-## 9.5 Rejection
+Selecting a row never executes the action.
 
-Rejected requests remain in history.
+Avoid redundant double confirmation unless extra step materially prevents high-impact error.
 
-If the business record remains active, say so clearly.
+## 9.5 Rejection / resolved history
+
+Rejected request remains history and underlying target remains unchanged where defined.
+
+Resolved password-reset request remains history with safe metadata but no credential value.
+
+Stale/non-actionable request remains readable and explains why it cannot be applied.
 
 ---
 
 # 10. Owner Approval Center Behavior
 
-## 10.1 Pending-first default
+## 10.1 One inbox, lifecycle-specific actions
 
-Approval Center should default to Pending requests.
+Approval Center aggregates Owner work but does not normalize away request-type semantics.
 
-History filters expose Approved/Rejected.
+Default to actionable Pending requests.
 
-## 10.2 Sorting
+History supports type-appropriate outcomes:
 
-Pending work should be sortable/filterable by time and type.
+- Approved;
+- Rejected;
+- Resolved;
+- Stale / Non-actionable.
 
-Do not silently prioritize based on business urgency that has not been defined.
+## 10.2 Sorting/filtering
 
-## 10.3 Resolved request
+Allow filtering/sorting by:
 
-A resolved request is read-only.
+- Pending/history;
+- request type;
+- requester;
+- time/date;
+- outcome.
 
-If another browser/session already resolved the request, the current user must see stale-state feedback rather than a second effective approval.
+Do not silently prioritize based on urgency/risk policy not defined by the clinic.
 
-## 10.4 Type-specific impact
+## 10.3 Request detail and current-state revalidation
 
-**Bill void:** show latest payment state and explicitly say inventory will not be restored; if Paid, explicitly say approval does not create a refund.  
-**Inventory adjustment:** show category/reason, captured baseline and current stock, entered/base quantity, proposed delta/result; stale baseline must block application.  
-**Transfer:** show source/destination, medicine/batch, captured/current transferable quantity, normalized quantity, and linked transfer consequence.  
-**Payment correction:** show captured baseline plus original/proposed payment fields; re-check baseline before applying. Pharmacy correction must not expose bill lines/total as editable correction fields.  
-**Visit cancellation:** show current Visit state and that history remains.  
-**Waiver:** show fee/current financial outcome/queue eligibility effect; approval is valid only while the current outcome remains Unpaid. If the Visit became Paid, the pending waiver is stale/non-actionable.
+Before final Owner action show:
+
+- requester and effective authority where material;
+- request-time/captured baseline;
+- current target state;
+- proposed result;
+- reason;
+- impact warning.
+
+At final action revalidate request + target + Owner authority.
+
+A request already resolved/stale elsewhere is read-only and cannot create another effective action.
+
+## 10.4 Type-specific behavior
+
+**Waiver**
+- only valid while current outcome Unpaid;
+- Paid/Waived -> old request stale;
+- rejection leaves Unpaid;
+- Direct Owner Waiver is not a request.
+
+**Visit cancellation**
+- Pending does not freeze workflow;
+- current Visit state is revalidated;
+- Completed-before-decision -> stale;
+- approval preserves prior history and creates no refund.
+
+**Bill void**
+- show latest payment state;
+- Pending bill remains active;
+- Paid approval explicitly says no refund;
+- stock is not restored.
+
+**Payment correction**
+- show captured baseline, current effective record, proposed record;
+- changed baseline -> stale/block;
+- Paid->Unpaid = correction, not refund;
+- Pharmacy bill lines/total are not correction fields.
+
+**Inventory adjustment / price change**
+- show category/reason, unit/medicine/batch, captured baseline and current stock/value;
+- quantity request shows entered/base quantity and proposed delta/result;
+- stale/negative result blocks approval;
+- price-only change has no stock delta;
+- Direct Owner adjustment is not a request.
+
+**Transfer**
+- show source/destination, medicine/batch, captured/current transferable source, normalized quantity, linked consequence;
+- insufficient current source -> stale/block;
+- no partial approval.
+
+**Password reset**
+- action is Set Temporary Credential, not Approve/Reject;
+- only current eligible Pending non-Owner reset may act;
+- successful set -> Resolved;
+- reset does not enable account/change roles;
+- target becoming Owner/ineligible makes old request non-actionable.
+
+## 10.5 Same-human multi-role actions
+
+The same account may legitimately create request under one role and decide it under Owner role when business rules permit.
+
+Keep:
+
+- same human/account identity;
+- request event effective role/workspace;
+- Owner action effective role/workspace;
+- separate timestamps/actions.
+
+Do not silently collapse them and do not invent a same-human prohibition.
+
+## 10.6 Owner-only clinical boundary
+
+Approval context may expose operational state/history needed for decision but not unrestricted diagnosis/clinical-note content solely due to Owner authority.
+
+If same account also has Doctor role, full clinical content belongs to Doctor authority/context.
+
+## 10.7 Unknown outcome / duplicate action
+
+Disable duplicate final action while pending.
+
+If Owner action result is unknown:
+
+- retrieve current request and target state;
+- recover already-applied result if present;
+- enable another final attempt only when safe.
+
+Exact transaction/idempotency implementation remains technical.
 
 ---
 

@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.12 |
+| Version | 0.13 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -2055,11 +2055,11 @@ Exact transaction, lock, and movement-storage mechanisms remain technical design
 
 **Classification: DERIVED PRODUCT DESIGN based on Owner authority.**
 
-The Owner workspace should consolidate clinic-wide control without exposing clinical content that requires Doctor role.
+The Owner workspace consolidates clinic-wide control without turning Owner authority into Doctor authority or exposing unrestricted clinical content.
 
 Recommended areas:
 
-1. approvals;
+1. approvals/exceptions;
 2. inventory;
 3. operations;
 4. financial-status/revenue reporting;
@@ -2068,39 +2068,202 @@ Recommended areas:
 
 ## 20.1 Approval Center
 
-A single Owner Approval Center is recommended for:
+OWN-02 is one Owner work inbox for current Owner-controlled requests, but request types retain their own lifecycle and valid action.
 
-- consultation waiver;
-- consultation/Visit cancellation;
-- pharmacy bill cancellation/void;
-- payment correction;
-- inventory adjustment;
-- pharmacy stock transfer;
-- staff password reset requests.
+The Approval Center covers:
 
-### P-094 — Approval queue
+- consultation waiver request;
+- consultation/Visit cancellation request;
+- pharmacy bill cancellation/void request;
+- consultation/pharmacy payment-correction request;
+- inventory-adjustment/price-change request;
+- pharmacy stock-transfer request;
+- non-Owner staff password-reset request.
 
-Each approval item shows:
+Direct Owner actions such as **Direct Consultation Waiver** and **Direct Inventory Adjustment** are not fabricated as Pending self-approval requests.
+
+### P-094 — Approval queue and request lifecycle
+
+#### Pending-first list
+
+Default to actionable Pending work.
+
+Each request list item shows:
 
 - request type;
-- requester;
-- affected patient/Visit/bill/medicine/account as appropriate;
-- specific reason;
-- relevant current state;
+- request ID;
+- requester human identity;
+- requester effective role/workspace where material;
+- affected entity;
+- specific source reason/summary where applicable;
 - created time;
-- Approve / Reject actions.
+- current request state;
+- concise current-state/stale warning where known.
 
-### P-095 — Approval audit
+History/filtering supports type, requester, date, and type-appropriate outcome including:
 
-Owner decision records decision, actor, time, and resulting effective state.
+- Pending;
+- Approved;
+- Rejected;
+- Resolved;
+- Stale / Non-actionable.
+
+Do not label password-reset completion as Approved when its effective outcome is **Resolved by Set Temporary Credential**.
+
+#### Type-specific action contract
+
+Opening a request shows only actions valid for that request type:
+
+- waiver / Visit cancellation / bill void / payment correction / inventory adjustment / transfer -> Approve / Reject when still actionable;
+- staff password reset -> **Set Temporary Credential** when still actionable;
+- direct Owner waiver / direct Owner inventory adjustment -> separate direct action, not queue approval.
+
+Selecting a row never itself executes the action.
+
+#### Current-state revalidation
+
+The request is a proposal, not a lock on underlying business state.
+
+At final Owner action revalidate:
+
+- request is still current/actionable;
+- Owner authority is still valid;
+- affected target still exists/is eligible;
+- type-specific captured baseline versus current effective state;
+- type-specific safety conditions.
+
+A stale/resolved request cannot create a second effective outcome.
+
+### Type-specific rules
+
+#### Consultation waiver
+
+- one actionable Pending waiver request for the eligible Unpaid Visit;
+- Paid or already-Waived before decision makes old request non-actionable/stale;
+- Approve -> Waived;
+- Reject -> remains Unpaid; request remains historical and a later new request may be created;
+- Owner Direct Waiver remains an immediate Owner action with mandatory reason/confirmation, not a self-approval request.
+
+#### Visit cancellation
+
+- one actionable Pending cancellation per Visit;
+- Pending does not freeze otherwise-valid workflow;
+- revalidate current Visit state before decision;
+- Completed before decision makes request stale/non-actionable;
+- Approve -> Cancelled/Voided, preserving prior clinical/prescription/dispensing/financial history and creating no refund;
+- Reject -> current active state remains unchanged.
+
+#### Pharmacy bill void
+
+- one actionable Pending void request per bill;
+- Pending leaves bill/payment active;
+- payment may change while request is Pending;
+- revalidate latest payment state at decision time;
+- Paid bill may still be voided with explicit **no refund** warning;
+- approval never restores stock;
+- existing bill administration may remain available after Visit Completed/Cancelled where G9 permits.
+
+#### Payment correction
+
+For consultation and pharmacy payment correction show:
+
+- captured payment baseline;
+- proposed payment record;
+- current effective payment record;
+- original/history context;
+- correction reason.
+
+If current effective record no longer matches captured baseline, old request is stale/non-applicable and cannot overwrite newer truth.
+
+Approval applies the proposed record; rejection leaves current effective record unchanged.
+
+Paid -> Unpaid is record correction, not refund. Pharmacy payment correction cannot edit bill lines/total.
+
+#### Inventory adjustment / price change
+
+Show:
+
+- category/reason;
+- pharmacy unit;
+- medicine/batch where relevant;
+- captured stock/value baseline;
+- current stock/value;
+- entered/normalized quantity and proposed delta/result for quantity change;
+- current/proposed price for price-only change.
+
+Block stale/invalid/negative quantity application. Quantity approval creates one controlled movement; price-only approval changes no quantity.
+
+Direct Owner inventory adjustment remains a direct Owner action under P-090, not a Pending request.
+
+#### Stock transfer
+
+Show source/destination, medicine/batch, requested normalized quantity, captured source availability, and current source availability.
+
+- if current source cannot satisfy full request, block/stale;
+- do not partially approve;
+- if current source changed but remains sufficient, expose current value and require explicit decision against that current truth;
+- Approve -> linked source/destination movements under one transfer reference;
+- Reject -> neither side changes.
+
+#### Staff password reset
+
+Password reset is intentionally different:
+
+- only one actionable Pending request per eligible non-Owner staff account;
+- valid action is **Set Temporary Credential**, not Approve/Reject;
+- Owner never retrieves existing password;
+- successful set -> request Resolved;
+- reset does not change roles or enabled/disabled account state;
+- disabled account remains disabled;
+- if target is no longer eligible for the non-Owner reset path, old request becomes non-actionable rather than bypassing Owner-account recovery rules.
+
+### P-095 — Owner decision, direct action, and audit
+
+Every material Owner action records, as applicable:
+
+- Owner actor account/human identity;
+- effective Owner authority/workspace;
+- request ID/type when request-based;
+- affected target;
+- source requester/reason where applicable;
+- final action/outcome;
+- prior/captured/current/resulting state or value where applicable;
+- timestamps.
+
+Rejected, stale, and resolved requests remain read-only history.
+
+Direct Owner actions are audited as direct actions and are **not** disguised as requester=Owner / approver=Owner request records.
+
+If final action outcome is unknown, product retrieves current request/target/effective state before another final attempt.
 
 ### P-096 — Effective authority attribution for multi-role users
 
-When the same account holds multiple roles, the product must preserve both the human identity and the effective authority/workspace used for each material action. Audit semantics must distinguish at minimum the actor/account, effective role or workspace, action, affected target, and time.
+When one account holds multiple roles, preserve both human identity and effective authority/workspace for each material action.
 
-If the same human legitimately performs different sides of a workflow through different assigned roles—for example requesting a Visit cancellation as Doctor and later approving it as Owner—the two actions remain separately attributable to the two authority contexts rather than being collapsed into one generic user action.
+If the same human legitimately performs different sides of a workflow under different assigned roles—for example:
 
----
+- Doctor requests Visit cancellation;
+- same human switches to Owner authority and approves it;
+
+the system does not invent a prohibition merely because the human is the same.
+
+Instead:
+
+- requester and Owner action remain separate events;
+- each records the effective authority/workspace;
+- same human identity remains visible;
+- Owner action still passes all normal current-state/revalidation rules.
+
+Owner-only approval screens expose only operational decision context required by Owner authority. Unrestricted diagnosis/clinical-note content remains accessible only through Doctor authority.
+
+## 20.2 Approval safety and presentation
+
+- Pending list is sortable/filterable by time/type without inventing urgency ranking.
+- High-impact final actions require an explicit labeled action and consequence-oriented confirmation.
+- Resolved/stale requests are read-only.
+- Protected detail/action stays inside Owner workspace; cross-workspace badge/notification may reveal only safe minimal metadata.
+- Unauthorized or revoked Owner authority cannot remain actionable merely because an approval page was already open.
+- Credential values, TOTP secrets/codes, recovery codes, and unrestricted clinical content are excluded from normal approval/audit history.
 
 # 21. Administration Workspace
 

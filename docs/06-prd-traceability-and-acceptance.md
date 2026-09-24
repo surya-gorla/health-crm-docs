@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.12 |
+| Version | 0.13 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.12 |
+| Parent | Product Requirements Document v0.13 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -422,6 +422,86 @@ Supports: P-087, P-084, REM-056, BR-056.
 **Then** the product checks request/ledger state first and prevents duplicate or double-applied stock movement.
 
 Supports: P-088–P-093, IX Sections 17 and 25.
+
+## AC-049 — Approval Center uses type-specific actions
+
+**Given** Owner opens current work queue  
+**Then** standard decision requests expose Approve/Reject, staff password reset exposes Set Temporary Credential, and direct Owner waiver/inventory actions are not represented as fake Pending self-approvals.
+
+Supports: P-094–P-095, OWN-02–OWN-03, OWN-09.
+
+## AC-050 — Same human can act under distinct legitimate authorities
+
+**Given** one account is Doctor + Owner  
+**When** the user requests a Visit cancellation as Doctor and later approves it under Owner authority  
+**Then** both actions are permitted when otherwise valid and remain separately attributed to the same human with distinct effective authority/workspace.
+
+Supports: P-096, REM-005.
+
+## AC-051 — Waiver decision is current-state safe
+
+**Given** consultation-waiver request is Pending  
+**When** Visit becomes Paid/Waived before Owner decision  
+**Then** old request becomes non-actionable/stale. Rejection of a still-valid request leaves Unpaid; Direct Owner Waiver remains a separate immediate Owner action.
+
+Supports: P-094, REM-029.
+
+## AC-052 — Cancellation request may become stale while workflow progresses
+
+**Given** Visit cancellation request is Pending  
+**When** Visit progresses to Completed before Owner decision  
+**Then** cancellation cannot be approved through the old request, which remains historical/non-actionable.
+
+Supports: P-094, P-046–P-047, REM-038.
+
+## AC-053 — Bill-void decision uses latest payment state
+
+**Given** bill-void request is Pending  
+**And** bill becomes Paid before Owner decides  
+**When** Owner reviews  
+**Then** current Paid state is shown/revalidated and approval remains possible only with explicit no-refund consequence; stock is not restored.
+
+Supports: P-094, P-081–P-084, REM-057.
+
+## AC-054 — Payment correction cannot overwrite changed baseline
+
+**Given** payment-correction request captured effective payment baseline  
+**When** payment record changes before decision  
+**Then** old request is stale/non-applicable and cannot overwrite newer truth; Pharmacy bill lines/total are not correction fields.
+
+Supports: P-094, P-038–P-039, REM-030, REM-058.
+
+## AC-055 — Inventory approval uses captured and current stock
+
+**Given** inventory-adjustment request is Pending  
+**When** relevant unit/batch stock changes  
+**Then** Owner sees captured and current state and stale/invalid/negative application is blocked. Owner direct adjustment remains outside fake self-approval workflow.
+
+Supports: P-094, P-090, REM-063.
+
+## AC-056 — Transfer decision revalidates current source
+
+**Given** transfer request is Pending  
+**When** source quantity changes before Owner decision  
+**Then** Owner sees current source quantity; insufficient source blocks approval with no partial transfer, while sufficient current source may still be explicitly approved as one linked transfer.
+
+Supports: P-094, P-093, REM-063.
+
+## AC-057 — Password reset resolves by credential set
+
+**Given** eligible non-Owner staff reset request is Pending  
+**When** Owner sets temporary credential  
+**Then** request becomes Resolved, no Approve/Reject decision is invented, old password remains undisclosed, and reset does not enable a disabled account or alter roles.
+
+Supports: P-094, P-011–P-013, REM-010–REM-011.
+
+## AC-058 — Owner action unknown outcome is checked before retry
+
+**Given** an Owner approval/reset/direct exception action returns unknown outcome  
+**When** Owner retries  
+**Then** product refreshes request/target/effective state and prevents a second effective action.
+
+Supports: P-094–P-096, IX Sections 9–10 and 25.
 
 
 ---
@@ -1591,6 +1671,102 @@ Supports: P-087, REM-047, REM-056.
 **Then** current request and ledger state are refreshed first so the product cannot knowingly double-apply a movement.
 
 Supports: P-088–P-093, IX Sections 17 and 25.
+
+## UXA-111 — Approval queue defaults to actionable Pending work
+
+**Given** Owner opens Approval Center  
+**Then** actionable Pending items are primary; resolved history remains filterable by request type/requester/date/outcome without invented urgency ranking.
+
+Supports: P-094, OWN-02.
+
+## UXA-112 — Request detail shows only valid action type
+
+**Given** Owner opens a request  
+**Then** detail renders Approve/Reject only when that lifecycle supports it, renders Set Temporary Credential for password reset, and renders no executable control on stale/resolved history.
+
+Supports: P-094, OWN-03, OWN-09.
+
+## UXA-113 — Row selection never executes Owner decision
+
+**Given** Owner selects an Approval Center row  
+**Then** product opens detail/context and does not approve/reject/reset merely from row click.
+
+Supports: P-094, IX Sections 9–10.
+
+## UXA-114 — Owner approval context does not leak clinical content
+
+**Given** Owner-only authority opens Visit cancellation or other patient-linked approval  
+**Then** product shows operational state/history existence needed for decision but not unrestricted diagnosis/clinical-note content.
+
+Supports: P-094–P-096, OWN-03, RA-001.
+
+## UXA-115 — Stale/resolved request is visibly read-only
+
+**Given** another session already resolved request or target became ineligible  
+**When** Owner opens stale copy  
+**Then** executable action is unavailable, current state is shown/refreshed, and request remains historical.
+
+Supports: P-094–P-095, IX Section 10.
+
+## UXA-116 — Direct Owner actions do not create self-approval artifacts
+
+**Given** Owner performs Direct Consultation Waiver or Direct Inventory Adjustment  
+**Then** action is explicitly confirmed/audited as direct Owner action and does not create requester=Owner -> approver=Owner Pending request.
+
+Supports: P-095, P-090, REM-029, REM-063.
+
+## UXA-117 — Password reset eligibility is revalidated
+
+**Given** reset request was created for non-Owner staff  
+**And** target later becomes Owner-role or otherwise ineligible for that path  
+**When** Owner opens request  
+**Then** old request is non-actionable and cannot bypass Owner recovery policy.
+
+Supports: P-094, OWN-09, REM-010–REM-011.
+
+## UXA-118 — Same-human requester/approver attribution stays visible
+
+**Given** same account performs request under Doctor/Pharmacist role and decision under Owner role  
+**Then** request detail/history shows the same human with distinct effective authority for each event.
+
+Supports: P-096, REM-005.
+
+## UXA-119 — Rejection preserves unchanged effective target where defined
+
+**Given** Owner rejects valid waiver/cancellation/bill-void/payment-correction/inventory/transfer request  
+**Then** UI shows request Rejected and clearly preserves the applicable current business record rather than implying the requested change happened.
+
+Supports: P-094–P-095.
+
+## UXA-120 — Paid bill void warning is current, not stale snapshot
+
+**Given** bill became Paid after void request submission  
+**When** Owner reviews  
+**Then** current Paid state and no-refund/no-stock-restoration consequences are shown before approval.
+
+Supports: P-094, REM-057.
+
+## UXA-121 — Payment correction compares captured, current and proposed
+
+**Given** Owner reviews payment correction  
+**Then** captured baseline, current effective record and proposed correction are distinguishable; changed baseline blocks application.
+
+Supports: P-094, REM-030, REM-058.
+
+## UXA-122 — Inventory/transfer approval compares request baseline with current stock
+
+**Given** Owner reviews inventory adjustment or transfer  
+**Then** captured stock/source state and current state are visibly distinct and current-state revalidation determines whether action remains valid.
+
+Supports: P-094, REM-063.
+
+## UXA-123 — Owner decision unknown outcome refreshes before retry
+
+**Given** final Owner action outcome is unknown  
+**When** Owner attempts again  
+**Then** current request/target/result is refreshed before another executable action is enabled.
+
+Supports: P-094–P-095, IX Sections 10 and 25.
 
 
 ---
