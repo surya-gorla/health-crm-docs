@@ -18,11 +18,11 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.8 DRAFT |
-| Current group | None — G6 complete; starting G7 next |
-| Current stage | G6 COMPLETE / TRANSITIONING |
+| Current group | G7 — Prescription Authoring & Prescription Lifecycle |
+| Current stage | PREPARING |
 | Completed groups | G1, G2, G3, G4, G5, G6 |
-| In-progress groups | None |
-| Not started | G7–G15 |
+| In-progress groups | G7 |
+| Not started | G8–G15 |
 | Open cross-group conflicts | 0 |
 | Open future reminders | 33 — see Document 10 |
 | Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
@@ -66,7 +66,7 @@ A group is COMPLETE only when all four gates pass:
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | COMPLETE | `38df611096205195a219abbaf498187563c10e90` | PASS vs G1–G3 | COMPLETE — REM-026–REM-033 recorded | Closed |
 | G5 | Doctor Queue & Visit Flow Control | COMPLETE | `eec1ae4e4b951456798eb008c710e0d305a1aa50` | PASS after `8423beaa1cf8f5796a5aae57b7ee708a4ae14d5f` | COMPLETE — REM-034–REM-040 recorded | Closed |
 | G6 | Consultation & Longitudinal Clinical Record | COMPLETE | `762524428d1c62976519d7cd126ebe199054e2b2` | PASS vs G1–G5 | COMPLETE — REM-041–REM-044 recorded | Closed |
-| G7 | Prescription Authoring & Prescription Lifecycle | NOT STARTED | — | — | — | |
+| G7 | Prescription Authoring & Prescription Lifecycle | PREPARING | — | — | — | Current group |
 | G8 | Pharmacy Access, Prescription Retrieval & Dispensing | NOT STARTED | — | — | — | |
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | NOT STARTED | — | — | — | |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | NOT STARTED | — | — | — | |
@@ -1759,3 +1759,53 @@ Run all four G6 closure gates; if PASS, close G6 and proceed directly to G7.
 ### Transition
 
 Proceed directly to G7.
+
+
+# G7 — Prescription Authoring & Prescription Lifecycle
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-055 — Availability at prescribing
+- P-056 — Multi-pharmacy availability
+- P-057 — Unavailable prescribing
+- P-058 — Quantity calculation
+- P-059 — Finalize prescription
+- P-060 — Immutable finalized prescription
+- P-061 — Replacement prescription
+- P-062 — Prior dispensing preserved
+- P-063 — Reprint
+- P-064 — Printed unavailable marker
+
+### Mandatory prior-group reminders
+
+- REM-035 — effective Visit cancellation must preserve existing prescription history but block new active prescription authoring/finalization/replacement that would continue a cancelled Visit.
+- REM-041 — clinical completion does not itself finalize prescription or send to Pharmacy; define when prescription authoring/finalization remains available, what moves Visit to Sent to Pharmacy, and how cancellation interacts.
+
+### Required source review
+
+- locked BRD prescription authoring, medicine identity, availability, finalization, printing, replacement, dispensing-preservation rules;
+- workflow/state model for prescription and Visit progression;
+- OD-010–OD-012 and multi-pharmacy availability decisions;
+- current PRD P-055–P-064;
+- DOC-04, DOC-05, DOC-07 and related pharmacy/readiness screens;
+- interaction rules for medicine search, prescription rows, stale state, history, confirmation;
+- G1–G6 accepted contracts and REM-035/REM-041.
+
+### Current action
+
+Perform full G7 source review before product reasoning.
+
+### Blockers
+
+None.
+
+---
+
+## 2026-09-25 — G7 PREPARING checkpoint
+
+- G7 started immediately after G6 closure.
+- Mandatory reminders loaded: REM-035, REM-041.
