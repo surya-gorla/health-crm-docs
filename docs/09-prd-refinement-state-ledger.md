@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.3 DRAFT |
 | Current group | G2 — Authentication, Account Access & Credential Recovery |
-| Current stage | BACKWARD COMPATIBILITY CHECK — G2 vs G1 |
+| Current stage | RECONCILIATION REQUIRED — G2 vs G1 |
 | Completed groups | G1 |
 | In-progress groups | G2 |
 | Not started | G3–G15 |
@@ -61,7 +61,7 @@ A group is COMPLETE only when all four gates pass:
 | Group | Name | Status | Main Group Commit | Backward Compatibility | Forward Review | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | G1 | Workspace, Navigation & Multi-Role Context | COMPLETE | `6dab93810f89d10d2606594ffbbd1bdbd70214e9` | PASS — no earlier reviewed groups | COMPLETE | Accepted edge-case refinements plus follow-up workflow/version alignment in `00a4cd86a4465f52d3abc374d420273f027960c5` |
-| G2 | Authentication, Account Access & Credential Recovery | COMMIT VALIDATED / BACKWARD CHECK | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | IN PROGRESS vs G1 | — | Current group |
+| G2 | Authentication, Account Access & Credential Recovery | RECONCILIATION REQUIRED | `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0` | G1 wording clarification required | — | Current group |
 | G3 | Patient Search, Identity, Registration & Patient Profile | NOT STARTED | — | — | — | |
 | G4 | Visit Creation, Consultation Payment, Waiver & Payment Correction | NOT STARTED | — | — | — | |
 | G5 | Doctor Queue & Visit Flow Control | NOT STARTED | — | — | — | |
@@ -375,3 +375,36 @@ PASS.
 ### Next exact action
 
 Read G1 accepted requirements/contracts and compare each relevant G2 change against them.
+
+
+## 2026-09-24 — G2 BACKWARD COMPATIBILITY FINDING
+
+### Compared against G1 accepted decisions
+
+Reviewed G2 against P-001–P-005, P-096, IA-01/IA-06, SH-06, IX Section 29, UXA-019 through UXA-027, and the G1 ledger decisions.
+
+### Result
+
+**RECONCILIATION REQUIRED — one wording ambiguity; no BRD/business-policy conflict.**
+
+### Finding BC-G2-01
+
+G1 currently states that a multi-role account may switch among “all assigned workspaces without a second login.”
+
+G2 correctly establishes that:
+- ordinary switching among workspaces whose authentication requirements are already satisfied does not repeat username/password or TOTP;
+- if Owner authority is added after a non-Owner session has already authenticated, Owner-capable access must remain gated until Owner second-factor requirements are satisfied.
+
+These rules are compatible in intent, but G1 wording should distinguish:
+- **assigned workspace** from
+- **workspace whose security/authentication prerequisites are satisfied for the current session**.
+
+### Planned reconciliation
+
+Clarify G1 contracts so:
+1. ordinary switching among already-authentication-qualified workspaces remains frictionless;
+2. newly granted Owner authority is a security-sensitive exception requiring the Owner second-factor gate before Owner-capable use;
+3. this gate is not described as a second username/password login;
+4. account disablement is distinguished from role-only revocation: disablement ends all protected account use when detected, while role revocation removes the affected authority/workspace.
+
+No other G1 decision conflicts with G2.
