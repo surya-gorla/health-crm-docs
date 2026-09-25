@@ -24,8 +24,8 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | In-progress groups | G14 |
 | Not started | G15 |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 27 — see Document 10 |
-| Latest completed group main commit | `eec1ae4e4b951456798eb008c710e0d305a1aa50` |
+| Open future reminders | 24 — see Document 10 |
+| Latest completed group main commit | `6b301301da5f9e92c76297947c54d471663100dd` |
 
 ---
 
@@ -71,9 +71,9 @@ A group is COMPLETE only when all four gates pass:
 | G9 | Pharmacy Billing, Payment & Bill Cancellation | COMPLETE | `d317a8d50cfa5baeb7506920ffa75c4e19776f00` | PASS vs G1–G8 | COMPLETE — REM-056–REM-062 recorded | Closed |
 | G10 | Inventory, Stock Accountability & Pharmacy Transfers | COMPLETE | `4a5356d85a9c88b80b4dac1485e5cf445e34b1d7` | PASS vs G1–G9 | COMPLETE — REM-063–REM-066 recorded | Closed |
 | G11 | Owner Approval Center & Exception Control | COMPLETE | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | COMPLETE — REM-067–REM-069 recorded | Closed |
-| G12 | Staff Administration & Clinic Configuration | NOT STARTED | — | — | — | |
-| G13 | Reporting & Management Visibility | NOT STARTED | — | — | — | |
-| G14 | Cross-Product State, Audit, History & Safety | NOT STARTED | — | — | — | |
+| G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
+| G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
+| G14 | Cross-Product State, Audit, History & Safety | PREPARING | — | — | — | Current group |
 | G15 | Printing & Physical Outputs | NOT STARTED | — | — | — | |
 
 ---
@@ -3026,19 +3026,64 @@ Open reminder count after G13: **27**.
 
 Proceed directly to G14.
 
+## 2026-09-25 — G13 POST-CLOSURE RECONCILIATION BEFORE G14
+
+A live repository audit found that G13's product work was substantially correct but its recorded Gate C/reminder closure was incomplete.
+
+### Findings corrected
+
+- REM-022 remained OPEN even though G13 already defined returning patients by actual Patient ID and kept Possible Duplicate profiles separate.
+- REM-048 remained OPEN even though G13 already prevented Superseded prescription versions from being double-counted in most-prescribed reporting.
+- REM-053 was mostly covered by actual-committed-dispensing sales logic but needed one explicit product rule: approved substitution is reported against the **actual substitute medicine supplied**, with pharmacy-unit provenance retained.
+
+### Reconciliation commit
+
+`b78dd22ffd5d17b37110286c4a6063d6b325a432` — reconciled Documents 05–08 and Document 10.
+
+### Revalidation
+
+- P requirements: 116 unique.
+- Acceptance scenarios: 83 unique through AC-083.
+- UX acceptance scenarios: 152 unique through UXA-152.
+- Screen contracts: 49 unique.
+- REM-022 / REM-048 / REM-053: RESOLVED.
+- Open reminders: 24 total.
+- G14 reminders: 20.
+- G15 reminders: 4.
+- Backward compatibility: PASS; the substitute-sales clarification directly preserves G8 fulfilment truth and does not change prior workflow/state behavior.
+- G13 closure Gates A–D: RECONFIRMED PASS after reconciliation.
+
+### Bookkeeping correction
+
+The Group Status Table, latest-completed-group commit, open-reminder count, G14 requirement ownership, and PR checklist were found stale relative to the detailed execution log and are being corrected before G14 source review.
+
+---
+
 # G14 — Cross-Product Audit, State Safety & Global Interaction Controls
 
 ## Current checkpoint
 
 **Stage:** PREPARING
 
+### Primary requirements
+
+- P-107 — Human-readable history
+- P-108 — Attribution
+- P-109 — No normal-UI audit deletion
+- P-110 — Clinical-content boundary in audit
+- P-111 — Retry safety
+- P-112 — Stale-state protection
+
+P-113–P-116 belong to G15 Printing & Physical Outputs and are reviewed in G14 only for forward compatibility, not as G14-owned requirements.
+
 ### Required source review
 
-- current P-107–P-116 and global interaction/audit sections;
-- all open reminders targeting G14;
+- current P-107–P-112 and global interaction/audit/state-safety sections;
+- all 20 open reminders targeting G14;
 - audit/record-preservation rules in locked BRD;
 - every completed G1–G13 stale-state, retry, authority, history, and secret-handling contract;
-- responsive/loading/confirmation/audit patterns.
+- responsive/loading/confirmation/audit patterns;
+- P-113–P-116 only as G15 forward-impact context.
 
 ### Current action
 
