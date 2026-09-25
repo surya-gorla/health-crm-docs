@@ -22,12 +22,7 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Reminder | Why It Matters | Status |
 | --- | --- | --- | --- | --- | --- |
-| REM-050 | G7 | G15 | Printing must use the selected finalized version's stored finalization-time availability snapshot. Current Finalized is the default print/reprint target; any historical Superseded/Cancelled-context copy must be unmistakably historical and must never look like the current dispensable prescription. | G7 fixes snapshot/reprint semantics but G15 owns physical-output presentation. | OPEN |
-| REM-055 | G8 | G15 | Pharmacy A4 dispensing/billing summary should faithfully show actual supplied quantity, unsupplied remainder, approved substitute supplied where relevant, and pharmacy-unit context without altering the original prescription version. | G8 defines fulfilment truth; G15 owns physical output. | OPEN |
 
-| REM-062 | G9 | G15 | Pharmacy A4 bill/dispensing output must use the frozen bill snapshot and unit attribution, show actual supplied quantities/payment context where applicable, distinguish active versus Cancelled/Voided historical copies, and never recalculate historical bills from current prices, prescription state, or stock. Evaluate together with REM-055 for unsupplied remainder/substitute presentation. | G9 fixes immutable bill snapshot semantics while G15 owns physical-output presentation. | OPEN |
-| REM-072 | G12 | G15 | A4/output configuration changes are prospective presentation configuration only. Reprint of historical prescription/bill/other output must use preserved historical business facts/snapshots even if the current template/layout changes; define whether reprint uses current visual template with historical facts or preserved historical rendering without altering source facts. | G12 separates configurable output layout from immutable historical records; G15 owns print/reprint behavior. | OPEN |
-| REM-074 | G14 | G15 | Printing/reprinting is a read-only rendering operation over preserved source facts/snapshots: it must not create a new prescription version, bill, dispense, payment, stock movement, approval or other business-state effect merely because output is generated/retried. Unknown printer/browser outcome may retry rendering, while historical/current-copy labeling and source-snapshot rules remain explicit. | G14 separates read-only derived views from state-changing actions; G15 owns physical output/reprint behavior. | OPEN |
 ---
 
 ## Resolved Reminder History
@@ -47,6 +42,11 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Disposition | Status |
 | --- | --- | --- | --- | --- |
+| REM-050 | G7 | G15 | Resolved by G15 prescription output: selected Finalized version uses stored finalization-time availability snapshot; current version is default and historical/closed-context copies are prominently labeled. | RESOLVED |
+| REM-055 | G8 | G15 | Resolved by G15 pharmacy output: actual supplied quantity, unsupplied remainder, approved substitute supplied and pharmacy-unit attribution are shown without changing prescription truth. | RESOLVED |
+| REM-062 | G9 | G15 | Resolved by G15 bill output: frozen bill lines/price-tax/total/unit/source remain immutable, current payment/void status is shown separately, and Voided copies are historical rather than recalculated/payable. | RESOLVED |
+| REM-072 | G12 | G15 | Resolved by G15 template rule: current configured visual A4 template may render historical records while preserved historical business facts/snapshots remain unchanged; no byte-identical old-template archive is required in V1. | RESOLVED |
+| REM-074 | G14 | G15 | Resolved by G15 read-only rendering rule: preview/print/reprint/retry creates no prescription/bill/dispense/payment/stock/approval/Visit business-state effect. | RESOLVED |
 | REM-007 | G1 | G14 | Resolved by G14 audit attribution: same-human actions retain separate effective role/workspace events. | RESOLVED |
 | REM-008 | G1 | G14 | Resolved by G14 current-authority rule: an already-open protected page cannot preserve revoked authority. | RESOLVED |
 | REM-009 | G1 | G14 | Resolved by G14 independent-tab rule: each tab keeps explicit permitted workspace context and revalidates current authority independently. | RESOLVED |
@@ -233,28 +233,18 @@ G14 evaluated and resolved all 20 inherited reminders targeting Cross-Product St
 
 Their dispositions are recorded in Resolved Reminder History.
 
-## Target G15 — Mandatory Reminder from G7
-When G15 begins, evaluate:
+
+
+## Target G15 — Resolved
+
+G15 evaluated and resolved all inherited reminders targeting Printing & Physical Outputs:
+
 - REM-050
-
-
-## Target G15 — Additional Mandatory Reminder from G8
-When G15 begins, also evaluate:
 - REM-055
-
-
-## Target G15 — Additional Mandatory Reminder from G9
-When G15 begins, also evaluate:
 - REM-062
-
-
-## Target G15 — Additional Mandatory Reminder from G12
-When G15 begins, also evaluate:
 - REM-072
-
-
-
-
-## Target G15 — Additional Mandatory Reminder from G14
-When G15 begins, also evaluate:
 - REM-074
+
+Their dispositions are recorded in Resolved Reminder History.
+
+No future refinement group remains, so G15 creates no future reminder.
