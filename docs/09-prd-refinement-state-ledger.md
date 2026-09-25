@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.16 DRAFT |
 | Current group | G15 — Printing & Physical Outputs |
-| Current stage | G15 PREPARING |
+| Current stage | G15 SOURCE REVIEW + DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14 |
 | In-progress groups | G15 |
 | Not started | None |
@@ -74,7 +74,7 @@ A group is COMPLETE only when all four gates pass:
 | G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
 | G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
 | G14 | Cross-Product State, Audit, History & Safety | COMPLETE | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` | PASS vs G1–G13 | COMPLETE — all 20 inherited reminders resolved; REM-074 recorded | Closed |
-| G15 | Printing & Physical Outputs | PREPARING | — | — | — | Current group |
+| G15 | Printing & Physical Outputs | DECISIONS RESOLVED | — | — | — | Current group |
 
 ---
 
@@ -3300,6 +3300,44 @@ None.
 ### Blockers
 
 None.
+
+## 2026-09-25 — G15 SOURCE REVIEW + DECISIONS RESOLVED
+
+No new clinic/business input is required. G15 implements the locked A4 prescription/output behavior using the immutable prescription, dispensing and bill snapshots already defined by G7–G9, the prospective output-configuration rule from G12, and the read-only rendering rule from G14.
+
+1. **A4 is the V1 physical-output baseline:** prescription and optional pharmacy bill/dispensing output use standard A4-compatible rendering. Thermal receipt printing remains outside V1 and no workflow depends on a thermal device.
+2. **Printer integration is not business logic:** browser/system print/PDF generation mechanics, supported printer drivers and PDF library are technical design. The product must provide printable A4 content without coupling workflow completion to printer success.
+3. **Prescription source:** a prescription print is always tied to a specific Finalized prescription version. Normal Doctor print/reprint defaults to the latest current Finalized version.
+4. **Finalization snapshot:** every prescription version renders its stored finalization-time medicine data and clinic-wide availability snapshot. Current stock is never substituted into that historical version. Resolves REM-050.
+5. **Unavailable marker:** only items whose stored finalization-time clinic-wide state was Out of Stock or Not Stocked receive **. The legend explains they were unavailable from the clinic pharmacy at prescription finalization and should be obtained externally.
+6. **Partial fulfilment later does not rewrite prescription:** later partial supply, stock changes, substitution or another unit's availability never changes the original prescription's ** marker/content. Pharmacy output carries later fulfilment truth.
+7. **Historical prescription copy:** a Superseded prescription or a prescription printed from a Cancelled/Voided/closed historical Visit context must carry a prominent historical-status banner and must not look like the current clinic-dispensing source. The label describes workflow status; it does not invent a medical/legal statement that the prescription is invalid outside the CRM.
+8. **Completed Visit copy:** a prescription reprinted after Visit completion remains printable for record/patient use but is visibly a copy from a closed clinic workflow and is not presented as active clinic-pharmacy dispensing work.
+9. **No in-place correction through print:** print/reprint never edits prescription data, creates a replacement, changes Visit state, changes availability, or alters dispensing allowance.
+10. **Prescription output content:** render clinic identity/header as configured, Patient/Visit identity required to identify the record, Doctor identity, prescription version/finalization context, prescribed medicine/instructions/quantity data from that version, ** markers and legend. Exact typography/branding/signature layout is configurable/design work unless already required elsewhere.
+11. **Generated-at versus source time:** if a generated/reprint timestamp is shown, distinguish it from prescription finalization time so a reprint does not appear newly prescribed.
+12. **Pharmacy A4 is unit-specific by default:** a pharmacy bill/dispensing output belongs to the pharmacy unit whose bill/dispensing records it represents. It never silently mixes Pharmacy A and B into one unit bill.
+13. **Frozen bill facts:** pharmacy bill print/reprint uses frozen bill lines, supplied quantities, configured price/tax basis, total, unit, Visit and source-dispensing references. Current medicine price, current stock or a replacement prescription cannot recalculate the historical bill. Resolves REM-062.
+14. **Current bill/payment status overlay:** when printing an existing bill, show its current business status (for example active or Cancelled/Voided) and current effective recorded payment context where applicable, while bill lines/total remain frozen. This is current status presentation, not bill recalculation.
+15. **Voided bill historical copy:** Cancelled/Voided bill output is prominently historical/voided and cannot look like a new payable active bill. If a Paid record remains because V1 void creates no refund, show the recorded payment context separately rather than implying refund.
+16. **Actual fulfilment truth:** pharmacy dispensing summary uses committed actual supplied quantities, not merely prescribed quantities. Unsupplied remainder is shown separately and contributes no supplied/billed quantity. Resolves REM-055.
+17. **Approved substitution presentation:** when an approved substitute was actually supplied, the supplied line identifies the actual substitute medicine and may reference the original prescribed item as substitution lineage; do not print the original as though it was the medicine supplied.
+18. **Pharmacy-unit attribution:** actual supplied lines/bill output retain the dispensing pharmacy unit. Any future/configured consolidated summary must preserve per-unit attribution rather than erasing it.
+19. **In-progress vs closed fulfilment summary:** if a dispensing summary is generated before clinic-pharmacy fulfilment is closed, label it as current/in-progress and show the generation time because remaining supply may change. A closed/completed summary uses committed recorded fulfilment; reprint never invents later supply.
+20. **Template/configuration prospectivity:** A4 layout/header/footer/configuration changes affect future renders. Historical source business facts/snapshots do not change. Resolves REM-072.
+21. **V1 template-history decision:** reprint may use the **current configured visual A4 template** with the preserved historical source facts/snapshots. V1 does not require retaining every old template version or byte-identical original PDF. If a later compliance decision requires exact rendered-document retention, that is a separate compliance/technical requirement.
+22. **Read-only rendering:** generating, previewing, printing, reprinting, downloading/refreshing printable output or retrying after printer/browser uncertainty creates no new prescription version, bill, dispense, payment, stock movement, approval, Visit transition or other business-state effect. Resolves REM-074.
+23. **Print failure is not workflow failure:** printer/PDF/render failure shows output-specific retry/error while preserving source workflow state. User may retry rendering because it is read-only.
+24. **Print authorization follows source authority:** Doctor prescription output remains under Doctor prescription access; Pharmacist pharmacy bill/dispensing output remains under pharmacy/billing authority. Output routes do not broaden role permissions.
+25. **Historical output access follows current permission:** a bookmarked/old printable route rechecks current authority and source visibility before rendering.
+26. **No hidden state mutation from print status:** marking a bill Paid, voiding a bill, completing a Visit, dispensing, or replacing a prescription always occurs in the owning workflow, never as a consequence of clicking Print.
+27. **A4 consultation receipt remains optional configuration:** the locked BRD says standalone consultation receipt is not core V1. G15 does not create a new mandatory receipt workflow.
+28. **No QR/barcode requirement:** future physical-file QR/barcode remains outside V1 and is not added to outputs.
+29. **Five inherited reminders are fully addressed by these decisions:** REM-050, REM-055, REM-062, REM-072 and REM-074.
+
+### Current action
+
+Apply G15 prescription/pharmacy A4, historical labeling, snapshot/configuration, permission and read-only-rendering contracts across Documents 05–08; then commit and validate.
 
 
 
