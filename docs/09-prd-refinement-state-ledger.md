@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.17 DRAFT |
 | Current group | None — all 15 refinement groups complete |
-| Current stage | REFINEMENT COMPLETE — FINAL GLOBAL VALIDATION PASS |
+| Current stage | SECOND INDEPENDENT AUDIT — RECONCILIATION IN PROGRESS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15 |
 | In-progress groups | None |
 | Not started | None |
@@ -3498,4 +3498,61 @@ A first validation attempt incorrectly looked for these PRD mappings in locked D
 ### Merge boundary
 
 This validation authorizes the PR to move from Draft to Ready for review. It does **not** itself merge PR #2.
+
+## 2026-09-25 — SECOND INDEPENDENT G1–G15 AUDIT REOPENED
+
+The product owner requested a fresh end-to-end revalidation from G1 through G15 using the same refinement protocol, without relying on the prior final-pass conclusion.
+
+### Baseline re-established
+
+- PR #2 live head before this second audit: `4962cd0100cc12b4f60ac68f368ac5301110b37a`.
+- Branch remained 0 commits behind `main`.
+- Locked Documents 01–04 are unchanged on the refinement branch.
+- All 15 group main commits exist and remain identifiable.
+- P-group ownership is an exact partition of P-001–P-116: 116 assigned, 116 unique, no omissions/duplicates.
+- Reminder register contains exactly REM-001 through REM-074, each once, all RESOLVED, 0 OPEN.
+- All 118 FR and all 58 BR identifiers are represented in the refined product layer after expanding source ranges; no invalid FR/BR/OD references exist.
+- Seven OD identifiers not literally cited in Documents 05–08 are configuration/technical/compliance decisions whose substance is already present in Product Dependencies/configuration sections; no business behavior is missing.
+
+### Fresh semantic result
+
+A new domain-by-domain review of G1–G15 found **no new BRD contradiction or cross-group product conflict**.
+
+The previously accepted boundaries remain coherent across workspace/authentication, Patient identity, Visit/payment, queue, consultation, prescription, dispensing, billing, inventory, Owner exception control, administration/configuration, reporting, audit/state safety and printing.
+
+### Reconciliation findings
+
+Two documentation/process defects were found:
+
+1. **Acceptance traceability completeness:** after considering all AC/RA/AU/UXA families, 13 P requirements did not have an explicit P reference in an acceptance scenario. Six of those behaviors are already semantically tested and need only corrected Supports metadata; seven truly lack a direct critical scenario and should receive one.
+2. **README workflow state:** README still says the refinement uses a “draft pull request” even though the refinement had been moved Ready for review after the first final validation.
+
+### Acceptance reconciliation plan
+
+Existing scenarios to receive explicit P references:
+- P-010 -> AU-002.
+- P-014 -> AU-004 and AU-010.
+- P-018 -> UXA-002.
+- P-029 -> UXA-039.
+- P-037 -> AC-006.
+- P-086 -> UXA-144.
+
+New direct acceptance coverage:
+- P-008 — individual account/fixed-clinic/generic invalid-login behavior.
+- P-022 — non-semantic Patient/Visit ID presentation.
+- P-032 — no partial consultation payment.
+- P-045 — urgent case remains outside CRM priority controls.
+- P-058 — deterministic prescription quantity calculation / unresolved quantity gate.
+- P-006 — locked status vocabulary.
+- P-007 — explicit final-action requirement.
+
+### Process state
+
+PR #2 has been converted back to **Draft** while the reconciliation is active.
+
+No product/business behavior is being changed.
+
+### Next exact action
+
+Apply the acceptance-traceability and README-state reconciliation as a logical documentation correction, validate every group/global gate again, then return PR #2 to Ready for review only if the second independent validation fully passes.
 
