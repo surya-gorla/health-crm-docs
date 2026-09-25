@@ -18,14 +18,14 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.16 DRAFT |
-| Current group | G14 — Cross-Product Audit, State Safety & Global Interaction Controls |
-| Current stage | G14 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
-| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13 |
-| In-progress groups | G14 |
-| Not started | G15 |
+| Current group | G15 — Printing & Physical Outputs |
+| Current stage | G15 PREPARING |
+| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14 |
+| In-progress groups | G15 |
+| Not started | None |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 24 — see Document 10 |
-| Latest completed group main commit | `6b301301da5f9e92c76297947c54d471663100dd` |
+| Open future reminders | 5 — see Document 10 |
+| Latest completed group main commit | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` |
 
 ---
 
@@ -73,8 +73,8 @@ A group is COMPLETE only when all four gates pass:
 | G11 | Owner Approval Center & Exception Control | COMPLETE | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | COMPLETE — REM-067–REM-069 recorded | Closed |
 | G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
 | G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
-| G14 | Cross-Product State, Audit, History & Safety | BACKWARD PASS | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` | PASS vs G1–G13 | IN PROGRESS | Current group |
-| G15 | Printing & Physical Outputs | NOT STARTED | — | — | — | |
+| G14 | Cross-Product State, Audit, History & Safety | COMPLETE | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` | PASS vs G1–G13 | COMPLETE — all 20 inherited reminders resolved; REM-074 recorded | Closed |
+| G15 | Printing & Physical Outputs | PREPARING | — | — | — | Current group |
 
 ---
 
@@ -3207,6 +3207,95 @@ The committed G14 contract satisfies all 20 inherited G14 reminders:
 ### Next exact action
 
 Resolve those reminders in Document 10, scan G15 for downstream impact, record only real G15 reminder(s), then run G14 final closure gates.
+
+## 2026-09-25 — G14 FORWARD IMPACT ANALYSIS COMPLETE
+
+### Resolved inherited reminders
+
+All 20 G14 reminders are RESOLVED in Document 10:
+
+- REM-007, REM-008, REM-009
+- REM-014, REM-015, REM-016, REM-017
+- REM-023, REM-024, REM-025
+- REM-033, REM-040, REM-044, REM-049
+- REM-054, REM-061, REM-066, REM-069, REM-071, REM-073
+
+### Targeted reminder created
+
+- REM-074 -> G15: printing/reprinting is read-only rendering over preserved source facts/snapshots and must not create duplicate business-state effects on retry.
+
+### Reminder-register commit
+
+`5bd70089713fe82b5fc3cb37a3dbad960472deb7`
+
+Open reminder count after G14: **5**, all targeting G15.
+
+## 2026-09-25 — G14 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G13:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE
+- **Gate D — Ledger/checkpoint state:** CURRENT
+
+### Main Group 14 commit
+
+`8613e6123d71a198f0b8f7d880f5fe9bf12533bd`
+
+### Final verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- All 20 inherited G14 reminders resolved.
+- REM-074 created for G15.
+- No unresolved backward conflict remains.
+- Audit/history, authority revalidation, stale-state protection, retry/unknown-outcome recovery and cross-domain concurrency are now one explicit global contract.
+
+### Transition
+
+Proceed directly to G15.
+
+# G15 — Printing & Physical Outputs
+
+## Current checkpoint
+
+**Stage:** PREPARING
+
+### Primary requirements
+
+- P-113 — Prescription A4 output
+- P-114 — Unavailable medicine legend
+- P-115 — Pharmacy A4 output
+- P-116 — No thermal dependency
+
+### Mandatory prior-group reminders
+
+- REM-050 — prescription print/reprint must use stored finalization-time availability snapshot; current Finalized is default; historical copies must be unmistakably historical.
+- REM-055 — pharmacy output must show actual supplied quantity, unsupplied remainder, approved substitute where relevant, and pharmacy-unit context without altering prescription truth.
+- REM-062 — pharmacy bill/output must use frozen bill snapshot/unit attribution, payment context, active-vs-void historical status, and never recalculate from current prices/state/stock.
+- REM-072 — output-template changes are prospective presentation configuration only; historical business facts/snapshots remain preserved on reprint.
+- REM-074 — print/reprint is read-only rendering and retrying output must not create prescription/bill/dispense/payment/stock/approval business effects.
+
+### Required source review
+
+- locked BRD prescription printing/unavailable-marker/A4/physical-output requirements;
+- workflow/state model prescription and pharmacy-output behavior;
+- decision register/traceability for print/reprint and thermal-printer boundary;
+- current P-113–P-116;
+- prescription/pharmacy screens and print interactions;
+- G7/G8/G9/G12/G14 accepted snapshot, fulfilment, bill, configuration and read-only-output contracts;
+- all five reminders targeting G15.
+
+### Current action
+
+Perform full G15 source review before autonomous product reasoning.
+
+### Blockers
+
+None.
 
 ### Blockers
 
