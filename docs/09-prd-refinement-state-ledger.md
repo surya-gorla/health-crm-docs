@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.15 DRAFT |
 | Current group | G14 — Cross-Product Audit, State Safety & Global Interaction Controls |
-| Current stage | G14 PREPARING |
+| Current stage | G14 SOURCE REVIEW + DECISIONS RESOLVED / READY TO EDIT |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13 |
 | In-progress groups | G14 |
 | Not started | G15 |
@@ -73,7 +73,7 @@ A group is COMPLETE only when all four gates pass:
 | G11 | Owner Approval Center & Exception Control | COMPLETE | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | COMPLETE — REM-067–REM-069 recorded | Closed |
 | G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
 | G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
-| G14 | Cross-Product State, Audit, History & Safety | PREPARING | — | — | — | Current group |
+| G14 | Cross-Product State, Audit, History & Safety | DECISIONS RESOLVED | — | — | — | Current group |
 | G15 | Printing & Physical Outputs | NOT STARTED | — | — | — | |
 
 ---
@@ -3088,6 +3088,73 @@ P-113–P-116 belong to G15 Printing & Physical Outputs and are reviewed in G14 
 ### Current action
 
 Perform cumulative G14 source review before autonomous product reasoning.
+
+## 2026-09-25 — G14 CUMULATIVE SOURCE REVIEW + DECISIONS RESOLVED
+
+### Sources reviewed
+
+- locked BRD audit/accountability/history/role boundaries;
+- workflow/state model across Patient, Visit, consultation, prescription, pharmacy, payment, inventory and Owner control;
+- V1 decision register and requirements traceability;
+- current PRD P-107–P-112;
+- existing acceptance, Owner Audit Activity screen, and interaction contracts;
+- all completed G1–G13 ledger decisions relevant to stale state, retry, authority, history and secrets;
+- all 20 OPEN reminders targeting G14.
+
+### Decision result
+
+No new clinic/business input is required. G14 generalizes already-accepted product safety behavior; it does not invent a new workflow or technical locking architecture.
+
+1. **One global audit principle:** material business changes append attributable evidence. Correction, replacement, cancellation, void, approval, rejection, resolution and direct Owner action never erase the prior material record.
+2. **Current vs historical:** every history surface distinguishes current/effective state from Superseded, Cancelled/Voided, Rejected, Resolved, Stale/Non-actionable and prior revision/value history. Historical records are read-only unless an explicit authorized correction workflow is invoked.
+3. **Stable historical identity:** later staff disablement/role change, medicine archive, pharmacy-unit archive, Patient/Visit lifecycle change, or configuration change never reassigns or removes the historical actor/entity identity.
+4. **Audit attribution minimum:** material event records actor account/human identity, effective role/workspace, event/action type, affected stable entity/reference, event time, and—where applicable—reason, request/decision relationship, prior/captured state/value, resulting state/value and source reference.
+5. **Same-human multi-role attribution:** if one human performs requester and Owner/Doctor actions under distinct legitimate roles, audit preserves the same human identity but distinct effective-role/workspace events. Resolves REM-007.
+6. **Direct action is not self-approval:** Direct Owner Waiver and Direct Owner Inventory Adjustment remain direct Owner-authority events. They are not fabricated as requester=Owner -> approver=Owner records.
+7. **Audit visibility never expands source-data authority:** an audit viewer may see that an event occurred, but field/value/detail access follows the viewer's authority to the underlying data. Generic Owner/Admin audit does not reveal unrestricted clinical content merely because the audit event exists.
+8. **Secret exclusion:** passwords, old/new/reset credentials, TOTP secrets/codes, recovery-code values and equivalent authentication secrets never enter normal audit/history. Safe metadata such as reset requested/resolved, TOTP enrolled, recovery codes regenerated/used may be recorded without the secret value. Resolves REM-014.
+9. **Recovery-code state:** a used recovery code cannot authenticate again; regeneration invalidates all earlier recovery codes. Audit may record safe use/regeneration metadata, never code values. Resolves REM-017.
+10. **No normal audit deletion/edit:** audit events cannot be deleted or rewritten through normal product UI. Exact legal retention/export/immutable-storage implementation remains compliance/technical design.
+11. **Current authority beats loaded-page authority:** every protected final action rechecks current account status/role/effective authority. A role/account revocation detected while a tab is open removes protected use; the tab does not retain authority because it loaded earlier. Resolves REM-008, REM-016 and REM-071 authority portion.
+12. **Independent tab/workspace context:** separate tabs may remain in different permitted workspaces, but one tab switching role never silently changes another tab's authority context. Each protected action checks that tab's explicit current workspace plus current account authority. Resolves REM-009.
+13. **No cross-tab privilege promotion:** gaining a role in one session does not silently turn an already-open different-role page into that new authority. Newly granted Owner capability remains TOTP-gated before use.
+14. **Duplicate-submit protection:** while a state-changing final request is in flight, its final control is not knowingly submitted twice from the same UI. Exact idempotency key/transaction mechanism remains architecture.
+15. **Known failure vs unknown outcome:** a confirmed failure that produced no effect may be retried safely; an **unknown outcome** must first retrieve current effective state and linked effects before another final attempt. The UI must not claim success or blindly repeat. This generalizes P-111.
+16. **Already-applied recovery:** if refresh discovers the intended effect already happened, recover/show that effective result instead of creating a second business effect.
+17. **Sequenced partial-effect recovery:** where a user journey intentionally contains separately committed effects (for example Mark Paid succeeds but queue insertion fails), preserve the confirmed effect and resume from current truth rather than rollback/repeat it.
+18. **Atomic business operations stay atomic:** where the product contract defines one atomic effective operation (dispense + stock deduction; linked source/destination transfer), a partial visible business result is invalid. Recovery checks/reconciles the operation before permitting another user attempt; the product never knowingly repeats only one side.
+19. **Stale-state is baseline-specific, not 'any change = stale':** final action revalidates the facts that the decision/action depends on. If a material baseline changed so applying old intent could overwrite newer truth or violate safety, block as stale and require refresh/new proposal where appropriate.
+20. **Latest-state decisions remain possible where explicitly designed:** if the workflow permits a decision against current truth despite change (for example bill-void review after payment became Paid), show the latest state/consequences and decide against that current state rather than automatically declaring the request stale.
+21. **No silent conflict resolution:** stale quantity/state is never silently clipped, merged, partially applied or overwritten to make an old request fit. User sees the changed state and must review again.
+22. **Patient creation safety:** final registration rechecks duplicate candidates; unknown create result is checked before retry so accidental duplicate Patient identity is not created. Resolves REM-023.
+23. **Identity/demographic audit:** Possible Duplicate provenance retains candidate Patient IDs/actor/time; demographic correction retains request/direct-edit attribution and prior/proposed/resulting values subject to role visibility. Changed baseline blocks overwrite. Resolves REM-024 and REM-025.
+24. **Visit/payment/waiver safety:** Visit creation, Paid recording, combined Paid+queue recovery, waiver, and payment correction follow duplicate/unknown-outcome/baseline rules already accepted in G4. One actionable request per defined baseline/type remains enforced. Resolves REM-033.
+25. **Queue race rule:** Call, Start Consultation, Reassign, Unresponded/reposition, financial ineligibility, cancellation decision and Visit completion all revalidate current Visit state/Doctor/queue membership. The first valid committed transition wins; later incompatible action refreshes instead of applying. History of the earlier event remains. Resolves REM-040.
+26. **Clinical draft/amendment conflict:** stale draft save cannot overwrite a newer saved draft/effective cancellation. Preserve local unsaved input long enough for user review/recovery rather than silently discarding/merging it. Amendment uses current revision baseline and appends a new revision; generic audit metadata does not leak clinical content. Resolves REM-044.
+27. **Prescription version safety:** duplicate finalization cannot create multiple current Finalized versions; replacement atomically supersedes the then-current version and becomes current; stale replacement/cancellation blocks apply. Version lineage remains auditable. Resolves REM-049.
+28. **Dispense safety:** final dispense rechecks Visit, current prescription version, fulfilment lineage/remaining allowance, approved substitution state, active pharmacy unit and valid stock. Multi-unit races cannot overfill. Dispensing + stock deduction is one effective atomic operation; unknown outcome checks both before retry. Resolves REM-054.
+29. **Billing/payment/Visit-completion safety:** bill creation checks unbilled committed dispensing; Mark Paid does not duplicate payment; correction baseline cannot overwrite newer payment; bill-void decision uses current payment state; Visit completion rechecks all participating units/actionable fulfilment; post-Visit bill administration remains record-level. Resolves REM-061.
+30. **Inventory safety:** movement history is append-only; pending adjustment/transfer reserves or changes nothing; approval/direct adjustment revalidates current stock; no operation may create negative stock; transfer is one linked two-sided event; unknown outcome checks movement/reference before retry. Resolves REM-066.
+31. **Owner work safety:** request state and target baseline are revalidated; stale/resolved work cannot act twice; password reset is Resolved by credential set; direct Owner action stays distinct; current Owner authority is checked. Resolves REM-069.
+32. **Account/config safety:** Owner grant remains TOTP-gated, zero-active-Owner protection remains enforced, role/account changes invalidate stale protected authority, and account/config unknown outcomes are checked before retry. Audit excludes secret values. Resolves REM-071.
+33. **Reports are read-only derived views:** refresh/filter/drill-down cannot mutate source records. Current effective values must remain reproducible from preserved source/history; current role scope governs report access; clinic-local date/time bucketing is applied consistently. Resolves REM-073.
+34. **Audit navigation safety:** linking from audit/history to a source record is allowed only when the current viewer is authorized for that source; otherwise show safe metadata without turning audit into a privilege bypass.
+35. **High-impact confirmation remains explicit:** final destructive/control actions still require their existing explicit labeled confirmation. G14 does not introduce indiscriminate extra double-confirm dialogs.
+36. **Technical boundary:** database locks, optimistic-version tokens, idempotency keys, event-store technology, session propagation transport, distributed transactions and retention storage are solution architecture details. The PRD fixes user-visible safety outcomes, not implementation mechanisms.
+
+### Mandatory G14 reminder disposition plan
+
+All 20 G14 reminders are satisfied by the decisions above and may move to RESOLVED only after Documents 05–08 implement and validate the contract:
+
+- REM-007, REM-008, REM-009
+- REM-014, REM-015, REM-016, REM-017
+- REM-023, REM-024, REM-025
+- REM-033, REM-040, REM-044, REM-049
+- REM-054, REM-061, REM-066, REM-069, REM-071, REM-073
+
+### Current action
+
+Apply the G14 cross-product audit/history, authority revalidation, stale-state, unknown-outcome, concurrency and atomicity contract across Documents 05–08; then commit and validate before resolving reminders.
 
 ### Blockers
 
