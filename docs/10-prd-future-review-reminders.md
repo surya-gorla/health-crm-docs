@@ -22,31 +22,12 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Reminder | Why It Matters | Status |
 | --- | --- | --- | --- | --- | --- |
-| REM-007 | G1 | G14 | Audit/history must preserve effective role/workspace for material multi-role actions, including same-human actions under different roles. | P-096 requires cross-product audit support. | OPEN |
-| REM-008 | G1 | G14 | State-safety/concurrency review must include permission changes occurring while a protected workspace/tab is already open. | G1 requires safe handling of stale authority; G14 owns cross-product stale-state/safety behavior. | OPEN |
-| REM-009 | G1 | G14 | Multi-tab/session behavior must not blur authority context across tabs, and state changes in one context must not silently make another tab authoritative for a different role. | G1 explicitly permits independent permitted workspace contexts per tab/window. | OPEN |
-| REM-014 | G2 | G14 | Audit/history for authentication and recovery events may record safe metadata but must never expose passwords, reset credentials, TOTP secrets/codes, or recovery-code values. | G2 introduces explicit secret-handling boundaries that G14 must preserve in cross-product audit UX. | OPEN |
-| REM-015 | G2 | G14 | Extend retry/stale-state review to authentication recovery: repeated Forgot Password must not create duplicate actionable requests, and a reset already resolved by another Owner session cannot be applied again as Pending. | P-111/P-112 currently emphasize other business records; G2 adds an auth-recovery state that needs the same safety discipline. | OPEN |
-| REM-016 | G2 | G14 | Evaluate account disablement/role changes while multiple sessions or tabs are open. Preserve the product rule that stale authority/protected use stops when the state change is detected, while leaving exact propagation/session transport to technical design. | G1/G2 now define product behavior but not implementation mechanics. | OPEN |
-| REM-017 | G2 | G14 | Include recovery-code lifecycle in state-safety review: used codes cannot authenticate again and regeneration invalidates the prior set. Do not expose code values in audit/state history. | Recovery codes are security-sensitive one-time state governed by G2. | OPEN |
-| REM-023 | G3 | G14 | Extend P-111 retry/idempotency review to Patient creation: an unknown registration outcome must be resolved by checking effective state before another create attempt, including concurrent candidate changes discovered at final submit. | Patient identity duplication is high-impact and G3 now defines product-level retry behavior. | OPEN |
-| REM-024 | G3 | G14 | Audit/history must cover Possible Duplicate provenance and demographic corrections without exposing unauthorized clinical content: candidate Patient IDs/actor/time for the marker; old/new/requester/Doctor decision/time for corrections; Doctor direct edits remain attributable. | G3 introduces auditable identity-risk and demographic-change metadata that G14 must present consistently. | OPEN |
-| REM-025 | G3 | G14 | Stale-state protection must explicitly cover demographic correction: if the captured current value changed before Doctor decision, the old proposal cannot overwrite newer truth; exact concurrency/version mechanism stays technical. | G3 establishes the stale business behavior; G14 owns the cross-product stale-state contract. | OPEN |
-| REM-033 | G4 | G14 | Cross-product retry/stale safety must cover Visit creation, Paid recording, combined Mark Paid + queue partial success, one Pending waiver/correction per relevant baseline, stale waiver after Paid, and stale payment-correction baseline. Exact idempotency/concurrency mechanisms remain technical. | G4 defines product-level safety outcomes that G14 must generalize. | OPEN |
-| REM-040 | G5 | G14 | Cross-product stale/concurrency review must include races among Call, Start Consultation, Reassign, Unresponded, move-to-end, financial correction, cancellation request/decision, and Visit completion. One Pending cancellation per Visit and stale decisions/actions must be enforced. | G5 depends heavily on current state/assignment and concurrent actors. | OPEN |
-| REM-044 | G6 | G14 | Generalize stale/audit safety for clinical drafts and amendments: concurrent draft saves must not overwrite newer content, stale amendment baseline must refresh, effective cancellation must reject stale clinical writes, and clinical revision audit must preserve current vs prior revisions without exposing content to unauthorized audit roles. | G6 defines product-level clinical concurrency/revision behavior; G14 owns cross-product safety/audit. | OPEN |
-| REM-049 | G7 | G14 | Cross-product stale/idempotency review must cover prescription draft/finalization/replacement: duplicate finalization must not create multiple current versions, stale replacement cannot supersede newer current version, effective cancellation blocks stale prescription writes, and current vs Superseded history remains explicit/auditable. | G7 defines version-state/concurrency behavior; G14 owns global safety/audit. | OPEN |
 | REM-050 | G7 | G15 | Printing must use the selected finalized version's stored finalization-time availability snapshot. Current Finalized is the default print/reprint target; any historical Superseded/Cancelled-context copy must be unmistakably historical and must never look like the current dispensable prescription. | G7 fixes snapshot/reprint semantics but G15 owns physical-output presentation. | OPEN |
-| REM-054 | G8 | G14 | Cross-product safety must cover dispense idempotency/unknown outcome, item-lineage remaining allowance across replacement, multi-unit races, prescription replacement/cancellation while dispense is open, and stale substitution requests after version/quantity changes. | G8 depends on concurrent state across prescription, Visit, stock, unit, and substitution decisions. | OPEN |
 | REM-055 | G8 | G15 | Pharmacy A4 dispensing/billing summary should faithfully show actual supplied quantity, unsupplied remainder, approved substitute supplied where relevant, and pharmacy-unit context without altering the original prescription version. | G8 defines fulfilment truth; G15 owns physical output. | OPEN |
 
-| REM-061 | G9 | G14 | Cross-product stale/idempotency review must include bill creation from unbilled dispensing, double-bill prevention, Mark Paid, payment-correction baseline races, bill-void decision concurrent with payment, Visit completion across multiple pharmacy units, post-Visit bill administration, and unknown-outcome retry safety. | G9 introduces concurrent state across dispensing, bill, payment, Visit completion, request/decision, and multiple units. | OPEN |
 | REM-062 | G9 | G15 | Pharmacy A4 bill/dispensing output must use the frozen bill snapshot and unit attribution, show actual supplied quantities/payment context where applicable, distinguish active versus Cancelled/Voided historical copies, and never recalculate historical bills from current prices, prescription state, or stock. Evaluate together with REM-055 for unsupplied remainder/substitute presentation. | G9 fixes immutable bill snapshot semantics while G15 owns physical-output presentation. | OPEN |
-| REM-066 | G10 | G14 | Cross-product safety/audit must cover concurrent dispense/adjustment/transfer movements, stale stock baselines, no-reservation Pending requests, linked two-sided transfer atomicity, no-negative-stock guarantees, movement immutability, Owner direct adjustments, and unknown-outcome retry/idempotency. | G10 makes inventory correctness depend on current ledger state across several concurrent actors and unit ledgers. | OPEN |
-| REM-069 | G11 | G14 | Global audit/state-safety review must preserve requester and Owner effective-authority attribution, prevent duplicate/stale Owner actions across sessions, protect unknown-outcome retry, keep direct Owner actions distinct from requests, and exclude credentials/unrestricted clinical content from Owner approval/audit metadata. | G11 unifies exception work while relying on current-state revalidation and authority-aware audit across many workflows. | OPEN |
-| REM-071 | G12 | G14 | Cross-product security/state review must cover Owner TOTP-gated role grants, zero-active-Owner protection, live role revocation/account disablement, safe retries of account/config changes, and configuration audit with no credential/TOTP/recovery secrets. | G12 adds state transitions whose safety depends on current authority/session/account/config truth. | OPEN |
 | REM-072 | G12 | G15 | A4/output configuration changes are prospective presentation configuration only. Reprint of historical prescription/bill/other output must use preserved historical business facts/snapshots even if the current template/layout changes; define whether reprint uses current visual template with historical facts or preserved historical rendering without altering source facts. | G12 separates configurable output layout from immutable historical records; G15 owns print/reprint behavior. | OPEN |
-| REM-073 | G13 | G14 | Cross-product safety/audit review must treat reports as derived read views: report refresh/filtering cannot mutate source records, effective correction/report values must be reproducible from preserved source history, report authorization must follow current role scope, and clinic-local time/date basis must be applied consistently to event bucketing. | G13 makes reporting depend on current effective source state plus immutable history; G14 owns global state/access/audit consistency. | OPEN |
+| REM-074 | G14 | G15 | Printing/reprinting is a read-only rendering operation over preserved source facts/snapshots: it must not create a new prescription version, bill, dispense, payment, stock movement, approval or other business-state effect merely because output is generated/retried. Unknown printer/browser outcome may retry rendering, while historical/current-copy labeling and source-snapshot rules remain explicit. | G14 separates read-only derived views from state-changing actions; G15 owns physical output/reprint behavior. | OPEN |
 ---
 
 ## Resolved Reminder History
@@ -66,6 +47,26 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 | ID | Raised By | Target Group | Disposition | Status |
 | --- | --- | --- | --- | --- |
+| REM-007 | G1 | G14 | Resolved by G14 audit attribution: same-human actions retain separate effective role/workspace events. | RESOLVED |
+| REM-008 | G1 | G14 | Resolved by G14 current-authority rule: an already-open protected page cannot preserve revoked authority. | RESOLVED |
+| REM-009 | G1 | G14 | Resolved by G14 independent-tab rule: each tab keeps explicit permitted workspace context and revalidates current authority independently. | RESOLVED |
+| REM-014 | G2 | G14 | Resolved by G14 secret-exclusion rule: credentials/TOTP/recovery-code values never enter normal audit/history. | RESOLVED |
+| REM-015 | G2 | G14 | Resolved by G14 duplicate/unknown-outcome contract: reset/request already resolved elsewhere cannot execute again. | RESOLVED |
+| REM-016 | G2 | G14 | Resolved by G14 current-authority rule across open tabs/sessions after account/role change. | RESOLVED |
+| REM-017 | G2 | G14 | Resolved by G14 recovery-code contract: use is one-time, regeneration invalidates prior set, values remain secret. | RESOLVED |
+| REM-023 | G3 | G14 | Resolved by G14 Patient-create safety: final duplicate/current-state recheck and unknown-outcome recovery precede another create attempt. | RESOLVED |
+| REM-024 | G3 | G14 | Resolved by G14 identity/demographic audit metadata with source-data permission boundaries. | RESOLVED |
+| REM-025 | G3 | G14 | Resolved by G14 baseline-specific stale rule: changed demographic baseline cannot be overwritten by old proposal. | RESOLVED |
+| REM-033 | G4 | G14 | Resolved by G14 retry/stale contract covering Visit/payment/waiver/correction plus sequenced Paid+queue partial-effect recovery. | RESOLVED |
+| REM-040 | G5 | G14 | Resolved by G14 first-valid-transition/current-Visit-state rule for concurrent queue/cancellation/completion actions. | RESOLVED |
+| REM-044 | G6 | G14 | Resolved by G14 clinical draft/amendment conflict rule, local-input preservation and clinical-content audit boundary. | RESOLVED |
+| REM-049 | G7 | G14 | Resolved by G14 prescription version safety: duplicate finalization blocked, replacement uses current baseline and lineage remains auditable. | RESOLVED |
+| REM-054 | G8 | G14 | Resolved by G14 dispense revalidation, multi-unit allowance protection and atomic dispense+stock unknown-outcome recovery. | RESOLVED |
+| REM-061 | G9 | G14 | Resolved by G14 billing/payment/void/completion retry and current-state rules, including latest-state bill-void review. | RESOLVED |
+| REM-066 | G10 | G14 | Resolved by G14 inventory movement immutability, no-negative-stock, stale-baseline, linked-transfer and unknown-outcome rules. | RESOLVED |
+| REM-069 | G11 | G14 | Resolved by G14 Owner-work duplicate/stale protection, authority attribution, direct-action distinction and secret/clinical boundaries. | RESOLVED |
+| REM-071 | G12 | G14 | Resolved by G14 current account/role authority, TOTP/zero-Owner safeguards, account/config retry and secret-free audit. | RESOLVED |
+| REM-073 | G13 | G14 | Resolved by G14 read-only/report-scope/time-basis rule: reporting cannot mutate source and remains reproducible from preserved history. | RESOLVED |
 | REM-022 | G3 | G13 | Resolved by G13 returning-patient definition: reporting uses actual permanent Patient IDs and Possible Duplicate profiles remain separate identities until a future merge exists. | RESOLVED |
 | REM-048 | G7 | G13 | Resolved by G13 most-prescribed definition: standard aggregation uses the current final prescription version per Visit and does not double-count Superseded versions; lineage remains historical detail. | RESOLVED |
 | REM-053 | G8 | G13 | Resolved by G13 reconciliation: medicine sales use actual committed supplied quantity/value, approved substitution is attributed to the actual substitute medicine supplied, unsupplied remainder contributes zero sale, and pharmacy-unit provenance is preserved. | RESOLVED |
@@ -154,19 +155,6 @@ G13 resolved all reminders targeting Reporting & Management Visibility:
 
 REM-022 and REM-048 were already satisfied by the G13 product definition but were omitted from the initial reminder-register closure. REM-053 required one explicit reconciliation clarification so approved-substitute sales are attributed to the actual medicine supplied while preserving pharmacy-unit provenance.
 
-## Target G14 — Mandatory Reminders
-
-When G14 begins, explicitly evaluate:
-
-- REM-007
-- REM-008
-- REM-009
-- REM-014
-- REM-015
-- REM-016
-- REM-017
-
-
 ## Target G4 — Resolved
 
 REM-018 and REM-019 were resolved during the G4 review and are recorded in Resolved Reminder History.
@@ -183,22 +171,6 @@ REM-021 was resolved during the G6 review.
 
 G12 resolved REM-006, REM-012, REM-013, REM-031, REM-059, REM-064 and REM-067.
 
-## Additional Target G14 Reminders from G3
-
-When G14 begins, also explicitly evaluate:
-
-- REM-023
-- REM-024
-- REM-025
-
-
-## Target G14 — Additional Mandatory Reminder from G4
-
-When G14 begins, also explicitly evaluate:
-
-- REM-033
-
-
 ## Target G6 — Additional Reminder Resolved
 
 REM-034 was resolved during the G6 review.
@@ -211,12 +183,6 @@ REM-035 was resolved during G7.
 
 REM-036 was resolved during G8.
 
-## Target G14 — Additional Mandatory Reminder from G5
-
-When G14 begins, also evaluate:
-- REM-040
-
-
 ## Target G7 — Additional Reminder Resolved
 
 REM-041 was resolved during G7.
@@ -224,11 +190,6 @@ REM-041 was resolved during G7.
 ## Target G8 — Additional Reminder Resolved
 
 REM-042 was resolved during G8.
-
-## Target G14 — Additional Mandatory Reminder from G6
-When G14 begins, also evaluate:
-- REM-044
-
 
 ## Target G8 — G7 Reminder Resolved
 
@@ -245,52 +206,55 @@ G9 evaluated and resolved all inherited reminders targeting Pharmacy Billing, Pa
 
 Their dispositions are recorded in Resolved Reminder History.
 
-## Target G14 — Additional Mandatory Reminder from G7
-When G14 begins, also evaluate:
+## Target G14 — Resolved
+
+G14 evaluated and resolved all 20 inherited reminders targeting Cross-Product State, Audit, History & Safety:
+
+- REM-007
+- REM-008
+- REM-009
+- REM-014
+- REM-015
+- REM-016
+- REM-017
+- REM-023
+- REM-024
+- REM-025
+- REM-033
+- REM-040
+- REM-044
 - REM-049
+- REM-054
+- REM-061
+- REM-066
+- REM-069
+- REM-071
+- REM-073
+
+Their dispositions are recorded in Resolved Reminder History.
 
 ## Target G15 — Mandatory Reminder from G7
 When G15 begins, evaluate:
 - REM-050
 
 
-## Target G14 — Additional Mandatory Reminder from G8
-When G14 begins, also evaluate:
-- REM-054
-
 ## Target G15 — Additional Mandatory Reminder from G8
 When G15 begins, also evaluate:
 - REM-055
 
-
-## Target G14 — Additional Mandatory Reminder from G9
-When G14 begins, also evaluate:
-- REM-061
 
 ## Target G15 — Additional Mandatory Reminder from G9
 When G15 begins, also evaluate:
 - REM-062
 
 
-## Target G14 — Additional Mandatory Reminder from G10
-When G14 begins, also evaluate:
-- REM-066
-
-
-## Target G14 — Additional Mandatory Reminder from G11
-When G14 begins, also evaluate:
-- REM-069
-
-
-## Target G14 — Additional Mandatory Reminder from G12
-When G14 begins, also evaluate:
-- REM-071
-
 ## Target G15 — Additional Mandatory Reminder from G12
 When G15 begins, also evaluate:
 - REM-072
 
 
-## Target G14 — Additional Mandatory Reminder from G13
-When G14 begins, also evaluate:
-- REM-073
+
+
+## Target G15 — Additional Mandatory Reminder from G14
+When G15 begins, also evaluate:
+- REM-074
