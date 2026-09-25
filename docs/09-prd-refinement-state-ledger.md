@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.17 DRAFT |
 | Current group | None — all 15 refinement groups complete |
-| Current stage | FINAL GLOBAL VALIDATION |
+| Current stage | REFINEMENT COMPLETE — FINAL GLOBAL VALIDATION PASS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15 |
 | In-progress groups | None |
 | Not started | None |
@@ -3438,11 +3438,64 @@ No future refinement group remains; no new reminder was created.
 
 All 15 PRD refinement groups are complete. Run final global cross-document validation before changing the long-lived refinement PR from its draft/completion state or merging it.
 
+## 2026-09-25 — FINAL GLOBAL PRD VALIDATION
 
+**PASS — long-lived PRD refinement is complete.**
 
+### Structural integrity
 
+- Product requirements: **116**, continuous P-001 through P-116.
+- Acceptance scenarios: **111**, continuous AC-001 through AC-111.
+- UX acceptance scenarios: **178**, continuous UXA-001 through UXA-178.
+- Screen contracts: **49 unique** screen IDs.
+- Interaction Section 44 (global audit/state safety): exactly one.
+- Interaction Section 45 (printing/physical output): exactly one.
 
+### Version alignment
 
+- Document 05 PRD: v0.17.
+- Document 06 Acceptance/Traceability: v0.17, Parent PRD v0.17.
+- Document 07 IA/Screen Specification: v0.16, Parent PRD v0.17.
+- Document 08 Interaction Specification: v0.17, Parent PRD v0.17.
+- Ledger current PRD version: v0.17 DRAFT.
 
+### Traceability integrity
 
+Document 06 contains the final PRD-area mappings:
+
+- Audit / history -> P-107–P-110.
+- Cross-product state / audit / safety -> P-006–P-007, P-107–P-112.
+- Printing -> P-113–P-116.
+
+A first validation attempt incorrectly looked for these PRD mappings in locked Document 04; inspection confirmed Document 04 is the business-requirement traceability source and the PRD-area mapping correctly lives in Document 06. The validator was corrected rather than modifying a correct locked source.
+
+### Process integrity
+
+- All 15 refinement groups: COMPLETE.
+- Open cross-group conflicts: 0.
+- Open future reminders: 0.
+- PR #2 checklist: all 15 groups checked.
+- Branch is ahead of `main` and **0 behind**.
+- No stale NOT STARTED / IN PROGRESS group registry rows remain.
+
+### Final completed-group commits
+
+- G14 main: `8613e6123d71a198f0b8f7d880f5fe9bf12533bd`
+- G15 main: `359cf7f734494b4c6446479142986125efc768f2`
+- G15 reminder closure: `cc759b52ea59f3e536f6fd71c2e72d3b648cd9e5`
+
+### Final verdict
+
+- Locked BRD alignment: PASS.
+- Cross-document consistency: PASS.
+- Backward compatibility: PASS through G15.
+- Forward-reminder register: CLEAN / 0 OPEN.
+- Product completeness at PRD level: HIGH.
+- Implementation readiness at PRD level: HIGH.
+- New clinic/business input required for this refinement: NONE.
+- Long-lived refinement PR is ready for final human review/merge decision.
+
+### Merge boundary
+
+This validation authorizes the PR to move from Draft to Ready for review. It does **not** itself merge PR #2.
 
