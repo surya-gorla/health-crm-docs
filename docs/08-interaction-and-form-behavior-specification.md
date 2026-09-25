@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.16 |
+| Version | 0.17 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.16 |
+| Parent | PRD v0.17 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -1005,26 +1005,61 @@ Existing versions remain history.
 
 # 14. Printed Prescription Pattern
 
-## 14.1 Finalization-time ** marker
+## 14.1 Selected finalized version is the print source
 
-Only medicines whose **clinic-wide availability snapshot at that prescription version's finalization** is Out of Stock or Not Stocked receive **.
+Normal Doctor print/reprint defaults to the latest current Finalized prescription version.
+
+Historical Superseded versions require explicit history/version selection.
+
+Print/reprint never creates a prescription version or edits the selected version.
+
+## 14.2 Finalization-time ** marker
+
+Only medicines whose **stored clinic-wide availability snapshot at that prescription version's finalization** is Out of Stock or Not Stocked receive **.
 
 Current stock is not substituted for the stored finalization snapshot when rendering/reprinting that version.
 
-## 14.2 Partial dispensing later
+Legend states that ** means the medicine was unavailable from the clinic pharmacy at prescription finalization and should be obtained externally.
 
-A later partial quantity does not alter the original finalized/printed prescription.
+## 14.3 Partial dispensing/substitution later
 
-The pharmacy output communicates actual supplied/unsupplied quantity.
+Later partial supply, substitution, current stock, or another unit's availability does not alter the original finalized/printed prescription.
 
-## 14.3 Reprint
+Pharmacy output communicates:
 
-Reprint:
-- does not create a new prescription version;
-- uses the same finalized prescription data and availability snapshot;
-- defaults to the current Finalized prescription rather than an older Superseded version.
+- actual supplied quantity;
+- unsupplied remainder;
+- actual approved substitute supplied where relevant.
 
-Historical-copy labeling for Superseded/cancelled-context output is finalized in G15.
+## 14.4 Historical copy labeling
+
+If selected prescription is Superseded or its Visit is in a closed historical context such as Completed or Cancelled/Voided:
+
+- render prominent Historical Copy / workflow-status banner;
+- retain selected version/finalization identity;
+- do not make output appear to be the active clinic-pharmacy dispensing source.
+
+Do not invent an external medical/legal invalidity statement beyond the CRM workflow status.
+
+## 14.5 Generated time versus source time
+
+If preview/output shows generation/reprint time, keep it visually distinct from original prescription finalization time.
+
+A reprint must not appear newly prescribed merely because it was generated today.
+
+## 14.6 Rendering/template rule
+
+The current configured A4 visual template may render historical prescription facts.
+
+Never recalculate or replace the selected prescription's stored source data/availability snapshot.
+
+V1 does not require byte-identical preservation of every previous visual template/PDF.
+
+## 14.7 Output retry
+
+Preview/print/PDF failure changes no prescription/Visit/pharmacy state.
+
+Retry rendering from the same selected source version.
 
 ---
 
@@ -3382,5 +3417,159 @@ The interaction layer is not acceptable if any of the following are possible:
 - atomic dispense/stock or transfer can remain as a user-visible one-sided business operation;
 - concurrent queue/clinical/prescription/pharmacy/inventory actions apply from stale snapshots without revalidation;
 - report refresh/filter mutates source state or broadens authorization.
+
+---
+
+# 45. Printing and Physical Output Contract
+
+## 45.1 Read-only rendering boundary
+
+Preview, print, reprint, PDF generation/download and rendering retry are read-only output actions.
+
+They never create or mutate:
+
+- prescription version;
+- dispensing;
+- bill;
+- payment;
+- stock movement;
+- approval/request;
+- Visit state;
+- configuration value.
+
+If a printer/browser/PDF outcome is unknown, retry rendering rather than repeating the owning business action.
+
+## 45.2 Authorization
+
+Printable route rechecks current source authority before rendering.
+
+- Doctor prescription print follows Doctor prescription access.
+- Pharmacy bill/dispensing output follows Pharmacist billing/dispensing authority.
+
+A bookmarked historical print route does not bypass current access.
+
+## 45.3 A4 presentation configuration
+
+Current clinic A4 header/footer/branding/layout configuration may be used for current and historical renders.
+
+Presentation changes never alter historical business facts/snapshots.
+
+Exact printer driver, browser print, PDF generation library and output transport are technical.
+
+## 45.4 Prescription output content
+
+Prescription A4 renders the selected Finalized version:
+
+- Patient/Visit identifying context;
+- Doctor;
+- prescription version/finalization context;
+- prescribed medicine/instructions/quantity;
+- stored finalization-time ** markers;
+- locked ** legend.
+
+Generated time, if present, is separate from finalization time.
+
+Historical status banner follows Section 14.
+
+## 45.5 Pharmacy output is unit-scoped
+
+Default pharmacy A4 bill/dispensing output belongs to the active pharmacy unit.
+
+Do not silently merge another unit's supply/bill into a unit-specific output.
+
+If a future/configured consolidated fulfilment view is rendered, per-unit attribution remains explicit.
+
+## 45.6 Frozen bill snapshot
+
+Bill print/reprint uses preserved:
+
+- bill/Visit/unit identity;
+- source dispensing;
+- supplied lines/quantities;
+- price/tax/configured amount basis;
+- total.
+
+Do not recalculate bill facts from current price, stock, prescription state or later configuration.
+
+## 45.7 Current bill/payment status overlay
+
+Existing bill output may show current:
+
+- Active or Cancelled/Voided bill status;
+- effective recorded payment context.
+
+These are status overlays on the frozen bill facts.
+
+For Cancelled/Voided bill:
+
+- prominent Historical / Cancelled/Voided banner;
+- do not make it look payable/current;
+- if Paid remains recorded because V1 performs no refund, show payment context separately without implying refund.
+
+## 45.8 Actual fulfilment summary
+
+Pharmacy dispensing section uses committed fulfilment truth.
+
+Show:
+
+- actual supplied medicine and quantity;
+- actual approved substitute supplied where applicable;
+- original prescribed item only as substitution lineage/context where useful;
+- unsupplied remainder separately;
+- pharmacy unit.
+
+Unsupplied remainder is never presented as billed/supplied.
+
+## 45.9 In-progress fulfilment output
+
+If fulfilment is not closed when summary is generated:
+
+- label **In Progress**;
+- show generation time;
+- make clear recorded fulfilment may still change.
+
+This output does not reserve remaining quantity or create a back-order.
+
+## 45.10 Closed/historical pharmacy output
+
+When Visit/bill is closed/voided/completed:
+
+- render source business facts already recorded;
+- keep historical/void status explicit;
+- do not infer later stock/payment/prescription changes into frozen bill/supply facts.
+
+## 45.11 Template change and reprint
+
+Reprint may use current configured visual template.
+
+Historical source facts remain selected from preserved prescription/bill/fulfilment records.
+
+No old-template archive or byte-identical PDF retention is required by V1 product behavior.
+
+If a future compliance requirement mandates exact rendered-document retention, that is separate technical/compliance scope.
+
+## 45.12 No thermal dependency
+
+V1 does not depend on thermal printer output.
+
+Optional clinic-specific A4 consultation acknowledgement/receipt formatting does not change payment workflow.
+
+QR/barcode output remains outside V1 unless later scope explicitly adds it.
+
+## 45.13 Output release blockers
+
+Output behavior is not acceptable if:
+
+- reprint creates a new prescription version;
+- ** marker is recalculated from current stock;
+- historical prescription copy looks like current active clinic-dispensing source;
+- pharmacy output bills/presents unsupplied quantity as supplied;
+- approved substitute output names the original prescription item as though it was actually supplied;
+- pharmacy-unit attribution disappears;
+- historical bill output recalculates current prices/tax/total;
+- Cancelled/Voided bill copy looks newly payable;
+- current template changes historical source facts;
+- print/preview retry repeats business workflow state changes;
+- protected print route renders after current authority is revoked.
 
 

@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.16 |
+| Version | 0.17 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -2874,23 +2874,146 @@ This section does not introduce email/SMS/push integrations.
 
 # 27. Printing and Output
 
-### P-113 — Prescription A4 output
+Source: FR-041–FR-044, FR-062, BRD physical-output decisions and accepted G7–G14 snapshot/history/safety contracts.
 
-Support finalized prescription print/reprint.
+Printing is a **read-only rendering function** over already-recorded business facts. It never becomes the mechanism that creates, corrects, pays, dispenses, voids, replaces or completes a business record.
 
-### P-114 — Unavailable medicine legend
+## 27.1 Shared output behavior
 
-Printed ** marker behavior follows P-064.
+- standard A4-compatible rendering is the V1 physical-output baseline;
+- browser/system print/PDF mechanics are technical design;
+- printer/render failure does not roll back or alter the source workflow;
+- retrying preview/print/reprint is safe because it does not create a new business-state effect;
+- output routes recheck current viewer authority before rendering;
+- a generated/reprint timestamp, if shown, is visually distinct from source event time such as prescription finalization or bill creation;
+- A4 layout/header/footer/branding changes are prospective presentation configuration only.
 
-### P-115 — Pharmacy A4 output
+For historical reprint, V1 may use the **current configured A4 visual template** while preserving the selected historical source facts/snapshots. V1 does not require byte-identical retention of every earlier template/PDF unless a future compliance requirement explicitly adds that obligation.
 
-A pharmacy bill/dispensing summary may be printed on standard A4 where the clinic needs physical output.
+### P-113 — Prescription A4 output and reprint
+
+Doctor can print/reprint a selected Finalized prescription version.
+
+Normal print/reprint defaults to the latest current Finalized version.
+
+Prescription output uses the selected version's preserved source data, including:
+
+- Patient/Visit identity required to identify the prescription;
+- Doctor identity;
+- prescription version/finalization context;
+- prescribed medicines and instructions/quantity from that finalized version;
+- stored finalization-time clinic-wide availability result for each item;
+- ** marker/legend required by P-114.
+
+Reprint:
+
+- creates no new prescription version;
+- does not recalculate current medicine availability;
+- does not change Visit state;
+- does not change dispensing allowance;
+- does not create replacement/correction;
+- does not alter later dispensing/billing history.
+
+#### Historical prescription copies
+
+If the selected version is Superseded, or the prescription is printed from a closed historical Visit context such as Cancelled/Voided or Completed:
+
+- render a prominent historical/copy banner;
+- identify the relevant version/Visit workflow status;
+- do not present the output as the current active clinic-pharmacy dispensing source.
+
+The label communicates CRM workflow status only; it does not invent an external medical/legal invalidity rule.
+
+If generation time is displayed, it must not be confused with original prescription finalization time.
+
+### P-114 — Unavailable medicine marker and legend
+
+For each finalized prescription version:
+
+- only medicines whose **stored clinic-wide availability at that version's finalization** was Out of Stock or Not Stocked receive **;
+- current stock is never substituted for that stored snapshot during print/reprint;
+- later partial dispensing, substitution, stock change, or another pharmacy unit's availability change does not alter the original marker.
+
+The printed legend explains that ** means the medicine was unavailable from the clinic pharmacy at prescription finalization and should be obtained externally.
+
+Later actual supplied/unsupplied fulfilment belongs to pharmacy output, not retroactive prescription editing.
+
+### P-115 — Pharmacy A4 bill / dispensing output
+
+Where the clinic uses physical pharmacy output, Pharmacist may generate an A4 bill/dispensing summary from authorized pharmacy context.
+
+#### Pharmacy-unit context
+
+The default pharmacy output is tied to the pharmacy unit whose bill/dispensing records it represents.
+
+It must not silently merge another unit's bill/supply into the same unit bill.
+
+If a future/configured consolidated fulfilment summary is shown, per-unit attribution remains visible.
+
+#### Frozen bill facts
+
+For a bill-based output use the bill's preserved snapshot:
+
+- Bill ID;
+- Patient/Visit reference;
+- pharmacy unit;
+- source-dispensing references;
+- actual supplied bill lines/quantities;
+- frozen price/tax/configured amount basis;
+- frozen total;
+- bill creation/source context.
+
+Do not recalculate historical lines/total from:
+
+- current medicine price;
+- current stock;
+- current prescription replacement state;
+- later configuration changes.
+
+#### Current bill/payment status presentation
+
+Printing an existing bill may additionally show its current business status and current effective recorded payment context.
+
+If bill is Cancelled/Voided:
+
+- render a prominent historical/voided banner;
+- do not make the copy look like a new active payable bill;
+- retain the frozen bill facts;
+- if Paid remains recorded because V1 void creates no refund, show payment context separately without implying refund.
+
+#### Actual fulfilment summary
+
+Pharmacy output uses committed actual fulfilment:
+
+- actual supplied medicine/quantity;
+- unsupplied remainder separately;
+- no billed/supplied quantity for unsupplied remainder;
+- approved substitute actually supplied is identified as the supplied medicine;
+- original prescribed item may be shown as substitution lineage/context;
+- dispensing pharmacy-unit attribution remains visible.
+
+If a dispensing summary is generated before clinic-pharmacy fulfilment is closed, label it as **In Progress** and show generation time because remaining fulfilment may change.
+
+A closed/completed historical summary continues to use committed recorded fulfilment and does not invent later supply.
+
+Generating/reprinting pharmacy output creates no new:
+
+- dispense;
+- bill;
+- payment;
+- stock movement;
+- Visit transition;
+- void/approval action.
 
 ### P-116 — No thermal dependency
 
-No V1 workflow depends on thermal printer.
+No V1 workflow depends on thermal printer output.
 
----
+Thermal receipt printing remains outside V1.
+
+A standalone consultation-payment receipt is not a core V1 workflow; clinic-specific optional A4 acknowledgement/layout may be configured without changing payment, queue, Visit, or reporting behavior.
+
+No QR/barcode output is introduced as a V1 requirement.
 
 # 28. Product Analytics / Measurement
 

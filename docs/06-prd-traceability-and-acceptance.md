@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.16 |
+| Version | 0.17 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.16 |
+| Parent | Product Requirements Document v0.17 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -856,6 +856,69 @@ Supports: P-110–P-112, REM-071.
 **Then** reporting does not mutate source records, current effective results remain derivable from preserved source/history, current role scope is enforced, and clinic-local date/time basis is applied consistently.
 
 Supports: P-107–P-112, REM-073.
+
+
+## AC-104 — Prescription reprint preserves finalized source snapshot
+
+**Given** finalized prescription version has stored finalization-time availability
+**And** current stock later changes
+**When** Doctor reprints that same version
+**Then** medicines/instructions/quantity and ** markers come from the stored finalized version/snapshot, no new prescription version is created, and current stock does not rewrite the output.
+
+Supports: P-113–P-114, REM-050.
+
+## AC-105 — Historical prescription copy is unmistakably historical
+
+**Given** Doctor explicitly prints a Superseded prescription or a prescription from Completed/Cancelled historical Visit context
+**Then** output carries prominent historical/workflow-status labeling and is not presented as the current active clinic-pharmacy dispensing source.
+
+Supports: P-113, REM-050.
+
+## AC-106 — Later partial fulfilment does not alter original prescription output
+
+**Given** Pharmacy later supplies only part of a finalized prescription or supplies an approved substitute
+**Then** original prescription print/reprint remains based on its finalized content/availability snapshot; later supplied/unsupplied/substitution truth appears in pharmacy output instead.
+
+Supports: P-113–P-115, REM-050, REM-055.
+
+## AC-107 — Pharmacy A4 shows actual fulfilment and unit provenance
+
+**Given** pharmacy unit dispensed medicines with an unsupplied remainder and/or approved substitute
+**When** Pharmacist generates the A4 dispensing/billing output
+**Then** it shows actual supplied medicine/quantity, unsupplied remainder separately, actual substitute supplied where applicable, and pharmacy-unit attribution without changing prescription truth.
+
+Supports: P-115, REM-055.
+
+## AC-108 — Bill reprint uses frozen bill facts and current status separately
+
+**Given** an existing pharmacy bill is reprinted after price/config/payment/void state changed
+**Then** bill lines/quantities/price-tax basis/total/unit remain the frozen bill snapshot while current active-or-Voided status and current effective payment context may be shown separately.
+
+Supports: P-115, REM-062.
+
+## AC-109 — Voided bill copy cannot look payable/current
+
+**Given** bill is Cancelled/Voided
+**When** pharmacy output is generated
+**Then** output is prominently historical/voided, retains original frozen bill facts, and if Paid remains recorded because no refund occurred that payment context is shown without implying refund or a new payable bill.
+
+Supports: P-115, REM-062.
+
+## AC-110 — Output template change does not change historical business facts
+
+**Given** A4 layout/header/footer configuration changes
+**When** historical prescription/bill output is re-rendered
+**Then** current visual template may be used, but selected historical prescription/bill/fulfilment facts and stored snapshots remain unchanged and are not recalculated.
+
+Supports: P-113–P-116, REM-072.
+
+## AC-111 — Print/reprint retry is read-only
+
+**Given** preview/printer/browser/PDF result is unknown or failed
+**When** authorized user retries output
+**Then** rendering may be retried without creating a new prescription version, bill, dispense, payment, stock movement, approval, Visit transition or other business-state effect.
+
+Supports: P-113–P-116, REM-074.
 
 
 ---
@@ -2450,6 +2513,73 @@ Supports: P-108, REM-069.
 **Then** no source business record changes and result/detail remains within current authorized scope.
 
 Supports: P-110–P-112, REM-073.
+
+
+## UXA-170 — Prescription print defaults to latest current Finalized version
+
+**Given** Visit has current Finalized and older Superseded prescription versions
+**When** Doctor opens normal Print/Reprint
+**Then** latest current Finalized version is the default and historical versions require explicit history selection.
+
+Supports: P-113, DOC-05.
+
+## UXA-171 — Historical prescription output uses prominent status banner
+
+**Given** selected prescription/version is historical or Visit workflow is closed
+**Then** print preview/output prominently names the historical/current-workflow status and does not visually resemble active clinic-pharmacy work.
+
+Supports: P-113, REM-050.
+
+## UXA-172 — Generated time is distinct from prescription finalization time
+
+**Given** Doctor reprints an old finalized prescription
+**Then** if generation timestamp is displayed it is clearly separate from the original finalization timestamp and cannot look like a newly prescribed version.
+
+Supports: P-113, DOC-05.
+
+## UXA-173 — Pharmacy output keeps unit-specific bill/supply context
+
+**Given** one Visit was fulfilled by multiple pharmacy units
+**When** Pharmacy A prints its bill/summary
+**Then** its unit context and its supplied lines remain explicit; another unit's activity is not silently merged into that unit bill.
+
+Supports: P-115, PHA-04.
+
+## UXA-174 — Approved substitute is printed as what was actually supplied
+
+**Given** Doctor approved substitution and Pharmacy dispensed the substitute
+**Then** pharmacy output identifies the substitute as the supplied medicine and may show the original prescribed item only as substitution lineage/context.
+
+Supports: P-115, REM-055.
+
+## UXA-175 — Unsupplied remainder is separate from billed/supplied lines
+
+**Given** clinic pharmacy did not supply full prescribed quantity
+**Then** pharmacy output shows unsupplied remainder separately and never makes it appear billed or supplied.
+
+Supports: P-115, REM-055.
+
+## UXA-176 — Voided bill print is historical and not payable-looking
+
+**Given** Pharmacist prints a Cancelled/Voided bill
+**Then** output has prominent void/historical status while preserving frozen bill facts and recorded payment context where applicable.
+
+Supports: P-115, REM-062.
+
+## UXA-177 — Template changes affect presentation, not historical facts
+
+**Given** clinic changed A4 branding/layout
+**When** an older record is reprinted
+**Then** current template may render the output while historical source facts/snapshots remain unchanged.
+
+Supports: P-113–P-116, REM-072.
+
+## UXA-178 — Print failure offers output retry without workflow mutation
+
+**Given** print/PDF generation fails or printer outcome is uncertain
+**Then** source workflow remains unchanged and UI offers a rendering retry rather than repeating prescription/billing/dispensing/payment actions.
+
+Supports: P-113–P-116, REM-074.
 
 
 ---

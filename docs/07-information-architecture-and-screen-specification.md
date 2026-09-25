@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.15 |
+| Version | 0.16 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.16 |
+| Parent | PRD v0.17 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -1191,41 +1191,78 @@ Effective cancellation or a newer finalized/replacement version blocks stale fin
 
 ### Purpose
 
-Review the exact immutable finalized version and its finalization-time availability markers.
+Review and render an exact Finalized prescription version without turning printing into prescription editing or new workflow state.
 
-### Content
+### Default selection
+
+Open the latest current Finalized version by default.
+
+Older Superseded versions are available only through explicit historical/version selection and are never the silent normal print target.
+
+### Prescription/version context
+
+Show:
 
 - Patient ID / Visit ID / Visit state;
-- Doctor and finalization time;
-- prescription version/status;
-- medicines/instructions/quantities;
-- finalization-time clinic-wide availability;
-- ** marker for Out of Stock/Not Stocked at finalization;
-- explanatory legend;
-- Superseded warning when viewing historical version;
-- prior/replacement lineage where applicable.
-
-### Default
-
-Open the current Finalized version by default.
-
-A Superseded version is historical/read-only and is never the default current dispensing/print target.
+- Doctor;
+- selected prescription version/status;
+- original finalization time;
+- generated/reprint time separately where shown;
+- prescribed medicine/instructions/quantity;
+- stored finalization-time availability result and ** marker.
 
 ### Actions for current Finalized version
 
+- Preview A4;
 - Print A4;
 - Reprint;
-- Create Replacement while Visit state still allows active correction.
+- Create Replacement only while Visit state still allows active correction.
 
-Reprint uses the same finalized data/snapshot and creates no new version.
+Preview/print/reprint are read-only rendering actions.
 
-### Restricted
+### Historical print behavior
 
-- no Edit Finalized Prescription;
-- no new active replacement after Completed or Cancelled/Voided;
-- current stock changes do not rewrite the finalized ** markers.
+For Superseded version or closed Visit context such as Completed or Cancelled/Voided:
+
+- require explicit historical selection;
+- show prominent **Historical Copy** / relevant workflow-status banner in preview/output;
+- do not present it as the active clinic-pharmacy dispensing source.
+
+The banner communicates CRM workflow status and does not invent an external medical/legal invalidity rule.
+
+### Snapshot rules
+
+Print/reprint uses:
+
+- selected Finalized version content;
+- selected version's stored finalization-time clinic-wide availability snapshot.
+
+Do not:
+
+- recalculate ** marker from current stock;
+- rewrite prescription after partial dispensing/substitution;
+- create a new version from Reprint;
+- change Visit state or dispensing allowance.
+
+### Template behavior
+
+Current configured A4 visual template/header/footer may be used for rendering an older version.
+
+Historical source facts/snapshots remain unchanged.
+
+V1 does not require byte-identical retention of every earlier rendered PDF/template version.
+
+### Output error
+
+If preview/print/PDF generation fails or result is uncertain:
+
+- source prescription/Visit state stays unchanged;
+- preserve selected version;
+- offer rendering retry.
 
 ---
+
+
 
 ## DOC-06 — Clinical Amendment
 
@@ -1646,9 +1683,45 @@ One unit's bill/payment cannot complete a Visit while another unit still has com
 - existing bills remain reachable for permitted Mark Paid, payment-correction request, and void administration;
 - those actions do not reopen the Visit.
 
+### A4 bill / dispensing output
+
+Available from authorized Pharmacy context.
+
+Preview/print uses the active pharmacy unit explicitly.
+
+For a selected bill show/render:
+
+- Bill ID;
+- Patient ID / Visit ID;
+- pharmacy unit;
+- frozen actual supplied bill lines/quantities;
+- frozen price/tax/amount basis and total;
+- source-dispensing references;
+- current bill status;
+- current effective recorded payment context where applicable.
+
+Do not recalculate frozen bill facts from current price, stock, prescription replacement or later configuration.
+
+If bill is Cancelled/Voided:
+
+- preview/output shows prominent historical/voided status;
+- it must not look like a new active payable bill;
+- Paid context may remain visible where V1 recorded payment but no refund occurred.
+
+Dispensing-summary section shows, where applicable:
+
+- actual supplied medicine/quantity;
+- approved substitute actually supplied, with original prescribed item only as lineage/context;
+- unsupplied remainder separately and never as supplied/billed quantity;
+- pharmacy-unit attribution.
+
+If fulfilment is still open, label summary **In Progress** and show generation time.
+
+Preview/print/reprint creates no new dispensing, bill, payment, stock movement or Visit transition.
+
 ### Other actions
 
-- print configured A4 summary if needed;
+- Preview / Print A4;
 - Request Void for an existing non-voided bill.
 
 ### Restricted
@@ -2855,6 +2928,12 @@ The screen model is not ready for design/implementation sign-off if:
 - historical audit row provides normal edit/delete/business-action controls;
 - audit source link bypasses current role permission;
 - stale authority remains usable solely because an audit/source page was already open;
+- prescription reprint recalculates ** from current stock or silently creates a new prescription version;
+- historical/Superseded/closed-Visit prescription copy looks like current active clinic-pharmacy output;
+- pharmacy A4 recalculates frozen bill lines/total from current price/configuration;
+- voided bill print looks like a new active payable bill;
+- pharmacy output hides actual substitute/unsupplied remainder or erases pharmacy-unit attribution;
+- print/preview failure repeats a dispensing/payment/billing/prescription business action;
 - approved transfer updates only source or only destination;
 - expired quantity disappears from inventory history merely because it became non-dispensable;
 - billing/payment/void/Visit lifecycle silently alters previously committed stock movement;
