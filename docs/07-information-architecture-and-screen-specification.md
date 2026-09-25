@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.14 |
+| Version | 0.15 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.15 |
+| Parent | PRD v0.16 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -2233,30 +2233,129 @@ Do not use language such as settled, bank-confirmed, deposited, or reconciled un
 
 ## OWN-07 — Audit Activity
 
-**Users:** Owner  
-**Source:** P-107–P-110
+**Users:** Owner; authorized Administrator for permitted non-clinical audit scope  
+**Source:** P-107–P-112
+
+### Purpose
+
+Provide human-readable evidence of material business changes without making audit/history a second editing surface or a privilege bypass.
 
 ### Filters
 
-- date;
-- actor;
-- event type;
-- affected entity;
+- date/date range;
+- actor/human account;
+- effective role/workspace;
+- event/action type;
+- affected entity/type;
+- Patient/Visit/reference ID where permitted;
 - pharmacy unit;
-- approval type.
+- approval/request type;
+- outcome/state.
 
-### Event content
+Archived/disabled actors/entities remain available as historical filter dimensions.
 
-- actor;
-- time;
-- action;
-- affected entity;
-- reason where applicable;
-- prior/resulting state where applicable.
+### Event row
 
-### Clinical boundary
+Show safe summary:
 
-Audit metadata does not automatically reveal unrestricted clinical-note content.
+- event time;
+- actor/human;
+- effective role/workspace;
+- action/event type;
+- affected stable entity/reference;
+- resulting/current-or-historical outcome;
+- reason/category where safe and applicable.
+
+Historical state is visually distinct from current/effective state.
+
+### Event detail
+
+As authorized and applicable:
+
+- request/requester and decision/approver relationship;
+- prior/captured state or value;
+- resulting/effective state or value;
+- source/lineage reference such as prescription version, dispensing record, bill, movement or transfer reference;
+- direct Owner-action indicator when no request/approval pair exists;
+- current Archived/Disabled status of historical actor/entity where useful.
+
+### Current versus historical presentation
+
+Clearly label, as applicable:
+
+- Current / Effective;
+- Prior revision/value;
+- Superseded;
+- Cancelled / Voided;
+- Rejected;
+- Resolved;
+- Stale / Non-actionable;
+- Archived / Disabled.
+
+Historical rows are read-only and do not expose ordinary business-action controls.
+
+### Clinical-content boundary
+
+Audit may show that a clinical event occurred plus safe actor/time/type metadata.
+
+Owner/Admin audit does **not** automatically reveal:
+
+- diagnosis;
+- unrestricted consultation notes;
+- Doctor-only clinical field values;
+- protected clinical amendment content.
+
+A link to clinical source detail is available only when the current viewer separately holds the authority required for that clinical source.
+
+### Authentication-secret boundary
+
+Never show/store in normal audit UI:
+
+- passwords;
+- temporary/reset credential values;
+- TOTP secrets/codes;
+- recovery-code values.
+
+Safe metadata such as reset requested/resolved, TOTP enrolled, recovery code used, or recovery codes regenerated may be shown without secret values.
+
+### Source navigation
+
+Audit row/detail may link to the affected source only when the viewer's **current** authority permits that source.
+
+If not permitted:
+
+- retain safe event metadata;
+- omit/disable protected detail navigation;
+- do not render the protected record and merely hide controls afterward.
+
+### Actions
+
+Allowed:
+
+- filter/search;
+- inspect event detail;
+- follow authorized source reference;
+- copy safe stable reference where useful.
+
+Not allowed:
+
+- edit/delete audit event;
+- change source business state from the audit row itself;
+- use historical row as a stale executable action;
+- reveal protected source content through audit.
+
+### Loading/error/state behavior
+
+Support:
+
+- Loading;
+- No audit events for current filters;
+- Results;
+- Access restricted;
+- Source no longer active but history retained;
+- Error / Retry.
+
+Retrying audit read/filter does not mutate source records.
 
 ---
 
@@ -2751,6 +2850,11 @@ The screen model is not ready for design/implementation sign-off if:
 - internal stock transfer is counted as medicine sale or clinic-wide stock gain;
 - archived staff/medicine/pharmacy-unit identity disappears from historical reporting;
 - report filters broaden data beyond the viewer's authorized scope;
+- audit/history loses effective role/workspace attribution for multi-role actions;
+- audit exposes passwords, reset credentials, TOTP/recovery-code values, or unrestricted clinical content;
+- historical audit row provides normal edit/delete/business-action controls;
+- audit source link bypasses current role permission;
+- stale authority remains usable solely because an audit/source page was already open;
 - approved transfer updates only source or only destination;
 - expired quantity disappears from inventory history merely because it became non-dispensable;
 - billing/payment/void/Visit lifecycle silently alters previously committed stock movement;

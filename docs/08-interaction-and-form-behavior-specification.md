@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
-| Version | 0.15 |
+| Version | 0.16 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.15 |
+| Parent | PRD v0.16 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
@@ -2985,4 +2985,402 @@ Refreshing/re-querying reports never mutates source records.
 If source correction/configuration changes current effective derived result, refreshed current report may change while historical source/audit remains preserved.
 
 Exact analytics storage/query implementation remains technical.
+
+---
+
+# 44. Cross-Product Audit, Authority, Retry, and Stale-State Contract
+
+## 44.1 Audit event model
+
+A material business event exposes safe, human-readable history sufficient to understand:
+
+- actor/human account;
+- effective role/workspace;
+- event/action type;
+- affected stable entity/reference;
+- event time;
+- reason where applicable;
+- prior/captured state or value where applicable;
+- resulting/effective state or value where applicable;
+- request/decision/source lineage where applicable.
+
+Same-human actions under different roles remain separate authority-attributed events.
+
+Direct Owner actions remain direct actions and do not create artificial requester/approver pairs.
+
+## 44.2 Current versus historical presentation
+
+History surfaces distinguish current/effective from:
+
+- prior revision/value;
+- Superseded;
+- Cancelled/Voided;
+- Rejected;
+- Resolved;
+- Stale / Non-actionable;
+- Archived / Disabled.
+
+Historical records are read-only unless the product exposes a separate authorized correction/replacement action.
+
+Do not make a historical row look like current executable work.
+
+## 44.3 Historical identity
+
+Later account disablement, role change, medicine archive, pharmacy-unit archive, configuration change or workflow closure never reassigns old event ownership.
+
+Historical identity remains tied to the stable actor/entity reference.
+
+A current Archived/Disabled label may be shown without changing past attribution.
+
+## 44.4 Audit visibility and source authorization
+
+Audit metadata does not expand source-data access.
+
+When event detail/source contains protected data:
+
+- check the viewer's current authority;
+- show only safe metadata if source detail is not allowed;
+- expose source navigation only when that source is currently authorized;
+- never render protected source content first and rely only on hidden controls afterward.
+
+Generic Owner/Admin audit does not reveal unrestricted Doctor-only clinical content.
+
+## 44.5 Authentication secret exclusion
+
+Never place these values in normal audit/history/search/filter/detail:
+
+- passwords;
+- old/new/reset credentials;
+- TOTP secret/one-time codes;
+- recovery-code values.
+
+Safe metadata may record that:
+
+- reset was requested/resolved;
+- TOTP was enrolled;
+- recovery code was used;
+- recovery codes were regenerated.
+
+Used recovery code becomes unusable. Regeneration invalidates the previous set.
+
+## 44.6 Audit immutability in normal UI
+
+Normal product UI does not edit/delete audit events or prior material business records merely to make history cleaner.
+
+Correction/replacement appends new attributable history.
+
+Exact storage immutability, retention duration and compliance purge implementation remain outside this interaction contract.
+
+## 44.7 Current authority in open tabs
+
+Protected authority is evaluated against current account/role state, not only the state when the page loaded.
+
+On protected navigation/final action/permission refresh:
+
+- recheck account enabled state;
+- recheck assigned role;
+- recheck active workspace authority;
+- recheck target-specific authority where relevant.
+
+If revoked/disabled is detected, protected use stops and user returns to an allowed/sign-in context.
+
+## 44.8 Independent tab/workspace contexts
+
+Different tabs may remain in different permitted workspaces.
+
+Switching workspace in Tab A does not silently switch Tab B.
+
+Gaining a role does not silently promote an already-open tab into that authority.
+
+Each protected action uses:
+
+- that tab's explicit workspace context;
+- the user's current assigned/enabled authority.
+
+New Owner capability remains unavailable until required Owner TOTP readiness is satisfied.
+
+## 44.9 Duplicate final submission
+
+After a state-changing final action is triggered:
+
+- disable/restrict that final control while the request is in flight;
+- do not knowingly issue an identical second final action from the same UI;
+- restore action only after known failure or after current-state recovery determines it remains valid.
+
+This is a product behavior; exact request token/idempotency implementation is technical.
+
+## 44.10 Known failure versus unknown outcome
+
+**Known failure with no effect**
+- explain failure;
+- preserve user input where practical;
+- allow safe retry.
+
+**Unknown outcome**
+- do not show success;
+- do not blindly repeat;
+- retrieve current target/request/effect state;
+- if intended effect already exists, recover/show that result;
+- if action remains valid and unapplied, allow a new reviewed attempt;
+- if current truth changed, route through stale/current-state behavior.
+
+## 44.11 Sequenced partial-effect recovery
+
+Some workflows intentionally have separately committed effects.
+
+Example:
+
+1. Mark Paid commits;
+2. queue insertion fails.
+
+Recovery:
+
+- keeps Paid;
+- never records payment twice;
+- resumes queue eligibility/insertion from current state;
+- does not roll back a confirmed business event merely to make the UI look atomic.
+
+## 44.12 Atomic business-operation recovery
+
+Some workflows are defined as one effective business operation.
+
+Examples:
+
+- committed dispense + matching stock deduction;
+- linked pharmacy transfer source -Q + destination +Q.
+
+If outcome is unknown:
+
+- check the linked operation/reference as a whole;
+- do not invite manual one-sided repair through normal workflow;
+- do not knowingly repeat only one side;
+- recover existing effective operation when found.
+
+Exact transaction/reconciliation implementation remains architecture.
+
+## 44.13 Baseline-specific stale-state rule
+
+A state change is relevant only if it changes a fact the action depends on.
+
+Before final action revalidate:
+
+- current actor authority;
+- current target state;
+- captured baseline facts required by that workflow;
+- quantity/allowance/stock/version/request status where applicable.
+
+**Hard stale** when old intent could overwrite newer truth, exceed allowance/stock, act on a superseded version, use revoked authority or otherwise become unsafe.
+
+When hard stale:
+
+- block;
+- show the changed current value/state;
+- do not silently merge/clip/partially apply;
+- preserve local input for comparison/recovery where practical;
+- require refresh/new request/proposal where the owning workflow requires it.
+
+## 44.14 Latest-state review when workflow permits it
+
+Not every related change makes a request invalid.
+
+Where the owning workflow explicitly allows decision against current truth:
+
+- show request-time baseline where useful;
+- show latest current state;
+- show changed consequence;
+- require explicit decision against current truth.
+
+Example: a bill-void request can still be reviewed after the bill became Paid, with current Paid/no-refund/no-stock-restoration consequences shown.
+
+## 44.15 First-valid-transition rule
+
+For mutually incompatible concurrent state transitions, the first valid committed transition establishes current truth.
+
+Later incompatible action:
+
+- revalidates;
+- becomes blocked/stale;
+- refreshes current state;
+- preserves the already-committed event history.
+
+This applies to queue/Visit actions, approval decisions and other state-machine transitions.
+
+## 44.16 Patient identity and demographic safety
+
+Patient create:
+
+- final submit rechecks current duplicate candidates;
+- unknown create result is checked before another create attempt;
+- do not accidentally create a second Patient identity from blind retry.
+
+Demographic correction:
+
+- compare captured current value to current effective Patient value;
+- stale proposal cannot overwrite newer truth;
+- audit retains safe requester/Doctor/direct-edit attribution and prior/proposed/resulting values according to viewer authority.
+
+## 44.17 Queue and Visit concurrency
+
+At final action revalidate relevant current:
+
+- Visit state;
+- Doctor assignment;
+- queue membership/order position where action depends on it;
+- financial eligibility;
+- cancellation/completion state.
+
+Call, Start Consultation, Reassign, Unresponded/reposition, financial ineligibility, cancellation decision and Visit completion cannot apply based only on an old screen snapshot.
+
+## 44.18 Clinical draft and amendment conflict
+
+A stale clinical draft save cannot overwrite a newer saved draft, revision or effective cancellation.
+
+On conflict:
+
+- block overwrite;
+- refresh current saved/effective state;
+- preserve local unsaved text long enough for user review/recovery where practical;
+- do not silently auto-merge clinical text.
+
+Completed-record amendment:
+
+- uses current revision as baseline;
+- appends a new revision;
+- preserves all prior revisions;
+- exposes full clinical content only to authorized clinical roles.
+
+## 44.19 Prescription version safety
+
+Finalize/replacement revalidates:
+
+- Visit state;
+- Doctor authority;
+- draft/current active version;
+- current finalization preconditions.
+
+Duplicate finalization does not create multiple current Finalized versions.
+
+Replacement atomically makes:
+
+- prior current Finalized -> Superseded;
+- replacement -> current Finalized.
+
+If active version changed first, replacement is stale.
+
+## 44.20 Dispense safety across units
+
+Before dispense commit revalidate:
+
+- Visit still pharmacy-ready;
+- selected prescription is latest current Finalized version;
+- item lineage/current remaining allowance;
+- approved substitute state where relevant;
+- active pharmacy unit;
+- valid non-expired unit/batch stock.
+
+Multi-unit concurrent dispensing cannot exceed current permitted allowance.
+
+Dispense + stock deduction is one effective atomic business operation.
+
+## 44.21 Billing, payment, void and Visit-completion safety
+
+Bill creation:
+- use currently unbilled committed dispensing;
+- do not bill same active supply twice.
+
+Mark Paid:
+- explicit final action;
+- do not create duplicate Paid effects after uncertain response.
+
+Payment correction:
+- captured effective-payment baseline must still match current truth.
+
+Bill void:
+- request stays distinct from effect;
+- decision uses latest bill/request/payment state;
+- payment becoming Paid does not automatically stale the request if the owning bill-void workflow still permits approval;
+- Paid approval keeps no-refund/no-stock-restoration consequences.
+
+Visit completion:
+- recheck participating pharmacy units, unbilled committed dispensing and actionable fulfilment/substitution state.
+
+## 44.22 Inventory concurrency and movement immutability
+
+Inventory movement history is append-only through normal workflow.
+
+Pending adjustment/transfer:
+- changes/reserves nothing.
+
+Final adjustment/direct adjustment/transfer:
+- revalidate current unit/medicine/batch stock/value;
+- block negative result;
+- do not silently clip requested quantity.
+
+Transfer:
+- no partial approval;
+- one linked transfer reference;
+- source -Q and destination +Q;
+- uncertain outcome recovers by transfer reference before retry.
+
+## 44.23 Owner work and password-reset safety
+
+For Owner-controlled requests:
+
+- current request/actionability is revalidated;
+- target baseline/current state is revalidated by request type;
+- resolved/stale request cannot act twice;
+- rejection preserves underlying target where defined;
+- direct Owner action remains direct.
+
+Staff password reset:
+
+- one current eligible Pending request where defined;
+- action is Set Temporary Credential;
+- success -> Resolved;
+- reset does not enable account/change roles;
+- stale/resolved/ineligible reset cannot apply again.
+
+## 44.24 Account, role and configuration safety
+
+Before account/role/config final save:
+
+- revalidate acting authority;
+- preserve Admin vs Owner boundary;
+- preserve zero-active-Owner protection;
+- enforce Owner TOTP readiness on newly granted Owner capability;
+- preserve account status/role/credential separation;
+- check unknown outcome before retry.
+
+Configuration change remains prospective and does not rewrite historical Visit/bill/prescription/inventory facts.
+
+## 44.25 Reporting safety
+
+Reports are derived read views.
+
+Refresh/filter/drill-down:
+
+- never mutates source records;
+- remains within current role scope;
+- uses preserved source/history to derive current effective values;
+- applies clinic-local date/time basis consistently for day/time buckets.
+
+Archived historical dimensions remain attributable.
+
+## 44.26 Global release blockers
+
+The interaction layer is not acceptable if any of the following are possible:
+
+- audit loses effective-role/workspace attribution for material multi-role actions;
+- audit exposes authentication secret values or unrestricted clinical content beyond viewer authority;
+- normal audit UI deletes/edits historical evidence;
+- audit/source link bypasses current source permission;
+- revoked role/account continues protected action solely because the tab was already open;
+- workspace switch in one tab silently changes another tab's authority context;
+- duplicate final submission knowingly creates a second effective business result;
+- unknown outcome is treated as success or blindly retried;
+- stale baseline silently overwrites/merges/clips newer truth;
+- atomic dispense/stock or transfer can remain as a user-visible one-sided business operation;
+- concurrent queue/clinical/prescription/pharmacy/inventory actions apply from stale snapshots without revalidation;
+- report refresh/filter mutates source state or broadens authorization.
+
 

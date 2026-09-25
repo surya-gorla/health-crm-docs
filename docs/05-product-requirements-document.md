@@ -6,7 +6,7 @@
 | --- | --- |
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
-| Version | 0.15 |
+| Version | 0.16 |
 | Status | DRAFT — derived from locked BRD v1.0 |
 | Date | 2026-09-20 |
 | Source baseline | BRD v1.0 LOCKED |
@@ -2629,21 +2629,67 @@ Exact visualization/chart/export implementation remains downstream design, but r
 
 # 23. Audit and History UX
 
-### P-107 — Human-readable history
+Source: BRD record-history/accountability rules; G1–G13 accepted audit/history contracts.
 
-Where a record is amended, replaced, corrected, cancelled, or approved, authorized users must be able to distinguish the current effective state from historical state.
+The audit/history layer preserves evidence of material business change without becoming a back door into protected source content.
 
-### P-108 — Attribution
+### P-107 — Human-readable current and historical state
 
-Audit history includes actor and time and, where applicable, reason, prior state/value, resulting state/value, requester, and approver.
+Where a record is amended, replaced, corrected, cancelled/voided, approved/rejected, resolved, superseded, archived, or otherwise materially changed, authorized users must be able to distinguish:
 
-### P-109 — No normal-UI audit deletion
+- the current/effective record or state;
+- prior/superseded/cancelled/rejected/resolved/stale history;
+- the event that produced the current state;
+- the relationship between a request/proposal and the resulting decision/effective change where applicable.
 
-Audit events are not deletable through normal application UI.
+Historical records are read-only unless the product exposes an explicit authorized correction/replacement workflow.
 
-### P-110 — Clinical-content boundary in audit
+Later staff disablement/role change, medicine archive, pharmacy-unit archive, configuration change, Visit closure, or other lifecycle change must not silently remove or reassign historical identity/attribution.
 
-Owner/Admin audit access may expose event metadata without automatically revealing full clinical content.
+### P-108 — Attribution and event context
+
+For a material auditable event, retain safe metadata sufficient to answer **who did what, under which authority, to which record, when, and why/resulting in what**.
+
+As applicable this includes:
+
+- human/account identity;
+- effective role/workspace at the time of action;
+- event/action type;
+- affected stable Patient/Visit/prescription/bill/unit/medicine/request/account/configuration reference;
+- event time;
+- reason;
+- request/requester and decision/approver relationship;
+- prior/captured state or value;
+- resulting/effective state or value;
+- source/lineage reference such as prescription version, dispensing record, stock movement, bill, transfer reference, or direct Owner action.
+
+If the same human performs different workflow actions through different legitimate roles, audit preserves the same human identity and the separate effective-role/workspace events.
+
+Direct Owner actions remain direct Owner-authority events and are not fabricated as self-approval request/decision pairs.
+
+### P-109 — Audit immutability in normal product use
+
+Audit/history events and prior material records are not deletable or editable through normal application UI merely to make current data look clean.
+
+Corrections append a new attributable event/revision/effective record while preserving required prior evidence.
+
+Archived/disabled source entities remain identifiable in history.
+
+Exact retention duration, archival storage, cryptographic immutability, event-store technology and compliance purge requirements remain compliance/technical dependencies.
+
+### P-110 — Audit visibility, clinical boundary and secret exclusion
+
+Audit access never grants broader access to the underlying source data.
+
+- a viewer may see safe event metadata only within that viewer's role scope;
+- linking from audit/history to a source record is allowed only if current authority permits access to that source;
+- generic Owner/Admin audit may show that a clinical event/amendment occurred without revealing unrestricted diagnosis, notes or other Doctor-only clinical content;
+- field/value detail is shown only where the viewer could otherwise access that data;
+- passwords, old/new/reset credentials, TOTP secrets/codes, recovery-code values and equivalent authentication secrets never appear in normal audit/history.
+
+Safe authentication metadata may record events such as reset requested/resolved, TOTP enrolled, recovery code used, or recovery codes regenerated without the secret value.
+
+Used recovery codes are one-time; regeneration invalidates the earlier set.
 
 ---
 
@@ -2661,23 +2707,111 @@ Every major data-driven screen should explicitly support:
 - validation error;
 - request pending;
 - success;
-- rejected/failed action where relevant.
+- rejected/failed action where relevant;
+- stale/conflict state where current truth changed;
+- unknown-outcome/check-current-state state for high-impact actions where the client cannot confirm success/failure.
 
 The product must not convert an error into silent success.
 
-### P-111 — Retry safety
+## 24.1 Current authority and tab context
 
-Retrying a user action must not intentionally create duplicate Patient, Visit, payment, dispensing, bill, adjustment, transfer, or approval records.
+A protected page does not keep authority merely because it was already open.
 
-Exact technical idempotency implementation belongs to architecture.
+Before protected navigation/final state-changing action, current account enabled state, assigned role, effective workspace and relevant target authority are re-evaluated.
 
-### P-112 — Stale-state protection
+If authority has been revoked/disabled when detected:
 
-When an action depends on current state, the product must detect that the record changed before silently applying an outdated decision.
+- protected action is denied;
+- protected source detail is no longer treated as usable current context;
+- the user is returned to an allowed/sign-in context as applicable.
 
-Implementation mechanism belongs to architecture.
+Separate browser tabs/windows may retain independent **permitted** workspace contexts. Switching workspace in one tab does not silently change another tab's context, and gaining a role does not silently promote an already-open different-role tab into that authority.
 
----
+Newly granted Owner capability remains subject to the required Owner TOTP gate before use.
+
+### P-111 — Retry, duplicate-effect and unknown-outcome safety
+
+State-changing actions must not knowingly create a second effective business result merely because the user retries after delay, timeout, refresh, multi-click, or an uncertain client response.
+
+At product level:
+
+1. disable/restrict duplicate final submission while a final request is already in flight;
+2. if failure is confirmed and no effective state change occurred, allow safe retry while preserving user input where practical;
+3. if outcome is **unknown**, retrieve the current target/request/effect state before another final attempt;
+4. if the intended effect already exists, recover/show that result rather than creating another effect;
+5. if current truth no longer permits the action, show the current state and block/re-route accordingly.
+
+This applies across, as relevant:
+
+- Patient and Visit creation;
+- payment recording and correction;
+- queue/Visit state changes;
+- waiver/cancellation/void/approval/reset actions;
+- clinical draft/amendment completion;
+- prescription finalization/replacement;
+- substitution decisions;
+- dispensing;
+- bill creation/payment/Visit completion;
+- inventory adjustment/direct adjustment/transfer;
+- account/role/configuration changes.
+
+#### Sequenced versus atomic effects
+
+Where a user journey intentionally contains separately committed effects, preserve confirmed success and continue/recover from current truth. Example: Mark Paid succeeds but later queue insertion fails; payment is not rolled back or recorded twice.
+
+Where the product contract defines one atomic effective operation, partial business effect is invalid and recovery must check the whole operation before another user attempt. Examples:
+
+- committed dispensing + matching stock deduction;
+- approved linked transfer source -Q + destination +Q.
+
+Exact idempotency keys, locking, transaction boundaries and recovery implementation belong to architecture.
+
+### P-112 — Stale-state, conflict and concurrency protection
+
+Before applying an action that depends on current business state, revalidate the **material baseline facts** the action/decision depends on plus current actor authority.
+
+A record changing does **not** automatically make every pending action stale.
+
+Use the applicable contract:
+
+- **hard stale/block** when a changed baseline means old intent could overwrite newer truth, exceed allowance/stock, act on a superseded version, use revoked authority, or otherwise produce an invalid result;
+- **review against latest state** where the workflow explicitly permits the decision after state change, showing the latest values/consequences before final action;
+- proceed only when current preconditions remain valid.
+
+When hard stale:
+
+- do not silently overwrite, merge, clip quantity, partially apply, or auto-convert the old request to fit current state;
+- explain what materially changed;
+- refresh current state;
+- preserve local unsaved input long enough for comparison/recovery where practical;
+- require refreshed/new proposal or action where the owning workflow requires it.
+
+For mutually incompatible concurrent transitions, the first valid committed transition establishes current truth; later actions re-evaluate and become blocked/refreshable when no longer valid.
+
+Cross-product examples include:
+
+- final Patient duplicate-candidate recheck and unknown create result;
+- demographic-correction captured-value conflict;
+- Paid/waiver/payment-correction baselines;
+- Call / Start Consultation / Reassign / Unresponded / cancellation / Visit completion races;
+- clinical draft/amendment conflicts and effective cancellation;
+- prescription finalization/replacement/current-version races;
+- multi-unit dispense/remaining-allowance/substitution/stock races;
+- bill/payment/correction/void/Visit-completion races;
+- inventory adjustment/transfer/negative-stock races;
+- Owner request/decision/reset/direct-action races;
+- role/account/configuration change while protected work is open.
+
+## 24.2 Cross-product business-safety consequences
+
+The global safety rules above preserve already-accepted domain behavior:
+
+- one actionable request per relevant type/baseline where a prior group defines that rule;
+- stale/resolved request cannot create another effective decision;
+- pending request changes/reserves nothing unless its owning workflow explicitly says otherwise;
+- no dispensing/adjustment/transfer may create negative stock;
+- prescription/clinical/bill/inventory history is never rewritten merely to resolve a conflict;
+- reports are derived read views: refresh/filter/drill-down cannot mutate source records, report access follows current authority, and clinic-local date/time basis is applied consistently to report bucketing.
 
 # 25. Usability Requirements
 

@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.15 |
+| Version | 0.16 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
-| Parent | Product Requirements Document v0.15 |
+| Parent | Product Requirements Document v0.16 |
 | Business source | BRD v1.0 LOCKED |
 
 ---
@@ -696,6 +696,166 @@ Supports: P-102, OD-029.
 **Then** supplied quantity/value is attributed to the actual substitute medicine and dispensing unit, the original prescribed item remains lineage/context only for that substituted quantity, and unsupplied remainder contributes no sale.
 
 Supports: P-102, REM-053.
+
+
+## AC-084 — Audit preserves effective authority for same-human multi-role actions
+
+**Given** one human performs related actions under different assigned roles
+**When** those actions are audited
+**Then** audit preserves the same human/account identity and separately records the effective role/workspace for each material event.
+
+Supports: P-108, P-096, REM-007.
+
+## AC-085 — Audit access does not reveal protected source content
+
+**Given** Owner/Admin can view audit metadata for a clinical event
+**When** that viewer lacks Doctor clinical-content authority
+**Then** audit may show safe event metadata but does not reveal unrestricted diagnosis/notes or turn an audit link into clinical access.
+
+Supports: P-110, REM-024, REM-044, REM-069.
+
+## AC-086 — Authentication secrets never enter audit history
+
+**Given** password reset, TOTP enrolment, recovery-code use or recovery-code regeneration occurs
+**Then** audit may record safe event metadata but never password/reset credential/TOTP/recovery-code values.
+
+**And** a used recovery code cannot authenticate again and regeneration invalidates the previous set.
+
+Supports: P-110, REM-014, REM-017.
+
+## AC-087 — Historical identity survives later archive or disablement
+
+**Given** an actor/entity later becomes disabled or archived
+**When** historical events are viewed
+**Then** prior attribution remains linked to the stable historical identity and cannot be deleted/reassigned through normal UI.
+
+Supports: P-107–P-109.
+
+## AC-088 — Revoked authority cannot survive in an open tab
+
+**Given** protected workspace is already open
+**When** account is disabled or the active role is revoked
+**Then** next protected navigation/final action re-evaluates authority, denies stale access and returns the user to an allowed/sign-in context.
+
+Supports: P-111–P-112, REM-008, REM-016, REM-071.
+
+## AC-089 — Separate tabs retain independent permitted contexts
+
+**Given** the same account has two browser tabs in different permitted workspaces
+**When** workspace changes in one tab
+**Then** the other tab does not silently switch authority; every protected action still checks that tab's explicit context plus current account authority.
+
+Supports: P-112, REM-009.
+
+## AC-090 — Unknown state-changing outcome is checked before retry
+
+**Given** a final state-changing request returns an unknown client outcome
+**When** the user tries again
+**Then** product first retrieves current target/request/effect state; if the intended effect already exists it is recovered rather than created twice.
+
+Supports: P-111, REM-015, REM-023, REM-033, REM-054, REM-061, REM-066, REM-069, REM-071.
+
+## AC-091 — Sequenced partial success preserves confirmed effect
+
+**Given** Mark Paid succeeds
+**And** subsequent queue insertion fails
+**When** the workflow resumes
+**Then** Paid remains effective and retry/recovery attempts queue insertion from current truth without recording payment again or rolling it back.
+
+Supports: P-111, REM-033.
+
+## AC-092 — Atomic business operation cannot recover as one-sided effect
+
+**Given** dispense + stock deduction or a linked two-sided stock transfer has uncertain outcome
+**When** recovery occurs
+**Then** product checks the whole atomic business operation/reference before allowing another user attempt and never knowingly repeats only one side.
+
+Supports: P-111, REM-054, REM-066.
+
+## AC-093 — Patient creation rechecks duplicate/current state before retry
+
+**Given** registration reaches final submit
+**When** duplicate candidates changed or create result is unknown
+**Then** current duplicate/effective Patient state is checked before another create attempt so accidental duplicate identity is not created.
+
+Supports: P-111–P-112, REM-023.
+
+## AC-094 — Demographic correction cannot overwrite changed baseline
+
+**Given** demographic correction captured an earlier Patient value
+**When** that value changes before Doctor decision
+**Then** old proposal is stale/non-applicable and cannot overwrite the newer Patient truth.
+
+Supports: P-112, REM-024–REM-025.
+
+## AC-095 — Concurrent queue actions use current Visit truth
+
+**Given** two actors attempt incompatible Call/Start/Reassign/Unresponded/cancellation/completion-related transitions
+**When** one valid transition commits first
+**Then** later action revalidates current Visit/queue/Doctor state and blocks/refreshes if no longer valid while preserving prior history.
+
+Supports: P-112, REM-040.
+
+## AC-096 — Stale clinical draft cannot overwrite newer clinical truth
+
+**Given** Doctor has an older consultation draft open
+**When** another save/revision or effective cancellation changes current clinical state
+**Then** old save cannot overwrite newer truth and local unsaved input is preserved for review/recovery rather than silently merged or discarded.
+
+Supports: P-112, REM-044.
+
+## AC-097 — Prescription finalization/replacement preserves one current version
+
+**Given** duplicate/stale finalization or replacement attempts occur
+**Then** product does not create multiple current Finalized versions; stale replacement cannot supersede a newer current version and version lineage remains historical/auditable.
+
+Supports: P-111–P-112, REM-049.
+
+## AC-098 — Dispense revalidates lineage, allowance and stock across units
+
+**Given** Pharmacy has a dispense action open
+**When** prescription/version, substitution, remaining allowance, Visit state or unit stock changes before commit
+**Then** final dispense uses current truth, blocks invalid stale supply, prevents cumulative overfill across units, and keeps dispense + stock deduction one effective operation.
+
+Supports: P-111–P-112, REM-054.
+
+## AC-099 — Billing/payment/void actions cannot duplicate or overwrite newer truth
+
+**Given** bill/payment/correction/void/Visit-completion state changes concurrently
+**Then** bill creation cannot re-bill committed supply, payment is not duplicated, stale correction cannot overwrite newer payment, void uses latest allowed payment state, and completion rechecks participating pharmacy fulfilment.
+
+Supports: P-111–P-112, REM-061.
+
+## AC-100 — Inventory concurrency preserves non-negative linked ledgers
+
+**Given** stock changes after an adjustment/transfer form was loaded
+**When** final action occurs
+**Then** current stock is revalidated, stale/negative result is blocked, transfer remains linked source -Q/destination +Q, and the same movement/reference is not knowingly applied twice.
+
+Supports: P-111–P-112, REM-066.
+
+## AC-101 — Owner request/reset/direct action cannot execute twice
+
+**Given** Owner work is already resolved/stale or target baseline changed
+**When** another session attempts the old action
+**Then** request/reset/decision is non-actionable or re-reviewed under its type-specific current-state rule; direct Owner actions remain separately attributed rather than becoming self-approval.
+
+Supports: P-108, P-111–P-112, REM-069.
+
+## AC-102 — Account/configuration safety uses current authority
+
+**Given** role/account/configuration action is open
+**When** Owner readiness, zero-active-Owner protection, account status, role authority or target configuration changes
+**Then** current authority/state is revalidated before commit and unknown outcome is checked before retry without exposing auth secrets.
+
+Supports: P-110–P-112, REM-071.
+
+## AC-103 — Reporting remains read-only, reproducible and access-scoped
+
+**Given** a user refreshes/filters/drills into a report
+**Then** reporting does not mutate source records, current effective results remain derivable from preserved source/history, current role scope is enforced, and clinic-local date/time basis is applied consistently.
+
+Supports: P-107–P-112, REM-073.
 
 
 ---
@@ -2166,6 +2326,130 @@ Supports: P-102–P-106.
 **Then** the report identifies the actual substitute medicine supplied and preserves its pharmacy-unit attribution; the original prescription item may be shown only as lineage/context and is not presented as the sold medicine for that substituted quantity.
 
 Supports: P-102, REM-053.
+
+
+## UXA-153 — Audit distinguishes current from historical state
+
+**Given** an entity has current and prior/superseded/cancelled/rejected/stale history
+**Then** the audit/history UI makes current/effective state visually distinct and does not present historical rows as normally actionable.
+
+Supports: P-107, OWN-07.
+
+## UXA-154 — Audit event shows actor and effective authority
+
+**Given** material event was performed by a multi-role user
+**Then** event detail shows the human/account plus effective role/workspace used for that event.
+
+Supports: P-108, REM-007.
+
+## UXA-155 — Audit source link respects current access
+
+**Given** audit row references a protected source record
+**When** current viewer lacks authority to that source
+**Then** safe metadata may remain visible but protected detail/link action is unavailable/denied.
+
+Supports: P-110, OWN-07.
+
+## UXA-156 — Audit never displays authentication secret values
+
+**Given** authentication/recovery event appears in history
+**Then** password/reset/TOTP/recovery-code values are never displayed, copied, searched, filtered or exposed in event detail.
+
+Supports: P-110, REM-014, REM-017.
+
+## UXA-157 — Normal audit UI provides no delete/edit action
+
+**Given** authorized user views historical audit event
+**Then** there is no normal Delete/Edit control that erases or rewrites that event.
+
+Supports: P-109, OWN-07.
+
+## UXA-158 — Hard stale action explains material change
+
+**Given** final action depends on a baseline that changed materially
+**Then** product blocks application, shows that current truth changed, refreshes relevant values and requires review/new proposal rather than silently merging/clipping/applying the old intent.
+
+Supports: P-112.
+
+## UXA-159 — Latest-state-capable request is not automatically stale
+
+**Given** a workflow explicitly allows decision using current truth after related state change
+**Then** detail shows the latest state/consequence and allows the valid current-state decision rather than rejecting solely because any field changed.
+
+Supports: P-112, REM-061.
+
+## UXA-160 — Unknown outcome is not shown as success or blind retry
+
+**Given** client cannot determine whether high-impact action succeeded
+**Then** UI enters a check-current-state/recovery path and does not show success or immediately repeat the final action.
+
+Supports: P-111.
+
+## UXA-161 — Duplicate final submit is unavailable while request is in flight
+
+**Given** user has triggered a state-changing final action
+**While** that request is still pending
+**Then** the same final control cannot knowingly submit an identical second action from that UI.
+
+Supports: P-111.
+
+## UXA-162 — Conflict preserves local unsaved input for review
+
+**Given** stale clinical or other material form data conflicts with newer current state
+**Then** product does not silently discard the local input while forcing refresh; it preserves enough local content for comparison/recovery where practical.
+
+Supports: P-112, REM-044.
+
+## UXA-163 — Revoked authority removes protected open-tab use
+
+**Given** a protected tab was valid when opened
+**When** current role/account authority is revoked/disabled and detected
+**Then** protected action/content is no longer treated as current authorized context and user is returned to an allowed/sign-in path.
+
+Supports: P-112, REM-008, REM-016, REM-071.
+
+## UXA-164 — Workspace changes do not silently cross tabs
+
+**Given** two tabs use different permitted workspaces
+**When** one switches workspace
+**Then** the other keeps its explicit context until independently changed/revalidated; it is never silently promoted to another authority.
+
+Supports: P-112, REM-009.
+
+## UXA-165 — Recovery shows already-applied result instead of duplicating it
+
+**Given** refresh after unknown outcome finds the intended effect already committed
+**Then** product presents/re-enters the effective resulting state and does not offer the original action as though nothing happened.
+
+Supports: P-111.
+
+## UXA-166 — Atomic-operation recovery checks linked effects
+
+**Given** dispense/stock or transfer outcome is uncertain
+**Then** recovery status checks the linked operation/reference as a whole before another final attempt and does not invite user to repair one side manually.
+
+Supports: P-111, REM-054, REM-066.
+
+## UXA-167 — Historical archived identities remain understandable
+
+**Given** actor, medicine or pharmacy unit is later disabled/archived
+**Then** audit/history continues to identify the historical entity and may show its current Archived/Disabled status without reassigning old activity.
+
+Supports: P-107–P-109.
+
+## UXA-168 — Direct Owner action is visibly distinct from request/approval history
+
+**Given** Owner performs an allowed direct waiver/inventory action
+**Then** audit labels it as a direct Owner-authority action and does not render an artificial requester/approver pair.
+
+Supports: P-108, REM-069.
+
+## UXA-169 — Report interactions remain read-only and permission-scoped
+
+**Given** user refreshes, filters or drills into reporting
+**Then** no source business record changes and result/detail remains within current authorized scope.
+
+Supports: P-110–P-112, REM-073.
 
 
 ---
