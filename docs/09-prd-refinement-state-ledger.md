@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.15 DRAFT |
+| Current PRD version | v0.16 DRAFT |
 | Current group | G14 — Cross-Product Audit, State Safety & Global Interaction Controls |
-| Current stage | G14 SOURCE REVIEW + DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | G14 BACKWARD COMPATIBILITY PASS / FORWARD IMPACT ANALYSIS |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13 |
 | In-progress groups | G14 |
 | Not started | G15 |
@@ -73,7 +73,7 @@ A group is COMPLETE only when all four gates pass:
 | G11 | Owner Approval Center & Exception Control | COMPLETE | `0f03e96b76247cd4accbc9d47a874bb376b5b549` | PASS vs G1–G10 | COMPLETE — REM-067–REM-069 recorded | Closed |
 | G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
 | G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
-| G14 | Cross-Product State, Audit, History & Safety | DECISIONS RESOLVED | — | — | — | Current group |
+| G14 | Cross-Product State, Audit, History & Safety | BACKWARD PASS | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` | PASS vs G1–G13 | IN PROGRESS | Current group |
 | G15 | Printing & Physical Outputs | NOT STARTED | — | — | — | |
 
 ---
@@ -3155,6 +3155,58 @@ All 20 G14 reminders are satisfied by the decisions above and may move to RESOLV
 ### Current action
 
 Apply the G14 cross-product audit/history, authority revalidation, stale-state, unknown-outcome, concurrency and atomicity contract across Documents 05–08; then commit and validate before resolving reminders.
+
+## 2026-09-25 — G14 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `8613e6123d71a198f0b8f7d880f5fe9bf12533bd`
+- Changed Documents 05–08.
+- PRD advanced to v0.16.
+
+### Validation result
+
+**PASS.**
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios extend through AC-103 with no duplicate IDs.
+- UX acceptance scenarios extend through UXA-169 with no duplicate IDs.
+- Screen contracts remain 49 with no duplicate screen IDs.
+- PRD/acceptance/interaction align at v0.16; Document 07 is v0.15 with Parent PRD v0.16.
+- Interaction Section 44 appears exactly once.
+- Audit attribution, source-permission boundary, secret exclusion, current-authority revalidation, duplicate/unknown-outcome recovery, atomic-vs-sequenced effects, baseline-specific stale handling, cross-domain concurrency and read-only reporting safety are explicit.
+
+## 2026-09-25 — G14 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1:** effective role/workspace audit, independent tab contexts and stale-authority revocation are preserved; G14 does not force tabs to share workspace state.
+- **G2:** Owner TOTP gating, disabled-account behavior, non-Owner reset lifecycle and one-time recovery-code/secret boundaries are preserved.
+- **G3:** final Patient duplicate recheck, unknown-create recovery, Possible Duplicate provenance and stale demographic correction remain intact.
+- **G4:** Paid+queue partial success preserves Paid; waiver/correction baselines remain stale-safe; no refund semantics are unchanged.
+- **G5:** queue transitions use current Visit/Doctor/queue truth; first valid transition wins and later incompatible action refreshes without erasing queue history.
+- **G6:** stale draft cannot overwrite newer/effectively-cancelled clinical state; amendments remain revision-based and clinical detail remains role-protected.
+- **G7:** one current Finalized prescription, atomic replacement/supersession, cancellation blocking and preserved version lineage remain intact.
+- **G8:** dispensing revalidates current version/allowance/substitution/unit/stock; multi-unit overfill remains blocked; dispense + stock remains one atomic effective operation.
+- **G9:** bill/payment/correction/void/completion semantics remain type-specific; critically, payment change before bill-void decision is latest-state review, not automatic staleness.
+- **G10:** movement immutability, no negative stock, no Pending reservation, direct Owner adjustment and linked atomic transfer remain intact.
+- **G11:** lifecycle-specific Owner actions remain distinct; resolved/stale work cannot act twice; direct Owner actions are not self-approval artifacts.
+- **G12:** Admin/Owner boundaries, TOTP-gated Owner grant, zero-active-Owner protection, live revocation and prospective configuration remain intact.
+- **G13:** reporting remains read-only/permission-scoped and reproducible from preserved source history; G14 does not change report formulas.
+
+### Mandatory reminder dispositions
+
+The committed G14 contract satisfies all 20 inherited G14 reminders:
+
+- REM-007, REM-008, REM-009
+- REM-014, REM-015, REM-016, REM-017
+- REM-023, REM-024, REM-025
+- REM-033, REM-040, REM-044, REM-049
+- REM-054, REM-061, REM-066, REM-069, REM-071, REM-073
+
+### Next exact action
+
+Resolve those reminders in Document 10, scan G15 for downstream impact, record only real G15 reminder(s), then run G14 final closure gates.
 
 ### Blockers
 
