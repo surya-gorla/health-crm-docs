@@ -2546,6 +2546,12 @@ Do not count:
 
 Value uses the frozen billed supplied line value where available and never recalculates historical sale value from current price configuration.
 
+When an approved substitution is actually dispensed:
+
+- medicine-sales quantity/value is attributed to the **actual substitute medicine supplied**, not to the original prescribed medicine for that substituted quantity;
+- the original prescribed item remains prescription/approval lineage context rather than being reported as the sold medicine;
+- the dispensing pharmacy-unit attribution is preserved in unit-level reporting and may be consolidated without erasing that unit provenance.
+
 #### Inventory reports
 
 Current stock is derived from pharmacy-unit movement ledgers.

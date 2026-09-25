@@ -2306,6 +2306,9 @@ Archived/disabled entities remain available for historical filtering and display
 
 **Medicine sales**
 - actual committed dispensed quantity/value;
+- approved substitution is attributed to the actual substitute medicine supplied;
+- dispensing pharmacy-unit attribution remains available in unit drill-down/consolidation;
+- original prescribed medicine remains lineage/context for substituted supply rather than being counted as the sold medicine;
 - not prescribed/unsupplied/transfer/adjustment quantity.
 
 **Current stock**

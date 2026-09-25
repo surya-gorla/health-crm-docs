@@ -2899,6 +2899,12 @@ Unsupplied quantity is zero sale.
 
 Sales value uses frozen billed supplied value where available.
 
+For an approved substitution that is actually dispensed:
+
+- attribute supplied quantity/value to the actual substitute medicine supplied;
+- retain the original prescribed item only as prescription/approval lineage context for that substituted quantity;
+- preserve the dispensing pharmacy-unit attribution through unit-level and consolidated reporting.
+
 ## 43.8 Inventory reporting
 
 Current valid stock derives pharmacy-unit movement ledgers.

@@ -688,6 +688,16 @@ Supports: P-102–P-104, REM-070.
 Supports: P-102, OD-029.
 
 
+## AC-083 — Approved substitute reports the medicine actually supplied
+
+**Given** a prescribed medicine was replaced for fulfilment by an approved substitute
+**And** Pharmacy actually dispensed that substitute from a specific pharmacy unit
+**When** medicine-sales reporting is calculated
+**Then** supplied quantity/value is attributed to the actual substitute medicine and dispensing unit, the original prescribed item remains lineage/context only for that substituted quantity, and unsupplied remainder contributes no sale.
+
+Supports: P-102, REM-053.
+
+
 ---
 
 # 4. Role and Authority Acceptance
@@ -2148,6 +2158,14 @@ Supports: P-102, REM-032, REM-060.
 **Then** result remains restricted to the user's authorized scope even if another entity is named in URL/filter input.
 
 Supports: P-102–P-106.
+
+
+## UXA-152 — Substitute sales retain actual medicine and unit attribution
+
+**Given** Owner/report user drills into medicine sales containing an approved substitution
+**Then** the report identifies the actual substitute medicine supplied and preserves its pharmacy-unit attribution; the original prescription item may be shown only as lineage/context and is not presented as the sold medicine for that substituted quantity.
+
+Supports: P-102, REM-053.
 
 
 ---
