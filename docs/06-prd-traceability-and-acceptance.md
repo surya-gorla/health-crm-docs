@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
-| Version | 0.17 |
+| Version | 0.18 |
 | Status | DRAFT |
 | Date | 2026-09-20 |
 | Parent | Product Requirements Document v0.17 |
@@ -90,7 +90,7 @@ Sources: FR-016, BR-010, OD-004.
 **When** Owner approves  
 **Then** outcome becomes Waived, not Paid, the Visit becomes queue-eligible, and requester/reason/decision/time are preserved.
 
-Sources: FR-015, FR-016, FR-074, BR-022, OD-005.
+Supports: P-034–P-037. Sources: FR-015, FR-016, FR-074, BR-022, OD-005.
 
 ## AC-007 — Queue call
 
@@ -921,6 +921,15 @@ Supports: P-113–P-116, REM-072.
 Supports: P-113–P-116, REM-074.
 
 
+## AC-112 — Consultation payment has no partial-payment path
+
+**Given** a Visit has a consultation amount and remains financially unresolved  
+**When** Reception records consultation payment information  
+**Then** V1 does not expose amount-paid/amount-due split entry or a partial-payment state; the Visit remains Unpaid until full external payment is recorded as Paid or a separate Owner-controlled waiver makes it Waived.
+
+Supports: P-032, FR-013, BR-021, OD-004.
+
+
 ---
 
 # 4. Role and Authority Acceptance
@@ -978,7 +987,7 @@ Sources: FR-085, BR-043, OD-021.
 **Given** an account has no Owner authority  
 **Then** Doctor/Reception/Pharmacist/Admin or other valid non-Owner role combinations are not required to complete 2FA in V1.
 
-Sources: FR-100, BR-043, OD-021.
+Supports: P-010. Sources: FR-100, BR-043, OD-021.
 
 ## AU-003 — Disabled account
 
@@ -994,7 +1003,7 @@ Sources: OD-022 staff lifecycle; supports P-015 and G1 stale-authority handling.
 **Then** the product requires TOTP enrollment and successful generated-code verification before normal workspace entry.  
 **And** recovery codes are shown only after factor verification.
 
-Sources: FR-085, FR-104, BR-043, BR-046, OD-021.
+Supports: P-014. Sources: FR-085, FR-104, BR-043, BR-046, OD-021.
 
 ## AU-005 — Owner authority added during an active non-Owner session
 
@@ -1043,7 +1052,7 @@ Sources: FR-103, BR-045, OD-021.
 **Then** the recovery code may satisfy the second-factor step for that login and becomes invalid after use.  
 **And** recovery-code regeneration invalidates the previous set.
 
-Sources: FR-104, BR-046, OD-021.
+Supports: P-014. Sources: FR-104, BR-046, OD-021.
 
 ## AU-011 — Authentication secrets are not audit content
 
@@ -1059,6 +1068,16 @@ Supports: FR-103–FR-104, BR-045–BR-046 and the locked secret-handling intent
 **Then** the switch does not require a second login or repeated TOTP solely because of the workspace change.
 
 Supports: P-003, P-009, G1 multi-role contract.
+
+## AU-013 — Individual fixed-clinic account login
+
+**Given** a staff member opens sign-in  
+**Then** the product uses that person's individual login + password in the fixed clinic context and does not require a clinic/tenant selector.  
+**When** submitted credentials are invalid  
+**Then** the authentication response is generic and does not identify which credential was wrong or confirm arbitrary account existence.
+
+Supports: P-008, FR-084, BR-035, OD-021.
+
 
 ---
 
@@ -1258,7 +1277,7 @@ Supports: REC-01, REC-02.
 **When** Reception searches the phone  
 **Then** the UI presents separate candidates and does not auto-select one record.
 
-Supports: REC-02, IX Section 5.
+Supports: P-018, REC-02, IX Section 5.
 
 ## UXA-003 — Payment method selection is not payment confirmation
 
@@ -1539,7 +1558,7 @@ Supports: P-027, REC-05, REM-019.
 **And** no Doctor is assigned or queue insertion fails  
 **Then** Paid remains effective while the Visit stays not queued; payment is not rolled back or duplicated.
 
-Supports: P-030–P-031, REC-05, IX Sections 8 and 37.
+Supports: P-029–P-031, REC-05, IX Sections 8 and 37.
 
 ## UXA-040 — Doctor can request waiver before queue
 
@@ -2331,7 +2350,7 @@ Supports: P-102, REM-039.
 **Given** Owner views consolidated stock
 **Then** clinic total supports drill-down to pharmacy unit/batch and does not hide expired/unavailable recorded quantity inside valid available stock.
 
-Supports: P-102, REM-065.
+Supports: P-086, P-102, REM-065.
 
 ## UXA-145 — Archived entities remain filterable
 
@@ -2580,6 +2599,47 @@ Supports: P-113–P-116, REM-072.
 **Then** source workflow remains unchanged and UI offers a rendering retry rather than repeating prescription/billing/dispensing/payment actions.
 
 Supports: P-113–P-116, REM-074.
+
+
+## UXA-179 — Patient and Visit IDs do not encode personal meaning
+
+**Given** Patient ID or Visit ID is displayed in any workspace/output  
+**Then** the value is stable and human-readable but does not encode DOB, phone number, diagnosis, or other personal/clinical meaning.
+
+Supports: P-022.
+
+## UXA-180 — Urgent cases do not create CRM priority controls
+
+**Given** Reception identifies an urgent situation before consultation  
+**Then** the product does not expose a priority flag/star/score, arbitrary reorder control, or automated queue jump; Reception escalates directly to the Doctor outside the CRM.  
+**And** a Doctor may still use the normal Call Patient action on a valid Waiting Visit without silently rewriting persisted queue order.
+
+Supports: P-045, FR-024, BR-026, OD-006.
+
+## UXA-181 — Prescription quantity calculation is deterministic when possible
+
+**Given** dose, frequency, duration, and configured dispensing unit make prescribed quantity deterministic  
+**Then** the product calculates/displays the quantity and does not require duplicate manual entry.  
+**Given** quantity cannot be determined safely from those inputs  
+**Then** Doctor must enter/resolve quantity before Finalize Prescription can succeed.
+
+Supports: P-058, FR-038, OD-011.
+
+## UXA-182 — Status badges use the locked vocabulary
+
+**Given** the product presents patient-journey, financial, queue, prescription, or pharmacy availability state  
+**Then** user-facing status language uses the locked vocabulary such as Paid, Unpaid, Waived, Waiting, Called, Unresponded, With Doctor, Consultation Completed, Sent to Pharmacy, Completed, Cancelled/Voided, In Stock, Out of Stock, Not Stocked, and Superseded rather than silently inventing conflicting state names.
+
+Supports: P-006.
+
+## UXA-183 — High-impact state changes require an explicit final action
+
+**Given** a user selects a payment method, request row, approval option, prescription option, cancellation context, or inventory-adjustment input  
+**Then** selection alone does not execute the high-impact state change.  
+**When** the user performs the explicit labeled final action (and required confirmation/reason where applicable)  
+**Then** the owning workflow may commit the change subject to its current-state/authority rules.
+
+Supports: P-007, IX Sections 8, 10 and 27.
 
 
 ---

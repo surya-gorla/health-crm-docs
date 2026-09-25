@@ -59,8 +59,8 @@ Locked requirements may only change through explicit change control. Derived/del
 
 ## PRD workstream
 
-The initial PRD baseline has been merged into `main`. Further PRD refinement is performed on one long-lived refinement branch and draft pull request, using separate logical commits for each reviewed group and any later cross-group reconciliation.
+The initial PRD baseline has been merged into `main`. Further PRD refinement is performed on one long-lived refinement branch and pull request, using separate logical commits for each reviewed group and any later cross-group reconciliation. The PR remains Draft while active refinement/reconciliation is in progress and is marked Ready for review only after the applicable final validation passes.
 
 The locked BRD on `main` remains the business source of truth. PRD refinements may add product interaction detail but may not silently change locked business behavior.
 
-Current refinement workstream: one long-lived PRD refinement pull request. Each reviewed group or later cross-group correction is added as a separate logical commit to that same PR until the PRD review is complete.
+Current refinement workstream: one long-lived PRD refinement pull request. Each reviewed group or later cross-group correction is added as a separate logical commit to that same PR, and the PR remains unmerged until the final human review/merge decision.
