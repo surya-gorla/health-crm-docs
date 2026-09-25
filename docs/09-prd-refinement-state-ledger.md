@@ -17,9 +17,9 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.16 DRAFT |
+| Current PRD version | v0.17 DRAFT |
 | Current group | G15 — Printing & Physical Outputs |
-| Current stage | G15 SOURCE REVIEW + DECISIONS RESOLVED / READY TO EDIT |
+| Current stage | G15 BACKWARD COMPATIBILITY PASS / REMINDER CLOSURE |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14 |
 | In-progress groups | G15 |
 | Not started | None |
@@ -74,7 +74,7 @@ A group is COMPLETE only when all four gates pass:
 | G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
 | G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
 | G14 | Cross-Product State, Audit, History & Safety | COMPLETE | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` | PASS vs G1–G13 | COMPLETE — all 20 inherited reminders resolved; REM-074 recorded | Closed |
-| G15 | Printing & Physical Outputs | DECISIONS RESOLVED | — | — | — | Current group |
+| G15 | Printing & Physical Outputs | BACKWARD PASS | `359cf7f734494b4c6446479142986125efc768f2` | PASS vs G1–G14 | IN PROGRESS | Current group |
 
 ---
 
@@ -3338,6 +3338,59 @@ No new clinic/business input is required. G15 implements the locked A4 prescript
 ### Current action
 
 Apply G15 prescription/pharmacy A4, historical labeling, snapshot/configuration, permission and read-only-rendering contracts across Documents 05–08; then commit and validate.
+
+## 2026-09-25 — G15 GROUP COMMIT + COMMIT VALIDATION
+
+### Main group commit
+
+- `359cf7f734494b4c6446479142986125efc768f2`
+- Changed Documents 05–08.
+- PRD advanced to v0.17.
+
+### Validation result
+
+**PASS.**
+
+- P requirements remain P-001 through P-116 with no duplicate IDs.
+- Acceptance scenarios extend through AC-111 with no duplicate IDs.
+- UX acceptance scenarios extend through UXA-178 with no duplicate IDs.
+- Screen contracts remain 49 with no duplicate IDs.
+- PRD/acceptance/interaction align at v0.17; Document 07 is v0.16 with Parent PRD v0.17.
+- Interaction Section 45 appears exactly once.
+- Prescription snapshot/reprint, historical labeling, actual fulfilment/substitution, frozen bill facts, template prospectivity, read-only retry and no-thermal dependency are explicit.
+
+## 2026-09-25 — G15 BACKWARD COMPATIBILITY COMPLETE
+
+**PASS — no reconciliation commit required.**
+
+- **G1:** printable routes obey current source/workspace authority; output does not create new cross-workspace context.
+- **G2:** printing exposes no authentication secret and does not change account/authentication state.
+- **G3:** Patient/Visit identity on output uses existing stable records and printing cannot create/merge Patient identity.
+- **G4:** consultation payment/waiver/queue state is unchanged; optional consultation A4 acknowledgement remains configuration, not a new receipt workflow.
+- **G5:** queue/Visit state is never changed by print/preview/reprint.
+- **G6:** prescription output does not expand non-Doctor access to unrestricted clinical notes or mutate completed clinical records.
+- **G7:** selected Finalized version and stored finalization-time availability snapshot remain authoritative; Superseded/closed-context copies are historical and reprint creates no version.
+- **G8:** pharmacy output shows actual committed fulfilment, unsupplied remainder, approved substitute supplied and pharmacy-unit attribution without rewriting prescription truth.
+- **G9:** bill lines/total/unit/source remain frozen; current payment/void status is an overlay; Voided output is historical and no print action causes refund/rebill/stock restoration.
+- **G10:** print/reprint never changes stock; pharmacy-unit provenance remains visible.
+- **G11:** print does not approve/reject/reset/directly apply Owner-controlled work.
+- **G12:** current A4 template may change presentation prospectively while historical business facts/snapshots remain preserved; no old-template archive is invented.
+- **G13:** output does not mutate source/report state or recalculate historical financial/inventory facts.
+- **G14:** preview/print/reprint is read-only; current authority is rechecked and unknown printer/browser outcome retries rendering rather than business action.
+
+### Mandatory reminder dispositions
+
+The committed G15 contract satisfies all five inherited G15 reminders:
+
+- REM-050
+- REM-055
+- REM-062
+- REM-072
+- REM-074
+
+### Next exact action
+
+Resolve the five G15 reminders in Document 10, run G15 Gates A–D, close G15, then perform final cross-document/global PRD validation before declaring the long-lived refinement complete.
 
 
 
