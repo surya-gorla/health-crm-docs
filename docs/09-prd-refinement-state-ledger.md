@@ -18,14 +18,14 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Working branch | `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.17 DRAFT |
-| Current group | G15 — Printing & Physical Outputs |
-| Current stage | G15 BACKWARD COMPATIBILITY PASS / REMINDER CLOSURE |
-| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14 |
-| In-progress groups | G15 |
+| Current group | None — all 15 refinement groups complete |
+| Current stage | FINAL GLOBAL VALIDATION |
+| Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15 |
+| In-progress groups | None |
 | Not started | None |
 | Open cross-group conflicts | 0 |
-| Open future reminders | 5 — see Document 10 |
-| Latest completed group main commit | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` |
+| Open future reminders | 0 — see Document 10 |
+| Latest completed group main commit | `359cf7f734494b4c6446479142986125efc768f2` |
 
 ---
 
@@ -74,7 +74,7 @@ A group is COMPLETE only when all four gates pass:
 | G12 | Staff Administration & Clinic Configuration | COMPLETE | `2eeb8aea4047fc321eb8104faf20cbb22ca5f63e` | PASS vs G1–G11 | COMPLETE — REM-070–REM-072 recorded | Closed |
 | G13 | Reporting & Management Visibility | COMPLETE | `6b301301da5f9e92c76297947c54d471663100dd` | PASS vs G1–G12 | COMPLETE after reconciliation `b78dd22ffd5d17b37110286c4a6063d6b325a432`; REM-073 recorded | Closed |
 | G14 | Cross-Product State, Audit, History & Safety | COMPLETE | `8613e6123d71a198f0b8f7d880f5fe9bf12533bd` | PASS vs G1–G13 | COMPLETE — all 20 inherited reminders resolved; REM-074 recorded | Closed |
-| G15 | Printing & Physical Outputs | BACKWARD PASS | `359cf7f734494b4c6446479142986125efc768f2` | PASS vs G1–G14 | IN PROGRESS | Current group |
+| G15 | Printing & Physical Outputs | COMPLETE | `359cf7f734494b4c6446479142986125efc768f2` | PASS vs G1–G14 | COMPLETE — all five inherited reminders resolved; no future groups | Closed |
 
 ---
 
@@ -3391,6 +3391,52 @@ The committed G15 contract satisfies all five inherited G15 reminders:
 ### Next exact action
 
 Resolve the five G15 reminders in Document 10, run G15 Gates A–D, close G15, then perform final cross-document/global PRD validation before declaring the long-lived refinement complete.
+
+## 2026-09-25 — G15 REMINDER CLOSURE COMPLETE
+
+### Resolved inherited reminders
+
+- REM-050
+- REM-055
+- REM-062
+- REM-072
+- REM-074
+
+### Reminder-register commit
+
+`cc759b52ea59f3e536f6fd71c2e72d3b648cd9e5`
+
+Open reminder count after G15: **0**.
+
+No future refinement group remains; no new reminder was created.
+
+## 2026-09-25 — G15 FINAL CLOSURE
+
+### Final gate results
+
+- **Gate A — Current-group validation:** PASS
+- **Gate B — Backward compatibility with G1–G14:** PASS
+- **Gate C — Forward impact/reminders:** COMPLETE — no future group remains
+- **Gate D — Ledger/checkpoint state:** CURRENT
+
+### Main Group 15 commit
+
+`359cf7f734494b4c6446479142986125efc768f2`
+
+### Final verdict
+
+- Locked BRD alignment: PASS
+- Product completeness: HIGH
+- Implementation readiness at PRD level: HIGH
+- New clinic/business input required: NONE
+- All five inherited G15 reminders resolved.
+- No future reminders remain OPEN.
+- No unresolved backward conflict remains.
+- A4 prescription/pharmacy output is now explicitly snapshot-safe, historical-status aware, permission-safe and read-only.
+
+### Transition
+
+All 15 PRD refinement groups are complete. Run final global cross-document validation before changing the long-lived refinement PR from its draft/completion state or merging it.
 
 
 
