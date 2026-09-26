@@ -8,7 +8,7 @@
 | Status | ACTIVE — LIVING |
 | Established | 2026-09-26 |
 | Scope | Product continuity, BRD/PRD discipline, engineering, implementation, validation, release continuity |
-| Product authority | No — the locked BRD and validated PRD remain product authority |
+| Product authority | No — the locked BRD and current accepted PRD baseline remain product authority |
 | Process authority | Yes — this is the current operating baseline for humans and AI agents until explicitly revised |
 | Historical source | docs/AGENT-CONTINUITY-HANDOFF.md plus the validated BRD/PRD process |
 | Revision | v1.1 |
@@ -53,7 +53,7 @@ For business and product behavior, use this order:
 4. Engineering contracts that implement the product.
 5. Code/tests that implement those contracts.
 
-If implementation or an engineering contract conflicts with the locked BRD/validated PRD, implementation does not win automatically. Treat the mismatch as a defect or initiate explicit product change control.
+If implementation or an engineering contract conflicts with the locked BRD/current accepted PRD baseline, implementation does not win automatically. Treat the mismatch as a defect or initiate explicit product change control.
 
 This Guidelines file must never silently override product truth.
 
@@ -623,24 +623,41 @@ If later work reverses or replaces it, create a new PRD-CHG and supersede the ol
 
 ---
 
-# 11. Product baseline closure
+# 11. Product baseline closure and implementation-baseline freeze
 
-Before production implementation begins, freeze a precise product baseline.
+These are two related but distinct steps.
 
-This is the immediate next product-process step.
+## 11.1 Product baseline lifecycle closure
 
-The closure must:
+The lifecycle-closure step reconciles the already-validated PRD from refinement state into an accepted current product baseline.
+
+It must:
 
 - reconcile stale document-control metadata that still says DRAFT/refinement-in-progress where the ledger/live repository shows completed validated refinement;
 - ensure README/index status wording matches current truth;
 - preserve BRD/PRD substance unless a real defect is found;
-- record exact source versions and exact Git commit;
-- create a clear implementation-baseline marker/tag or equivalent immutable reference;
-- confirm the validated counts/coverage remain intact.
+- close the old refinement ledger/reminder workflow as historical provenance;
+- establish the post-baseline controlled-amendment path;
+- confirm the validated requirement/acceptance/screen/interaction/reminder counts remain intact.
+
+This work may be reviewed in a branch/PR, but while that PR is unmerged it must **not** claim that the implementation baseline itself has been frozen.
+
+## 11.2 Implementation-baseline freeze
+
+After the lifecycle-closure/governance change is validated and merged:
+
+- record the exact accepted BRD/PRD source versions;
+- record the exact merged Git commit;
+- create a clear implementation-baseline tag/marker or equivalent immutable reference;
+- record the validation state associated with that immutable reference.
+
+Only then is the implementation baseline considered frozen for engineering bootstrap.
+
+This separation exists because an exact final merged baseline cannot be known reliably before the governance/baseline-closure change itself is merged.
 
 Do not perform another ceremonial G1–G15 re-review unless new evidence reveals a real defect.
 
-The purpose is not to reopen product design. It is to remove stale process metadata and establish an unambiguous starting point for engineering.
+The purpose is not to reopen product design. It is to remove stale process metadata, preserve the validated product truth, and then establish an unambiguous immutable starting point for engineering.
 
 ---
 
@@ -1211,6 +1228,35 @@ Do not jump directly from the accepted PRD baseline to uncontrolled screen/code 
 
 ## v1.1 — 2026-09-26 — Agent lineage and controlled PRD amendment governance
 
+### Why this revision was needed
+
+The v1.0 workflow was directionally sound but the recheck exposed concrete gaps:
+
+- the earlier flow could be read too linearly, as if all engineering contracts had to be fully completed before development rather than extended safely as real work reveals detail;
+- the PRD refinement was fully complete/validated while Documents 05–08 still carried DRAFT/refinement-in-progress lifecycle metadata;
+- there was no explicit post-baseline PRD amendment lifecycle for implementation-discovered clarification/correction/product change;
+- Agent 1/2 continuity existed, but future decision/change attribution by numbered continuity agent was not defined;
+- the intended lower testing agent had no formal authority boundary, creating a risk that a provisional test verdict could be mistaken for product truth;
+- reversal/supersession behavior for later PRD/process changes was not explicit;
+- v1.0 combined lifecycle closure and immutable implementation-baseline freeze, even though the exact merged baseline cannot be known before the closure/governance PR is merged.
+
+The smallest useful correction was to retain the existing source/authority/safety principles while adding controlled amendment, agent/test-evidence governance, and a two-step lifecycle-closure -> immutable-baseline-freeze sequence.
+
+### Safety properties preserved
+
+This revision does **not** weaken:
+
+- locked BRD authority;
+- the user/clinic boundary for genuine business policy;
+- non-destructive history/provenance;
+- live-repository truth over stale handoff/chat state;
+- cumulative compatibility/forward-impact checks;
+- committed/live-state validation;
+- explicit attribution and evidence honesty;
+- the rule that implementation cannot silently redefine product truth.
+
+### Changes introduced
+
 Refined the implementation-era operating model after an independent recheck:
 
 - clarified that BRD is LOCKED while PRD is an ACCEPTED current baseline under controlled amendment;
@@ -1223,7 +1269,10 @@ Refined the implementation-era operating model after an independent recheck:
 - added durable agent attribution at decision/change-object level;
 - defined retirement/handoff rules without turning Guidelines into a diary;
 - defined explicit product/engineering reversal and supersession semantics;
+- split product lifecycle closure from the immutable implementation-baseline freeze so the final merged SHA/tag is recorded only after merge;
 - updated the immediate engineering-transition sequence accordingly.
+
+A guideline-compliance recheck of PR #4 then found and reconciled three process-document defects before merge: the Section 11/22 baseline-freeze contradiction, over-broad future attribution in the Agent Registry, and stale Agent Two “current continuity” wording in the docs index.
 
 No guideline revision itself is allowed to silently alter locked BRD or accepted product behavior.
 
