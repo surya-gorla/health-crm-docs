@@ -46,6 +46,20 @@ Prisma raw SQL is allowed where database-native correctness requires it.
 
 Do not start V1 on Prisma 8 release-candidate builds.
 
+## External version snapshot verified 2026-09-26
+
+Official project sources checked during bootstrap reported:
+
+- Node.js 24 as an LTS release line; Node.js 26 is Current rather than LTS.
+- React latest stable documentation at 19.3.
+- Vite 8.1 as the current stable Vite 8 release line.
+- NestJS current migration documentation for version 12.
+- PostgreSQL current supported major 18 with current minor 18.6.
+- pnpm 12 as the current release line, with 12.7 released 2026-09-25.
+- Prisma ORM 8 as release-candidate software; Prisma ORM 7 remains supported and stable.
+
+This snapshot explains the initial bootstrap selection. It is not a rule that versions can never move.
+
 ## Rationale
 
 NestJS provides explicit module/guard/validation conventions that reduce agent-to-agent architectural drift.
