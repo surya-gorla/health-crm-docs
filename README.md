@@ -22,6 +22,8 @@ The V1 core business workflow is locked. Remaining items are explicitly classifi
 | [06 — PRD Acceptance & Traceability](docs/06-prd-traceability-and-acceptance.md) | DRAFT product-level acceptance scenarios and traceability from PRD behavior back to the locked BRD. |
 | [07 — Information Architecture & Screen Specification](docs/07-information-architecture-and-screen-specification.md) | DRAFT screen inventory, role navigation, screen contracts, visible states, actions, and transitions. |
 | [08 — Interaction & Form Behavior Specification](docs/08-interaction-and-form-behavior-specification.md) | DRAFT interaction rules for forms, tables, queues, approvals, payments, inventory, errors, and common UI states. |
+| [09 — PRD Refinement State Ledger](docs/09-prd-refinement-state-ledger.md) | Persistent checkpoint and execution ledger for the group-by-group PRD refinement process. |
+| [10 — PRD Future Review Reminders](docs/10-prd-future-review-reminders.md) | Forward-looking dependency/reminder register raised by completed groups for later group reviews. |
 
 ## Product boundary
 
@@ -57,6 +59,8 @@ Locked requirements may only change through explicit change control. Derived/del
 
 ## PRD workstream
 
-PRD development is isolated on branch `prd/v1-product-requirements`.
+The initial PRD baseline has been merged into `main`. Further PRD refinement is performed on one long-lived refinement branch and pull request, using separate logical commits for each reviewed group and any later cross-group reconciliation. The PR remains Draft while active refinement/reconciliation is in progress and is marked Ready for review only after the applicable final validation passes.
 
-The locked BRD on `main` remains the business source of truth. PRD drafts may add product interaction detail but may not silently change locked business behavior.
+The locked BRD on `main` remains the business source of truth. PRD refinements may add product interaction detail but may not silently change locked business behavior.
+
+Current refinement workstream: one long-lived PRD refinement pull request. Each reviewed group or later cross-group correction is added as a separate logical commit to that same PR, and the PR remains unmerged until the final human review/merge decision.

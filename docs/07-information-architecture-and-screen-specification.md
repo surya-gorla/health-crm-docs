@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document | Information Architecture and Screen Specification |
-| Version | 0.1 |
+| Version | 0.16 |
 | Status | DRAFT — PRD companion |
 | Date | 2026-09-20 |
-| Parent | PRD v0.2 |
+| Parent | PRD v0.17 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
 
@@ -43,9 +43,11 @@ The screen model may be implemented with pages, drawers, panels, dialogs, or oth
 
 Reception, Doctor, Pharmacy, Owner, and Administration are distinct workspaces.
 
-A multi-role user may switch workspaces without signing into a second account.
+A single-workspace user enters that workspace directly after all applicable authentication/credential gates succeed. A multi-role user uses one identity, selects among permitted workspaces, and can switch without signing into a second account. The switch control remains reachable from the application shell. A workspace whose security prerequisite has not yet been satisfied for the current session is not treated as normally switchable until that prerequisite is completed.
 
-The active workspace must remain visible.
+The active workspace/authority must remain visible. Multi-role behavior applies to all valid combinations, not only Owner + Doctor.
+
+Workspace context is scoped: switching does not silently carry an active patient, Visit, queue, pharmacy unit, or protected record into the target workspace. Separate browser tabs/windows may hold different permitted workspace contexts simultaneously.
 
 ## IA-02 — Patient/Visit context is explicit
 
@@ -75,7 +77,9 @@ Waiver, cancellation, payment correction, inventory adjustment, transfer, passwo
 
 ## IA-06 — No authority through navigation
 
-A user cannot gain access to a forbidden action by direct navigation, bookmarked link, browser history, or stale screen state.
+A user cannot gain access to a forbidden action by direct navigation, bookmarked link, browser history, stale screen state, or an already-open workspace after permission revocation.
+
+If the user lacks authority, the forbidden module/action is omitted from normal navigation and direct access is denied. If the user has authority but a current record/state temporarily prevents the action, the control may remain visible but disabled with an explanation.
 
 ---
 
@@ -205,12 +209,12 @@ A screen ID does not require a one-to-one browser route.
 
 ## SH-01 — Login
 
-**Users:** all enabled users  
-**Source:** P-008, P-009, P-010, P-015
+**Users:** all users attempting account entry  
+**Source:** P-008–P-010, P-013, P-015
 
 ### Purpose
 
-Authenticate an individual user into the fixed clinic context.
+Authenticate an individual user into the fixed clinic context and route the account into the next required authentication/credential gate.
 
 ### Required content
 
@@ -222,22 +226,29 @@ Authenticate an individual user into the fixed clinic context.
 
 ### Behavior
 
-1. Valid non-Owner credentials -> enter the user's permitted workspace or workspace selector if multiple workspaces are available.
-2. Valid account containing Owner role -> proceed to SH-02 TOTP.
-3. Disabled account -> block login.
-4. Invalid credentials -> generic authentication error without exposing whether username or password was wrong.
+1. Invalid credentials -> generic authentication error without identifying which credential failed or confirming arbitrary account existence.
+2. Correct credentials for a disabled account -> block product entry with safe account-unavailable guidance.
+3. Valid non-Owner normal credential -> enter the permitted workspace or SH-06 workspace selector according to G1.
+4. Valid non-Owner Owner-reset credential -> proceed to SH-04 Forced Password Change before any normal workspace.
+5. Valid Owner-containing account with enrolled TOTP -> proceed to SH-02 Owner TOTP Verification.
+6. Valid Owner-containing account without enrolled TOTP -> proceed to mandatory SH-05 Owner TOTP Enrollment.
+7. Forgot Password opens SH-03; it does not imply that Owner accounts use the staff reset process.
 
 ### States
 
 - default;
 - submitting;
-- invalid credentials;
-- account disabled;
+- generic invalid credentials;
+- account unavailable/disabled;
+- next gate: forced credential change;
+- next gate: Owner TOTP;
+- next gate: Owner TOTP enrollment;
 - temporary service error.
 
 ### Acceptance
 
-- password alone never completes login for an Owner-role account;
+- password alone never completes login for an Owner-containing account;
+- a reset credential never enters normal work before SH-04 succeeds;
 - disabled accounts cannot enter the application;
 - failure does not expose another user's account details.
 
@@ -245,12 +256,12 @@ Authenticate an individual user into the fixed clinic context.
 
 ## SH-02 — Owner TOTP Verification
 
-**Users:** account containing Owner role  
-**Source:** P-009, AU-001
+**Users:** account containing Owner role with TOTP already enrolled  
+**Source:** P-009, P-014, AU-001, AU-010
 
 ### Purpose
 
-Complete mandatory Owner two-factor authentication.
+Complete the mandatory Owner second-factor step after password authentication.
 
 ### Required content
 
@@ -259,49 +270,63 @@ Complete mandatory Owner two-factor authentication.
 - recovery-code alternative;
 - Back/Sign out action.
 
+### Behavior
+
+- a valid current TOTP completes the second-factor step;
+- an unused valid recovery code may be used instead and becomes invalid after use;
+- invalid, expired, already-used, or invalidated recovery codes/TOTP values do not complete authentication;
+- second-factor values are never shown later in normal history/audit;
+- once the fully authenticated session is established, ordinary switching among already-permitted workspaces does not repeat TOTP solely because of the switch.
+
 ### States
 
 - awaiting code;
 - verifying;
-- invalid code;
+- invalid/expired code;
+- invalid/used recovery code;
 - recovery code accepted;
 - temporary error.
 
 ### Acceptance
 
-Successful verification is required before access to any Owner-capable session.
+Successful second-factor verification is required before **any normal application workspace** is available to an account containing Owner authority.
 
 ---
 
 ## SH-03 — Staff Forgot Password Request
 
-**Users:** non-Owner staff  
-**Source:** P-011, P-012
+**Users:** unauthenticated staff entry; actionable requests apply only to enabled non-Owner accounts  
+**Source:** P-011, AU-006–AU-007
 
 ### Purpose
 
-Submit an Owner-visible reset request.
+Request Owner-controlled password recovery without providing self-service reset or account-enumeration signals.
 
 ### Required content
 
 - staff login identifier;
-- submit action;
-- non-sensitive confirmation.
+- Submit Request action;
+- non-sensitive generic confirmation;
+- static guidance that Owner-account recovery is not performed through the non-Owner staff-reset workflow.
 
 ### Behavior
 
-Submitting creates a reset request; it does not self-reset the password.
+- submission never changes the password directly;
+- for an eligible enabled non-Owner account, create a Pending reset request unless one is already Pending;
+- repeat submissions while a request is Pending do not create duplicate simultaneously actionable Owner work;
+- unknown, disabled, and Owner identifiers receive the same non-enumerating submission response and are not exposed as such to the unauthenticated user;
+- Owner accounts are not routed into the non-Owner reset workflow.
 
 ### Acceptance
 
-The screen never displays an old password or reveals whether an arbitrary username belongs to another staff member beyond the safe workflow needed by the clinic.
+The screen does not reveal whether an arbitrary identifier exists, whether the account is disabled, or whether it contains Owner authority.
 
 ---
 
 ## SH-04 — Forced Password Change
 
-**Users:** non-Owner staff after Owner reset  
-**Source:** P-013
+**Users:** non-Owner staff after valid Owner-reset credential authentication  
+**Source:** P-013, AU-009
 
 ### Purpose
 
@@ -311,7 +336,16 @@ Replace a temporary/reset credential before normal use.
 
 - new password;
 - confirm new password;
-- Save and Continue.
+- Save and Continue;
+- sign-out/back-to-login action.
+
+### Behavior
+
+- no normal workspace navigation or protected product content is exposed while this gate is active;
+- validation preserves entered values where safe and follows the configured password policy when that policy is defined;
+- successful save invalidates the temporary/reset credential and continues through G1's normal single-/multi-workspace routing;
+- if replacement is abandoned or fails, the next valid reset-credential login returns to this gate;
+- if the account becomes disabled, the flow cannot continue into the product.
 
 ### Acceptance
 
@@ -319,36 +353,54 @@ Normal workspace navigation is blocked until replacement succeeds.
 
 ---
 
-## SH-05 — Owner TOTP Enrollment / Recovery Codes
+## SH-05 — Owner TOTP Enrollment & Recovery Codes
 
-**Users:** Owner  
-**Source:** P-014
+**Users:** Owner-containing account requiring initial TOTP enrollment; fully authenticated Owner when regenerating recovery codes  
+**Source:** P-009, P-014, AU-004, AU-010
 
 ### Purpose
 
-Enroll/regenerate the Owner TOTP factor and display one-time recovery codes.
+Complete initial mandatory Owner TOTP enrollment and manage recovery-code regeneration without exposing persistent readable secrets.
 
-### Required content
+### Initial enrollment sequence
 
-- enrollment secret/QR representation as implemented;
-- verification step;
-- recovery-code display;
-- acknowledgement that recovery codes must be stored safely.
+1. password authentication has already succeeded;
+2. show the authenticator secret/QR representation as implemented;
+3. require a generated TOTP to verify that enrollment works;
+4. after successful factor verification, display the recovery-code set once;
+5. require acknowledgement that recovery codes must be stored safely;
+6. only then allow normal authenticated continuation.
+
+### Recovery-code regeneration
+
+For an already fully authenticated Owner:
+
+- regeneration is an explicit security-sensitive action;
+- warn that the previous recovery-code set will become invalid;
+- after successful regeneration, show the replacement set only for that regeneration event;
+- do not expose the prior or replacement recovery-code values in normal history/audit.
 
 ### Safety
 
-Recovery codes are shown only at enrollment/regeneration and are not presented later as readable stored secrets.
+- login is not considered complete for an Owner-containing account until required TOTP enrollment/verification succeeds;
+- recovery codes are shown only at enrollment/regeneration and are not presented later as readable stored secrets;
+- TOTP secrets/codes, recovery codes, passwords, and reset credentials are not normal audit/history content;
+- broader authenticator-factor replacement/device-migration is a security/technical dependency and is not implied by this screen.
 
 ---
 
-## SH-06 — Workspace Selector
+## SH-06 — Workspace Selector / Switcher
 
 **Users:** multi-role accounts  
-**Source:** P-001–P-004
+**Source:** P-001–P-005, P-096
 
 ### Purpose
 
-Choose an authority context when more than one workspace is permitted.
+Choose or switch the effective authority context when more than one workspace is permitted.
+
+A single-workspace account bypasses this choice after all applicable authentication/credential gates succeed. A multi-workspace account sees the selector on entry and retains an always-reachable switch control in the application shell.
+
+The selector/switcher exposes only authority that is currently safe to enter. Newly granted Owner authority that has not yet satisfied the Owner second-factor gate remains gated by the authentication flow rather than becoming an ordinary one-click workspace switch.
 
 ### Example
 
@@ -357,9 +409,20 @@ Owner + Doctor sees:
 - Doctor Workspace
 - Owner Workspace
 
+The same pattern applies to other valid combinations such as Reception + Pharmacist.
+
+### Switching rules
+
+- material unsaved work must trigger a leave/switch warning before it can be discarded;
+- switching does not silently carry an active patient, Visit, queue, pharmacy unit, or protected record into the target workspace;
+- a legitimate cross-workspace transition enters the target workspace/authority before opening protected content;
+- separate tabs/windows may retain different permitted workspace contexts independently;
+- if the current role is revoked, the next protected navigation/action or permission refresh denies further access and routes the user to a permitted workspace;
+- if the entire account becomes disabled, authentication rule P-015 applies and protected account use returns to the sign-in boundary rather than merely switching workspaces.
+
 ### Acceptance
 
-Selecting a workspace does not silently change the patient, Visit, or pharmacy unit being acted on.
+The active workspace remains visible after switching, the human identity remains the same, and material actions are attributable to the effective authority actually used.
 
 ---
 
@@ -408,11 +471,11 @@ Patient search is visually dominant over New Patient to reduce accidental duplic
 ## REC-02 — Patient Search and Identity Confirmation
 
 **Users:** Reception  
-**Source:** P-017–P-020
+**Source:** P-016–P-020
 
 ### Purpose
 
-Find the correct existing patient before registration.
+Find and explicitly confirm the correct existing patient before creating another identity.
 
 ### Search inputs
 
@@ -422,38 +485,49 @@ Find the correct existing patient before registration.
 
 ### Result row
 
-Should expose enough identity to distinguish records without exposing unnecessary clinical detail:
+Each candidate remains a separate patient row and should expose enough identity to distinguish records without exposing unnecessary clinical detail:
 
 - patient name;
 - Patient ID;
 - phone;
-- DOB/age context;
-- address summary where useful;
+- DOB / derived age context;
+- compact address cue where useful;
 - Possible Duplicate marker;
-- limited prior-visit identity context where permitted.
+- explicit indication of exact Patient ID match where applicable.
+
+An exact Patient ID match is visually prioritized but still requires **Select Patient** before patient context changes.
+
+### Identity-confirmation detail
+
+Reception may deliberately open limited prior-Visit identity context permitted by the BRD, such as visit dates and other identity-confirmation cues needed to help the patient recognize the record.
+
+This view must not expose unrestricted diagnosis, clinical notes, or prescription content.
 
 ### Actions
 
 - Select Patient;
 - View Patient;
+- Review limited identity-confirmation context;
 - Continue to New Patient when no candidate is confidently confirmed.
 
 ### Safety
 
-- no auto-select solely from similarity;
+- no auto-select solely from exact/similarity confidence;
 - no auto-merge;
-- shared phone number is not presented as unique proof.
+- shared phone number is not presented as unique proof;
+- same-phone patients are not collapsed into one result;
+- loading/error state is distinct from “no matching patient.”
 
 ### Empty state
 
-“No matching patient confirmed” with a deliberate **Register New Patient** action.
+Only after search completes successfully: “No matching patient confirmed” with a deliberate **Register New Patient** action.
 
 ---
 
 ## REC-03 — New Patient Registration
 
 **Users:** Reception  
-**Source:** P-021–P-022
+**Source:** P-016, P-020–P-022
 
 ### Required fields
 
@@ -479,48 +553,72 @@ Age is computed from DOB and not separately editable.
 ### Actions
 
 - Register Patient;
-- Cancel/return to search.
+- Cancel/return to search;
+- when final duplicate review surfaces candidates: **Select Existing Patient** or **Create New as Possible Duplicate**.
 
 ### Validation
 
 - required-field validation is field-specific;
 - phone is not globally unique;
+- email is required but is not an identity key;
 - Government ID is not required;
-- registration must not silently create a second record after an ambiguous search without user confirmation.
+- future/impossible DOB is rejected;
+- registration submit performs a current duplicate-candidate check rather than trusting only an earlier manual search;
+- if current candidates require review, effective Patient creation pauses until Reception makes an explicit identity decision.
+
+### Pending/unknown outcome safety
+
+- disable duplicate final submit while Patient creation is in progress;
+- do not show a generated Patient ID until effective creation is confirmed;
+- if the client cannot determine whether creation succeeded, refresh/check effective state before allowing another create attempt.
+
+### Possible Duplicate path
+
+When Reception deliberately creates a new record after unresolved candidate review:
+
+- apply the visible Possible Duplicate marker automatically;
+- retain candidate Patient IDs plus creating actor/time as safe provenance;
+- do not block normal Patient/Visit use;
+- do not auto-merge or silently clear the marker.
 
 ### Success
 
-Display newly created Patient ID clearly and proceed to patient profile / Visit creation.
+Display the newly created permanent Patient ID clearly/copy-friendly and proceed to patient profile / Visit creation.
 
 ---
 
 ## REC-04 — Reception Patient Profile
 
 **Users:** Reception  
-**Source:** P-023–P-025
+**Source:** P-021, P-023–P-025
 
 ### Purpose
 
-Operate on patient identity without granting clinical access.
+Operate on patient identity without granting longitudinal clinical access.
 
 ### Visible sections
 
-- Patient ID and demographics;
-- allergies if permitted for operational safety;
-- Possible Duplicate marker;
-- active Visit summary;
-- prior Visit identity summaries sufficient for matching;
+- permanent Patient ID and demographics;
+- recorded allergies/intake safety context already permitted to Reception;
+- Possible Duplicate marker and safe provenance where applicable;
+- active Visit operational summary;
+- prior Visit identity/operational summaries sufficient for matching;
 - physical-file Patient ID reference.
 
 ### Actions
 
 - Create Visit;
 - submit Demographic Correction Request;
-- view operational Visit state.
+- view operational Visit state;
+- copy Patient ID for physical-file association.
 
 ### Restricted
 
-Do not expose unrestricted diagnosis or clinical notes.
+Do not expose unrestricted diagnosis, consultation notes, prescriptions, or Doctor longitudinal clinical history.
+
+Patient ID is read-only and is never offered as an editable demographic field.
+
+Missing physical file does not disable Create Visit or other digital patient workflow actions.
 
 ---
 
@@ -531,64 +629,123 @@ Do not expose unrestricted diagnosis or clinical notes.
 
 ### Purpose
 
-Create the Visit, record external payment state, assign Doctor, and enter queue.
+Create the Visit against the selected Patient, establish the Visit's consultation amount/financial state, optionally assign Doctor, and enter queue only when all eligibility conditions are satisfied.
 
-### Required context
+### Patient / Visit boundary
+
+Before effective Visit creation show the selected Patient identity clearly.
+
+Effective **Create Visit**:
+
+- links only to that existing Patient ID;
+- creates one new Visit ID;
+- captures the current configured consultation fee as the Visit's applied amount;
+- initializes consultation financial outcome as Unpaid;
+- does not require the paper file;
+- does not require Doctor assignment yet.
+
+Possible Duplicate status does not disable this action.
+
+### Visit context after creation
 
 - Patient ID;
-- new Visit ID;
-- Doctor selection;
-- configured consultation fee;
-- payment state.
+- Visit ID;
+- current Doctor or **Unassigned**;
+- applied consultation amount;
+- effective financial outcome;
+- queue-entry status.
+
+### Doctor controls
+
+- Assign Doctor;
+- Change selected Doctor before queue entry.
+
+Doctor is required before queue entry, not before the Visit can exist.
 
 ### Payment controls
 
-Direct payment-method buttons:
+Available while effective outcome is Unpaid:
 
-- UPI
-- Cash
-- Card
-- Other
+- UPI;
+- Cash;
+- Card;
+- Other.
 
 If Other -> required description.
 
 Optional external reference.
 
+Payment method selection alone does not change state.
+
 ### Primary outcomes
 
-- **Mark Paid & Add to Queue** when Doctor is selected;
-- **Keep Unpaid**;
-- **Request Waiver**.
+- **Mark Paid** when external payment has been verified;
+- **Mark Paid & Add to Queue** only when Doctor is already assigned;
+- **Add to Queue** when already Paid/Waived and Doctor is assigned but Visit is not yet queued;
+- **Keep Unpaid** / leave Visit open for later resolution;
+- **Request Waiver** while Unpaid.
 
-### Safety
+### Queue-state safety
 
-- method selection alone does not mark Paid;
-- explicit final Paid confirmation is required;
-- Unpaid cannot enter queue;
-- partial payment option does not exist.
+- Unpaid is never queue-eligible;
+- Paid/Waived without Doctor is not yet queueable;
+- if Paid succeeds but queue insertion fails/stales, show **Paid — Not Queued** and preserve the payment;
+- if Paid outcome is unknown, do not queue until current state is confirmed;
+- queue retry re-evaluates current financial state and Doctor assignment.
+
+### Retry safety
+
+- duplicate Visit-create/Mark Paid final submit is disabled while pending;
+- unknown Visit/payment outcome is checked before another state-changing attempt.
+
+### Prohibited
+
+- no partial-payment controls;
+- no refund action;
+- no repeat normal Mark Paid action when already Paid/Waived.
 
 ---
 
 ## REC-06 — Waiver Request
 
-**Users:** Reception  
+**Users:** Reception; equivalent request behavior is available to Doctor from the assigned pre-queue financial context  
 **Source:** P-034–P-037
+
+### Eligibility
+
+Waiver request is available only while the effective consultation outcome is Unpaid.
+
+Do not expose it for Paid or Waived Visits.
 
 ### Required fields
 
 - Patient/Visit context;
-- consultation amount;
+- current consultation amount;
 - mandatory specific reason.
 
 ### Action
 
-Submit to Owner.
+**Submit Waiver Request** to Owner.
+
+Only one simultaneously actionable Pending waiver request may exist for the Visit.
 
 ### After submission
 
-Display Pending Owner Approval.
+Display:
 
-The Visit remains Unpaid and queue-blocked until approved.
+- Pending Owner Decision;
+- requester;
+- submitted reason/time;
+- current Unpaid outcome;
+- queue remains blocked.
+
+### Subsequent state
+
+- Owner approves -> Waived;
+- Owner rejects -> remains Unpaid;
+- if Visit becomes Paid before decision -> request becomes stale/non-actionable and cannot later be approved into Waived.
+
+A rejected request remains historical; another new request may be submitted later while the Visit remains Unpaid.
 
 ---
 
@@ -599,11 +756,19 @@ The Visit remains Unpaid and queue-blocked until approved.
 
 ### Purpose
 
-Coordinate doctor-specific queues.
+Coordinate true Doctor-queue membership without mixing in pre-queue financial Visits.
 
 ### Layout
 
-Support one column/section per Doctor or a Doctor filter while preserving clearly separated queues.
+Support one column/section per Doctor or a Doctor filter while preserving clearly separated Doctor queues.
+
+Assigned Visits Awaiting Financial Eligibility are not counted or ordered here.
+
+### Default ordering
+
+New eligible queue entries append to end.
+
+No free-form position input or drag/drop reorder.
 
 ### Queue row
 
@@ -611,25 +776,58 @@ Support one column/section per Doctor or a Doctor filter while preserving clearl
 - patient name;
 - Patient ID;
 - Visit ID;
-- status;
-- payment eligibility;
+- current status;
+- financial eligibility;
 - waiting duration;
-- current Doctor.
+- current Doctor;
+- Called time where applicable;
+- Pending Cancellation indicator where applicable.
 
-### Actions
+### State-based actions
 
-- mark Unresponded for Called Visit;
-- reassign Doctor;
+**Waiting**
 - open Visit;
-- react to Doctor Call.
+- reassign Doctor;
+- Move to End — Patient Left.
+
+**Called**
+- open Visit;
+- mark Unresponded;
+- reassign Doctor;
+- Move to End — Patient Left;
+- respond to Doctor call/coordination.
+
+**With Doctor or later**
+- no ordinary Reception queue reassign/reposition controls.
 
 ### Reassignment
 
-Requires explicit destination Doctor and confirmation.
+- Waiting/Called only;
+- explicit destination Doctor different from current;
+- confirmation shows source/destination;
+- destination receives Visit at end as Waiting;
+- Called event remains historical if reassigned from Called.
+
+If a Visit-linked demographic-correction request is Pending, the new Doctor becomes current reviewer; old reviewer stale action cannot decide.
+
+### Financial correction
+
+If effective consultation outcome becomes Unpaid while current state is Waiting/Called, remove current queue membership and show Visit in the non-queued financial-resolution area; preserve all prior queue events.
+
+If the Visit later regains Paid/Waived, it must explicitly re-enter at queue end.
+
+### Unresponded
+
+Only current Called can be marked Unresponded.
+
+After success show:
+- event recorded;
+- current state Waiting;
+- new position five places lower or end.
 
 ### Urgent case
 
-No software priority/reorder action is provided.
+No priority flag, urgency score, approval, drag/reorder control, or automatic queue jump is provided.
 
 ---
 
@@ -640,19 +838,40 @@ No software priority/reorder action is provided.
 
 ### Required content
 
-- current value;
-- proposed new value;
+For each proposed demographic field change:
+
 - field being corrected;
-- reason/context if captured by implementation;
-- assigned Doctor.
+- current effective value;
+- proposed new value;
+- Doctor reviewer/routing context.
+
+Optional:
+- reason/context; the locked BRD does not require a mandatory reason for demographic correction.
+
+Patient ID is never available as a correction field.
+
+### Doctor routing
+
+- active Visit + assigned Doctor -> route to that Doctor;
+- active Visit + no assigned Doctor -> Doctor must be selected/assigned before submission;
+- no active Visit -> select an authorized Doctor reviewer without creating a Visit solely for the correction.
 
 ### Behavior
 
-Reception does not directly change the patient record.
+- Reception does not directly change the patient record;
+- effective value remains unchanged while Pending;
+- if the active Visit is reassigned before decision, the pending request follows the current assigned Doctor;
+- Visit completion does not silently discard a submitted request;
+- if the captured current value changes before decision, the proposal is stale and cannot be applied without refreshed review.
 
 ### Result
 
-Pending Doctor decision.
+One of:
+
+- Pending;
+- Approved — proposed value becomes effective with old/new/requester/Doctor/time history;
+- Rejected — effective value remains unchanged and decision history is retained;
+- Stale — current value changed before decision and refreshed review is required.
 
 ---
 
@@ -663,16 +882,42 @@ Pending Doctor decision.
 
 ### Required content
 
-- current payment record;
-- proposed corrected state;
-- mandatory reason;
-- optional payment reference change where relevant.
+- Patient/Visit and payment identity;
+- current effective payment/financial record;
+- proposed corrected record;
+- mandatory specific reason.
 
-### Behavior
+The proposal may change, where applicable:
 
-Submission does not change effective payment state.
+- Paid/Unpaid state;
+- payment method;
+- Other method description;
+- optional reference;
+- Visit-specific recorded consultation amount.
+
+If proposed state is Paid, normal method/Other-description rules apply and the corrected record represents the full effective Visit amount.
+
+### Safety
+
+- submission does not change effective payment state;
+- waiver is not created/revoked through payment correction;
+- only one request against the same current baseline is simultaneously actionable;
+- the request retains the original baseline used to prepare the proposal.
+
+### Owner decision
 
 Owner approval is required.
+
+Before application, compare the current effective record with the captured baseline:
+
+- unchanged -> Owner may approve/reject;
+- changed -> request is stale and cannot overwrite the newer record.
+
+Approval preserves original/proposed/effective values, requester, reason, Owner decision, and time.
+
+If a correction changes Paid -> Unpaid, state clearly that this is a record correction, not a refund.
+
+The correction does not erase already-existing queue/clinical history.
 
 ---
 
@@ -692,15 +937,43 @@ Make the next clinical action immediately obvious.
 - Doctor identity;
 - ordered Waiting/Called queue;
 - current With Doctor patient if any;
+- **Assigned Visits Awaiting Financial Eligibility** shown separately from the ordered queue;
+- **Consultation Completed — Awaiting Finalized Prescription** tasks shown separately from the queue;
+- pending demographic-correction requests assigned to this Doctor;
 - pending substitution requests;
 - queue counts/status.
 
+### Assigned Visits Awaiting Financial Eligibility
+
+For an Unpaid Visit already assigned to this Doctor but not queue-eligible, show only the minimum Patient/Visit/payment context needed to understand the financial gate.
+
+This list is **not** part of the Doctor queue and does not grant consultation access.
+
+Allowed action:
+
+- **Request Waiver** with mandatory reason when no actionable waiver request already exists.
+
+### Queue state actions
+
+**Waiting**
+- Call Patient.
+
+**Called**
+- Start Consultation -> With Doctor.
+
+Opening/viewing a row does not itself transition state.
+
+If assignment/state changed, stale Call/Start action is blocked.
+
 ### Primary actions
 
-- Call Patient;
-- Open Consultation;
+- Call Patient from Waiting;
+- Start Consultation from Called;
+- open Prescription Builder for a Consultation Completed Visit awaiting finalization;
 - view authorized patient history;
-- open substitution request.
+- open demographic-correction request;
+- open substitution request;
+- request waiver from eligible assigned pre-queue Visit.
 
 ### Restricted
 
@@ -710,17 +983,30 @@ No Owner-only approval actions appear merely because the user is a Doctor.
 
 ## DOC-02 — Active Consultation Workspace
 
-**Users:** Doctor assigned to current Visit  
+**Users:** Doctor currently assigned to a Visit in With Doctor state  
 **Source:** P-048–P-054
+
+### Entry gate
+
+Editable consultation authoring requires:
+
+- current Visit state = With Doctor;
+- current Doctor assignment = signed-in Doctor;
+- Visit not Cancelled/Voided.
+
+If state/assignment changed after screen load, switch to safe read-only/current-state presentation and block stale save/complete.
 
 ### Persistent patient header
 
 - patient name;
 - Patient ID;
 - Visit ID;
+- Visit state;
 - DOB/age;
 - gender;
-- known allergies.
+- known allergies;
+- Possible Duplicate marker where applicable;
+- Pending Cancellation indicator where applicable.
 
 ### Main sections
 
@@ -730,19 +1016,47 @@ No Owner-only approval actions appear merely because the user is a Doctor.
 4. optional examination findings
 5. optional clinical notes
 6. optional advice/follow-up
-7. Prescription action
-8. longitudinal-history access
+7. demographic-correction task/context where applicable
+8. Prescription action
+9. longitudinal-history access
 
 ### Primary actions
 
-- Save current consultation work according to implementation;
+- **Save Draft**;
 - Build Prescription;
-- Complete Consultation;
-- Request Cancellation while Visit is eligible.
+- **Complete Consultation**;
+- Request Cancellation while Visit is eligible;
+- review assigned demographic-correction request;
+- direct demographic correction where authorized.
 
-### Safety
+### Save Draft
 
-Required fields must be satisfied before consultation completion.
+- allowed while With Doctor/current Doctor;
+- required fields may still be incomplete;
+- does not transition Visit state;
+- preserves Patient ID + Visit ID;
+- records Doctor/save time;
+- blocks stale overwrite when saved baseline/state changed.
+
+### Complete Consultation
+
+- explicit final action;
+- requires chief complaint/problem + assessment/diagnosis;
+- revalidates With Doctor/current Doctor/current saved content;
+- records Consultation Completed;
+- ordinary clinical editor becomes read-only;
+- then applies G7 pharmacy-readiness: if a current Finalized prescription already exists, current Visit advances to Sent to Pharmacy; otherwise it remains Consultation Completed awaiting prescription finalization.
+
+### Cancellation safety
+
+Pending cancellation does not disable valid authoring.
+
+If cancellation becomes effective:
+- block future Save Draft / Complete / active authoring;
+- preserve already-saved content;
+- do not silently commit stale local edits.
+
+### Restricted
 
 Owner controls are not embedded into the clinical form.
 
@@ -750,31 +1064,43 @@ Owner controls are not embedded into the clinical form.
 
 ## DOC-03 — Longitudinal Patient History
 
-**Users:** Doctor through authorized current Visit  
-**Source:** P-049
+**Users:** Doctor through authorized patient/Visit context  
+**Source:** P-049, P-053
 
 ### Purpose
 
-Review previous care without confusing historical content with current editable content.
+Review the longitudinal archive for one permanent Patient ID without confusing history with current editable work.
+
+### Identity boundary
+
+Header keeps the permanent Patient ID visible.
+
+If the Patient carries Possible Duplicate:
+- show the marker as identity context;
+- do not combine candidate Patient IDs or their clinical timelines;
+- opening another Patient requires normal explicit authorized context.
 
 ### Timeline/card content
 
-- Visit date;
+- Visit date/state;
 - Doctor;
 - chief complaint;
 - diagnosis/assessment;
 - prescription summary;
-- amendment indicator;
-- superseded-prescription indicator.
+- clinical amendment indicator/current revision;
+- superseded-prescription indicator;
+- Cancelled/Voided historical indicator where applicable.
 
 ### Actions
 
 - open historical Visit read-only;
-- inspect amendment/superseded history.
+- inspect complete clinical revision chain;
+- inspect prescription supersede history;
+- Create Amendment only when a completed clinical record exists and Doctor is authorized.
 
 ### Acceptance
 
-Historical records do not become editable merely because they are opened.
+Historical records never become ordinary editable forms merely because they are opened.
 
 ---
 
@@ -783,6 +1109,26 @@ Historical records do not become editable merely because they are opened.
 **Users:** Doctor  
 **Source:** P-055–P-062
 
+### Eligibility
+
+Editable ordinary builder is available while Visit is active and:
+
+- With Doctor; or
+- Consultation Completed without a current finalized prescription.
+
+Completed and Cancelled/Voided do not expose new active authoring.
+
+If a finalized prescription already exists, open DOC-05; correction uses DOC-07.
+
+### Prescription context
+
+- Patient ID;
+- Visit ID;
+- current Visit state;
+- Doctor;
+- Draft status;
+- Pending Cancellation indicator where applicable.
+
 ### Medicine-row content
 
 - medicine/display name;
@@ -790,7 +1136,7 @@ Historical records do not become editable merely because they are opened.
 - dosage form;
 - manufacturer context;
 - optional generic/molecule context;
-- clinic-wide availability;
+- current clinic-wide availability;
 - per-pharmacy availability when relevant;
 - dose amount;
 - frequency;
@@ -800,17 +1146,41 @@ Historical records do not become editable merely because they are opened.
 
 ### Actions
 
+- Save Draft;
 - Add Medicine;
 - Remove unfinalized row;
 - Finalize Prescription.
 
 ### Quantity
 
-Auto-calculate only when deterministic; otherwise require Doctor entry.
+- deterministic -> system-calculated/displayed from current prescribing inputs and configured unit;
+- non-deterministic -> Doctor quantity required.
 
-### Safety
+Finalization requires every row's quantity to be resolved.
+
+### Finalize validation
+
+Before finalization:
+
+- at least one complete medicine row;
+- required row fields complete;
+- quantity resolved;
+- current Visit still active/allowed;
+- current draft baseline still current;
+- refresh availability.
+
+### Outcome
+
+Finalization freezes the prescription version.
+
+- If Visit is With Doctor -> Visit remains With Doctor.
+- If Visit is Consultation Completed -> Visit becomes Sent to Pharmacy.
 
 Unavailable medicine remains prescribable.
+
+### Stale/cancellation safety
+
+Effective cancellation or a newer finalized/replacement version blocks stale finalization.
 
 ---
 
@@ -821,43 +1191,115 @@ Unavailable medicine remains prescribable.
 
 ### Purpose
 
-Review the exact finalized output before printing/reprinting.
+Review and render an exact Finalized prescription version without turning printing into prescription editing or new workflow state.
 
-### Content
+### Default selection
 
-- patient/Visit;
-- medicines/instructions;
-- ** marker for Out of Stock/Not Stocked at finalization;
-- explanatory legend;
-- finalization status/version.
+Open the latest current Finalized version by default.
 
-### Actions
+Older Superseded versions are available only through explicit historical/version selection and are never the silent normal print target.
 
+### Prescription/version context
+
+Show:
+
+- Patient ID / Visit ID / Visit state;
+- Doctor;
+- selected prescription version/status;
+- original finalization time;
+- generated/reprint time separately where shown;
+- prescribed medicine/instructions/quantity;
+- stored finalization-time availability result and ** marker.
+
+### Actions for current Finalized version
+
+- Preview A4;
 - Print A4;
 - Reprint;
-- Create Replacement if correction is needed.
+- Create Replacement only while Visit state still allows active correction.
 
-### Restricted
+Preview/print/reprint are read-only rendering actions.
 
-No Edit Finalized Prescription action.
+### Historical print behavior
+
+For Superseded version or closed Visit context such as Completed or Cancelled/Voided:
+
+- require explicit historical selection;
+- show prominent **Historical Copy** / relevant workflow-status banner in preview/output;
+- do not present it as the active clinic-pharmacy dispensing source.
+
+The banner communicates CRM workflow status and does not invent an external medical/legal invalidity rule.
+
+### Snapshot rules
+
+Print/reprint uses:
+
+- selected Finalized version content;
+- selected version's stored finalization-time clinic-wide availability snapshot.
+
+Do not:
+
+- recalculate ** marker from current stock;
+- rewrite prescription after partial dispensing/substitution;
+- create a new version from Reprint;
+- change Visit state or dispensing allowance.
+
+### Template behavior
+
+Current configured A4 visual template/header/footer may be used for rendering an older version.
+
+Historical source facts/snapshots remain unchanged.
+
+V1 does not require byte-identical retention of every earlier rendered PDF/template version.
+
+### Output error
+
+If preview/print/PDF generation fails or result is uncertain:
+
+- source prescription/Visit state stays unchanged;
+- preserve selected version;
+- offer rendering retry.
 
 ---
 
+
+
 ## DOC-06 — Clinical Amendment
 
-**Users:** Doctor  
+**Users:** authorized Doctor  
 **Source:** P-053
+
+### Eligibility
+
+A completed consultation record must exist.
+
+Visit may now be Consultation Completed, later Completed, or Cancelled/Voided; amendment corrects historical clinical content and never reopens active workflow.
+
+Do not offer this completed-consultation amendment flow for an unfinished draft preserved from cancellation before completion.
 
 ### Content
 
-- current effective clinical record;
-- original/historical revision reference;
-- amendment fields;
-- mandatory amendment reason.
+- Patient ID + Visit ID;
+- Visit current/historical state;
+- current effective clinical revision;
+- prior revision chain;
+- editable copy of current effective clinical fields;
+- mandatory specific amendment reason.
+
+### Action
+
+**Create Amendment**
+
+Before apply:
+- confirm same current effective revision is still latest;
+- if another amendment became effective, block stale submission and refresh.
 
 ### Outcome
 
-Create new effective revision and retain old content.
+- create a new effective revision;
+- preserve every prior revision read-only;
+- record Doctor/time/reason;
+- keep Visit/queue/payment/cancellation state unchanged.
 
 ---
 
@@ -866,20 +1308,59 @@ Create new effective revision and retain old content.
 **Users:** Doctor  
 **Source:** P-061–P-062
 
+### Eligibility
+
+Visit remains active in:
+
+- With Doctor;
+- Consultation Completed;
+- Sent to Pharmacy.
+
+Do not offer a new active replacement after Completed or Cancelled/Voided.
+
 ### Content
 
-- current finalized prescription;
-- any prior dispensing quantity;
-- replacement prescription editor;
-- mandatory correction reason.
+- Patient ID / Visit ID / current Visit state;
+- current active Finalized prescription/version;
+- any prior dispensing quantity/history known against the prescription lineage;
+- editable replacement copy;
+- current availability while editing;
+- mandatory specific correction reason.
 
 ### Warning
 
-Clearly state that prior dispensing history will remain and cannot be erased.
+Clearly state:
+
+- prior dispensing, stock deduction, and billing history remain;
+- replacement does not reverse previously supplied medicine;
+- Pharmacy will use the new current prescription for subsequent dispensing.
+
+### Final action
+
+**Finalize Replacement**
+
+Before apply:
+- current active prescription version must still match the loaded baseline;
+- Visit must still be active/not cancelled;
+- required rows/quantities must be complete;
+- refresh availability for the replacement's own finalization snapshot.
 
 ### Outcome
 
-Old prescription -> Superseded. New prescription -> active.
+Atomically:
+
+- previous active prescription -> Superseded;
+- replacement -> Finalized/current;
+- link versions and record Doctor/reason/time;
+- preserve all prior dispensing.
+
+If Visit is Consultation Completed -> Sent to Pharmacy.
+If Visit is Sent to Pharmacy -> remains Sent to Pharmacy.
+If Visit is With Doctor -> remains With Doctor.
+
+### Stale safety
+
+If another replacement became current or cancellation became effective, block submit and refresh.
 
 ---
 
@@ -890,43 +1371,81 @@ Old prescription -> Superseded. New prescription -> active.
 
 ### Content
 
-- patient/Visit;
-- prescribing Doctor context;
-- original medicine;
+- Patient ID / Visit ID;
+- current Visit state;
+- current prescription version/item;
+- original medicine/instructions;
+- original remaining fulfilment;
 - proposed substitute;
+- proposed substitute quantity;
 - pharmacist/requester;
 - request reason;
-- relevant availability information.
+- relevant availability information;
+- request status.
 
 ### Actions
 
-- Approve;
+- Approve exact proposal;
 - Reject.
+
+### Decision validation
+
+Before decision revalidate:
+
+- Visit still active/Sent to Pharmacy;
+- prescription version/item still current;
+- requested quantity still applicable.
+
+If proposal uses a strength/form/unit that is not safely comparable, Doctor must explicitly confirm the quantity/instruction; Pharmacist cannot infer conversion.
 
 ### Acceptance
 
 No substitute may be dispensed before approval.
 
+A stale request cannot be approved against a newer prescription or changed remaining quantity.
+
 ---
 
 ## DOC-09 — Visit Cancellation Request
 
-**Users:** Doctor  
+**Users:** Doctor with authorized Visit access  
 **Source:** P-046–P-047
+
+### Eligibility
+
+Request action is available only while current Visit state is:
+
+- Waiting;
+- Called;
+- Unresponded if still current;
+- With Doctor;
+- Consultation Completed;
+- Sent to Pharmacy.
+
+Completed and Cancelled/Voided do not offer it.
+
+Only one actionable Pending cancellation request may exist per Visit.
 
 ### Content
 
-- Visit state;
-- existing clinical/prescription/dispensing/payment-history warning;
-- mandatory specific reason.
+- current Visit state;
+- current Doctor/Visit identity;
+- existing clinical/prescription/dispensing/payment-history impact warning;
+- mandatory specific reason;
+- existing Pending request status if one exists.
 
 ### Action
 
-Submit to Owner.
+**Submit Cancellation Request** to Owner.
 
-### Safety
+### After submission
 
-Completed Visit does not offer this flow.
+- Visit remains active/current state unchanged;
+- Pending Cancellation indicator is visible;
+- active workflow may continue while decision is pending;
+- duplicate Pending request is unavailable.
+
+If the Visit reaches Completed before Owner decision, request becomes stale/non-actionable rather than cancelling Completed.
 
 ---
 
@@ -941,14 +1460,20 @@ Completed Visit does not offer this flow.
 
 - active pharmacy unit;
 - Patient ID lookup;
-- pending dispensing work;
+- pharmacy-ready Visits / pending dispensing work;
 - pending substitution requests;
 - low-stock/near-expiry alerts;
 - My Requests status.
 
+### Pending dispensing
+
+Only Visits currently Sent to Pharmacy with a current Finalized prescription appear as active dispensing work.
+
+A finalized prescription still attached to With Doctor is not shown as pharmacy-ready work.
+
 ### Acceptance
 
-In a multi-pharmacy clinic, unit context is always visible.
+In a multi-pharmacy clinic, unit context is always visible and no dispensing action silently crosses unit context.
 
 ---
 
@@ -963,11 +1488,38 @@ Patient ID.
 
 ### Results
 
-Show relevant current finalized prescription/Visit.
+Show clearly separated Visit/prescription results with:
 
-### Restricted
+- Visit ID;
+- Visit date/state;
+- prescription version/status;
+- current vs historical indicator;
+- Doctor where useful.
 
-No general diagnosis/full clinical-note access.
+Current pharmacy-ready result is prioritized but never silently selected when more than one relevant result exists.
+
+### Dispense eligibility
+
+**Open Dispensing** is available only when:
+
+- Visit = Sent to Pharmacy;
+- prescription = latest current Finalized version.
+
+A current Finalized prescription while Visit is With Doctor may be visible only where permitted as context, but is not dispensable.
+
+Superseded/previous prescriptions open read-only.
+
+### Clinical boundary
+
+Visible:
+- current/previous prescriptions;
+- known allergies;
+- dispensing instructions.
+
+Restricted:
+- general diagnosis/assessment;
+- full consultation notes;
+- unrestricted Doctor longitudinal history.
 
 ---
 
@@ -976,67 +1528,208 @@ No general diagnosis/full clinical-note access.
 **Users:** Pharmacist  
 **Source:** P-067–P-076
 
+### Entry gate
+
+Require:
+
+- Visit currently Sent to Pharmacy;
+- latest current Finalized prescription;
+- active permitted pharmacy unit.
+
+If Visit/prescription state changes after load, switch to stale/read-only feedback and block dispense until refreshed.
+
 ### Patient header
 
 - patient name;
 - Patient ID;
-- Visit ID;
-- allergies;
-- current prescription identity/version.
+- Visit ID / Visit state;
+- known allergies;
+- current prescription identity/version;
+- active pharmacy unit;
+- Superseded/replacement warning when lineage exists.
 
 ### Medicine table
 
-Per item:
+Per current active item lineage:
 
 - prescribed medicine;
-- prescribed quantity;
-- previously dispensed quantity;
+- current prescribed quantity;
+- cumulative previously dispensed quantity across versions/units for that lineage;
 - remaining allowable quantity;
-- current pharmacy-unit availability;
+- current pharmacy-unit valid availability;
 - quantity to dispense;
-- unsupplied remainder;
-- selling price/billing context.
+- resulting unsupplied remainder;
+- selling price/billing context;
+- approved substitution context where applicable.
+
+If historical dispensed quantity exceeds a reduced corrected prescribed quantity, show remaining = 0 plus a clear historical-overage warning; do not reverse prior dispensing.
 
 ### Actions
 
 - Dispense;
 - Request Substitution;
-- Continue to Bill.
+- Continue to Bill for committed quantities already supplied by this unit that are not yet assigned to a bill.
+
+### Final Dispense confirmation
+
+Before commit, revalidate:
+
+- Visit still Sent to Pharmacy;
+- prescription version still current;
+- item/remaining quantity still current;
+- active unit unchanged;
+- stock still valid/non-expired and sufficient.
+
+On success, dispensing + unit stock deduction are one effective operation.
 
 ### Validation
 
-- cannot exceed remaining prescribed quantity;
-- expired stock cannot be selected for dispensing;
-- stock cannot go below available quantity;
-- actual dispensed quantity drives stock deduction.
+- quantity > 0;
+- cannot exceed remaining allowable;
+- cannot exceed valid unit stock;
+- expired stock cannot be selected;
+- Superseded version cannot dispense;
+- actual supplied quantity drives stock deduction.
+
+### Unit switch
+
+If unsaved quantities exist and user switches pharmacy unit, require explicit discard/review. Never carry entered quantities silently into another unit.
+
+### Cancellation/replacement
+
+Effective Visit cancellation or prescription replacement invalidates the old active dispense form before commit.
 
 ---
 
 ## PHA-04 — Pharmacy Bill and Payment
 
 **Users:** Pharmacist  
-**Source:** P-077–P-080
+**Source:** P-077–P-080 plus G9 Visit-completion/payment-correction rules
 
-### Content
+### Entry/context
 
-- only supplied items;
-- quantities;
-- prices;
+Show explicitly:
+
+- Patient ID / Visit ID / current Visit state;
+- active pharmacy unit;
+- latest relevant prescription/version context;
+- supplied-but-not-yet-billed dispensing records for this unit;
+- existing bills for this Visit/unit;
+- Visit-level fulfilment summary across pharmacy units.
+
+### Bill creation
+
+**Create Bill** is explicit and uses only eligible committed dispensing from the active unit.
+
+Before creation show:
+
+- medicine;
+- actual supplied quantity;
+- price basis/unit price;
+- configured tax/amount fields where applicable;
+- calculated total;
+- source dispensing references.
+
+On success:
+
+- bill starts Unpaid;
+- bill snapshot is frozen;
+- source dispensing is no longer eligible for another active/non-voided bill lineage.
+
+Do not silently recalculate an existing bill after price/configuration or prescription changes.
+
+### Existing bill content
+
+- pharmacy unit;
+- bill status: Unpaid / Paid / Cancelled-Voided where historical;
+- immutable bill lines and quantities;
 - total;
-- payment state;
-- payment method;
-- optional reference.
+- payment method and optional reference when recorded;
+- source dispensing linkage;
+- void/correction request status where applicable.
 
-### Actions
+### Payment actions
 
-- Record Paid;
-- leave Unpaid;
-- print configured A4 summary if needed;
-- Request Void after creation.
+- select UPI / Cash / Card / Other;
+- require Other description when applicable;
+- optional reference;
+- explicit **Mark Paid** only after external full-payment success;
+- **Request Payment Correction** for an incorrect established payment record.
+
+Payment correction captures current payment baseline, proposed payment fields, and mandatory reason. It never edits bill lines/total.
+
+### Visit-level pharmacy completion
+
+Show a distinct **Finish Clinic Pharmacy Fulfilment** action only while Visit = Sent to Pharmacy.
+
+Before enabling/confirming it, revalidate clinic-wide Visit fulfilment:
+
+- no committed dispensing remains unbilled;
+- intended clinic dispensing is finished;
+- remaining quantity is explicitly unsupplied/outside with no reservation/back-order;
+- all participating units' committed dispensing is billed;
+- no actionable substitution request still represents intended clinic fulfilment.
+
+Payment state is informational and does not gate this completion action.
+
+On success: Sent to Pharmacy -> Completed.
+
+One unit's bill/payment cannot complete a Visit while another unit still has committed unbilled dispensing.
+
+### After Visit completion/cancellation
+
+- no new dispensing;
+- no new bill creation;
+- existing bills remain reachable for permitted Mark Paid, payment-correction request, and void administration;
+- those actions do not reopen the Visit.
+
+### A4 bill / dispensing output
+
+Available from authorized Pharmacy context.
+
+Preview/print uses the active pharmacy unit explicitly.
+
+For a selected bill show/render:
+
+- Bill ID;
+- Patient ID / Visit ID;
+- pharmacy unit;
+- frozen actual supplied bill lines/quantities;
+- frozen price/tax/amount basis and total;
+- source-dispensing references;
+- current bill status;
+- current effective recorded payment context where applicable.
+
+Do not recalculate frozen bill facts from current price, stock, prescription replacement or later configuration.
+
+If bill is Cancelled/Voided:
+
+- preview/output shows prominent historical/voided status;
+- it must not look like a new active payable bill;
+- Paid context may remain visible where V1 recorded payment but no refund occurred.
+
+Dispensing-summary section shows, where applicable:
+
+- actual supplied medicine/quantity;
+- approved substitute actually supplied, with original prescribed item only as lineage/context;
+- unsupplied remainder separately and never as supplied/billed quantity;
+- pharmacy-unit attribution.
+
+If fulfilment is still open, label summary **In Progress** and show generation time.
+
+Preview/print/reprint creates no new dispensing, bill, payment, stock movement or Visit transition.
+
+### Other actions
+
+- Preview / Print A4;
+- Request Void for an existing non-voided bill.
 
 ### Restricted
 
-No partial payment and no refund action.
+- no partial payment;
+- no refund action;
+- no in-place edit of established bill lines/total;
+- no silent re-billing of a voided bill's source dispensing.
 
 ---
 
@@ -1047,15 +1740,28 @@ No partial payment and no refund action.
 
 ### Content
 
-- bill;
-- payment state;
-- dispensing summary;
+- Patient / Visit / bill identity;
+- pharmacy unit;
+- current bill state;
+- **current** payment state;
+- dispensing/source summary;
 - warning that bill void does not restore stock;
-- mandatory specific reason.
+- warning that Paid bill void does not create a refund;
+- mandatory specific reason;
+- current Pending request status if one exists.
+
+### Submission rules
+
+- one actionable Pending void request per bill;
+- Pending request does not change bill/payment state;
+- bill may become Paid while request is Pending because it remains active;
+- duplicate submit while Pending is blocked.
 
 ### Outcome
 
-Pending Owner approval. Bill remains active until approved.
+Pending Owner approval. Bill remains active until Owner approval makes the void effective.
+
+If Visit is already Completed or Cancelled/Voided, an existing bill may still be administered through this request without reopening the Visit.
 
 ---
 
@@ -1064,18 +1770,44 @@ Pending Owner approval. Bill remains active until approved.
 **Users:** Pharmacist  
 **Source:** P-072
 
+### Eligibility
+
+Current Visit remains Sent to Pharmacy and current prescription/item lineage remains active.
+
 ### Content
 
-- original prescribed medicine;
-- proposed substitute;
-- availability;
-- request reason.
+- Patient ID / Visit ID;
+- current prescription version;
+- original prescription item/lineage;
+- current remaining allowable quantity;
+- proposed substitute medicine;
+- proposed substitute quantity;
+- relevant availability;
+- mandatory request reason.
 
 ### Outcome
 
 Pending Doctor approval.
 
 The proposed substitute remains non-dispensable until approved.
+
+### After decision
+
+**Approved**
+- exact approved substitute/quantity becomes dispensable only while the request/prescription/Visit remains current;
+- dispense records approval reference;
+- supplied substitute consumes the original item's fulfilment allowance.
+
+**Rejected**
+- no substitute dispensing.
+
+**Stale**
+- prescription superseded;
+- Visit cancelled;
+- remaining quantity changed such that proposal no longer fits;
+- other state invalidates request.
+
+Pharmacist cannot infer an unapproved strength/form/quantity conversion.
 
 ---
 
@@ -1084,19 +1816,25 @@ The proposed substitute remains non-dispensable until approved.
 **Users:** Pharmacist within permitted pharmacy scope; Owner; authorized Admin  
 **Source:** P-085–P-091
 
+### Context
+
+Always show active pharmacy unit for unit-scoped views.
+
 ### Content
 
-- active pharmacy unit;
 - medicine;
-- current available stock;
+- current valid available stock;
+- recorded stock context including expired/unavailable quantity where applicable;
 - base/package-unit representation;
 - low-stock state;
 - nearest expiry;
-- Out of Stock state.
+- Out of Stock state;
+- unit/batch drill-down;
+- recent movement cue.
 
 ### Filters
 
-- search medicine;
+- medicine search;
 - low stock;
 - out of stock;
 - near expiry;
@@ -1108,7 +1846,11 @@ The proposed substitute remains non-dispensable until approved.
 - Request Inventory Change;
 - Request Transfer.
 
+### Restricted
+
 No direct unapproved manual quantity edit.
+
+Expired quantity may be inspected but is never offered as valid dispensing availability.
 
 ---
 
@@ -1120,21 +1862,34 @@ No direct unapproved manual quantity edit.
 ### Content
 
 - medicine identity;
-- base unit and package conversions;
-- batches;
-- expiry;
+- active pharmacy unit;
+- base unit and configured package conversions;
+- per-batch/lot recorded quantity;
+- valid available quantity;
+- expiry/unavailable state;
 - manufacturer;
 - purchase/selling price;
-- current quantities;
-- recent stock movements.
+- low-stock / near-expiry context;
+- movement history.
+
+### Movement row
+
+Where applicable show:
+
+- time;
+- movement category;
+- batch/lot;
+- entered quantity/unit;
+- normalized base-unit delta;
+- before -> after;
+- source reference;
+- actor/effective authority.
 
 ### Actions
 
-Role-dependent:
-
-- Pharmacist -> submit change request;
-- Owner -> review control history / enter Owner-authorized actions where applicable;
-- Admin -> permitted configuration only.
+- Pharmacist -> submit change request / transfer request;
+- Owner -> review control history or perform direct Owner-authorized adjustment;
+- Admin -> permitted configuration only, never operational stock approval merely by Admin role.
 
 ---
 
@@ -1145,23 +1900,48 @@ Role-dependent:
 
 ### Request categories
 
+Quantity-changing:
 - stock addition;
 - damage;
 - loss;
-- correction;
-- permitted price change;
-- expired-stock disposition/adjustment where appropriate.
+- expired-stock disposition;
+- quantity correction.
 
-### Required fields
+Non-quantity:
+- permitted purchase/selling-price change.
 
-- medicine/batch where relevant;
-- proposed change;
-- quantity or price value;
-- mandatory reason.
+### Quantity-request content
 
-### Outcome
+- active pharmacy unit;
+- medicine;
+- batch/lot where relevant;
+- current captured stock baseline;
+- entered quantity and unit;
+- visible package -> base conversion;
+- normalized base-unit delta/result;
+- mandatory specific reason.
 
-Pending Owner approval. Stock does not change while pending.
+For count correction, user may enter the intended counted/resulting quantity; show the derived delta explicitly.
+
+### Price-request content
+
+- current captured price/value;
+- proposed price/value;
+- mandatory specific reason.
+
+Do not present a price change as a stock movement.
+
+### Submission result
+
+Pending Owner approval.
+
+While Pending:
+- stock/price does not change;
+- stock is not reserved;
+- request shows captured baseline;
+- ordinary valid movements may continue.
+
+Duplicate final submit is disabled while request submission is pending. Unknown result is checked before another request attempt.
 
 ---
 
@@ -1172,21 +1952,34 @@ Pending Owner approval. Stock does not change while pending.
 
 ### Required fields
 
-- source pharmacy;
-- destination pharmacy;
-- medicine/batch where relevant;
-- quantity;
-- mandatory reason.
+- source pharmacy unit;
+- destination pharmacy unit;
+- medicine;
+- batch/lot where relevant;
+- entered quantity/unit;
+- visible normalized base-unit quantity;
+- captured current transferable source quantity;
+- mandatory specific reason.
 
 ### Validation
 
-- source and destination must differ;
-- requested quantity cannot exceed transferable source availability;
-- request itself does not alter stock.
+- source and destination differ;
+- quantity > 0;
+- requested amount cannot exceed current valid transferable source quantity at submission;
+- expired/unavailable quantity is not transferable as valid stock through this normal transfer flow.
 
-### Outcome
+### Pending behavior
 
-Pending Owner approval.
+Request creates no stock movement and no reservation.
+
+Because source stock remains live, Owner approval must revalidate transferable source quantity.
+
+### Result
+
+- Owner approval -> linked source decrease + destination increase under one transfer reference;
+- rejection/stale request -> neither side changes;
+- no partial transfer approval;
+- transferred physical batch identity/expiry/manufacturer context is preserved.
 
 ---
 
@@ -1221,37 +2014,62 @@ Do not expose unrestricted diagnosis/clinical notes unless the account enters Do
 **Users:** Owner  
 **Source:** P-094
 
-### Approval types
+### Purpose
+
+One Owner inbox for current Owner-controlled requests; request types keep their own valid lifecycle/action.
+
+### Included request types
 
 - consultation waiver;
 - consultation/Visit cancellation;
 - pharmacy bill void;
 - payment correction;
-- inventory adjustment;
+- inventory adjustment / controlled price change;
 - stock transfer;
-- staff password reset request.
+- staff password reset.
 
-### List item
+### Pending-first list item
 
-- type;
+- request type;
+- request ID;
 - requester;
+- requester effective authority/workspace where material;
 - affected entity;
-- specific reason summary;
+- reason summary where applicable;
 - requested time;
-- current status.
+- current request state;
+- concise stale/current warning where known.
 
-### Filters
+### Filters/history outcomes
 
 - Pending;
 - Approved;
 - Rejected;
+- Resolved;
+- Stale / Non-actionable;
 - request type;
 - requester;
 - date.
 
-### Primary action
+### Primary actions
 
-Open Approval Detail.
+- Open Approval Detail;
+- **Direct Consultation Waiver** shortcut for eligible Unpaid Visit.
+
+Direct Consultation Waiver:
+
+- identifies Patient/Visit;
+- shows current Unpaid amount;
+- requires specific reason;
+- explicitly confirms consequence;
+- immediately records Waived under Owner authority;
+- creates no Pending self-approval request.
+
+Direct Owner Inventory Adjustment remains on OWN-04 rather than being represented as a fake Approval Center request.
+
+### Acceptance
+
+Row selection never executes the decision. Protected details/actions remain inside Owner workspace.
 
 ---
 
@@ -1260,30 +2078,96 @@ Open Approval Detail.
 **Users:** Owner  
 **Source:** P-094–P-096
 
-### Common layout
+### Common context
 
-1. request type;
-2. requester;
-3. affected record;
-4. current state;
-5. proposed change/action;
-6. exact reason;
-7. risk/impact context;
-8. Approve / Reject.
+1. request type and request ID;
+2. requester human identity;
+3. requester effective authority/workspace where material;
+4. affected record;
+5. captured/request-time baseline;
+6. **current** effective target state;
+7. proposed change/action;
+8. exact source reason where required;
+9. risk/impact context;
+10. request state and created time.
+
+### Action area
+
+Render only lifecycle-valid action:
+
+- standard Owner decision request -> Approve / Reject;
+- staff password reset -> link/route to **Set Temporary Credential** action;
+- stale/resolved/non-actionable -> read-only, no final action.
+
+All final actions revalidate current request + target state before application.
 
 ### Type-specific context
 
-**Waiver:** amount, payment state, Visit.  
-**Visit cancellation:** current Visit state and existing clinical/financial/dispensing history.  
-**Bill void:** bill/payment and explicit “stock will not be restored” warning.  
-**Payment correction:** original vs proposed payment state.  
-**Inventory adjustment:** stock before, proposed delta, projected stock after.  
-**Transfer:** source, destination, quantity.  
-**Password reset:** staff identity, account status.
+**Waiver**
+- fee/current payment outcome and queue consequence;
+- one Pending per eligible Unpaid Visit;
+- Paid/Waived makes old request stale;
+- rejection leaves Unpaid.
 
-### Acceptance
+**Visit cancellation**
+- current Visit state and active workflow stage;
+- existence/status of prior clinical/prescription/dispensing/financial history without leaking unrestricted clinical content;
+- Pending does not freeze workflow;
+- Completed-before-decision -> stale;
+- approval preserves history and creates no refund.
 
-Owner cannot approve an already-resolved request as if it were still Pending.
+**Bill void**
+- bill/unit/source context;
+- latest payment state, not only request-time state;
+- explicit no-refund warning when Paid;
+- explicit stock-will-not-be-restored warning;
+- Pending bill remains active/payable.
+
+**Payment correction**
+- captured payment baseline;
+- current effective payment record;
+- proposed record;
+- original/history context;
+- explicit correction-not-refund language;
+- changed baseline -> stale/block;
+- Pharmacy bill lines/total not editable here.
+
+**Inventory adjustment / price change**
+- category/reason;
+- unit/medicine/batch;
+- entered/base quantity where applicable;
+- captured baseline;
+- current stock/value;
+- proposed delta/result or current->proposed price;
+- stale/negative application blocked.
+
+**Transfer**
+- source/destination;
+- medicine/batch;
+- requested normalized quantity;
+- captured/current source availability;
+- linked transfer consequence;
+- insufficient current source -> stale/block, no partial approval.
+
+**Password reset**
+- staff identity and current role(s);
+- current enabled/disabled state;
+- request time/state;
+- no Approve/Reject control here;
+- Set Temporary Credential is the valid Owner resolution action in OWN-09;
+- if target is no longer eligible non-Owner staff, request is non-actionable.
+
+### After action
+
+On success show resulting effective state and keep request read-only in history.
+
+Rejected request clearly states the requested business change did not take effect where applicable.
+
+Unknown final outcome triggers current-state refresh before another final action.
+
+### Clinical boundary
+
+Owner-only authority sees only operational decision context. Full diagnosis/clinical notes require Doctor authority outside this Owner approval screen.
 
 ---
 
@@ -1294,134 +2178,379 @@ Owner cannot approve an already-resolved request as if it were still Pending.
 
 ### Views
 
-- clinic consolidated;
-- pharmacy-unit view;
-- stock movement history;
-- damage/loss/correction history;
-- pending inventory approvals;
+- clinic consolidated stock;
+- pharmacy-unit stock;
+- medicine/batch drill-down;
+- current valid available versus expired/unavailable recorded quantity;
+- package/base-unit representation;
+- immutable movement history;
+- normal dispensing movements;
+- additions;
+- damage/loss/corrections;
+- expiry disposition;
+- pending/resolved inventory approvals;
 - transfers;
-- expiry risk.
-
-### Acceptance
+- low-stock/expiry risk.
 
 Consolidated totals never replace unit-level attribution.
+
+### Movement history
+
+Show, as applicable:
+
+- unit;
+- medicine/batch;
+- category;
+- entered/unit quantity;
+- normalized base delta;
+- before/after;
+- source/request/transfer reference;
+- actor/effective authority;
+- reason;
+- time.
+
+### Direct Owner adjustment
+
+Owner may initiate direct adjustment without self-approval.
+
+Require:
+- category;
+- unit/medicine/batch context;
+- current state;
+- entered/base effect;
+- mandatory reason;
+- projected result;
+- explicit consequence confirmation.
+
+A direct action becomes an attributed movement immediately only after final current-state validation. It cannot create negative stock.
+
+### Alerts/drill-down
+
+Owner can move from low-stock/near-expiry/expired summaries to the exact unit/batch context.
 
 ---
 
 ## OWN-05 — Financial Status Overview
 
-**Users:** Owner  
+**Users:** Owner
 **Source:** P-102
 
-### Content
+### Purpose
 
-- consultation revenue;
-- pharmacy revenue;
-- total recorded revenue;
-- payment method breakdown where data exists;
+Show CRM-recorded financial status; never present the totals as bank-settlement verification.
+
+### Core cards
+
+- consultation recorded revenue;
+- pharmacy recorded revenue;
+- daily total recorded revenue;
+- current effective Paid count/value;
 - Waived count/value context;
 - cancellations/voids;
 - payment corrections.
 
-### Important language
+### Calculation context
 
-This is recorded financial status, not bank settlement verification.
+- use current effective payment records, not preserved superseded payment versions;
+- Waived/Unpaid are excluded from revenue;
+- paid consultation later Cancelled remains recorded revenue because V1 has no refund;
+- Paid pharmacy bill later Voided without refund remains recorded money received while void status is shown separately;
+- payment correction to Unpaid removes that record from effective Paid revenue;
+- existing pharmacy bill uses frozen bill total/unit attribution.
+
+### Filters
+
+- date/date range;
+- payment method;
+- pharmacy unit for pharmacy metrics where applicable.
+
+### Language
+
+Label financial totals as **Recorded revenue** / **CRM payment status**.
+
+Do not use language such as settled, bank-confirmed, deposited, or reconciled unless a future integration actually supplies that evidence.
 
 ---
 
 ## OWN-06 — Staff and Access Oversight
 
-**Users:** Owner  
+**Users:** Owner
 **Source:** P-097–P-100
 
 ### Content
 
 - staff accounts;
-- roles;
+- role(s);
+- Owner-protected state;
 - enabled/disabled state;
-- pending password reset requests;
-- recent role/account changes.
+- pending non-Owner password reset requests;
+- recent account/role changes;
+- Owner TOTP-setup-required state where relevant.
 
 ### Actions
 
-- create/disable permitted staff;
-- assign/revoke roles;
-- act on password reset;
-- Owner-level lifecycle control.
+- create/disable/re-enable permitted staff;
+- assign/revoke non-Owner roles;
+- Owner-authorized Owner-role lifecycle;
+- act on eligible non-Owner password reset;
+- inspect safe account/role history.
+
+### Safety
+
+- Owner-role grant requires Owner authority and TOTP enrollment/verification before new Owner capability is usable;
+- action cannot leave clinic with zero active Owners;
+- password reset does not enable account or alter roles;
+- historical account/action records are never hard-deleted.
 
 ---
 
 ## OWN-07 — Audit Activity
 
-**Users:** Owner  
-**Source:** P-107–P-110
+**Users:** Owner; authorized Administrator for permitted non-clinical audit scope  
+**Source:** P-107–P-112
+
+### Purpose
+
+Provide human-readable evidence of material business changes without making audit/history a second editing surface or a privilege bypass.
 
 ### Filters
 
-- date;
-- actor;
-- event type;
-- affected entity;
+- date/date range;
+- actor/human account;
+- effective role/workspace;
+- event/action type;
+- affected entity/type;
+- Patient/Visit/reference ID where permitted;
 - pharmacy unit;
-- approval type.
+- approval/request type;
+- outcome/state.
 
-### Event content
+Archived/disabled actors/entities remain available as historical filter dimensions.
 
-- actor;
-- time;
-- action;
-- affected entity;
-- reason where applicable;
-- prior/resulting state where applicable.
+### Event row
 
-### Clinical boundary
+Show safe summary:
 
-Audit metadata does not automatically reveal unrestricted clinical-note content.
+- event time;
+- actor/human;
+- effective role/workspace;
+- action/event type;
+- affected stable entity/reference;
+- resulting/current-or-historical outcome;
+- reason/category where safe and applicable.
+
+Historical state is visually distinct from current/effective state.
+
+### Event detail
+
+As authorized and applicable:
+
+- request/requester and decision/approver relationship;
+- prior/captured state or value;
+- resulting/effective state or value;
+- source/lineage reference such as prescription version, dispensing record, bill, movement or transfer reference;
+- direct Owner-action indicator when no request/approval pair exists;
+- current Archived/Disabled status of historical actor/entity where useful.
+
+### Current versus historical presentation
+
+Clearly label, as applicable:
+
+- Current / Effective;
+- Prior revision/value;
+- Superseded;
+- Cancelled / Voided;
+- Rejected;
+- Resolved;
+- Stale / Non-actionable;
+- Archived / Disabled.
+
+Historical rows are read-only and do not expose ordinary business-action controls.
+
+### Clinical-content boundary
+
+Audit may show that a clinical event occurred plus safe actor/time/type metadata.
+
+Owner/Admin audit does **not** automatically reveal:
+
+- diagnosis;
+- unrestricted consultation notes;
+- Doctor-only clinical field values;
+- protected clinical amendment content.
+
+A link to clinical source detail is available only when the current viewer separately holds the authority required for that clinical source.
+
+### Authentication-secret boundary
+
+Never show/store in normal audit UI:
+
+- passwords;
+- temporary/reset credential values;
+- TOTP secrets/codes;
+- recovery-code values.
+
+Safe metadata such as reset requested/resolved, TOTP enrolled, recovery code used, or recovery codes regenerated may be shown without secret values.
+
+### Source navigation
+
+Audit row/detail may link to the affected source only when the viewer's **current** authority permits that source.
+
+If not permitted:
+
+- retain safe event metadata;
+- omit/disable protected detail navigation;
+- do not render the protected record and merely hide controls afterward.
+
+### Actions
+
+Allowed:
+
+- filter/search;
+- inspect event detail;
+- follow authorized source reference;
+- copy safe stable reference where useful.
+
+Not allowed:
+
+- edit/delete audit event;
+- change source business state from the audit row itself;
+- use historical row as a stale executable action;
+- reveal protected source content through audit.
+
+### Loading/error/state behavior
+
+Support:
+
+- Loading;
+- No audit events for current filters;
+- Results;
+- Access restricted;
+- Source no longer active but history retained;
+- Error / Retry.
+
+Retrying audit read/filter does not mutate source records.
 
 ---
 
 ## OWN-08 — Reports
 
-**Users:** Owner  
+**Users:** Owner
 **Source:** P-102
 
 ### Report set
 
 - patients seen/day;
 - average waiting time;
-- consultation revenue;
-- pharmacy revenue;
-- total revenue;
+- consultation recorded revenue;
+- pharmacy recorded revenue;
+- daily total recorded revenue;
 - medicine sales;
 - current stock;
 - low/out-of-stock;
 - expiring medicines;
 - most prescribed;
 - waivers;
-- cancellations;
+- cancellations/voids;
 - returning patients;
 - audit activity.
 
-Exact chart style remains design implementation.
+### Shared filters
+
+Where the metric has that dimension:
+
+- date/date range;
+- pharmacy unit;
+- medicine;
+- staff/actor;
+- event/request outcome.
+
+Archived/disabled entities remain available for historical filtering and display a current Archived/Disabled indicator without losing stable identity.
+
+### Operational definitions
+
+**Patients seen**
+- one count at first Consultation Completed.
+
+**Average wait**
+- successful waiting journey's queue entry -> first With Doctor;
+- reassignment/Unresponded/move-to-end do not reset that journey;
+- actual removal + later re-entry creates a new segment.
+
+**Medicine sales**
+- actual committed dispensed quantity/value;
+- approved substitution is attributed to the actual substitute medicine supplied;
+- dispensing pharmacy-unit attribution remains available in unit drill-down/consolidation;
+- original prescribed medicine remains lineage/context for substituted supply rather than being counted as the sold medicine;
+- not prescribed/unsupplied/transfer/adjustment quantity.
+
+**Current stock**
+- current unit-ledger derived valid stock;
+- consolidated view drills into unit/batch;
+- expired/unavailable recorded quantity remains distinguishable.
+
+**Most prescribed**
+- canonical current final prescription version per Visit for the standard aggregate;
+- Superseded history remains historical detail.
+
+**Waivers/cancellations**
+- effective outcomes are separate from Pending/Rejected/Stale request activity.
+
+**Returning patients**
+- new Visit for Patient ID with an earlier Visit.
+
+### States
+
+- Loading;
+- No data for current filters;
+- Results;
+- Access denied/scope limited;
+- Error/retry.
+
+Do not render zero values before loading completes.
+
+Exact chart style/export format remains implementation choice.
 
 ---
 
 ## OWN-09 — Staff Password Reset
 
 **Users:** Owner  
-**Source:** P-011–P-013
+**Source:** P-011–P-013, P-094, AU-007–AU-009
 
 ### Content
 
 - staff identity;
-- role;
-- account status;
+- current role(s);
+- account enabled/disabled status;
 - request time;
-- reset action.
+- request state;
+- eligibility for non-Owner reset path;
+- **Set Temporary Credential** action only for a current eligible Pending request.
 
 ### Behavior
 
-Owner sets temporary/reset credential but never sees old password.
+- only one reset request for the eligible staff account is simultaneously actionable as Pending;
+- Owner sets/replaces temporary/reset credential but never sees/retrieves old password;
+- successful credential set -> request **Resolved**;
+- no generic Approve/Reject lifecycle is shown;
+- stale/resolved copy cannot perform reset again;
+- reset does not change assigned roles or enabled/disabled state;
+- disabled account remains disabled and UI says credential reset does not restore access;
+- if target now holds Owner authority or otherwise no longer qualifies for non-Owner reset flow, old request becomes non-actionable;
+- credential values never enter normal audit/history;
+- if final reset result is unknown, refresh account/request state before retry.
+
+### Audit
+
+Record safe metadata only:
+
+- requester account;
+- target account;
+- Owner actor/effective authority;
+- request/result state;
+- timestamps.
+
+Do not record old/new credential values.
 
 ---
 
@@ -1429,86 +2558,107 @@ Owner sets temporary/reset credential but never sees old password.
 
 ## ADM-01 — Administration Home
 
-**Users:** Administrator  
+**Users:** Administrator
 **Source:** P-097–P-101
 
 ### Content
 
-- staff account summary;
-- medicine/configuration shortcuts;
-- authorized operational notices.
+- non-Owner staff/account summary;
+- medicine/inventory configuration shortcuts within Admin permission;
+- safe configuration notices;
+- authorized operational/report/audit links.
 
-No Owner approval center.
+No Owner Approval Center and no Owner-only financial/operational controls.
 
 ---
 
 ## ADM-02 — Staff Accounts
 
-**Users:** Administrator; Owner  
+**Users:** Administrator; Owner
 **Source:** P-097–P-100
 
 ### Content
 
 - staff identity;
-- roles;
+- role(s);
 - enabled/disabled state;
-- last relevant account-status change.
+- protected Owner indicator where applicable;
+- last relevant account/role-status change.
 
 ### Admin actions
 
-- create non-Owner staff;
-- assign non-Owner roles;
-- disable/re-enable non-Owner staff.
+For non-Owner targets only:
+
+- create staff;
+- assign/revoke non-Owner roles;
+- disable/re-enable.
+
+### Owner actions
+
+Owner may additionally use Owner-authorized lifecycle controls according to P-099.
 
 ### Restricted
 
-Admin cannot grant/revoke Owner or disable Owner.
+Admin cannot grant/revoke Owner, disable Owner, or hard-delete historical staff.
+
+Role/account updates do not erase request/audit history.
 
 ---
 
 ## ADM-03 — Staff Account Create/Edit
 
-**Users:** Administrator within authority; Owner  
+**Users:** Administrator within authority; Owner
 **Source:** P-097–P-100
 
 ### Fields
 
 - staff identity;
 - login;
-- role(s);
+- non-Owner role(s);
 - enabled/disabled state.
 
-### Validation
+Owner-authorized Owner-role lifecycle is presented separately from normal Admin role edit.
 
-If acting user is Admin, Owner role is unavailable.
+### Validation/safety
 
-Historical staff is disabled, not deleted.
+- Admin never sees Owner role as assignable/revokable option;
+- do not allow normal deletion of historical account;
+- role removal warning states active workspace authority will stop when detected;
+- disable warning states protected use stops and re-enable later requires fresh sign-in;
+- password/reset credential is not edited implicitly by account-status change.
 
 ---
 
 ## ADM-04 — Medicine Catalogue
 
-**Users:** authorized Admin/Owner  
+**Users:** authorized Admin/Owner
 **Source:** P-101, P-055
 
 ### Content
 
-- display name;
+- current display name;
 - strength;
 - dosage form;
 - manufacturer;
 - optional generic/molecule;
-- inventory unit configuration.
+- inventory unit configuration;
+- active / archived state.
 
-### Purpose
+### Actions
 
-Maintain the clinic medicine identity used by Doctor and Pharmacy workflows.
+- create current catalogue item;
+- edit permitted current metadata;
+- archive/disable for future selection.
+
+### Safety
+
+If item has history, do not hard-delete or rewrite historical prescription/dispense/bill identity snapshots.
 
 ---
 
 ## ADM-05 — Inventory Configuration
 
-**Users:** authorized Admin/Owner  
+**Users:** authorized Admin/Owner
 **Source:** P-085–P-091, P-101
 
 ### Content
@@ -1517,30 +2667,67 @@ Maintain the clinic medicine identity used by Doctor and Pharmacy workflows.
 - package conversions;
 - low-stock threshold;
 - near-expiry threshold;
-- permitted medicine inventory metadata.
+- permitted non-operational medicine/inventory metadata.
 
-### Safety
+### Before save
 
-Configuration changes do not become unlogged manual stock movements.
+For conversion changes show:
+
+- current conversion;
+- proposed conversion;
+- future-use consequence;
+- explicit statement that base-unit stock and historical movements are unchanged.
+
+For threshold changes explain current alert classifications may refresh.
+
+### Restricted
+
+Configuration must not:
+
+- directly add/remove/correct stock;
+- approve inventory/transfer requests;
+- perform Direct Owner Adjustment;
+- silently rewrite historical movement quantities.
 
 ---
 
 ## ADM-06 — Clinic Configuration
 
-**Users:** authorized Owner/Admin according to permission boundary  
+**Users:** Owner; Administrator with non-financial permitted fields
 **Source:** P-028, P-101
 
-### Configuration
+### Non-financial Admin-permitted configuration
+
+- permitted clinic metadata;
+- optional A4 layout/configuration;
+- other explicitly allowed non-financial settings.
+
+### Owner-controlled financial configuration
 
 - consultation fee values;
 - doctor/service-specific fee values if used;
-- pharmacy units;
-- optional A4 output configuration;
-- applicable price/tax configuration where supplied.
+- pharmacy purchase/selling price values where applicable;
+- billing price/tax values where applicable.
+
+### Pharmacy-unit lifecycle
+
+Owner controls operational create/archive/disable where accountability is affected.
+
+A unit with history is archived/disabled, not deleted.
+
+Archived unit remains in historical drill-down but is unavailable for new dispensing/normal transfer source/destination.
+
+### Prospectivity warnings
+
+Consultation fee save:
+- existing Visit applied amounts stay unchanged.
+
+Pharmacy price/tax save:
+- existing created bills stay frozen.
 
 ### Important
 
-Configuration controls values; it does not redefine locked workflow behavior.
+Configuration controls future/current configured values; it never redefines locked workflow behavior or silently rewrites historical business records.
 
 ---
 
@@ -1578,14 +2765,20 @@ Superseded, amended, corrected, cancelled, and voided records remain viewable to
 
 Historical state should never be mistaken for a currently actionable state.
 
-## 11.4 Multi-role context
+## 11.4 Multi-role and workspace context
 
 When a user has multiple roles:
 
-- current workspace remains visible;
-- Owner-only action is performed in Owner authority context;
-- Doctor-only clinical action is performed in Doctor authority context;
-- audit history records the actual authority/action used.
+- the current workspace/authority remains visible;
+- one human identity is used across all permitted workspaces;
+- each browser tab/window retains its own explicit workspace context;
+- Owner-only actions are performed in Owner authority context;
+- Doctor-only clinical actions are performed in Doctor authority context;
+- equivalent separation applies to every other valid role combination;
+- workspace switching does not silently carry protected record context into the target workspace;
+- cross-workspace notifications may expose an attention count but not protected detail/action until the target authority context is entered;
+- audit history records the human actor and effective authority/workspace used;
+- the same human may perform separate workflow actions through different legitimately assigned roles, with each action separately attributed.
 
 ---
 
@@ -1706,6 +2899,44 @@ The screen model is not ready for design/implementation sign-off if:
 - Unpaid Visit can reach queue action;
 - finalized prescription exposes in-place edit;
 - bill void implies inventory restoration;
+- pharmacy bill can include prescribed-but-unsupplied quantity or silently cross pharmacy-unit context;
+- one dispensing quantity can be actively billed more than once;
+- Visit pharmacy completion is incorrectly gated on bill being Paid;
+- Completed/Cancelled Visit can create new dispensing or a new pharmacy bill;
+- Pharmacist can directly overwrite operational stock quantity outside controlled movement/request flow;
+- Pending inventory adjustment or transfer silently reserves/changes stock;
+- stale adjustment/transfer approval applies against changed stock without revalidation;
+- Approval Center renders generic Approve/Reject for staff password reset;
+- direct Owner waiver/inventory adjustment creates a fake self-approval request;
+- same-human multi-role request/decision is collapsed into one unattributed user event;
+- Owner approval detail exposes unrestricted clinical notes solely because user is Owner;
+- Admin can grant/revoke/disable Owner through normal staff controls;
+- newly granted Owner capability can be used before required TOTP gate;
+- password reset silently re-enables account or changes roles;
+- role revocation leaves an already-open protected workspace usable indefinitely;
+- Admin configuration directly changes physical stock or bypasses Owner financial configuration control;
+- fee/price/conversion/catalogue changes rewrite existing Visit/bill/prescription/movement history;
+- historical staff/medicine/pharmacy-unit records can be destructively deleted;
+- reports double-count superseded payment records after correction;
+- average-wait calculation resets on ordinary reassignment/Unresponded movement;
+- Paid+Voided pharmacy bill is silently treated as refund or silently treated as an active bill with no void context;
+- internal stock transfer is counted as medicine sale or clinic-wide stock gain;
+- archived staff/medicine/pharmacy-unit identity disappears from historical reporting;
+- report filters broaden data beyond the viewer's authorized scope;
+- audit/history loses effective role/workspace attribution for multi-role actions;
+- audit exposes passwords, reset credentials, TOTP/recovery-code values, or unrestricted clinical content;
+- historical audit row provides normal edit/delete/business-action controls;
+- audit source link bypasses current role permission;
+- stale authority remains usable solely because an audit/source page was already open;
+- prescription reprint recalculates ** from current stock or silently creates a new prescription version;
+- historical/Superseded/closed-Visit prescription copy looks like current active clinic-pharmacy output;
+- pharmacy A4 recalculates frozen bill lines/total from current price/configuration;
+- voided bill print looks like a new active payable bill;
+- pharmacy output hides actual substitute/unsupplied remainder or erases pharmacy-unit attribution;
+- print/preview failure repeats a dispensing/payment/billing/prescription business action;
+- approved transfer updates only source or only destination;
+- expired quantity disappears from inventory history merely because it became non-dispensable;
+- billing/payment/void/Visit lifecycle silently alters previously committed stock movement;
 - Admin can access Owner lifecycle controls;
 - Owner-only screen exposes unrestricted clinical content;
 - error/empty/pending states are undefined for a critical workflow.
