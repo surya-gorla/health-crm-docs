@@ -10,16 +10,33 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 
 ---
 
+## Lifecycle status — CLOSED HISTORICAL RECORD
+
+The G1–G15 refinement lifecycle is complete and this ledger is now a historical execution/provenance record.
+
+- substantive PRD refinement completed before this closure;
+- PR #2 was merged;
+- final validation and a second independent G1–G15 audit passed;
+- all refinement reminders are resolved;
+- post-baseline substantive PRD changes must use **Document 11 — PRD Change Control Ledger**;
+- implementation/engineering history belongs in Change Packages/engineering records rather than being appended to this closed group-refinement ledger.
+
+**Lifecycle metadata closure:** Agent 3, 2026-09-26.
+
+This closure does not alter any accepted V1 product behavior.
+
+---
+
 ## Global Refinement Status
 
 | Field | Current Value |
 | --- | --- |
-| Refinement PR | PR #2 — `docs: refine V1 PRD group by group` |
-| Working branch | `prd/refine-group-01-workspace-navigation` |
+| Refinement PR | PR #2 — MERGED — `docs: refine V1 PRD group by group` |
+| Working branch | Historical refinement branch `prd/refine-group-01-workspace-navigation` |
 | Source baseline | BRD v1.0 LOCKED on `main` |
-| Current PRD version | v0.17 DRAFT |
+| Current PRD version | v0.17 ACCEPTED — controlled amendment |
 | Current group | None — all 15 refinement groups complete |
-| Current stage | SECOND INDEPENDENT AUDIT COMPLETE — PASS / READY FOR REVIEW |
+| Current stage | CLOSED — second independent audit PASS; refinement merged |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15 |
 | In-progress groups | None |
 | Not started | None |
@@ -3639,3 +3656,16 @@ Every P requirement from **P-001 through P-116** is now explicitly referenced by
 - Refinement branch is ready to return to **Ready for review**.
 - Merge remains a separate human decision and is not performed by this closure.
 
+
+---
+
+## 2026-09-26 — Post-baseline lifecycle closure by Agent 3
+
+Agent 3 reconciled stale lifecycle metadata after the already-completed refinement and established the implementation-era governance boundary.
+
+- Document 09 is CLOSED as the historical G1–G15 refinement ledger.
+- Document 10 is CLOSED as the historical refinement reminder register.
+- Document 11 is the ACTIVE post-baseline PRD change-control ledger.
+- PRD v0.17 and companion Documents 06–08 are treated as the accepted current product baseline under controlled amendment.
+- No P requirement, acceptance outcome, screen contract, interaction behavior, BRD rule, reminder disposition or G1–G15 product decision was changed by this lifecycle closure.
+- Agent 1/2 historical attribution is not retroactively invented beyond evidence already preserved in the continuity handoff and Git history.
