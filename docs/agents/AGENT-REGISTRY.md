@@ -49,7 +49,7 @@ A Test/Evidence Runner produces evidence and a provisional verdict; it does not 
 | --- | --- | --- | --- | --- |
 | Agent 1 | RETIRED | Project start -> retirement before Agent 2 | Original clinic discovery; BRD creation/refinement/lock; PRD creation and early refinement methodology/work | `docs/AGENT-CONTINUITY-HANDOFF.md` Appendix A/B. Exact per-change attribution is used only where source evidence supports it. |
 | Agent 2 | RETIRED | Continuation -> 2026-09-26 | Restored live state; reconciled G13; completed G14/G15; final/global validation; second independent audit; acceptance reconciliation; PR #2 merge; documentation organization/continuity work | `docs/AGENT-CONTINUITY-HANDOFF.md` Appendix C and repository history. |
-| Agent 3 | ACTIVE | 2026-09-26 -> current | Engineering-transition governance: Guidelines v1.1; PRD controlled-amendment model; agent/test-evidence lineage; product-baseline lifecycle closure; IB-001 freeze; minimum engineering bootstrap/ADR-001–ADR-006 | Retirement handoff will be created only when Agent 3 retires. |
+| Agent 3 | ACTIVE | 2026-09-26 -> current | Engineering-transition governance: Guidelines v1.1; PRD controlled-amendment model; agent/test-evidence lineage; product-baseline lifecycle closure; IB-001 freeze; minimum engineering bootstrap/ADR-001–ADR-006; CP-001 planning/continuity | Retirement handoff will be created only when Agent 3 retires. |
 
 Do not retroactively invent finer Agent 1/2 attribution where the surviving source does not prove it.
 
