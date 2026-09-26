@@ -8,20 +8,32 @@ This file is the **primary documentation entry point** for humans and agents wor
 
 Before making changes, read the repository-level **[Guidelines.md](../Guidelines.md)**.
 
-It is the current living operating baseline for product continuity, engineering, implementation, validation, and release work. It does not override the locked BRD or validated PRD; it defines **how** humans and AI agents should work with those sources and how the process itself may evolve when evidence shows a better rule is needed.
+It is the current living operating baseline for product continuity, engineering, implementation, validation, and release work. It does not override the locked BRD or current accepted PRD baseline; it defines **how** humans and AI agents should work with those sources and how the process itself may evolve when evidence shows a better rule is needed.
 
-## Agent Continuity — replacement-agent entry point
+## Current continuity-agent lineage
 
-If you are entering this repository from a new ChatGPT/agent conversation, start with:
+See **[agents/AGENT-REGISTRY.md](agents/AGENT-REGISTRY.md)**.
 
-**[Open the Agent Continuity Handoff](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+- Agent 1 — RETIRED
+- Agent 2 — RETIRED
+- Agent 3 — ACTIVE
 
-The handoff is intentionally large because it preserves **source-level continuity rather than only a compressed summary**.
+Only the higher continuity owner receives the sequential Agent number. Specialist Test/Evidence Runners produce evidence under Test Evidence IDs and are not part of the numbered lineage.
 
-It contains both generations:
+## Historical Agent 1/2 continuity handoff
+
+For a new or replacement agent, use the **Agent Registry above first** to identify the current/latest numbered continuity agent and any retirement handoff.
+
+For inherited Agent 1/2 reasoning/provenance, open:
+
+**[Agent 1/2 Continuity Handoff](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+
+The historical handoff is intentionally large because it preserves **source-level continuity rather than only a compressed summary**.
+
+It contains both earlier generations:
 
 - **Agent One:** full retirement/replacement manual + full raw Hospital CRM conversation export;
-- **Agent Two:** exact available continuation-session directives, evidence labeling, repository-verified execution chronology, reconciliations, validation passes, merge, docs reorganization, and the current continuity state.
+- **Agent Two:** exact available continuation-session directives, evidence labeling, repository-verified execution chronology, reconciliations, validation passes, merge, docs reorganization, and Agent Two's retirement/continuation state at handoff.
 
 ### Complete stable anchor map
 
@@ -73,6 +85,8 @@ Use it to determine:
 docs/
 ├── README.md
 ├── AGENT-CONTINUITY-HANDOFF.md
+├── agents/
+│   └── AGENT-REGISTRY.md
 ├── BRD/
 │   ├── 01-business-requirements-document.md
 │   ├── 02-workflows-and-state-model.md
@@ -84,10 +98,11 @@ docs/
     ├── 07-information-architecture-and-screen-specification.md
     ├── 08-interaction-and-form-behavior-specification.md
     ├── 09-prd-refinement-state-ledger.md
-    └── 10-prd-future-review-reminders.md
+    ├── 10-prd-future-review-reminders.md
+    └── 11-prd-change-control-ledger.md
 ```
 
-The numeric prefixes remain intentionally global. Read `01` through `10` as one ordered documentation sequence, with the folder split clarifying whether each document belongs to the BRD or PRD layer.
+The numeric prefixes remain intentionally global. Read `01` through `11` as one ordered documentation sequence, with the folder split clarifying whether each document belongs to the BRD or PRD layer.
 
 ---
 
@@ -282,7 +297,7 @@ Use this when implementing **exact user interaction behavior**, especially when 
 
 ## [09 — PRD Refinement State Ledger](PRD/09-prd-refinement-state-ledger.md)
 
-**Role:** Persistent refinement execution history.
+**Role:** CLOSED historical refinement execution history.
 
 Contains:
 
@@ -302,7 +317,7 @@ Use it when you need to understand **how a product decision was reached, validat
 
 ## [10 — PRD Future Review Reminders](PRD/10-prd-future-review-reminders.md)
 
-**Role:** Cross-group dependency/reminder history.
+**Role:** CLOSED historical cross-group dependency/reminder history.
 
 Contains:
 
@@ -316,6 +331,23 @@ Contains:
 The completed refinement has **0 OPEN reminders**.
 
 Use it when auditing **cross-group dependencies and whether downstream review obligations were completed**.
+
+## [11 — PRD Change Control Ledger](PRD/11-prd-change-control-ledger.md)
+
+**Role:** ACTIVE post-baseline PRD controlled-amendment ledger.
+
+Use this for substantive product findings discovered after the accepted baseline, including:
+
+- PRD clarifications;
+- PRD corrections;
+- controlled product changes;
+- BRD/business-policy escalation where required;
+- Agent attribution;
+- Change Package/Test Evidence linkage;
+- validation/effective-commit provenance;
+- supersession/reversal history.
+
+Only an **EFFECTIVE** PRD-CHG modifies current accepted product truth.
 
 ---
 
@@ -390,8 +422,9 @@ Start with:
 10. **Revalidate current authority and state** before protected/state-changing actions where the product requires it.
 11. **Do not silently resolve stale conflicts** by overwriting, clipping, merging, or reinterpreting history.
 12. **Use acceptance criteria as verification**, not as permission to contradict BRD/PRD requirements.
-13. **Use the refinement ledger/reminders for provenance**, not as a substitute for reading the current governing requirement.
-14. If a genuine conflict is discovered, **reconcile it explicitly** and preserve the evidence/history of the correction.
+13. **Use Documents 09–10 as historical provenance**, not as active implementation/change-control ledgers.
+14. **Use Document 11 for substantive post-baseline PRD amendment.**
+15. If a genuine conflict is discovered, **reconcile it explicitly** and preserve the evidence/history of the correction.
 
 ---
 
@@ -409,7 +442,7 @@ The completed V1 PRD refinement has:
 - 0 unresolved cross-group conflicts at final validation;
 - a completed second independent G1–G15 revalidation.
 
-This index describes the current merged documentation baseline. Any future change should begin by identifying whether it is a BRD change, PRD refinement, configuration change, technical implementation decision, compliance decision, or future-scope proposal.
+This index describes the accepted V1 product baseline and its governance model. Any future change should first be classified as a BRD/business change, PRD controlled amendment, engineering-contract change, implementation defect, configuration/compliance dependency, Test/Evidence issue, or future-scope proposal.
 
 ---
 
@@ -424,4 +457,4 @@ If file paths change:
 - preserve document IDs, requirement IDs, reminder IDs, decision IDs, and substantive wording;
 - verify that all links resolve after the move.
 
-Business behavior changes require explicit BRD change control. Product-detail changes must remain compatible with the locked BRD and should be validated through the PRD acceptance/traceability layer.
+Business behavior changes require explicit BRD/business change control. Substantive post-baseline product changes use Document 11; only EFFECTIVE PRD-CHG records modify current accepted product truth. Documentation-only metadata/navigation/provenance work must not silently change validated product behavior.

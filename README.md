@@ -12,15 +12,27 @@ Before doing product, engineering, implementation, validation, or release work, 
 
 This is the project's **active living operating baseline** for humans and AI agents. It consolidates the proven BRD/PRD-era working rules, records how those rules changed for engineering/implementation, and defines how the guidelines themselves may be revised when project evidence shows that a rule is not working well.
 
-It is process authority, **not product authority**: the locked BRD and validated PRD remain the governing sources for what the product must do.
+It is process authority, **not product authority**: the locked BRD and current accepted PRD baseline remain the governing sources for what the product must do.
+
+## Agent lineage
+
+The compact continuity-agent registry is **[docs/agents/AGENT-REGISTRY.md](docs/agents/AGENT-REGISTRY.md)**.
+
+- Agent 1 — RETIRED
+- Agent 2 — RETIRED
+- Agent 3 — ACTIVE
+
+Only continuity-owning higher agents receive sequential Agent numbers. Specialist Test/Evidence Runners use Test Evidence IDs and do not consume the lineage.
 
 ## Agent continuity
 
-For a replacement agent or a brand-new chat continuing prior Hospital CRM work, start here:
+For a replacement agent or a brand-new chat continuing prior Hospital CRM work:
 
-**[Agent Continuity Handoff](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+1. read **[Guidelines.md](Guidelines.md)**;
+2. read the **[Agent Registry](docs/agents/AGENT-REGISTRY.md)** to identify the current/latest numbered continuity agent and retirement handoff;
+3. use the historical **[Agent 1/2 Continuity Handoff](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)** when inherited Agent 1/2 reasoning/provenance is needed.
 
-This handoff intentionally contains **both agent generations**:
+The historical handoff intentionally contains **both earlier agent generations**:
 
 - **Agent One (retired):** the user-supplied retirement/replacement manual plus the full raw Hospital CRM conversation export;
 - **Agent Two (continuation agent):** exact continuation-session user directives available in this chat, evidence labels/limits, repository-verified execution chronology, G13 reconciliation, G14/G15 completion, both validation passes, acceptance reconciliation, PR #2 merge, documentation reorganization, and the continuity work itself.
@@ -78,14 +90,17 @@ The V1 core business workflow is locked. Remaining business-side items are expli
 
 ### Product baseline
 
-- **PRD:** v0.17
-- **PRD Acceptance & Traceability:** v0.18
+- **PRD:** v0.17 — ACCEPTED current V1 product baseline under controlled amendment
+- **PRD Acceptance & Traceability:** v0.18 — ACCEPTED
+- **Screen/IA companion:** v0.16 — ACCEPTED
+- **Interaction companion:** v0.17 — ACCEPTED
 - **PRD refinement:** G1–G15 complete
 - **Open refinement reminders:** 0
 - **Validation:** final validation plus a second independent G1–G15 revalidation PASS
+- **Active post-baseline change control:** [Document 11](docs/PRD/11-prd-change-control-ledger.md)
 - **Location:** [docs/PRD/](docs/PRD/)
 
-The completed PRD refinement was merged into `main` through PR #2. PRD documents derive from the locked BRD and may add product behavior, screens, interactions, states, acceptance criteria, and implementation-facing detail, but they do not override locked business requirements.
+The completed PRD refinement was merged into `main` through PR #2. The PRD is now an accepted current product baseline, not an informal draft. It may be amended only through controlled PRD change records; locked business behavior still remains governed by the BRD.
 
 ## Repository documentation structure
 
@@ -95,6 +110,8 @@ The completed PRD refinement was merged into `main` through PR #2. PRD documents
 └── docs/
     ├── README.md
     ├── AGENT-CONTINUITY-HANDOFF.md
+    ├── agents/
+    │   └── AGENT-REGISTRY.md
     ├── BRD/
     │   ├── 01-business-requirements-document.md
     │   ├── 02-workflows-and-state-model.md
@@ -106,7 +123,8 @@ The completed PRD refinement was merged into `main` through PR #2. PRD documents
         ├── 07-information-architecture-and-screen-specification.md
         ├── 08-interaction-and-form-behavior-specification.md
         ├── 09-prd-refinement-state-ledger.md
-        └── 10-prd-future-review-reminders.md
+        ├── 10-prd-future-review-reminders.md
+        └── 11-prd-change-control-ledger.md
 ```
 
 The numeric prefixes are intentionally retained. They preserve the original reading sequence across the complete documentation set even though the files are now grouped into BRD and PRD folders.
@@ -116,9 +134,10 @@ The numeric prefixes are intentionally retained. They preserve the original read
 Use this order when documents appear to overlap:
 
 1. **Locked BRD documents** define the V1 business requirements, business rules, workflow decisions, roles, and approved scope.
-2. **PRD documents** derive product behavior from the BRD and make the product implementation-ready.
-3. **PRD refinement ledger/reminders** record how refinement decisions were reviewed, validated, reconciled, and closed. They provide provenance and continuity; they do not independently authorize changes to locked business behavior.
-4. **Technical implementation** must satisfy the BRD and PRD rather than inventing missing business policy.
+2. **Current accepted PRD documents** define the active product behavior, including any later EFFECTIVE PRD-CHG amendments.
+3. **Document 11 — PRD Change Control Ledger** governs substantive post-baseline PRD amendment and supersession.
+4. **Documents 09–10** are closed historical refinement/reminder provenance; they do not independently authorize new product changes.
+5. **Engineering contracts/implementation** must satisfy the current BRD/PRD rather than inventing missing business policy.
 
 If a PRD statement appears to contradict the locked BRD, treat that as a defect to investigate. Do not silently choose the PRD over the BRD.
 
@@ -141,8 +160,9 @@ If a PRD statement appears to contradict the locked BRD, treat that as a defect 
 | [06 — PRD Acceptance & Traceability](docs/PRD/06-prd-traceability-and-acceptance.md) | Product acceptance scenarios and traceability from PRD behavior back to the locked BRD. |
 | [07 — Information Architecture & Screen Specification](docs/PRD/07-information-architecture-and-screen-specification.md) | Screen inventory, role navigation, screen contracts, visible states, actions, and transitions. |
 | [08 — Interaction & Form Behavior Specification](docs/PRD/08-interaction-and-form-behavior-specification.md) | Detailed interaction contracts for forms, tables, queues, approvals, payments, inventory, errors, stale state, retries, audit, printing, and common UI behavior. |
-| [09 — PRD Refinement State Ledger](docs/PRD/09-prd-refinement-state-ledger.md) | Persistent execution history for the group-by-group PRD refinement, including decisions, commits, validation, compatibility checks, reconciliations, and final audit results. |
-| [10 — PRD Future Review Reminders](docs/PRD/10-prd-future-review-reminders.md) | Forward-dependency register used during refinement. All recorded reminders are resolved in the completed refinement. |
+| [09 — PRD Refinement State Ledger](docs/PRD/09-prd-refinement-state-ledger.md) | **CLOSED historical** execution history for G1–G15 refinement, decisions, commits, validation, compatibility checks, reconciliations, and final audits. |
+| [10 — PRD Future Review Reminders](docs/PRD/10-prd-future-review-reminders.md) | **CLOSED historical** refinement dependency register. REM-001–REM-074 are resolved; no new implementation-era REM IDs are added here. |
+| [11 — PRD Change Control Ledger](docs/PRD/11-prd-change-control-ledger.md) | **ACTIVE** post-baseline product-change ledger for PRD clarifications, corrections, controlled product changes, evidence, attribution, validation, and supersession. |
 
 ## Product boundary
 
@@ -175,17 +195,18 @@ The initial product does **not** include laboratory management, inpatient/bed ma
 
 Before modifying or implementing behavior:
 
-1. Start at [docs/README.md](docs/README.md).
-2. Identify whether the question is about **business policy** or **product implementation/detail**.
-3. For business policy, read the relevant BRD files first.
-4. For product work, read the relevant BRD source before the PRD layer that implements it.
-5. Do not infer a new business rule from a UI detail, ledger note, technical convenience, or implementation constraint.
-6. Do not rewrite history to make current state simpler. Important corrections, cancellations, replacements, approvals, and audit events remain attributable.
-7. If a conflict appears, investigate and reconcile it explicitly rather than silently overriding one document.
-8. Preserve locked requirements unless an explicit change-control decision authorizes a BRD change.
+1. Read [Guidelines.md](Guidelines.md) and start at [docs/README.md](docs/README.md).
+2. For continuity ownership/provenance, check [docs/agents/AGENT-REGISTRY.md](docs/agents/AGENT-REGISTRY.md).
+3. Identify whether the question is about **business policy**, **current product truth**, **engineering contract**, or **implementation detail**.
+4. For business policy, read the relevant BRD files first.
+5. For product work, read the relevant BRD source and current accepted PRD/change-control state before implementation.
+6. Do not infer a new business rule from a UI detail, ledger note, technical convenience, or implementation constraint.
+7. Do not rewrite history to make current state simpler. Important corrections, cancellations, replacements, approvals, PRD amendments, and audit events remain attributable.
+8. If a conflict appears, investigate and reconcile it explicitly rather than silently overriding one document.
+9. Preserve locked requirements unless an explicit change-control decision authorizes a BRD change.
 
 ## Documentation rule
 
-Locked requirements may only change through explicit change control. Derived/delegated decisions remain identified as such; configuration and technical/compliance dependencies must not be used to silently alter V1 business behavior.
+Locked BRD requirements may only change through explicit BRD/business change control. The accepted PRD may change only through controlled amendment recorded in Document 11; only EFFECTIVE PRD-CHG records alter current product truth.
 
-Documentation-only organization, navigation, and path maintenance must preserve the underlying validated BRD/PRD content.
+Documentation-only organization, navigation, path/status metadata, provenance, and formatting maintenance must preserve underlying validated product behavior.
