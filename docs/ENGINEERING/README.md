@@ -55,7 +55,11 @@ Only committed canonical engineering records become shared engineering truth.
 
 ## Active Change Packages
 
-- [CP-001 — Account Entry, Session & Workspace Authority Foundation](change-packages/CP-001-account-entry-session-workspace-authority.md) — TASK PLAN READY on this review branch; implementation begins only after the CP record is live on docs `main`.
+- [CP-001 — Account Entry, Session & Workspace Authority Foundation](change-packages/CP-001-account-entry-session-workspace-authority.md) — implementation package live on docs `main`; Task A contract establishment is the current work.
+
+## Active canonical contracts
+
+- [CP-001 Auth / Session / Workspace Authority Contract](contracts/CP-001-auth-session-workspace-authority-contract.md) — PROPOSED on this review branch; effective only after merge to docs `main`.
 
 ## Planned canonical areas
 
