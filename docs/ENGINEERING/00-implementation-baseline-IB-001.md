@@ -17,6 +17,16 @@
 
 ---
 
+## Effective-state rule
+
+The `FROZEN` status is current project truth only when this baseline record is present on the live default branch.
+
+If this file is viewed on an unmerged review branch, it represents the proposed freeze record; the live project remains at the previously merged governance/product-baseline state until merge.
+
+The immutable product-source reference itself remains the already-merged commit `fa9bbff607b257752f855021211a2d2d183d6dd1`.
+
+---
+
 # 1. Purpose
 
 IB-001 is the exact product-definition snapshot from which V1 engineering bootstrap and implementation begin.
