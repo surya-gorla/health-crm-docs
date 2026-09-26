@@ -117,7 +117,9 @@ Documentation-organization branch created after that merge:
 
 - branch: `refinement-docs`
 - initial structure commit: `66136f1a859b850c929354909ab0875c47337197`
-- this handoff file is being added on top of that branch.
+- full continuity-handoff commit: `7e322005e726edd9daab674b2b058717eb671754`
+- stable anchor-navigation commit: `080f32b4bd06520dbacba4282f28b7a6eba65c55`
+- this repository-state section is a handoff snapshot; a replacement agent must still verify the live branch/PR state before acting.
 
 Current documentation layout on `refinement-docs`:
 
@@ -148,7 +150,7 @@ The organization commit was intentionally **structure-only**:
 - root README was rewritten as the repository entry point;
 - `docs/README.md` was added as the documentation navigation/authority entry point.
 
-When you resume, first verify whether `refinement-docs` is still open/unmerged and whether the user wants that docs-organization branch reviewed/merged.
+When you resume, first verify the live `refinement-docs` branch/PR state. Do not assume this snapshot is still current merely because the handoff records these commits.
 
 ---
 
@@ -11932,6 +11934,7 @@ At the time this expanded Appendix C is written:
 - the user-supplied retirement manual is preserved in Appendix A;
 - Agent Two's exact available user directives are preserved in C1;
 - Agent Two's repository actions/commits/validation are preserved in C2–C4;
+- Agent Two is **not** omitted in favor of Agent One: C1 contains exact available continuation-session directives and C2–C4 preserve repository-verified continuation work;
 - the current operating posture is preserved in C5–C6;
 - the governing product truth remains the BRD/PRD, not this handoff.
 

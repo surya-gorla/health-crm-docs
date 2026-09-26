@@ -6,24 +6,47 @@ The repository is organized so a human or agent can enter at this README, move t
 
 ## Agent continuity
 
-For a replacement agent or a brand-new chat continuing prior Hospital CRM work, use:
+For a replacement agent or a brand-new chat continuing prior Hospital CRM work, start here:
 
 **[Agent Continuity Handoff](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
 
-Key deep links:
+This handoff intentionally contains **both agent generations**:
 
-- [How the next agent must behave](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-mandatory)
-- [User demeanor/preferences](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-user-demeanor)
-- [Decision-authority model](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-decision-authority)
-- [Refinement workflow](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-refinement-workflow)
-- [Agent Two continuation record](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-c-agent-two)
-- [Retirement manual from Agent One](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-a-retirement-manual)
-- [Full Agent One raw conversation](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-b-agent-one-raw)
+- **Agent One (retired):** the user-supplied retirement/replacement manual plus the full raw Hospital CRM conversation export;
+- **Agent Two (continuation agent):** exact continuation-session user directives available in this chat, evidence labels/limits, repository-verified execution chronology, G13 reconciliation, G14/G15 completion, both validation passes, acceptance reconciliation, PR #2 merge, documentation reorganization, and the continuity work itself.
 
-The handoff contains both generations: Agent One's full raw source/retirement material and Agent Two's continuation directives, repository-verified execution record, validations, reconciliations, merge, and documentation reorganization.
+Use the anchor map below to jump directly to the relevant section instead of scrolling the 11k+ line handoff.
 
-For current product truth, continue from the documentation index below; the handoff is the behavior/provenance layer, not a replacement for BRD/PRD authority.
+| Continuity section | Direct jump |
+| --- | --- |
+| Start / full handoff | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start) |
+| Mandatory behavior | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-mandatory) |
+| Repository/document state | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-repository-state) |
+| Source-of-truth hierarchy | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-source-hierarchy) |
+| User demeanor and working preferences | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-user-demeanor) |
+| Decision-authority model | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-decision-authority) |
+| Product-design principles | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-product-principles) |
+| Core clinic/product model | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-core-product-model) |
+| G1–G15 group model | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-group-model) |
+| Per-group review template | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-group-review-template) |
+| Persistent refinement workflow | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-refinement-workflow) |
+| Four closure gates | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-closure-gates) |
+| Retry/stale/concurrency/audit reasoning | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-safety-reasoning) |
+| What Agent Two inherited/changed | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-work) |
+| Validated PRD state | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-validated-state) |
+| Exact continuation-session user directives | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-user-directives) |
+| Brand-new-chat resume checklist | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-resume-checklist) |
+| Raw-source interpretation rules | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-raw-source-rule) |
+| Appendix A — Agent One retirement manual | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-a-retirement-manual) |
+| Appendix B — full Agent One raw conversation | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-b-agent-one-raw) |
+| Appendix C — Agent Two continuation record | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-c-agent-two) |
+| Agent Two evidence labels / limits | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-evidence-labels) |
+| Agent Two verbatim continuation directives | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-verbatim-directives) |
+| Agent Two repository-verified chronology | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-execution-record) |
+| Agent Two second audit / reconciliation | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-validation) |
+| Agent Two merge / docs organization | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-merge-docs) |
 
+**Authority warning:** the handoff is the behavior/provenance continuity layer. It does **not** replace the locked BRD or current PRD as product truth.
 
 ## Start here
 
@@ -60,6 +83,7 @@ The completed PRD refinement was merged into `main` through PR #2. PRD documents
 ├── README.md
 └── docs/
     ├── README.md
+    ├── AGENT-CONTINUITY-HANDOFF.md
     ├── BRD/
     │   ├── 01-business-requirements-document.md
     │   ├── 02-workflows-and-state-model.md

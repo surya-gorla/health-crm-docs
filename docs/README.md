@@ -6,33 +6,51 @@ This file is the **primary documentation entry point** for humans and agents wor
 
 ## Agent Continuity — replacement-agent entry point
 
-If you are entering this repository from a new ChatGPT/agent conversation, start with the **Agent Continuity Handoff**:
+If you are entering this repository from a new ChatGPT/agent conversation, start with:
 
 **[Open the Agent Continuity Handoff](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
 
-Direct jumps:
+The handoff is intentionally large because it preserves **source-level continuity rather than only a compressed summary**.
 
-- [Mandatory behavior for the next agent](AGENT-CONTINUITY-HANDOFF.md#continuity-mandatory)
-- [User demeanor and working preferences](AGENT-CONTINUITY-HANDOFF.md#continuity-user-demeanor)
-- [Decision-authority model](AGENT-CONTINUITY-HANDOFF.md#continuity-decision-authority)
-- [Product-design principles](AGENT-CONTINUITY-HANDOFF.md#continuity-product-principles)
-- [G1–G15 group model](AGENT-CONTINUITY-HANDOFF.md#continuity-group-model)
-- [Exact persistent refinement workflow](AGENT-CONTINUITY-HANDOFF.md#continuity-refinement-workflow)
-- [Four closure gates](AGENT-CONTINUITY-HANDOFF.md#continuity-closure-gates)
-- [Agent Two inheritance/actions](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-work)
-- [Brand-new-chat resume checklist](AGENT-CONTINUITY-HANDOFF.md#continuity-resume-checklist)
-- [Retired Agent One replacement manual — verbatim](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-a-retirement-manual)
-- [Agent One full raw conversation — verbatim](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-b-agent-one-raw)
-- [Agent Two continuation record](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-c-agent-two)
-- [Agent Two exact continuation-session directives](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-verbatim-directives)
-- [Agent Two repository-verified execution chronology](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-execution-record)
-- [Agent Two second-audit/reconciliation record](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-validation)
-- [Agent Two merge/docs-organization record](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-merge-docs)
+It contains both generations:
 
-The continuity handoff is intentionally large. Use these anchors rather than reading the raw appendices linearly unless you need exact historical evidence.
+- **Agent One:** full retirement/replacement manual + full raw Hospital CRM conversation export;
+- **Agent Two:** exact available continuation-session directives, evidence labeling, repository-verified execution chronology, reconciliations, validation passes, merge, docs reorganization, and the current continuity state.
 
-**Authority warning:** the continuity handoff explains how prior agents reasoned and worked. It does not override the locked BRD or current PRD.
+### Complete stable anchor map
 
+| Continuity section | Direct jump |
+| --- | --- |
+| Start / full handoff | [Open](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start) |
+| Mandatory behavior | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-mandatory) |
+| Repository/document state | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-repository-state) |
+| Source-of-truth hierarchy | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-source-hierarchy) |
+| User demeanor and working preferences | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-user-demeanor) |
+| Decision-authority model | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-decision-authority) |
+| Product-design principles | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-product-principles) |
+| Core clinic/product model | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-core-product-model) |
+| G1–G15 group model | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-group-model) |
+| Per-group review template | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-group-review-template) |
+| Persistent refinement workflow | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-refinement-workflow) |
+| Four closure gates | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-closure-gates) |
+| Retry/stale/concurrency/audit reasoning | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-safety-reasoning) |
+| What Agent Two inherited/changed | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-work) |
+| Validated PRD state | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-validated-state) |
+| Exact continuation-session user directives | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-user-directives) |
+| Brand-new-chat resume checklist | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-resume-checklist) |
+| Raw-source interpretation rules | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-raw-source-rule) |
+| Appendix A — Agent One retirement manual | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-a-retirement-manual) |
+| Appendix B — full Agent One raw conversation | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-b-agent-one-raw) |
+| Appendix C — Agent Two continuation record | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-c-agent-two) |
+| Agent Two evidence labels / limits | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-evidence-labels) |
+| Agent Two verbatim continuation directives | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-verbatim-directives) |
+| Agent Two repository-verified chronology | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-execution-record) |
+| Agent Two second audit / reconciliation | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-validation) |
+| Agent Two merge / docs organization | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-merge-docs) |
+
+Use these anchors rather than reading the raw appendices linearly unless you need exact historical evidence.
+
+**Authority warning:** this continuity handoff explains how prior agents reasoned and worked. It never overrides the locked BRD or current PRD.
 
 Use it to determine:
 
@@ -47,6 +65,7 @@ Use it to determine:
 ```text
 docs/
 ├── README.md
+├── AGENT-CONTINUITY-HANDOFF.md
 ├── BRD/
 │   ├── 01-business-requirements-document.md
 │   ├── 02-workflows-and-state-model.md
