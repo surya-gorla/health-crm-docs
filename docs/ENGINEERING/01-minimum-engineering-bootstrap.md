@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | ACCEPTED WHEN MERGED TO `main` |
+| Status | ACCEPTED — effective when present on `main` |
 | Product baseline | IB-001 |
 | Continuity owner | Agent 3 |
 | Scope | Cross-cutting engineering foundations only |
