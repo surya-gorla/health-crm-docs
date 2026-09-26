@@ -8,6 +8,23 @@ A reminder is not an already-decided future requirement. It is a mandatory revie
 
 ---
 
+## Lifecycle status — CLOSED HISTORICAL REGISTER
+
+The G1–G15 future-review reminder process is complete.
+
+- REM-001 through REM-074 are resolved.
+- No OPEN reminder remains.
+- No future refinement group remains.
+- New implementation-era findings do not receive new REM IDs in this closed register.
+- Post-baseline product changes use **Document 11 — PRD Change Control Ledger**.
+- Engineering-only forward dependencies belong in Change Packages/engineering records.
+
+**Lifecycle metadata closure:** Agent 3, 2026-09-26.
+
+This closure does not change any reminder disposition or accepted product behavior.
+
+---
+
 ## Reminder Status
 
 - **OPEN** — target group has not yet evaluated the reminder.
@@ -248,3 +265,11 @@ G15 evaluated and resolved all inherited reminders targeting Printing & Physical
 Their dispositions are recorded in Resolved Reminder History.
 
 No future refinement group remains, so G15 creates no future reminder.
+
+---
+
+## 2026-09-26 — Historical reminder-register closure by Agent 3
+
+This register is preserved as provenance for the completed G1–G15 refinement.
+
+Future implementation/testing findings must be classified through the active engineering/PRD change-control workflow rather than reopening this reminder numbering sequence.
