@@ -1,33 +1,96 @@
 # Hospital CRM Documentation
 
-This repository contains the business and product documentation for the clinic-focused Hospital CRM.
+This repository contains the business-requirement and product-requirement documentation for the clinic-focused Hospital CRM.
+
+The repository is organized so a human or agent can enter at this README, move to the documentation index, and then follow the correct source hierarchy without guessing which file is authoritative.
+
+## Start here
+
+**Documentation entry point:** [docs/README.md](docs/README.md)
+
+Use that file as the canonical navigation index for the documentation tree, document purposes, reading order, source-of-truth rules, and agent guidance.
 
 ## Documentation status
 
-**Baseline version:** v1.0  
-**Status:** V1 Business Requirements — LOCKED  
-**Date:** 2026-09-20
+### Business baseline
 
-The V1 core business workflow is locked. Remaining items are explicitly classified as configuration, technical architecture, compliance, or future-scope dependencies and do not authorize silent changes to the locked business behavior.
+- **BRD baseline:** v1.0
+- **Status:** V1 Business Requirements — LOCKED
+- **Lock date:** 2026-09-20
+- **Location:** [docs/BRD/](docs/BRD/)
+
+The V1 core business workflow is locked. Remaining business-side items are explicitly classified as configuration, technical architecture, compliance, or future-scope dependencies and do not authorize silent changes to locked business behavior.
+
+### Product baseline
+
+- **PRD:** v0.17
+- **PRD Acceptance & Traceability:** v0.18
+- **PRD refinement:** G1–G15 complete
+- **Open refinement reminders:** 0
+- **Validation:** final validation plus a second independent G1–G15 revalidation PASS
+- **Location:** [docs/PRD/](docs/PRD/)
+
+The completed PRD refinement was merged into `main` through PR #2. PRD documents derive from the locked BRD and may add product behavior, screens, interactions, states, acceptance criteria, and implementation-facing detail, but they do not override locked business requirements.
+
+## Repository documentation structure
+
+```text
+.
+├── README.md
+└── docs/
+    ├── README.md
+    ├── BRD/
+    │   ├── 01-business-requirements-document.md
+    │   ├── 02-workflows-and-state-model.md
+    │   ├── 03-open-decisions-and-edge-cases.md
+    │   └── 04-requirements-traceability.md
+    └── PRD/
+        ├── 05-product-requirements-document.md
+        ├── 06-prd-traceability-and-acceptance.md
+        ├── 07-information-architecture-and-screen-specification.md
+        ├── 08-interaction-and-form-behavior-specification.md
+        ├── 09-prd-refinement-state-ledger.md
+        └── 10-prd-future-review-reminders.md
+```
+
+The numeric prefixes are intentionally retained. They preserve the original reading sequence across the complete documentation set even though the files are now grouped into BRD and PRD folders.
+
+## Source-of-truth hierarchy
+
+Use this order when documents appear to overlap:
+
+1. **Locked BRD documents** define the V1 business requirements, business rules, workflow decisions, roles, and approved scope.
+2. **PRD documents** derive product behavior from the BRD and make the product implementation-ready.
+3. **PRD refinement ledger/reminders** record how refinement decisions were reviewed, validated, reconciled, and closed. They provide provenance and continuity; they do not independently authorize changes to locked business behavior.
+4. **Technical implementation** must satisfy the BRD and PRD rather than inventing missing business policy.
+
+If a PRD statement appears to contradict the locked BRD, treat that as a defect to investigate. Do not silently choose the PRD over the BRD.
 
 ## Documentation map
 
+### BRD
+
 | Document | Purpose |
 | --- | --- |
-| [01 — Business Requirements Document](docs/01-business-requirements-document.md) | Main business requirements baseline covering objectives, scope, roles, functional requirements, business rules, and dependencies. |
-| [02 — Workflows and State Model](docs/02-workflows-and-state-model.md) | End-to-end patient journey, queue lifecycle, prescription/pharmacy flow, and record lifecycle. |
-| [03 — V1 Decision Register and Edge Cases](docs/03-open-decisions-and-edge-cases.md) | Canonical record of confirmed, derived/delegated, future, configuration, technical, and compliance decisions. |
-| [04 — Requirements Traceability](docs/04-requirements-traceability.md) | Maps confirmed product decisions to BRD requirements and identifies future/out-of-scope items. |
-| [05 — Product Requirements Document](docs/05-product-requirements-document.md) | DRAFT product specification derived from the locked BRD: users, workspaces, interaction behavior, feature requirements, product states, and release scope. |
-| [06 — PRD Acceptance & Traceability](docs/06-prd-traceability-and-acceptance.md) | DRAFT product-level acceptance scenarios and traceability from PRD behavior back to the locked BRD. |
-| [07 — Information Architecture & Screen Specification](docs/07-information-architecture-and-screen-specification.md) | DRAFT screen inventory, role navigation, screen contracts, visible states, actions, and transitions. |
-| [08 — Interaction & Form Behavior Specification](docs/08-interaction-and-form-behavior-specification.md) | DRAFT interaction rules for forms, tables, queues, approvals, payments, inventory, errors, and common UI states. |
-| [09 — PRD Refinement State Ledger](docs/09-prd-refinement-state-ledger.md) | Persistent checkpoint and execution ledger for the group-by-group PRD refinement process. |
-| [10 — PRD Future Review Reminders](docs/10-prd-future-review-reminders.md) | Forward-looking dependency/reminder register raised by completed groups for later group reviews. |
+| [01 — Business Requirements Document](docs/BRD/01-business-requirements-document.md) | Main locked business baseline: objectives, scope, roles, functional requirements, business rules, dependencies, and change-control boundary. |
+| [02 — Workflows and State Model](docs/BRD/02-workflows-and-state-model.md) | Locked end-to-end patient journey, queue lifecycle, prescription/pharmacy flow, record lifecycle, and business state transitions. |
+| [03 — V1 Decision Register and Edge Cases](docs/BRD/03-open-decisions-and-edge-cases.md) | Canonical record of confirmed, delegated/derived, configuration, technical, compliance, future-scope, and edge-case decisions. |
+| [04 — Requirements Traceability](docs/BRD/04-requirements-traceability.md) | Maps discovery/decision evidence to BRD requirements and business rules and identifies future/out-of-scope items. |
+
+### PRD
+
+| Document | Purpose |
+| --- | --- |
+| [05 — Product Requirements Document](docs/PRD/05-product-requirements-document.md) | Product behavior derived from the locked BRD: users, workspaces, feature requirements, states, safety behavior, reporting, printing, dependencies, and release scope. |
+| [06 — PRD Acceptance & Traceability](docs/PRD/06-prd-traceability-and-acceptance.md) | Product acceptance scenarios and traceability from PRD behavior back to the locked BRD. |
+| [07 — Information Architecture & Screen Specification](docs/PRD/07-information-architecture-and-screen-specification.md) | Screen inventory, role navigation, screen contracts, visible states, actions, and transitions. |
+| [08 — Interaction & Form Behavior Specification](docs/PRD/08-interaction-and-form-behavior-specification.md) | Detailed interaction contracts for forms, tables, queues, approvals, payments, inventory, errors, stale state, retries, audit, printing, and common UI behavior. |
+| [09 — PRD Refinement State Ledger](docs/PRD/09-prd-refinement-state-ledger.md) | Persistent execution history for the group-by-group PRD refinement, including decisions, commits, validation, compatibility checks, reconciliations, and final audit results. |
+| [10 — PRD Future Review Reminders](docs/PRD/10-prd-future-review-reminders.md) | Forward-dependency register used during refinement. All recorded reminders are resolved in the completed refinement. |
 
 ## Product boundary
 
-The product currently covers the clinic journey from patient registration/retrieval through consultation, prescription, pharmacy dispensing, and payment recording.
+The product covers the clinic journey from patient registration/retrieval through consultation, prescription, clinic-pharmacy dispensing, billing/payment-status recording, inventory accountability, Owner exception control, reporting, audit/history, staff/configuration administration, and A4 physical outputs.
 
 The primary roles are:
 
@@ -37,7 +100,7 @@ The primary roles are:
 - Doctor
 - Pharmacist
 
-One individual account may hold multiple roles, such as Owner + Doctor.
+One individual account may hold multiple roles, such as Owner + Doctor, while actions remain attributable to the effective role/workspace.
 
 The initial product does **not** include laboratory management, inpatient/bed management, insurance processing, ambulance management, or HR/payroll.
 
@@ -47,20 +110,26 @@ The initial product does **not** include laboratory management, inpatient/bed ma
 - **Visit ID** — unique identifier for one patient visit/encounter.
 - **Visit** — one clinic attendance and its associated operational/clinical flow.
 - **Queue** — ordered set of visits waiting for or progressing through consultation.
-- **Prescription** — medicines prescribed by the doctor for a visit.
+- **Prescription** — medicines prescribed by the Doctor for a Visit.
 - **Dispensing** — pharmacy action of providing available prescribed medicines to the patient.
-- **Consultation payment** — payment transaction associated with the clinic consultation.
-- **Pharmacy payment** — payment transaction associated with medicines dispensed by the clinic pharmacy.
+- **Consultation payment** — externally executed consultation payment whose status is recorded in the CRM.
+- **Pharmacy payment** — externally executed pharmacy payment whose status is recorded in the CRM.
+
+## Rules for agents and contributors
+
+Before modifying or implementing behavior:
+
+1. Start at [docs/README.md](docs/README.md).
+2. Identify whether the question is about **business policy** or **product implementation/detail**.
+3. For business policy, read the relevant BRD files first.
+4. For product work, read the relevant BRD source before the PRD layer that implements it.
+5. Do not infer a new business rule from a UI detail, ledger note, technical convenience, or implementation constraint.
+6. Do not rewrite history to make current state simpler. Important corrections, cancellations, replacements, approvals, and audit events remain attributable.
+7. If a conflict appears, investigate and reconcile it explicitly rather than silently overriding one document.
+8. Preserve locked requirements unless an explicit change-control decision authorizes a BRD change.
 
 ## Documentation rule
 
 Locked requirements may only change through explicit change control. Derived/delegated decisions remain identified as such; configuration and technical/compliance dependencies must not be used to silently alter V1 business behavior.
 
-
-## PRD workstream
-
-The initial PRD baseline has been merged into `main`. Further PRD refinement is performed on one long-lived refinement branch and pull request, using separate logical commits for each reviewed group and any later cross-group reconciliation. The PR remains Draft while active refinement/reconciliation is in progress and is marked Ready for review only after the applicable final validation passes.
-
-The locked BRD on `main` remains the business source of truth. PRD refinements may add product interaction detail but may not silently change locked business behavior.
-
-Current refinement workstream: one long-lived PRD refinement pull request. Each reviewed group or later cross-group correction is added as a separate logical commit to that same PR, and the PR remains unmerged until the final human review/merge decision.
+Documentation-only organization, navigation, and path maintenance must preserve the underlying validated BRD/PRD content.
