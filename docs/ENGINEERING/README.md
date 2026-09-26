@@ -22,27 +22,39 @@ Executable implementation repository:
 
 ## Current engineering stage
 
-**IMPLEMENTATION BASELINE FROZEN → MINIMUM ENGINEERING BOOTSTRAP NEXT**
+**IB-001 FROZEN**
 
-No detailed architecture, domain/data/API/auth/UI contract, or Change Package should be treated as established merely because it has been discussed in chat.
+The proposed Minimum Engineering Bootstrap is documented in:
+
+**[01 — Minimum Engineering Bootstrap](01-minimum-engineering-bootstrap.md)**
+
+If that document and ADR-001 through ADR-006 are viewed only on an unmerged branch, they are proposed engineering truth. Once merged to `main`, the next stage becomes implementation-repository initialization + AI repository instructions before CP-001.
+
+No detailed domain/data/API/UI contract or Change Package should be treated as established merely because it has been discussed in chat.
 
 Only committed canonical engineering records become shared engineering truth.
 
 ---
 
+## Bootstrap decision records
+
+- [ADR-001 — Modular Monolith and Same-Origin Application Topology](ADR/ADR-001-modular-monolith-topology.md)
+- [ADR-002 — V1 Runtime, Framework and Database Stack](ADR/ADR-002-platform-stack.md)
+- [ADR-003 — Server-Side Sessions and Backend-Authoritative Access Context](ADR/ADR-003-auth-session-authority.md)
+- [ADR-004 — PostgreSQL Transactions, Idempotency and Append-Only Audit](ADR/ADR-004-data-transactions-audit.md)
+- [ADR-005 — Deployment, Backup and Disaster-Recovery Baseline](ADR/ADR-005-deployment-backup-recovery.md)
+- [ADR-006 — Verification, CI and Operational Logging Foundation](ADR/ADR-006-verification-ci-logging.md)
+
 ## Planned canonical areas
 
-Create these only as real bootstrap/Change Package work requires them:
+Create these only as real Change Package work requires them:
 
-- architecture;
 - domain/state contracts;
 - data contracts;
 - API/command contracts;
-- authentication/authorization;
-- audit/concurrency/idempotency;
+- authentication/authorization contracts;
 - UI engineering/design system;
-- testing;
-- ADRs;
+- testing evidence/contracts;
 - Change Packages.
 
 Avoid speculative documentation that has no immediate consumer.
