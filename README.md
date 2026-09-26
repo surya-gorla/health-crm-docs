@@ -102,6 +102,18 @@ The V1 core business workflow is locked. Remaining business-side items are expli
 
 The completed PRD refinement was merged into `main` through PR #2. The PRD is now an accepted current product baseline, not an informal draft. It may be amended only through controlled PRD change records; locked business behavior still remains governed by the BRD.
 
+## Engineering baseline
+
+V1 engineering starts from **[Implementation Baseline IB-001](docs/ENGINEERING/00-implementation-baseline-IB-001.md)**.
+
+- immutable product-source commit: `fa9bbff607b257752f855021211a2d2d183d6dd1`;
+- business baseline: BRD v1.0 — LOCKED;
+- product baseline: PRD v0.17 + accepted companion Documents 06–08;
+- post-baseline PRD changes at freeze: none;
+- next stage: Minimum Engineering Bootstrap.
+
+Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERING/)**. Executable application code is built separately in `surya-gorla/health-crm`.
+
 ## Repository documentation structure
 
 ```text
@@ -112,6 +124,9 @@ The completed PRD refinement was merged into `main` through PR #2. The PRD is no
     ├── AGENT-CONTINUITY-HANDOFF.md
     ├── agents/
     │   └── AGENT-REGISTRY.md
+    ├── ENGINEERING/
+    │   ├── README.md
+    │   └── 00-implementation-baseline-IB-001.md
     ├── BRD/
     │   ├── 01-business-requirements-document.md
     │   ├── 02-workflows-and-state-model.md
