@@ -4,6 +4,16 @@ This repository contains the business-requirement and product-requirement docume
 
 The repository is organized so a human or agent can enter at this README, move to the documentation index, and then follow the correct source hierarchy without guessing which file is authoritative.
 
+## Project operating guidelines
+
+Before doing product, engineering, implementation, validation, or release work, read:
+
+**[Guidelines.md](Guidelines.md)**
+
+This is the project's **active living operating baseline** for humans and AI agents. It consolidates the proven BRD/PRD-era working rules, records how those rules changed for engineering/implementation, and defines how the guidelines themselves may be revised when project evidence shows that a rule is not working well.
+
+It is process authority, **not product authority**: the locked BRD and validated PRD remain the governing sources for what the product must do.
+
 ## Agent continuity
 
 For a replacement agent or a brand-new chat continuing prior Hospital CRM work, start here:
