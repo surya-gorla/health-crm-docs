@@ -2,6 +2,9 @@
 
 This file is the **primary documentation entry point** for humans and agents working with the Hospital CRM repository.
 
+
+> **New/replacement agent:** read [AGENT-CONTINUITY-HANDOFF.md](AGENT-CONTINUITY-HANDOFF.md) before changing the repository. It contains the continuity protocol, user preferences, workflow rules, refinement provenance, full retirement handoff, and full Agent One conversation source.
+
 Use it to determine:
 
 - which folder contains the authoritative information you need;

@@ -6,6 +6,10 @@ The repository is organized so a human or agent can enter at this README, move t
 
 ## Start here
 
+**Agent continuity / replacement-agent handoff:** [docs/AGENT-CONTINUITY-HANDOFF.md](docs/AGENT-CONTINUITY-HANDOFF.md)
+
+If you are a new agent taking over work from an earlier chat, read the continuity handoff before making repository changes. It contains the operating protocol, user working preferences, refinement provenance, retirement manual, and the full original Agent One conversation export.
+
 **Documentation entry point:** [docs/README.md](docs/README.md)
 
 Use that file as the canonical navigation index for the documentation tree, document purposes, reading order, source-of-truth rules, and agent guidance.
