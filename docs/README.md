@@ -87,6 +87,9 @@ docs/
 ├── AGENT-CONTINUITY-HANDOFF.md
 ├── agents/
 │   └── AGENT-REGISTRY.md
+├── ENGINEERING/
+│   ├── README.md
+│   └── 00-implementation-baseline-IB-001.md
 ├── BRD/
 │   ├── 01-business-requirements-document.md
 │   ├── 02-workflows-and-state-model.md
@@ -103,6 +106,20 @@ docs/
 ```
 
 The numeric prefixes remain intentionally global. Read `01` through `11` as one ordered documentation sequence, with the folder split clarifying whether each document belongs to the BRD or PRD layer.
+
+---
+
+## Engineering implementation baseline
+
+The V1 engineering source baseline is **[ENGINEERING/00-implementation-baseline-IB-001.md](ENGINEERING/00-implementation-baseline-IB-001.md)**.
+
+Its immutable product-source reference is:
+
+`fa9bbff607b257752f855021211a2d2d183d6dd1`
+
+Engineering documentation begins at **[ENGINEERING/README.md](ENGINEERING/README.md)**.
+
+The executable application repository is `surya-gorla/health-crm`.
 
 ---
 
