@@ -89,7 +89,15 @@ docs/
 │   └── AGENT-REGISTRY.md
 ├── ENGINEERING/
 │   ├── README.md
-│   └── 00-implementation-baseline-IB-001.md
+│   ├── 00-implementation-baseline-IB-001.md
+│   ├── 01-minimum-engineering-bootstrap.md
+│   └── ADR/
+│       ├── ADR-001-modular-monolith-topology.md
+│       ├── ADR-002-platform-stack.md
+│       ├── ADR-003-auth-session-authority.md
+│       ├── ADR-004-data-transactions-audit.md
+│       ├── ADR-005-deployment-backup-recovery.md
+│       └── ADR-006-verification-ci-logging.md
 ├── BRD/
 │   ├── 01-business-requirements-document.md
 │   ├── 02-workflows-and-state-model.md
@@ -118,6 +126,8 @@ Its immutable product-source reference is:
 `fa9bbff607b257752f855021211a2d2d183d6dd1`
 
 Engineering documentation begins at **[ENGINEERING/README.md](ENGINEERING/README.md)**.
+
+The cross-cutting bootstrap is **[ENGINEERING/01-minimum-engineering-bootstrap.md](ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006 under `ENGINEERING/ADR/`.
 
 The executable application repository is `surya-gorla/health-crm`.
 
