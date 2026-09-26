@@ -130,6 +130,8 @@ Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERI
     │   ├── 01-minimum-engineering-bootstrap.md
     │   ├── change-packages/
     │   │   └── CP-001-account-entry-session-workspace-authority.md
+    │   ├── contracts/
+    │   │   └── CP-001-auth-session-workspace-authority-contract.md
     │   └── ADR/
     │       ├── ADR-001-modular-monolith-topology.md
     │       ├── ADR-002-platform-stack.md
