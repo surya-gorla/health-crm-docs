@@ -48,6 +48,16 @@ Only committed canonical engineering records become shared engineering truth.
 - [ADR-005 — Deployment, Backup and Disaster-Recovery Baseline](ADR/ADR-005-deployment-backup-recovery.md)
 - [ADR-006 — Verification, CI and Operational Logging Foundation](ADR/ADR-006-verification-ci-logging.md)
 
+## Active Change Package
+
+**[CP-001 — Executable Platform Foundation](CHANGE-PACKAGES/CP-001-executable-platform-foundation.md)**
+
+Current planning state: **TASK PLAN READY**.
+
+CP-001 is infrastructure-only. It does not claim implementation of any clinic product requirement or screen.
+
+---
+
 ## Planned canonical areas
 
 Create these only as real Change Package work requires them:
