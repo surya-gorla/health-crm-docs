@@ -4,11 +4,28 @@ This repository contains the business-requirement and product-requirement docume
 
 The repository is organized so a human or agent can enter at this README, move to the documentation index, and then follow the correct source hierarchy without guessing which file is authoritative.
 
+## Agent continuity
+
+For a replacement agent or a brand-new chat continuing prior Hospital CRM work, use:
+
+**[Agent Continuity Handoff](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+
+Key deep links:
+
+- [How the next agent must behave](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-mandatory)
+- [User demeanor/preferences](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-user-demeanor)
+- [Decision-authority model](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-decision-authority)
+- [Refinement workflow](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-refinement-workflow)
+- [Agent Two continuation record](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-c-agent-two)
+- [Retirement manual from Agent One](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-a-retirement-manual)
+- [Full Agent One raw conversation](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-b-agent-one-raw)
+
+The handoff contains both generations: Agent One's full raw source/retirement material and Agent Two's continuation directives, repository-verified execution record, validations, reconciliations, merge, and documentation reorganization.
+
+For current product truth, continue from the documentation index below; the handoff is the behavior/provenance layer, not a replacement for BRD/PRD authority.
+
+
 ## Start here
-
-**Agent continuity / replacement-agent handoff:** [docs/AGENT-CONTINUITY-HANDOFF.md](docs/AGENT-CONTINUITY-HANDOFF.md)
-
-If you are a new agent taking over work from an earlier chat, read the continuity handoff before making repository changes. It contains the operating protocol, user working preferences, refinement provenance, retirement manual, and the full original Agent One conversation export.
 
 **Documentation entry point:** [docs/README.md](docs/README.md)
 

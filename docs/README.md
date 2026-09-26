@@ -3,7 +3,36 @@
 This file is the **primary documentation entry point** for humans and agents working with the Hospital CRM repository.
 
 
-> **New/replacement agent:** read [AGENT-CONTINUITY-HANDOFF.md](AGENT-CONTINUITY-HANDOFF.md) before changing the repository. It contains the continuity protocol, user preferences, workflow rules, refinement provenance, full retirement handoff, and full Agent One conversation source.
+
+## Agent Continuity — replacement-agent entry point
+
+If you are entering this repository from a new ChatGPT/agent conversation, start with the **Agent Continuity Handoff**:
+
+**[Open the Agent Continuity Handoff](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+
+Direct jumps:
+
+- [Mandatory behavior for the next agent](AGENT-CONTINUITY-HANDOFF.md#continuity-mandatory)
+- [User demeanor and working preferences](AGENT-CONTINUITY-HANDOFF.md#continuity-user-demeanor)
+- [Decision-authority model](AGENT-CONTINUITY-HANDOFF.md#continuity-decision-authority)
+- [Product-design principles](AGENT-CONTINUITY-HANDOFF.md#continuity-product-principles)
+- [G1–G15 group model](AGENT-CONTINUITY-HANDOFF.md#continuity-group-model)
+- [Exact persistent refinement workflow](AGENT-CONTINUITY-HANDOFF.md#continuity-refinement-workflow)
+- [Four closure gates](AGENT-CONTINUITY-HANDOFF.md#continuity-closure-gates)
+- [Agent Two inheritance/actions](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-work)
+- [Brand-new-chat resume checklist](AGENT-CONTINUITY-HANDOFF.md#continuity-resume-checklist)
+- [Retired Agent One replacement manual — verbatim](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-a-retirement-manual)
+- [Agent One full raw conversation — verbatim](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-b-agent-one-raw)
+- [Agent Two continuation record](AGENT-CONTINUITY-HANDOFF.md#continuity-appendix-c-agent-two)
+- [Agent Two exact continuation-session directives](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-verbatim-directives)
+- [Agent Two repository-verified execution chronology](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-execution-record)
+- [Agent Two second-audit/reconciliation record](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-validation)
+- [Agent Two merge/docs-organization record](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-merge-docs)
+
+The continuity handoff is intentionally large. Use these anchors rather than reading the raw appendices linearly unless you need exact historical evidence.
+
+**Authority warning:** the continuity handoff explains how prior agents reasoned and worked. It does not override the locked BRD or current PRD.
+
 
 Use it to determine:
 

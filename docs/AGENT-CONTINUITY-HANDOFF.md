@@ -1,3 +1,5 @@
+<a id="agent-continuity-start"></a>
+
 # Hospital CRM — Agent Continuity Handoff and Operating Manual
 
 > **Purpose:** Point a replacement ChatGPT/agent to this single file first when continuing work on this repository.
@@ -15,7 +17,59 @@
 >
 > **Do not treat this document as a replacement for the governing BRD/PRD.** It is the continuity/behavior/provenance manual. For current product truth, use the BRD/PRD documents linked below.
 
+
+## Navigation / stable anchor map
+
+This document is intentionally very large. **Do not read it by scrolling blindly.** Use these stable anchors.
+
+### Fast-start anchors for a replacement agent
+
+| Need | Jump |
+| --- | --- |
+| Start / mandatory behavior | [0 — Mandatory instruction](#continuity-mandatory) |
+| Live repository/document model | [1 — Repository state](#continuity-repository-state) |
+| Source-of-truth hierarchy | [2 — Governing hierarchy](#continuity-source-hierarchy) |
+| User demeanor / how to work with the user | [3 — User demeanor](#continuity-user-demeanor) |
+| What the agent may decide autonomously | [4 — Decision authority](#continuity-decision-authority) |
+| Product-design philosophy | [5 — Product principles](#continuity-product-principles) |
+| Core clinic model | [6 — Core product model](#continuity-core-product-model) |
+| G1–G15 grouping | [7 — PRD group model](#continuity-group-model) |
+| Required per-group review checklist | [8 — Group-review template](#continuity-group-review-template) |
+| Exact persistent workflow | [9 — Refinement workflow](#continuity-refinement-workflow) |
+| Completion gates | [10 — Four closure gates](#continuity-closure-gates) |
+| Retry/stale/concurrency/audit reasoning style | [11 — Safety reasoning](#continuity-safety-reasoning) |
+| What Agent Two inherited and changed | [12 — Agent Two work](#continuity-agent-two-work) |
+| Validated PRD state | [13 — Validated state](#continuity-validated-state) |
+| Exact continuation-session user instructions | [14 — User directives](#continuity-user-directives) |
+| Brand-new-chat resume procedure | [15 — Resume checklist](#continuity-resume-checklist) |
+| How to interpret raw appendices | [16 — Raw-source interpretation](#continuity-raw-source-rule) |
+
+### Raw-source anchors
+
+| Source | Jump |
+| --- | --- |
+| User-supplied retirement / replacement-agent manual | [Appendix A — Retirement manual](#continuity-appendix-a-retirement-manual) |
+| Full verbatim Agent One Hospital CRM export | [Appendix B — Agent One raw conversation](#continuity-appendix-b-agent-one-raw) |
+| Agent Two continuation record | [Appendix C — Agent Two continuation](#continuity-appendix-c-agent-two) |
+| Agent Two exact continuation-session directives | [C1 — Verbatim user directives](#continuity-agent-two-verbatim-directives) |
+| Agent Two repository-verified chronology | [C2 — Execution chronology](#continuity-agent-two-execution-record) |
+| Agent Two validation/reconciliation record | [C3 — Validation and reconciliation](#continuity-agent-two-validation) |
+| Agent Two merge/docs-reorganization record | [C4 — Merge and docs organization](#continuity-agent-two-merge-docs) |
+| Evidence limits / what is verbatim vs reconstructed | [C5 — Evidence labeling](#continuity-agent-two-evidence-labels) |
+
+### Reading modes
+
+**If you have five minutes:** read Sections 0, 3, 4, 9, 10, 12, 15 and Appendix C.
+
+**If you are about to change product behavior:** read Sections 0–11, then the relevant BRD/PRD files, then use Appendix A/B/C only for provenance.
+
+**If you are trying to imitate the previous agents:** read Sections 3–5 and 8–12 first, then Appendix A and Appendix C. Use Appendix B when you need exact historical conversation evidence.
+
+**If there is a disagreement between this handoff and current BRD/PRD:** current governing BRD/PRD wins for product truth; this handoff explains behavior/provenance and must not silently override the validated requirements.
+
 ---
+
+<a id="continuity-mandatory"></a>
 
 # 0. Mandatory instruction to the next agent
 
@@ -44,6 +98,8 @@ The intended relationship is:
 > **Understand the business deeply, challenge the PRD intelligently, reason through realistic failure cases, make conservative but useful product decisions, preserve the BRD, avoid unnecessary complexity, and leave implementation teams with as little ambiguity as practical.**
 
 ---
+
+<a id="continuity-repository-state"></a>
 
 # 1. Current repository/document state at Agent Two handoff
 
@@ -96,6 +152,8 @@ When you resume, first verify whether `refinement-docs` is still open/unmerged a
 
 ---
 
+<a id="continuity-source-hierarchy"></a>
+
 # 2. Governing source hierarchy
 
 The hierarchy is strict.
@@ -134,6 +192,8 @@ These explain how refinement decisions were reasoned, committed, validated, reco
 They are **provenance**, not authority to override BRD/PRD truth.
 
 ---
+
+<a id="continuity-user-demeanor"></a>
 
 # 3. User demeanor and working preferences
 
@@ -193,6 +253,8 @@ Persist state
 
 ---
 
+<a id="continuity-decision-authority"></a>
+
 # 4. Decision-authority model
 
 Use this order when taking a product decision:
@@ -218,6 +280,8 @@ Do not contact the user merely to approve a reasonable derived UI/product detail
 
 ---
 
+<a id="continuity-product-principles"></a>
+
 # 5. Product-design principles established by the conversations
 
 Prefer decisions that are:
@@ -242,6 +306,8 @@ Do **not** optimize for the number of rules.
 Optimize for the smallest set of rules that makes the behavior deterministic and safe.
 
 ---
+
+<a id="continuity-core-product-model"></a>
 
 # 6. Core clinic/product model that must remain mentally available
 
@@ -346,6 +412,8 @@ Queue model:
 
 ---
 
+<a id="continuity-group-model"></a>
+
 # 7. PRD group model
 
 The complete PRD was reviewed as 15 semantic groups:
@@ -371,6 +439,8 @@ The groups form an exact partition of P-001 through P-116.
 Do not casually regroup/reassign requirements without a real reason.
 
 ---
+
+<a id="continuity-group-review-template"></a>
 
 # 8. Full group-review template
 
@@ -403,6 +473,8 @@ A group is not "done" just because Document 05 has text for it.
 Review vertically across Documents 05–08 and the applicable BRD/reminder/ledger evidence.
 
 ---
+
+<a id="continuity-refinement-workflow"></a>
 
 # 9. Persistent refinement workflow
 
@@ -450,6 +522,8 @@ Important:
 
 ---
 
+<a id="continuity-closure-gates"></a>
+
 # 10. Four closure gates
 
 A group can be marked COMPLETE only when all four pass:
@@ -483,6 +557,8 @@ Only after A+B+C+D pass:
 `GROUP STATUS = COMPLETE`
 
 ---
+
+<a id="continuity-safety-reasoning"></a>
 
 # 11. Retry, stale-state, history, and authority reasoning style
 
@@ -561,6 +637,8 @@ But audit must not reveal:
 
 ---
 
+<a id="continuity-agent-two-work"></a>
+
 # 12. What Agent Two inherited, verified, corrected, and completed
 
 Agent Two did not simply trust the retirement handoff.
@@ -615,6 +693,8 @@ Key continuation commits:
 
 ---
 
+<a id="continuity-validated-state"></a>
+
 # 13. Final validated PRD state before documentation reorganization
 
 At the second independent validation:
@@ -639,6 +719,8 @@ At the second independent validation:
 Do not casually undo these invariants.
 
 ---
+
+<a id="continuity-user-directives"></a>
 
 # 14. Exact user instructions from the continuation session that define behavior
 
@@ -690,6 +772,8 @@ That is why the two complete raw source artifacts are embedded below.
 
 ---
 
+<a id="continuity-resume-checklist"></a>
+
 # 15. How to resume in a brand-new chat
 
 If you are the next agent:
@@ -714,6 +798,8 @@ If you are the next agent:
 
 ---
 
+<a id="continuity-raw-source-rule"></a>
+
 # 16. Important interpretation rule for the raw appendices
 
 The appendices are historical evidence, not current source precedence.
@@ -733,6 +819,8 @@ Therefore:
 - use the ledger to understand how earlier conversation was reconciled into the final documents.
 
 ---
+
+<a id="continuity-appendix-a-retirement-manual"></a>
 
 # APPENDIX A — VERBATIM RETIREMENT / REPLACEMENT-AGENT MANUAL SUPPLIED BY THE USER
 
@@ -2446,6 +2534,8 @@ If you discover a genuine business-policy gap, explain exactly why it cannot be 
 Everything else: reason carefully, decide, document, validate, and continue.
 
 --- END VERBATIM RETIREMENT MANUAL ---
+
+<a id="continuity-appendix-b-agent-one-raw"></a>
 
 # APPENDIX B — VERBATIM AGENT ONE HOSPITAL CRM CONVERSATION EXPORT
 
@@ -11314,18 +11404,537 @@ Powered by [ChatGPT Exporter](https://www.chatgptexporter.com)
 
 --- END VERBATIM AGENT ONE CONVERSATION EXPORT ---
 
-# APPENDIX C — Agent Two continuation provenance
+<a id="continuity-appendix-c-agent-two"></a>
 
-The complete Agent Two continuation is not available here as a separate exported ChatGPT transcript file. Its durable decision/work evidence is intentionally preserved in the repository:
+# APPENDIX C — Agent Two continuation record
 
-- `docs/PRD/09-prd-refinement-state-ledger.md`
-- `docs/PRD/10-prd-future-review-reminders.md`
-- the Git commit history listed in Section 12;
-- PR #2 history and merged commit `8044536710b1e5e33012ec82436d3c4997e2c73c`;
-- the documentation-organization branch `refinement-docs`.
+This appendix records the continuation agent's work after inheriting Agent One's Hospital CRM conversation, retirement manual, repository, ledger and reminder system.
 
-The key continuation-session user instructions and inheritance rules are reproduced in Sections 0–15 above.
+It is intentionally separated into evidence classes so a future agent can tell what is a direct quote, what is repository-verifiable fact, and what is a continuity reconstruction.
 
-The next agent should not attempt to reconstruct hidden/private reasoning. The repository records decision-grade reasoning, evidence, outcomes, commits, compatibility checks, reminder resolution, and the exact product rules needed to continue safely.
+<a id="continuity-agent-two-evidence-labels"></a>
+
+## C0. Evidence labels used in this appendix
+
+### VERBATIM
+
+Text reproduced exactly from a user or assistant message available in the continuation conversation.
+
+### REPOSITORY-VERIFIED EXECUTION RECORD
+
+A fact established by the Git repository, PR state, commit SHA, ledger/reminder files, or live connector action. These are stronger than memory summaries for repository state.
+
+### RECONSTRUCTED CONTINUITY NARRATIVE
+
+A detailed chronological explanation assembled from the live repository, ledger, reminder register, preserved conversation context and this session's visible messages where no separate raw export of the entire Agent Two chat exists.
+
+**Important limitation:** unlike Agent One, Agent Two's entire continuation chat was not supplied as a standalone exported markdown file. Therefore this appendix does **not** falsely claim that every Agent Two sentence is a complete raw transcript. Exact quotes are labeled VERBATIM; the rest is repository-verified or explicitly reconstructed.
+
+The operational result is still highly recoverable because the continuation agent persistently wrote decision-grade state into:
+
+- `docs/PRD/09-prd-refinement-state-ledger.md`;
+- `docs/PRD/10-prd-future-review-reminders.md`;
+- Git commits;
+- PR #2 history;
+- the merged PRD baseline on `main`;
+- this handoff file.
+
+<a id="continuity-agent-two-verbatim-directives"></a>
+
+## C1. VERBATIM — continuation-session user directives that shaped Agent Two
+
+The following quotes are retained because they define how a replacement agent should behave.
+
+### C1.1 Become a replica of the previous agent, not merely read a summary
+
+> "So this is what my previous agent has given when I asked him to, that you will be retiring and you need to give everything regarding the workflow and what are my pages and how the new agent should decide and everything, blah blah blah, from the previous chat that I have pasted, that I had given you before during the start of this conversation. So what I need you to do is go through line by line through this pasted text that I have, which I have pasted now. After that, what I need you to do is to understand it to your heart content, everything line by line. You need to understand it, so you will act like a replica of the previous agent, okay? So that's what I want."
+
+The user also required evidence rather than a claim of understanding:
+
+> "No manipulation, no shortcuts, just straight-up work. That's what I need from you."
+
+### C1.2 Audit live work instead of assuming the handoff was perfect
+
+> "Okay, that's very good. So what I now want you to do is to check your previous work. Like go through everything and check the ledgers and everything and whatnot and everything. See if there are any issues or like where it stopped right now, like what it's needed or something like that. Like just figure it out and report me back."
+
+This directly led Agent Two to inspect the live GitHub branch/PR/ledger/reminder state instead of trusting the retirement handoff.
+
+### C1.3 Continue under the previous agent's guidelines
+
+> "You want you want as per the guidelines and I want you to continue with the previous agent or some with. I need you to start and I need you to start your session based on our guidelines and start the work."
+
+Agent Two interpreted this as permission to continue autonomously under the accepted workflow rather than repeatedly asking for approval.
+
+### C1.4 Second independent revalidation from scratch
+
+> "So currently I'm in a dilemma. So if I want to play the dilemma, I need you to go through from group 1 to group ending, like group 15. Like everything, whatever guidelines do, whatever workflow do. I want you to recheck them, everything from scratch. Like, go on, continue. Just give me a better validated, validated result another time. Strictly follow our guidelines. Don't differ from them. No manipulation. No shortcuts. Just do the work and think carefully."
+
+This caused Agent Two to reopen validation discipline without reopening business discovery.
+
+### C1.5 Resume exactly from interruption point, not from the beginning
+
+> "Okay, continue from where you actually left off and complete this reconciliation of what do you call anythings, the validation process. Don't start from the very beginning. Continue exactly from where you left off."
+
+This is a strong continuity rule: restore exact live state and continue from the next unfinished gate.
+
+### C1.6 Merge only after guideline assurance
+
+> "If you follow the guidelines that I gave you, then the output is already good enough for me. So I don't want to check it right now. You can merge the PR. But I need you to assure that each of these group has followed my guidelines very strictly. Can you assure me that before merging this?"
+
+Agent Two performed a final live merge guard and merged only after the second independent validation had passed.
+
+### C1.7 Documentation reorganization must preserve content
+
+> "So what I need you to do in this branch is, since in the docs we have added all the things required for PRD and all the things required for BRD in the same folder in the docs, right? So what I need you to do is to create two new folders in the docs, one called BRD and one called PRD, and you need to appropriately add the documents to those folders where needed. Like, do not summarize anything or do not reduce it. Just add them."
+
+The user also required repository entry points:
+
+> "And also add a README.md in the docs, mentioning what this doc folder is, what its subfolders are, and what are the contents in the docs and its subfolders and everything, so it could act as a potential anchor point or entry point for the agents which are reading it. And also update the README of the root file, so that it will also act as entry point, like what is what, what this has, and everything."
+
+### C1.8 Continuity file must carry actual context, not a thin summary
+
+> "So I want what the first agent, first, the third agent has done, how you have taken, how and what you have taken from that, and the exact things that I gave you from the agent one, from the agent one, the retired agent one past conversations, and what are the codes, and what are my preferences, what are the workflows that these docs are going on, and everything, everything regarding that. Everything, every single bit, so that the next agent will be exactly like you, will be exactly, exactly like you."
+
+And:
+
+> "Don't summarize it, give the exact code between the conversations that me and the first agent had, me and you had, you as itself, the second agent, give the maximum information, so it will not have the summarized context, but it has the actual context, the actual conversation context."
+
+### C1.9 Large continuity document must be anchor-navigable
+
+> "Okay, that's good. Since the document is so large, I need you to divide it into sections. Yeah, literally divide it into sections. I want you to actually anchor, like create those sections as anchor points."
+
+And:
+
+> "So that the agent will completely understand and can easily traverse through that whole big-ass document."
+
+The user explicitly asked whether Agent Two was included:
+
+> "And also I need you to confirm that not only the previous retired dated, have you added yours too to that?"
+
+This requirement is the reason Appendix C exists in expanded form.
+
+<a id="continuity-agent-two-execution-record"></a>
+
+## C2. REPOSITORY-VERIFIED EXECUTION RECORD — what Agent Two actually did
+
+### C2.1 Restored live state instead of trusting the handoff
+
+Agent Two checked the live repository, long-lived PR #2, branch state, Documents 09/10, and the most recent commits.
+
+The audit found that the substantive PRD work was ahead of some bookkeeping.
+
+Key findings included:
+
+- PR #2 body/checklist drift;
+- stale group-status rows in Document 09;
+- stale latest-completed-group commit metadata;
+- G14 primary requirement ownership needed to be stated as P-107–P-112, while P-113–P-116 belonged to G15;
+- three G13-targeted reminders remained OPEN despite G13 being marked complete.
+
+### C2.2 Reconciled G13 before beginning G14
+
+The three reminders were:
+
+- REM-022 — returning-patient reporting / Possible Duplicate identity separation;
+- REM-048 — most-prescribed reporting must not double-count Superseded prescription versions;
+- REM-053 — medicine-sales reporting needed explicit approved-substitute attribution.
+
+Agent Two determined:
+
+- REM-022 was already satisfied by G13 product rules but reminder closure had been missed;
+- REM-048 was already satisfied by G13 product rules but reminder closure had been missed;
+- REM-053 was mostly satisfied but needed one explicit product clarification.
+
+Reconciliation commit:
+
+`b78dd22ffd5d17b37110286c4a6063d6b325a432` — `docs: reconcile G13 reporting reminder closure`
+
+The clarification made medicine-sales reporting attribute an approved substitution to the **actual substitute medicine supplied**, preserve pharmacy-unit provenance, and keep the original prescribed item as lineage/context rather than the sold medicine.
+
+Post-reconciliation state:
+
+- 116 P requirements remained unique;
+- acceptance extended through AC-083;
+- UX acceptance extended through UXA-152;
+- 49 screen contracts remained unique;
+- OPEN reminders dropped from 27 to 24;
+- REM-022 / REM-048 / REM-053 became RESOLVED.
+
+### C2.3 Repaired ledger and PR housekeeping
+
+Agent Two corrected:
+
+- G12/G13/G14/G15 status rows;
+- latest completed group commit;
+- open-reminder count;
+- G14 ownership wording;
+- PR #2 checklist for completed groups.
+
+This was treated as workflow hygiene, **not** as reopening already completed product groups.
+
+### C2.4 Completed G14 — Cross-Product State, Audit, History & Safety
+
+Agent Two performed cumulative source review across:
+
+- locked BRD;
+- workflow/state model;
+- decision register;
+- traceability;
+- current PRD layers;
+- all 20 inherited G14 reminders;
+- all accepted G1–G13 stale/retry/history/authority rules.
+
+Core G14 decisions included:
+
+- audit preserves material business evidence;
+- historical identity remains stable after later archive/disablement;
+- effective role/workspace is auditable;
+- same-human multi-role actions retain separate authority context;
+- direct Owner actions are not fabricated as self-approval;
+- audit visibility never expands source-data authority;
+- authentication secrets never enter normal audit/history;
+- current authority beats loaded-page authority;
+- tabs can keep independent permitted workspace context;
+- duplicate final submit is blocked while in flight;
+- known failure and unknown outcome are distinct;
+- unknown outcomes must inspect current truth before retry;
+- already-applied results are recovered rather than duplicated;
+- sequenced partial success differs from atomic business operations;
+- stale-state handling is baseline-specific;
+- latest-state decisions remain possible where the owning workflow explicitly allows them;
+- no silent clipping/merging/overwriting to make stale requests fit;
+- queue, clinical draft, prescription, dispensing, billing, inventory, Owner work, account/config and reports received explicit concurrency/retry/state-safety behavior.
+
+G14 main product commit:
+
+`8613e6123d71a198f0b8f7d880f5fe9bf12533bd` — `docs: refine PRD Group 14 audit and state safety`
+
+G14 resolved all 20 inherited G14 reminders.
+
+One targeted forward reminder was created for G15:
+
+- REM-074 — print/reprint is read-only rendering and must not create duplicate business-state effects.
+
+G14 passed all four closure gates.
+
+### C2.5 Completed G15 — Printing & Physical Outputs
+
+Agent Two reviewed locked printing/A4 behavior plus accepted G7/G8/G9/G12/G14 snapshot rules.
+
+Key decisions included:
+
+- A4 is the V1 physical-output baseline;
+- no thermal-printer dependency;
+- printer integration is not business logic;
+- prescription printing is tied to a selected Finalized version;
+- normal print defaults to latest current Finalized version;
+- reprint uses stored finalization-time availability snapshot;
+- current stock never rewrites historical `**` markers;
+- later partial fulfilment/substitution never rewrites the original prescription;
+- Superseded/closed-context copies are visibly historical;
+- reprint does not create a new prescription version;
+- pharmacy A4 is unit-specific by default;
+- bill print/reprint uses frozen bill facts;
+- current bill/payment state is a separate overlay;
+- Voided bill output is visibly historical and not newly payable;
+- pharmacy output shows actual supplied quantity, unsupplied remainder and actual approved substitute supplied;
+- output-template changes may change current visual presentation without rewriting historical business facts;
+- V1 does not require byte-identical archival of every previous PDF/template;
+- preview/print/reprint/render retry is read-only and creates no prescription/bill/dispense/payment/stock/approval/Visit state effect.
+
+G15 main product commit:
+
+`359cf7f734494b4c6446479142986125efc768f2` — `docs: refine PRD Group 15 printing and physical outputs`
+
+Final G15 reminder closure commit:
+
+`cc759b52ea59f3e536f6fd71c2e72d3b648cd9e5`
+
+After G15:
+
+- G1–G15 COMPLETE;
+- 0 OPEN reminders;
+- no future group remained.
+
+### C2.6 Performed first final global validation
+
+Agent Two validated:
+
+- 116 continuous P requirements;
+- acceptance/UX acceptance continuity at that stage;
+- 49 unique screen contracts;
+- G1–G15 complete;
+- zero open reminders;
+- no stale NOT STARTED / IN PROGRESS registry rows;
+- PR checklist current;
+- branch 0 commits behind `main`;
+- final PRD-area traceability located in the correct source.
+
+An overly literal traceability validator initially looked for PRD P-range mappings in locked Document 04. Agent Two inspected the source and found the validator wrong: the relevant PRD-area mappings correctly lived in Document 06. The validator was fixed instead of altering a correct locked file.
+
+Final first-pass ledger closure commit:
+
+`4962cd0100cc12b4f60ac68f368ac5301110b37a` — final PRD validation state before the second audit.
+
+<a id="continuity-agent-two-validation"></a>
+
+## C3. REPOSITORY-VERIFIED EXECUTION RECORD — second independent G1–G15 validation
+
+The user explicitly requested another independent validation from scratch.
+
+Agent Two did **not** reopen business discovery. It independently revalidated the resulting product and process.
+
+### C3.1 Source and process integrity checks
+
+The second audit verified:
+
+- locked Documents 01–04 were untouched on the refinement branch;
+- the 15 groups formed an exact partition of P-001–P-116;
+- no P requirement was missing or multiply owned;
+- REM-001 through REM-074 existed uniquely;
+- all reminders were forward-directed from earlier group to later target group;
+- all reminders were RESOLVED;
+- every G1–G15 main commit was actually in current branch ancestry;
+- all screen references resolved;
+- all referenced interaction-section numbers existed;
+- all reminder references resolved;
+- all 118 FRs and all 58 BRs were represented in the refined product layer after range expansion;
+- no invalid FR/BR/OD references existed.
+
+### C3.2 Semantic G1–G15 revalidation
+
+Agent Two rechecked domain behavior group by group:
+
+- G1 workspace/multi-role authority;
+- G2 authentication/recovery;
+- G3 Patient identity/duplicates/correction;
+- G4 Visit/payment/waiver;
+- G5 queue/reassignment/cancellation;
+- G6 consultation/longitudinal clinical record;
+- G7 prescription lifecycle;
+- G8 pharmacy retrieval/dispensing;
+- G9 pharmacy billing/payment;
+- G10 inventory/transfers;
+- G11 Owner approval center;
+- G12 staff/admin/configuration;
+- G13 reporting;
+- G14 audit/state/concurrency safety;
+- G15 physical outputs.
+
+The audit explicitly searched for accidental reintroduction of dangerous contradictions such as:
+
+- Reception cancelling Visits;
+- Doctor approving Owner financial/inventory control;
+- Pharmacist editing prescriptions;
+- Admin granting Owner;
+- expired stock becoming dispensable;
+- partial consultation/pharmacy payment;
+- refunds;
+- duplicate auto-merge;
+- back-orders;
+- thermal dependency;
+- destructive audit/history deletion.
+
+No new product contradiction was found.
+
+### C3.3 Acceptance traceability defect discovered and reconciled
+
+The second audit found that some P requirements were semantically tested but not explicitly referenced in acceptance metadata, and seven requirements deserved direct critical scenarios.
+
+Agent Two first caught a validator mistake: Document 06 contains **four** acceptance families, not only AC and UXA:
+
+- AC;
+- RA;
+- AU;
+- UXA.
+
+After correcting the validator, Agent Two repaired explicit acceptance traceability.
+
+Reconciliation commit:
+
+`6656cc02ac103348b209d0f78d5fb4996903baaa` — `docs: reconcile second-pass acceptance traceability`
+
+Document 06 became v0.18, Parent PRD v0.17.
+
+Final acceptance families:
+
+- AC-001 through AC-112 — 112;
+- RA-001 through RA-006 — 6;
+- AU-001 through AU-013 — 13;
+- UXA-001 through UXA-183 — 183.
+
+Stronger result achieved:
+
+> **Every P-001 through P-116 is explicitly referenced by at least one acceptance scenario.**
+
+No PRD product behavior changed in this reconciliation.
+
+### C3.4 Second-audit final closure
+
+Second-audit ledger closure:
+
+`8eb3cb153a489faa23f0080f2cc66204ecd8c5a9` — `chore: close second independent PRD audit`
+
+The second audit concluded:
+
+- G1–G15 PASS;
+- locked BRD alignment PASS;
+- product semantics PASS;
+- cross-group compatibility PASS;
+- acceptance coverage PASS;
+- process/ledger integrity PASS;
+- reminder integrity PASS;
+- cross-document reference integrity PASS;
+- zero OPEN reminders;
+- branch 0 commits behind `main`;
+- no new clinic/business decision required.
+
+PR #2 was returned to Ready for review only after this PASS.
+
+<a id="continuity-agent-two-merge-docs"></a>
+
+## C4. REPOSITORY-VERIFIED EXECUTION RECORD — merge and documentation organization
+
+### C4.1 Final merge guard and PR #2 merge
+
+Before merge, Agent Two checked live state again:
+
+- PR #2 OPEN;
+- PR #2 Ready for review;
+- exact expected head SHA;
+- branch 0 behind `main`;
+- ledger recorded second independent PASS;
+- Document 10 had 0 OPEN reminders.
+
+The user authorized merge only after assurance that all groups followed the accepted workflow.
+
+Agent Two squash-merged PR #2.
+
+Merge commit:
+
+`8044536710b1e5e33012ec82436d3c4997e2c73c` — `docs: complete V1 PRD refinement`
+
+PR #2 became closed/merged.
+
+### C4.2 Documentation reorganization branch
+
+After merge, the user requested a structure-only documentation refinement.
+
+Branch created from merged `main`:
+
+`refinement-docs`
+
+Organization commit:
+
+`66136f1a859b850c929354909ab0875c47337197` — `docs: organize BRD and PRD documentation`
+
+Structure:
+
+```text
+docs/
+├── README.md
+├── AGENT-CONTINUITY-HANDOFF.md
+├── BRD/
+│   ├── 01-business-requirements-document.md
+│   ├── 02-workflows-and-state-model.md
+│   ├── 03-open-decisions-and-edge-cases.md
+│   └── 04-requirements-traceability.md
+└── PRD/
+    ├── 05-product-requirements-document.md
+    ├── 06-prd-traceability-and-acceptance.md
+    ├── 07-information-architecture-and-screen-specification.md
+    ├── 08-interaction-and-form-behavior-specification.md
+    ├── 09-prd-refinement-state-ledger.md
+    └── 10-prd-future-review-reminders.md
+```
+
+The move preserved document bodies. Only path references that necessarily changed because of the relocation were updated.
+
+### C4.3 Agent continuity handoff
+
+Agent Two then created this large handoff document.
+
+Initial continuity commit:
+
+`7e322005e726edd9daab674b2b058717eb671754` — `docs: add full agent continuity handoff`
+
+That initial file already contained:
+
+- operating protocol;
+- user demeanor/preferences;
+- decision-authority model;
+- core product model;
+- G1–G15 model;
+- review template;
+- persistent workflow;
+- closure gates;
+- safety reasoning;
+- Agent Two inheritance/execution summary;
+- exact continuation-session directives;
+- full user-supplied retirement manual;
+- full verbatim Agent One Hospital CRM export.
+
+This later anchor/Agent-Two expansion was requested because the file exceeded eleven thousand lines and needed stable navigation and a more explicit continuation record.
+
+## C5. Agent Two response posture that should be preserved
+
+The continuation agent repeatedly used the following posture:
+
+- restore live state before asserting what happened;
+- tell the user when bookkeeping differs from substantive product state;
+- surface real findings early;
+- do not call validator false positives product defects;
+- reconcile discovered defects instead of hiding them;
+- move a PR back to Draft when reconciliation reopens active work;
+- only mark Ready again after validation;
+- never merge merely because the files look complete;
+- use exact-head merge guards where available;
+- keep the locked BRD untouched unless explicit change control is required;
+- preserve user agency on genuine business policy while autonomously resolving derivable product design.
+
+Representative continuation commitment:
+
+> "I’m treating this as a **second independent audit from zero**, not as confirmation of my previous result."
+
+Representative live-state principle:
+
+> "I’ll audit the **live repository state**, not rely on the retirement manual or our last chat state."
+
+Representative merge principle:
+
+> "I’m doing only the final live merge guard now, then I’ll **squash-merge PR #2** as the workflow specified."
+
+## C6. What the next agent should copy from Agent Two
+
+Do not copy wording mechanically. Copy the **operating behavior**:
+
+1. Start from live truth.
+2. Read governing sources before deciding.
+3. Differentiate substantive defect from stale bookkeeping.
+4. Differentiate product defect from validator defect.
+5. Make derivable product decisions autonomously.
+6. Ask only for genuine clinic/business policy.
+7. Propagate a decision through all relevant product layers.
+8. Validate the committed/live state.
+9. Perform cumulative compatibility checks.
+10. Preserve provenance with targeted reminders/ledger/history when the workflow is active.
+11. Reconcile errors transparently.
+12. Keep the user informed with meaningful findings rather than tool noise.
+13. Prefer a simple, explicit, auditable rule over hidden automation.
+14. Do not overengineer V1.
+15. Never claim exact/verbatim evidence when only a reconstruction is available.
+
+## C7. Current continuity status
+
+At the time this expanded Appendix C is written:
+
+- Agent One raw conversation is preserved in Appendix B;
+- the user-supplied retirement manual is preserved in Appendix A;
+- Agent Two's exact available user directives are preserved in C1;
+- Agent Two's repository actions/commits/validation are preserved in C2–C4;
+- the current operating posture is preserved in C5–C6;
+- the governing product truth remains the BRD/PRD, not this handoff.
+
+A future agent should use this file as the **behavior/provenance continuity layer**, then navigate to the governing BRD/PRD documents for current product truth.
 
 # End of Agent Continuity Handoff
