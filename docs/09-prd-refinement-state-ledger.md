@@ -19,7 +19,7 @@ This ledger records decision-grade reasoning and evidence, not private/internal 
 | Source baseline | BRD v1.0 LOCKED on `main` |
 | Current PRD version | v0.17 DRAFT |
 | Current group | None — all 15 refinement groups complete |
-| Current stage | SECOND INDEPENDENT AUDIT — RECONCILIATION IN PROGRESS |
+| Current stage | SECOND INDEPENDENT AUDIT COMPLETE — PASS / READY FOR REVIEW |
 | Completed groups | G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15 |
 | In-progress groups | None |
 | Not started | None |
@@ -3555,4 +3555,87 @@ No product/business behavior is being changed.
 ### Next exact action
 
 Apply the acceptance-traceability and README-state reconciliation as a logical documentation correction, validate every group/global gate again, then return PR #2 to Ready for review only if the second independent validation fully passes.
+
+## 2026-09-26 — SECOND INDEPENDENT G1–G15 AUDIT COMPLETE
+
+**PASS — reconciliation validated and refinement reconfirmed from G1 through G15.**
+
+This closes the second independent audit requested after the first final validation. The audit did not rely on the earlier global PASS as proof; it re-established the live repository state, rechecked group ownership/semantics/process integrity, found documentation-level defects, reconciled them, and then reran the final consolidated validator.
+
+### Reconciliation applied
+
+Commit:
+
+`6656cc02ac103348b209d0f78d5fb4996903baaa` — `docs: reconcile second-pass acceptance traceability`
+
+Changed only:
+
+- Document 06 — PRD Traceability and Acceptance;
+- README workflow-state wording.
+
+No locked BRD document, PRD product behavior, screen contract, interaction contract, reminder decision, or group business decision changed.
+
+### Acceptance reconciliation result
+
+Document 06 is now v0.18 with Parent PRD v0.17.
+
+Acceptance families are continuous and unique:
+
+- AC-001 through AC-112: **112**;
+- RA-001 through RA-006: **6**;
+- AU-001 through AU-013: **13**;
+- UXA-001 through UXA-183: **183**.
+
+Every P requirement from **P-001 through P-116** is now explicitly referenced by at least one acceptance scenario across AC/RA/AU/UXA.
+
+### Final consolidated validator
+
+**PASS on every check.**
+
+- Locked Documents 01–04 unchanged on the refinement branch.
+- P requirements: 116 continuous, unique.
+- Screen contracts: 49 unique.
+- Interaction contracts: Sections 1–45 continuous.
+- All 15 group status rows: COMPLETE with backward PASS and forward COMPLETE.
+- Reminder register: REM-001 through REM-074, 74 unique, all RESOLVED, all forward-directed, 0 OPEN.
+- All screen references resolve.
+- All referenced interaction-section numbers resolve.
+- All reminder references resolve.
+- Final PRD-area traceability for audit/state safety/printing remains valid.
+- README now reflects the real PR lifecycle: Draft during active refinement/reconciliation, Ready only after final validation.
+- Branch is **0 commits behind main**.
+- No acceptance-coverage gap remains.
+- No new BRD contradiction or cross-group product conflict was found in the second audit.
+
+### Group-by-group second-audit verdict
+
+- G1 — PASS
+- G2 — PASS
+- G3 — PASS
+- G4 — PASS
+- G5 — PASS
+- G6 — PASS
+- G7 — PASS
+- G8 — PASS
+- G9 — PASS
+- G10 — PASS
+- G11 — PASS
+- G12 — PASS
+- G13 — PASS
+- G14 — PASS
+- G15 — PASS
+
+### Final second-audit verdict
+
+- Locked BRD alignment: PASS.
+- Product semantics: PASS.
+- Cross-group compatibility: PASS.
+- Acceptance coverage: PASS — all 116 P requirements explicitly covered.
+- Process/ledger integrity: PASS.
+- Reminder integrity: PASS — 0 OPEN.
+- Cross-document reference integrity: PASS.
+- Implementation readiness at PRD level: HIGH.
+- New clinic/business decision required: NONE.
+- Refinement branch is ready to return to **Ready for review**.
+- Merge remains a separate human decision and is not performed by this closure.
 
