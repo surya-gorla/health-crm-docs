@@ -11,6 +11,8 @@
 | Product authority | No — the locked BRD and validated PRD remain product authority |
 | Process authority | Yes — this is the current operating baseline for humans and AI agents until explicitly revised |
 | Historical source | docs/AGENT-CONTINUITY-HANDOFF.md plus the validated BRD/PRD process |
+| Revision | v1.1 |
+| Current continuity agent | Agent 3 |
 | Revision model | Evidence-driven, explicit, incremental; old guidance is not silently rewritten |
 
 ---
@@ -46,7 +48,7 @@ Different kinds of truth have different authorities.
 For business and product behavior, use this order:
 
 1. Locked BRD.
-2. Validated PRD and its accepted companion specifications.
+2. Current accepted PRD baseline and accepted companion specifications, including any EFFECTIVE PRD changes recorded in Document 11.
 3. Accepted product decisions and traceability derived from those sources.
 4. Engineering contracts that implement the product.
 5. Code/tests that implement those contracts.
@@ -54,6 +56,21 @@ For business and product behavior, use this order:
 If implementation or an engineering contract conflicts with the locked BRD/validated PRD, implementation does not win automatically. Treat the mismatch as a defect or initiate explicit product change control.
 
 This Guidelines file must never silently override product truth.
+
+
+### 1.1.1 BRD lock versus PRD controlled amendment
+
+The BRD and PRD intentionally have different lifecycle semantics.
+
+- **BRD:** LOCKED business baseline. A change that alters clinic/business policy requires explicit BRD/business change control and the required user/clinic authority.
+- **PRD:** ACCEPTED current product baseline under controlled amendment. It remains authoritative until an EFFECTIVE PRD change supersedes part of it.
+
+The PRD must not be treated as either:
+
+- an untouchable fossil that forces implementation to work around a discovered product defect; or
+- an informal living document that agents may rewrite whenever engineering becomes inconvenient.
+
+Post-baseline substantive PRD changes are governed by `docs/PRD/11-prd-change-control-ledger.md`.
 
 ## 1.2 Repository-state truth
 
@@ -552,6 +569,60 @@ When these layers disagree, identify the defect/class of change rather than norm
 
 ---
 
+
+# 10A. Controlled PRD amendment during development
+
+Implementation and testing may reveal a genuine product ambiguity, contradiction, omission or later desired product change.
+
+Do not silently work around such findings in code.
+
+The continuity agent must first classify the finding as:
+
+- implementation defect;
+- Test/Evidence defect;
+- engineering-contract defect;
+- PRD issue;
+- BRD/business-policy issue;
+- environment/tooling issue.
+
+If product truth is affected, use the active PRD Change Control Ledger and create the next `PRD-CHG-###` record.
+
+## 10A.1 PRD change classes
+
+Use:
+
+- **CLARIFICATION** — existing intended behavior is already supported, but wording/coverage is ambiguous or incomplete;
+- **CORRECTION** — the accepted PRD contains a real contradiction, omission or derived-product defect and must be reconciled without inventing new clinic policy;
+- **PRODUCT CHANGE** — accepted product behavior itself is intentionally changing.
+
+A PRODUCT CHANGE that changes clinic/business policy must return to BRD/business change control and the required user/clinic authority.
+
+## 10A.2 Effective truth rule
+
+The current accepted PRD remains authoritative until a PRD change reaches **EFFECTIVE** status.
+
+A proposal, test verdict or unmerged edit is not current product truth.
+
+An EFFECTIVE PRD change must have:
+
+- mapped affected product sources;
+- required cross-document reconciliation;
+- acceptance updates where necessary;
+- backward/cumulative compatibility review;
+- downstream impact assessment;
+- committed validation;
+- continuity-agent attribution;
+- effective commit/provenance recorded in Document 11.
+
+## 10A.3 History and reversal
+
+Do not erase an earlier effective PRD change to make history look cleaner.
+
+If later work reverses or replaces it, create a new PRD-CHG and supersede the old one when the new change becomes EFFECTIVE.
+
+
+---
+
 # 11. Product baseline closure
 
 Before production implementation begins, freeze a precise product baseline.
@@ -858,6 +929,79 @@ Therefore:
 
 When the implementation repository structure exists, use root and path-specific agent instruction files where useful, but keep this Guidelines file as the cross-project operating baseline.
 
+
+## 17.1 Numbered continuity-agent lineage
+
+Only the continuity-owning higher agent receives the sequential project identity:
+
+`Agent 1 -> Agent 2 -> Agent 3 -> Agent 4 -> ...`
+
+The compact lineage registry is `docs/agents/AGENT-REGISTRY.md`.
+
+The current continuity agent is **Agent 3**.
+
+Specialist/lower agents used only for testing, screenshots, raw logs, artifact collection or prescribed execution do **not** consume the next Agent number.
+
+## 17.2 Test/Evidence Runner authority
+
+A Test/Evidence Runner may:
+
+- execute prescribed scenarios;
+- collect screenshots/video/logs/network/console evidence;
+- package raw artifacts;
+- record reproduction steps;
+- report PASS / FAIL / BLOCKED / PARTIAL and observations.
+
+It may not independently:
+
+- redefine BRD/PRD truth;
+- approve a PRD amendment;
+- decide that every failed test is a product defect;
+- make architecture/product changes solely from its own verdict;
+- close the parent Change Package.
+
+Its verdict is evidence, not project authority.
+
+The continuity agent reviews and classifies the evidence against the governing product and engineering sources.
+
+## 17.3 Durable attribution
+
+From Agent 3 onward, meaningful durable objects should identify the responsible continuity agent where useful, for example:
+
+- PRD change: `Reconciled by: Agent 3`;
+- ADR: `Decision owner: Agent 3`;
+- Change Package: `Continuity owner: Agent 3`;
+- Test Evidence: `Reviewed by: Agent 3`.
+
+Do not add agent names to every sentence. Git already provides file-level history.
+
+Do not retroactively invent precise Agent 1/2 attribution where surviving evidence does not prove it.
+
+## 17.4 Test Evidence Packages
+
+Testing runs that matter to implementation/reconciliation should use identifiers such as `TE-001`, `TE-002`, etc.
+
+A Test Evidence Package should capture, where applicable:
+
+- tested Change Package;
+- exact tested commit;
+- environment;
+- scenarios executed;
+- PASS / FAIL / BLOCKED / PARTIAL;
+- observations;
+- expected behavior/source IDs;
+- reproduction steps;
+- raw evidence/artifacts;
+- known limitations;
+- evidence producer;
+- continuity-agent review.
+
+For ordinary code failures, a structured pasted result may be sufficient to begin triage.
+
+Before using a testing finding to justify a PRD amendment, architecture/security change, destructive migration, business-rule change or release-blocking product conclusion, obtain enough underlying evidence to reproduce or independently validate the finding.
+
+
+
 ---
 
 # 18. Engineering decision records
@@ -911,6 +1055,48 @@ For substantial/risky changes:
 - validate the merged result.
 
 If validation discovers a real defect after something was marked ready, reopen the work honestly rather than defending the prior status.
+
+---
+
+
+# 19A. Continuity-agent retirement and handoff
+
+The Agent Registry is the compact lineage index. Do not create a large Agent Graveyard.
+
+The existing `docs/AGENT-CONTINUITY-HANDOFF.md` remains the historical Agent 1/2 continuity source.
+
+For Agent 3 onward, create an agent-specific retirement handoff only when that numbered continuity agent actually retires.
+
+Before retirement:
+
+1. verify live repository state;
+2. make active Change Packages, ADRs and PRD changes current;
+3. update Guidelines only if the operating method genuinely changed;
+4. record unresolved blockers and the exact next action;
+5. create the retirement handoff;
+6. mark the agent RETIRED in the Agent Registry;
+7. allow the next actual continuity agent to take the next sequential Agent number.
+
+Do not update Guidelines merely because an agent retires.
+
+Do not pre-create empty future-agent handoffs.
+
+## 19A.1 Reversal semantics
+
+Do not depend on an interface-level Undo button as the project's safety mechanism.
+
+For code/engineering reversal:
+
+- inspect migrations/data/downstream dependency risk;
+- use Git revert or a forward correction only after impact analysis.
+
+For product/PRD reversal:
+
+- preserve the prior effective PRD-CHG;
+- create a new PRD-CHG;
+- record why the earlier product decision is being replaced;
+- mark the old change SUPERSEDED only when the new change becomes EFFECTIVE.
+
 
 ---
 
@@ -989,36 +1175,57 @@ Any true product behavior change follows the BRD/PRD change-control boundary.
 
 # 22. Current next actions
 
-At the time this living guideline baseline was created, the next sequence is:
+The governance transition establishes:
 
-1. Product Baseline Closure
-   - reconcile stale PRD document-control/status metadata against the already completed/validated refinement;
-   - reconcile README/index wording where required;
-   - verify no substantive product content is accidentally changed.
+- Agent 3 as the active numbered continuity agent;
+- specialist Test/Evidence Runners as evidence producers rather than continuity authorities;
+- Document 11 as the active post-baseline PRD controlled-amendment ledger;
+- Documents 09–10 as closed historical refinement-process records;
+- the PRD as an accepted current product baseline under controlled amendment.
 
-2. Freeze the implementation baseline
-   - record exact BRD/PRD versions;
-   - record exact Git commit/tag or equivalent immutable reference;
+After this governance/product-baseline closure work is validated and merged:
+
+1. Freeze the implementation baseline
+   - record exact accepted BRD/PRD versions;
+   - record the exact merged Git commit/tag or equivalent immutable reference;
    - record validation state.
 
-3. Establish Minimum Engineering Bootstrap
+2. Establish Minimum Engineering Bootstrap
    - decide only the cross-cutting technical foundations needed before implementation;
    - create canonical locations for architecture, domain/data/API/auth/UI/testing/ADR/change-package truth.
 
-4. Establish AI implementation instructions
+3. Establish AI implementation instructions
    - derive concise root/path-specific agent instructions from this file once the implementation repository structure and technologies are known.
 
-5. Select Change Package 001
+4. Select Change Package 001
    - perform source review;
    - map impact;
    - establish only the contracts it actually requires;
    - implement and validate using the Change Package lifecycle/gates.
 
-Do not jump directly from PRD to uncontrolled screen/code generation.
+Do not jump directly from the accepted PRD baseline to uncontrolled screen/code generation.
 
 ---
 
 # 23. Revision history
+
+## v1.1 — 2026-09-26 — Agent lineage and controlled PRD amendment governance
+
+Refined the implementation-era operating model after an independent recheck:
+
+- clarified that BRD is LOCKED while PRD is an ACCEPTED current baseline under controlled amendment;
+- established Document 11 as the active post-baseline PRD change-control ledger;
+- defined CLARIFICATION / CORRECTION / PRODUCT CHANGE handling and EFFECTIVE truth;
+- established Agent 3 as the active numbered continuity agent;
+- established a compact Agent Registry instead of an Agent Graveyard;
+- separated numbered continuity agents from specialist Test/Evidence Runners;
+- defined Test Evidence Package IDs and authority boundaries;
+- added durable agent attribution at decision/change-object level;
+- defined retirement/handoff rules without turning Guidelines into a diary;
+- defined explicit product/engineering reversal and supersession semantics;
+- updated the immediate engineering-transition sequence accordingly.
+
+No guideline revision itself is allowed to silently alter locked BRD or accepted product behavior.
 
 ## v1.0 — 2026-09-26 — Living guideline baseline created
 
@@ -1089,6 +1296,10 @@ When in doubt:
 > A subtask being done does not mean the parent capability is done.
 
 > Leave the repository so the next fresh agent can continue without depending on chat memory.
+
+> The accepted PRD changes only through an EFFECTIVE, traceable PRD-CHG record.
+
+> Continuity agents own interpretation; Test/Evidence Runners produce evidence.
 
 > If a guideline is not working, do not work around it silently. Improve the guideline explicitly.
 
