@@ -6,12 +6,14 @@
 | --- | --- |
 | Document | Interaction and Form Behavior Specification |
 | Version | 0.17 |
-| Status | DRAFT — PRD companion |
-| Date | 2026-09-20 |
+| Status | ACCEPTED — V1 interaction baseline under controlled amendment |
+| Original date | 2026-09-20 |
+| Baseline closure | 2026-09-26 |
 | Parent | PRD v0.17 |
 | Screen source | Document 07 |
 | Business source | BRD v1.0 LOCKED |
 | Classification | DERIVED PRODUCT DESIGN unless explicitly marked INHERITED |
+| Change control | Document 11 — PRD Change Control Ledger |
 
 ---
 
