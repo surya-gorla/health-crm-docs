@@ -24,16 +24,21 @@ Executable implementation repository:
 
 **IB-001 FROZEN**
 
-The Minimum Engineering Bootstrap is documented in:
+**Minimum Engineering Bootstrap — ESTABLISHED on `main`**
 
-**[01 — Minimum Engineering Bootstrap](01-minimum-engineering-bootstrap.md)**
+**Implementation repository foundation + AI repository instructions — ESTABLISHED on `surya-gorla/health-crm/main`**
+
+Current Change Package:
+
+**[CP-001 — Account Entry, Session & Workspace Authority Foundation](change-packages/CP-001-account-entry-session-workspace-authority.md)**
 
 Effective-state rule:
 
-- on an unmerged review branch, the bootstrap/ADRs are proposed engineering truth;
-- when these records are present on `main`, the bootstrap is established and the next stage is implementation-repository initialization + AI repository instructions before CP-001.
+- on an unmerged review branch, a new/updated Change Package is proposed engineering truth;
+- after the CP record is merged to docs `main`, implementation work may begin on the implementation repository under that package;
+- implementation code/contracts remain executable/engineering truth only when committed to the appropriate canonical repository.
 
-No detailed domain/data/API/UI contract or Change Package should be treated as established merely because it has been discussed in chat.
+No detailed domain/data/API/UI contract should be treated as established merely because it has been discussed in chat.
 
 Only committed canonical engineering records become shared engineering truth.
 
@@ -47,6 +52,10 @@ Only committed canonical engineering records become shared engineering truth.
 - [ADR-004 — PostgreSQL Transactions, Idempotency and Append-Only Audit](ADR/ADR-004-data-transactions-audit.md)
 - [ADR-005 — Deployment, Backup and Disaster-Recovery Baseline](ADR/ADR-005-deployment-backup-recovery.md)
 - [ADR-006 — Verification, CI and Operational Logging Foundation](ADR/ADR-006-verification-ci-logging.md)
+
+## Active Change Packages
+
+- [CP-001 — Account Entry, Session & Workspace Authority Foundation](change-packages/CP-001-account-entry-session-workspace-authority.md) — TASK PLAN READY on this review branch; implementation begins only after the CP record is live on docs `main`.
 
 ## Planned canonical areas
 

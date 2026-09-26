@@ -110,9 +110,9 @@ V1 engineering starts from **[Implementation Baseline IB-001](docs/ENGINEERING/0
 - business baseline: BRD v1.0 — LOCKED;
 - product baseline: PRD v0.17 + accepted companion Documents 06–08;
 - post-baseline PRD changes at freeze: none;
-- next stage: Minimum Engineering Bootstrap.
+- current stage: CP-001 — Account Entry, Session & Workspace Authority Foundation.
 
-Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERING/)**. The cross-cutting bootstrap is **[01 — Minimum Engineering Bootstrap](docs/ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006. Executable application code is built separately in `surya-gorla/health-crm`.
+Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERING/)**. The cross-cutting bootstrap is **[01 — Minimum Engineering Bootstrap](docs/ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006. The first implementation package is **[CP-001 — Account Entry, Session & Workspace Authority Foundation](docs/ENGINEERING/change-packages/CP-001-account-entry-session-workspace-authority.md)**. Executable application code is built separately in `surya-gorla/health-crm`.
 
 ## Repository documentation structure
 
@@ -128,6 +128,8 @@ Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERI
     │   ├── README.md
     │   ├── 00-implementation-baseline-IB-001.md
     │   ├── 01-minimum-engineering-bootstrap.md
+    │   ├── change-packages/
+    │   │   └── CP-001-account-entry-session-workspace-authority.md
     │   └── ADR/
     │       ├── ADR-001-modular-monolith-topology.md
     │       ├── ADR-002-platform-stack.md
