@@ -91,6 +91,8 @@ docs/
 │   ├── README.md
 │   ├── 00-implementation-baseline-IB-001.md
 │   ├── 01-minimum-engineering-bootstrap.md
+│   ├── change-packages/
+│   │   └── CP-001-account-entry-session-workspace-authority.md
 │   └── ADR/
 │       ├── ADR-001-modular-monolith-topology.md
 │       ├── ADR-002-platform-stack.md
@@ -126,6 +128,12 @@ Its immutable product-source reference is:
 `fa9bbff607b257752f855021211a2d2d183d6dd1`
 
 Engineering documentation begins at **[ENGINEERING/README.md](ENGINEERING/README.md)**.
+
+## Active implementation Change Package
+
+**[CP-001 — Account Entry, Session & Workspace Authority Foundation](ENGINEERING/change-packages/CP-001-account-entry-session-workspace-authority.md)**
+
+CP-001 is the first product implementation package. It owns the account-entry/session/workspace-authority foundation and becomes implementation-authorizing engineering truth only when its record is present on docs `main`.
 
 The cross-cutting bootstrap is **[ENGINEERING/01-minimum-engineering-bootstrap.md](ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006 under `ENGINEERING/ADR/`.
 
