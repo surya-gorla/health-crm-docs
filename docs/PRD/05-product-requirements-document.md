@@ -7,11 +7,12 @@
 | Document | Product Requirements Document |
 | Product | Hospital CRM for clinic operations |
 | Version | 0.17 |
-| Status | DRAFT — derived from locked BRD v1.0 |
-| Date | 2026-09-20 |
+| Status | ACCEPTED — V1 product baseline under controlled amendment |
+| Original date | 2026-09-20 |
+| Baseline closure | 2026-09-26 |
 | Source baseline | BRD v1.0 LOCKED |
-| Working review | PR #2 — long-lived PRD refinement review |
-| Product stage | V1 product definition — group-by-group refinement in progress |
+| Refinement status | G1–G15 COMPLETE; final validation + second independent audit PASS |
+| Change control | Document 11 — PRD Change Control Ledger |
 
 ---
 
@@ -3119,23 +3120,30 @@ Detailed acceptance scenarios are maintained in Document 06.
 
 # 32. PRD Change Control
 
-This PRD is currently **DRAFT**.
+This PRD is the **accepted current V1 product baseline under controlled amendment**.
 
-During PRD iteration:
+Acceptance does not mean the PRD can never change. Implementation, integration, testing or later product work may expose a genuine ambiguity, contradiction, omission or approved product change.
 
-- product/UX decisions may be refined;
-- no refinement may contradict locked BRD behavior;
-- any genuine business-policy change must return to BRD change control first;
-- accepted PRD changes should preserve P-IDs once they become implementation references.
+Substantive post-baseline PRD changes must use **Document 11 — PRD Change Control Ledger**.
 
-PRD lock will occur only after product behavior, interaction requirements, acceptance criteria, and BRD traceability have been reviewed and reconciled.
+The current accepted product truth remains effective until a recorded `PRD-CHG-###` reaches **EFFECTIVE** status.
 
+Controlled amendment rules:
+
+- no PRD change may silently contradict the locked BRD;
+- clarification/correction that does not introduce new clinic policy may be reconciled within the PRD under the established decision-authority model;
+- any genuine clinic/business-policy change must return to BRD/business change control and the required user/clinic authority;
+- P-IDs and other established implementation references must remain stable unless an exceptional explicit migration is required;
+- affected acceptance, screen, interaction and downstream engineering contracts must be reconciled together where applicable;
+- prior effective product history must be preserved through PRD-CHG provenance rather than erased.
+
+Documentation-only metadata/path/format/provenance corrections that do not alter product behavior do not require a PRD-CHG, but they still require normal repository validation.
 
 ---
 
 # 33. Companion Product Specifications
 
-The following documents are normative companions to this PRD while the PRD remains in DRAFT:
+The following documents are normative companions to this accepted PRD baseline:
 
 1. **Document 06 — PRD Acceptance and Traceability**  
    Defines end-to-end acceptance, role/authority acceptance, negative release blockers, and BRD lineage.
@@ -3149,3 +3157,5 @@ The following documents are normative companions to this PRD while the PRD remai
 These companion specifications may add **DERIVED PRODUCT DESIGN** detail but may not alter locked BRD business behavior.
 
 If a companion document conflicts with this PRD, the PRD controls unless the PRD itself conflicts with the locked BRD, in which case the BRD controls.
+
+Any later substantive amendment across Documents 05–08 must be reconciled through Document 11 and becomes current product truth only when the corresponding PRD-CHG is EFFECTIVE.
