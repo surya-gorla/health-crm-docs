@@ -13,6 +13,7 @@
 | Implementation repository | `surya-gorla/health-crm` |
 | Created | 2026-09-26 |
 | Current implementation branch | `surya-gorla/health-crm:cp-001/account-entry-session-workspace-authority` |
+| Current implementation PR | `surya-gorla/health-crm#2` — DRAFT |
 | Parent implementation baseline | `fa9bbff607b257752f855021211a2d2d183d6dd1` |
 
 ---
@@ -520,7 +521,8 @@ Current implementation state:
 - implementation branch exists at `surya-gorla/health-crm:cp-001/account-entry-session-workspace-authority`;
 - canonical contract under review:
   - `docs/ENGINEERING/contracts/CP-001-auth-session-workspace-authority-contract.md`;
-- schema/OpenAPI/shared TypeScript contract implementation has not started yet;
+- shared TypeScript/OpenAPI contract implementation has started in `health-crm#2`;
+- persistence/schema/migration implementation has not started yet;
 - UI/backend feature implementation has not started yet.
 
 **Effective-state note:** while the canonical contract is only on an unmerged docs review branch, CP-001 remains effectively at TASK PLAN READY on live `main`. The IMPLEMENTING state becomes current when this contract/update is merged.
@@ -529,9 +531,9 @@ Current implementation state:
 
 After the canonical CP-001 auth/session/workspace contract is independently validated and merged:
 
-1. reconcile stale implementation-repository bootstrap-status wording;
-2. begin Task A on the existing CP-001 implementation branch;
-3. establish schema/migrations + machine-readable OpenAPI/shared TypeScript contracts from the canonical contract;
-4. validate those artifacts before Task B backend authentication/session implementation begins.
+1. continue Task A in draft PR `health-crm#2`;
+2. add persistence/schema/migrations and executable contract validation from the canonical contract;
+3. independently validate the complete Task A delta;
+4. only then advance to Task B backend authentication/session implementation.
 
 Do not let backend/frontend invent parallel auth/session contracts while this canonical contract is unresolved.
