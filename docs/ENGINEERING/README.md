@@ -14,6 +14,10 @@ Immutable product-source commit:
 
 `fa9bbff607b257752f855021211a2d2d183d6dd1`
 
+Executable implementation repository:
+
+`surya-gorla/health-crm`
+
 ---
 
 ## Current engineering stage
