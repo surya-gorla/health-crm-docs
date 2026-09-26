@@ -24,11 +24,14 @@ Executable implementation repository:
 
 **IB-001 FROZEN**
 
-The proposed Minimum Engineering Bootstrap is documented in:
+The Minimum Engineering Bootstrap is documented in:
 
 **[01 — Minimum Engineering Bootstrap](01-minimum-engineering-bootstrap.md)**
 
-If that document and ADR-001 through ADR-006 are viewed only on an unmerged branch, they are proposed engineering truth. Once merged to `main`, the next stage becomes implementation-repository initialization + AI repository instructions before CP-001.
+Effective-state rule:
+
+- on an unmerged review branch, the bootstrap/ADRs are proposed engineering truth;
+- when these records are present on `main`, the bootstrap is established and the next stage is implementation-repository initialization + AI repository instructions before CP-001.
 
 No detailed domain/data/API/UI contract or Change Package should be treated as established merely because it has been discussed in chat.
 
