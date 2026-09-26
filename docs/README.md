@@ -8,7 +8,7 @@ This file is the **primary documentation entry point** for humans and agents wor
 
 Before making changes, read the repository-level **[Guidelines.md](../Guidelines.md)**.
 
-It is the current living operating baseline for product continuity, engineering, implementation, validation, and release work. It does not override the locked BRD or validated PRD; it defines **how** humans and AI agents should work with those sources and how the process itself may evolve when evidence shows a better rule is needed.
+It is the current living operating baseline for product continuity, engineering, implementation, validation, and release work. It does not override the locked BRD or current accepted PRD baseline; it defines **how** humans and AI agents should work with those sources and how the process itself may evolve when evidence shows a better rule is needed.
 
 ## Current continuity-agent lineage
 
@@ -20,18 +20,20 @@ See **[agents/AGENT-REGISTRY.md](agents/AGENT-REGISTRY.md)**.
 
 Only the higher continuity owner receives the sequential Agent number. Specialist Test/Evidence Runners produce evidence under Test Evidence IDs and are not part of the numbered lineage.
 
-## Agent Continuity — replacement-agent entry point
+## Historical Agent 1/2 continuity handoff
 
-If you are entering this repository from a new ChatGPT/agent conversation, start with:
+For a new or replacement agent, use the **Agent Registry above first** to identify the current/latest numbered continuity agent and any retirement handoff.
 
-**[Open the Agent Continuity Handoff](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+For inherited Agent 1/2 reasoning/provenance, open:
 
-The handoff is intentionally large because it preserves **source-level continuity rather than only a compressed summary**.
+**[Agent 1/2 Continuity Handoff](AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
 
-It contains both generations:
+The historical handoff is intentionally large because it preserves **source-level continuity rather than only a compressed summary**.
+
+It contains both earlier generations:
 
 - **Agent One:** full retirement/replacement manual + full raw Hospital CRM conversation export;
-- **Agent Two:** exact available continuation-session directives, evidence labeling, repository-verified execution chronology, reconciliations, validation passes, merge, docs reorganization, and the current continuity state.
+- **Agent Two:** exact available continuation-session directives, evidence labeling, repository-verified execution chronology, reconciliations, validation passes, merge, docs reorganization, and Agent Two's retirement/continuation state at handoff.
 
 ### Complete stable anchor map
 
