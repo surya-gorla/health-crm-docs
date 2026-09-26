@@ -45,6 +45,7 @@ Use the anchor map below to jump directly to the relevant section instead of scr
 | Agent Two repository-verified chronology | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-execution-record) |
 | Agent Two second audit / reconciliation | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-validation) |
 | Agent Two merge / docs organization | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-merge-docs) |
+| Agent Two retirement / exact resume state | [Open](docs/AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-retirement) |
 
 **Authority warning:** the handoff is the behavior/provenance continuity layer. It does **not** replace the locked BRD or current PRD as product truth.
 

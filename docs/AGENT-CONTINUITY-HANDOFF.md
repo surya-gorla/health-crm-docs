@@ -55,6 +55,7 @@ This document is intentionally very large. **Do not read it by scrolling blindly
 | Agent Two repository-verified chronology | [C2 — Execution chronology](#continuity-agent-two-execution-record) |
 | Agent Two validation/reconciliation record | [C3 — Validation and reconciliation](#continuity-agent-two-validation) |
 | Agent Two merge/docs-reorganization record | [C4 — Merge and docs organization](#continuity-agent-two-merge-docs) |
+| Agent Two retirement / exact resume state | [C8 — Retirement handoff](#continuity-agent-two-retirement) |
 | Evidence limits / what is verbatim vs reconstructed | [C5 — Evidence labeling](#continuity-agent-two-evidence-labels) |
 
 ### Reading modes
@@ -119,6 +120,9 @@ Documentation-organization branch created after that merge:
 - initial structure commit: `66136f1a859b850c929354909ab0875c47337197`
 - full continuity-handoff commit: `7e322005e726edd9daab674b2b058717eb671754`
 - stable anchor-navigation commit: `080f32b4bd06520dbacba4282f28b7a6eba65c55`
+- anchored continuity-entry-point commit before this retirement marker: `c052c81eeea025b5b45c1b93a79f351353717feb`
+- documentation organization PR: **PR #3 — `docs: organize BRD/PRD structure and add agent continuity handoff`**
+- PR #3 state immediately before this retirement-marker commit: **OPEN / Ready for review / base `main` / head `refinement-docs`**
 - this repository-state section is a handoff snapshot; a replacement agent must still verify the live branch/PR state before acting.
 
 Current documentation layout on `refinement-docs`:
@@ -11939,5 +11943,136 @@ At the time this expanded Appendix C is written:
 - the governing product truth remains the BRD/PRD, not this handoff.
 
 A future agent should use this file as the **behavior/provenance continuity layer**, then navigate to the governing BRD/PRD documents for current product truth.
+
+<a id="continuity-agent-two-retirement"></a>
+
+## C8. Agent Two retirement / exact next-state handoff
+
+This section is the **final continuity checkpoint written by Agent Two before retiring from this conversation**.
+
+### C8.1 What is complete
+
+Agent Two completed and verified all of the following:
+
+- inherited Agent One's raw Hospital CRM conversation and retirement manual;
+- reconstructed the exact working protocol and user demeanor expected by the project;
+- resumed the PRD refinement from the live ledger/repository rather than from stale chat assumptions;
+- reconciled G13 closure defects before G14;
+- completed G14 and G15 under the four-gate workflow;
+- performed the first global PRD validation;
+- performed a second independent G1–G15 validation at the user's request;
+- reconciled acceptance traceability so every P-001 through P-116 has explicit acceptance coverage;
+- squash-merged PR #2 into `main`;
+- created `refinement-docs` for documentation organization;
+- reorganized Documents 01–04 under `docs/BRD/`;
+- reorganized Documents 05–10 under `docs/PRD/`;
+- added the root repository navigation README;
+- added `docs/README.md` as the documentation anchor/index;
+- added this large continuity handoff;
+- preserved Agent One's retirement manual and full raw Hospital CRM conversation in this file;
+- added Agent Two's own continuation record, exact available user directives, repository-verified execution chronology, validation/reconciliation record, merge/docs record, and operating posture;
+- added stable custom anchors and README jump tables so the handoff can be traversed without scrolling blindly.
+
+### C8.2 Agent Two is explicitly included
+
+The next agent must not mistake this file for an Agent-One-only archive.
+
+Agent Two is preserved in:
+
+- [Section 12 — What Agent Two inherited and changed](#continuity-agent-two-work);
+- [Section 14 — exact continuation-session user directives](#continuity-user-directives);
+- [Appendix C — Agent Two continuation record](#continuity-appendix-c-agent-two);
+- [C0 — evidence labels and transcript limitation](#continuity-agent-two-evidence-labels);
+- [C1 — verbatim continuation-session directives](#continuity-agent-two-verbatim-directives);
+- [C2 — repository-verified execution record](#continuity-agent-two-execution-record);
+- [C3 — second validation/reconciliation](#continuity-agent-two-validation);
+- [C4 — merge and documentation reorganization](#continuity-agent-two-merge-docs);
+- this C8 retirement checkpoint.
+
+Agent One has a full exported raw transcript because the user supplied that export.
+
+Agent Two does **not** have a separate full-chat export file available to the repository tool. Therefore this handoff intentionally distinguishes:
+
+- **VERBATIM** Agent Two quotes that are available in the continuation conversation;
+- **REPOSITORY-VERIFIED EXECUTION RECORD** for actions proven by Git/PR/ledger state;
+- **RECONSTRUCTED CONTINUITY NARRATIVE** where a full raw chat export does not exist.
+
+A future agent must preserve that evidence honesty and must never claim the reconstructed parts are a complete verbatim Agent Two transcript.
+
+### C8.3 Live repository state immediately before retirement-marker commit
+
+Repository:
+
+`surya-gorla/health-crm-docs`
+
+Validated product baseline:
+
+- PR #2 is already squash-merged into `main`;
+- merge commit: `8044536710b1e5e33012ec82436d3c4997e2c73c`.
+
+Documentation branch:
+
+- `refinement-docs`;
+- last live branch head verified immediately before this retirement-marker commit: `c052c81eeea025b5b45c1b93a79f351353717feb`;
+- that commit message: `docs: finalize anchored agent continuity entry points`.
+
+Documentation PR:
+
+- PR #3;
+- title: `docs: organize BRD/PRD structure and add agent continuity handoff`;
+- base: `main`;
+- head: `refinement-docs`;
+- state immediately before this retirement-marker commit: **OPEN / Ready for review**;
+- **not merged by Agent Two**.
+
+This retirement-marker commit necessarily advances the branch head beyond `c052c81...`. Therefore the next agent's first repository action must be to retrieve the live branch and PR #3 state rather than assuming a SHA from this paragraph is still HEAD.
+
+### C8.4 Exact first actions for the next agent
+
+When the user starts a new chat and points to this file, the replacement agent should:
+
+1. read [the mandatory behavior section](#continuity-mandatory);
+2. read [the user demeanor section](#continuity-user-demeanor);
+3. read [the decision-authority section](#continuity-decision-authority);
+4. read [the persistent workflow](#continuity-refinement-workflow);
+5. read [the four closure gates](#continuity-closure-gates);
+6. read [Appendix C](#continuity-appendix-c-agent-two), especially this C8 checkpoint;
+7. inspect live GitHub state for:
+   - branch `refinement-docs`;
+   - PR #3;
+   - current `main`;
+8. read the current root `README.md` and `docs/README.md`;
+9. if asked to continue documentation organization, validate moved-file integrity, links, anchors and PR #3 rather than recreating the work;
+10. if asked to change product behavior, stop using this handoff as product authority and read the governing BRD/PRD documents first.
+
+### C8.5 What remains intentionally unfinished
+
+Agent Two is retiring with one deliberate boundary:
+
+- **PR #3 is not merged here.**
+
+The user asked Agent Two to complete the continuity/handoff work and retire; the user did not explicitly authorize merging the documentation-organization PR in the retirement instruction.
+
+Therefore a future agent must not infer merge permission from the existence of this handoff.
+
+If the user later authorizes merge:
+
+1. verify PR #3's live head and base;
+2. verify the branch is not behind `main`;
+3. validate README links and all custom continuity anchors;
+4. confirm moved BRD/PRD documents preserved substantive content;
+5. merge only after those checks pass.
+
+### C8.6 Behavioral inheritance sentence
+
+If the user says only:
+
+> "Read the agent continuity file and continue exactly like the previous agents."
+
+the next agent should interpret that as:
+
+> Restore live state first; respect BRD/PRD authority; inherit the user's direct/autonomous/continuity-sensitive working style; derive ordinary product decisions without unnecessary approval requests; ask only for genuine new business policy; preserve history and auditability; reason explicitly about stale state, retries, concurrency and role authority; checkpoint durable state; validate committed/live results; reconcile defects transparently; and never claim evidence or completion that has not actually been verified.
+
+---
 
 # End of Agent Continuity Handoff

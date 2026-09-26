@@ -47,6 +47,7 @@ It contains both generations:
 | Agent Two repository-verified chronology | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-execution-record) |
 | Agent Two second audit / reconciliation | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-validation) |
 | Agent Two merge / docs organization | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-merge-docs) |
+| Agent Two retirement / exact resume state | [Open](AGENT-CONTINUITY-HANDOFF.md#continuity-agent-two-retirement) |
 
 Use these anchors rather than reading the raw appendices linearly unless you need exact historical evidence.
 
