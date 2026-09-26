@@ -114,6 +114,14 @@ V1 engineering starts from **[Implementation Baseline IB-001](docs/ENGINEERING/0
 
 Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERING/)**. The cross-cutting bootstrap is **[01 — Minimum Engineering Bootstrap](docs/ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006. Executable application code is built separately in `surya-gorla/health-crm`.
 
+## Active engineering work
+
+Current Change Package:
+
+**[CP-001 — Executable Platform Foundation](docs/ENGINEERING/CHANGE-PACKAGES/CP-001-executable-platform-foundation.md)**
+
+CP-001 establishes runnable/testable platform infrastructure only and does not claim a clinic feature.
+
 ## Repository documentation structure
 
 ```text
