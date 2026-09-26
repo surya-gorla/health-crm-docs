@@ -5,14 +5,14 @@
 | Field | Value |
 | --- | --- |
 | Change Package | CP-001 |
-| Status | TASK PLAN READY — implementation not started |
+| Status | IMPLEMENTING — Task A contract/data foundation |
 | Product baseline | IB-001 |
 | Effective PRD changes | None |
 | Continuity owner | Agent 3 |
 | Documentation repository | `surya-gorla/health-crm-docs` |
 | Implementation repository | `surya-gorla/health-crm` |
 | Created | 2026-09-26 |
-| Current implementation branch | Not yet created |
+| Current implementation branch | `surya-gorla/health-crm:cp-001/account-entry-session-workspace-authority` |
 | Parent implementation baseline | `fa9bbff607b257752f855021211a2d2d183d6dd1` |
 
 ---
@@ -514,20 +514,24 @@ Completed:
 - required contract delta identified;
 - implementation task sequence defined.
 
-Not yet started:
+Current implementation state:
 
-- implementation-repository CP-001 branch;
-- canonical CP-001 engineering contracts;
-- schema/API/UI implementation;
-- executable tests.
+- CP-001 is live on docs `main`;
+- implementation branch exists at `surya-gorla/health-crm:cp-001/account-entry-session-workspace-authority`;
+- canonical contract under review:
+  - `docs/ENGINEERING/contracts/CP-001-auth-session-workspace-authority-contract.md`;
+- schema/OpenAPI/shared TypeScript contract implementation has not started yet;
+- UI/backend feature implementation has not started yet.
+
+**Effective-state note:** while the canonical contract is only on an unmerged docs review branch, CP-001 remains effectively at TASK PLAN READY on live `main`. The IMPLEMENTING state becomes current when this contract/update is merged.
 
 ## Next exact action
 
-After this CP-001 record is validated and merged into the documentation repository:
+After the canonical CP-001 auth/session/workspace contract is independently validated and merged:
 
 1. reconcile stale implementation-repository bootstrap-status wording;
-2. create the CP-001 implementation branch from live `health-crm/main`;
-3. establish the canonical CP-001 auth/session/authority contracts before product code diverges;
-4. begin Task A.
+2. begin Task A on the existing CP-001 implementation branch;
+3. establish schema/migrations + machine-readable OpenAPI/shared TypeScript contracts from the canonical contract;
+4. validate those artifacts before Task B backend authentication/session implementation begins.
 
-No product feature implementation should begin before this package record is live on docs `main`.
+Do not let backend/frontend invent parallel auth/session contracts while this canonical contract is unresolved.
