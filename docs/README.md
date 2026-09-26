@@ -4,6 +4,12 @@ This file is the **primary documentation entry point** for humans and agents wor
 
 
 
+## Active project guidelines
+
+Before making changes, read the repository-level **[Guidelines.md](../Guidelines.md)**.
+
+It is the current living operating baseline for product continuity, engineering, implementation, validation, and release work. It does not override the locked BRD or validated PRD; it defines **how** humans and AI agents should work with those sources and how the process itself may evolve when evidence shows a better rule is needed.
+
 ## Agent Continuity — replacement-agent entry point
 
 If you are entering this repository from a new ChatGPT/agent conversation, start with:
