@@ -6,10 +6,12 @@
 | --- | --- |
 | Document | PRD Acceptance and Traceability |
 | Version | 0.18 |
-| Status | DRAFT |
-| Date | 2026-09-20 |
+| Status | ACCEPTED — V1 acceptance/traceability baseline under controlled amendment |
+| Original date | 2026-09-20 |
+| Baseline closure | 2026-09-26 |
 | Parent | Product Requirements Document v0.17 |
 | Business source | BRD v1.0 LOCKED |
+| Change control | Document 11 — PRD Change Control Ledger |
 
 ---
 
@@ -1215,7 +1217,9 @@ Release must fail if any of these are possible:
 
 # 8. BRD Coverage Gate
 
-Before PRD lock, verify all locked BRD behavior is represented either:
+The accepted V1 product baseline was validated against this gate during final validation and the second independent G1–G15 audit.
+
+Locked BRD behavior must remain represented either:
 
 - directly in PRD feature behavior;
 - in acceptance scenarios;
@@ -1223,13 +1227,15 @@ Before PRD lock, verify all locked BRD behavior is represented either:
 - as a technical/compliance dependency;
 - or explicitly as Future/Out of V1.
 
-No locked BRD requirement may disappear because it is inconvenient for UI design.
+No locked BRD requirement may disappear because it is inconvenient for UI or implementation design.
+
+Any later PRD amendment must preserve this coverage gate.
 
 ---
 
-# 9. PRD Review Checklist
+# 9. Accepted Baseline Review Checklist
 
-The PRD can move from DRAFT to LOCKED only when:
+The accepted baseline satisfied the following closure conditions:
 
 - every role has a complete primary journey;
 - every approval path has requester/reason/decision/history behavior;
@@ -1241,21 +1247,24 @@ The PRD can move from DRAFT to LOCKED only when:
 - release-blocking negative scenarios are accepted;
 - remaining unknowns are configuration/technical/compliance, not hidden business policy.
 
+These conditions remain regression expectations for later controlled amendments.
+
 ---
 
 # 10. Change Control
 
-If PRD review identifies a need to change locked business behavior, do not modify the PRD alone.
+Post-baseline substantive PRD changes are governed by **Document 11 — PRD Change Control Ledger**.
 
-The process is:
+If a proposed PRD change would alter locked business behavior:
 
-1. identify affected BRD FR/BR/OD;
-2. reopen via BRD change control;
-3. approve business change;
-4. update locked business docs;
-5. then update PRD and acceptance mapping.
+1. identify the affected BRD FR/BR/OD;
+2. stop PRD-only reconciliation;
+3. return to BRD/business change control;
+4. obtain the required business/clinic authority;
+5. update locked business sources if approved;
+6. then reconcile PRD and acceptance mapping.
 
-Product design refinement that does not change business behavior can remain within the PRD workstream.
+Clarification/correction or derivable product refinement that does not change business behavior may remain within PRD controlled amendment, but the corresponding PRD-CHG must become EFFECTIVE before the changed behavior becomes current product truth.
 
 
 ---
