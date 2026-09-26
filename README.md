@@ -112,7 +112,7 @@ V1 engineering starts from **[Implementation Baseline IB-001](docs/ENGINEERING/0
 - post-baseline PRD changes at freeze: none;
 - next stage: Minimum Engineering Bootstrap.
 
-Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERING/)**. The proposed bootstrap is **[01 — Minimum Engineering Bootstrap](docs/ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006. Executable application code is built separately in `surya-gorla/health-crm`.
+Cross-project engineering truth lives under **[docs/ENGINEERING/](docs/ENGINEERING/)**. The cross-cutting bootstrap is **[01 — Minimum Engineering Bootstrap](docs/ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006. Executable application code is built separately in `surya-gorla/health-crm`.
 
 ## Repository documentation structure
 
