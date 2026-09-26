@@ -12,7 +12,7 @@ Before doing product, engineering, implementation, validation, or release work, 
 
 This is the project's **active living operating baseline** for humans and AI agents. It consolidates the proven BRD/PRD-era working rules, records how those rules changed for engineering/implementation, and defines how the guidelines themselves may be revised when project evidence shows that a rule is not working well.
 
-It is process authority, **not product authority**: the locked BRD and validated PRD remain the governing sources for what the product must do.
+It is process authority, **not product authority**: the locked BRD and current accepted PRD baseline remain the governing sources for what the product must do.
 
 ## Agent lineage
 
@@ -26,11 +26,13 @@ Only continuity-owning higher agents receive sequential Agent numbers. Specialis
 
 ## Agent continuity
 
-For a replacement agent or a brand-new chat continuing prior Hospital CRM work, start here:
+For a replacement agent or a brand-new chat continuing prior Hospital CRM work:
 
-**[Agent Continuity Handoff](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)**
+1. read **[Guidelines.md](Guidelines.md)**;
+2. read the **[Agent Registry](docs/agents/AGENT-REGISTRY.md)** to identify the current/latest numbered continuity agent and retirement handoff;
+3. use the historical **[Agent 1/2 Continuity Handoff](docs/AGENT-CONTINUITY-HANDOFF.md#agent-continuity-start)** when inherited Agent 1/2 reasoning/provenance is needed.
 
-This handoff intentionally contains **both agent generations**:
+The historical handoff intentionally contains **both earlier agent generations**:
 
 - **Agent One (retired):** the user-supplied retirement/replacement manual plus the full raw Hospital CRM conversation export;
 - **Agent Two (continuation agent):** exact continuation-session user directives available in this chat, evidence labels/limits, repository-verified execution chronology, G13 reconciliation, G14/G15 completion, both validation passes, acceptance reconciliation, PR #2 merge, documentation reorganization, and the continuity work itself.
