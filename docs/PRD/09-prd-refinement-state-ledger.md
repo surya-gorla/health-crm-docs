@@ -91,12 +91,12 @@ A group is COMPLETE only when all four gates pass:
 
 ### Source material reviewed
 
-- `docs/01-business-requirements-document.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
 
 ### Accepted product decisions
 
@@ -166,15 +166,15 @@ Compare the committed G2 authentication behavior against every accepted G1 works
 
 ### Source-review files scheduled
 
-- `docs/01-business-requirements-document.md`
-- `docs/02-workflows-and-state-model.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/04-requirements-traceability.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
-- `docs/10-prd-future-review-reminders.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/02-workflows-and-state-model.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/BRD/04-requirements-traceability.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
+- `docs/PRD/10-prd-future-review-reminders.md`
 
 ### Blockers
 
@@ -211,15 +211,15 @@ None currently identified.
 
 ### Files read
 
-- `docs/01-business-requirements-document.md`
-- `docs/02-workflows-and-state-model.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/04-requirements-traceability.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
-- `docs/10-prd-future-review-reminders.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/02-workflows-and-state-model.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/BRD/04-requirements-traceability.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
+- `docs/PRD/10-prd-future-review-reminders.md`
 
 ### Locked business conclusions confirmed
 
@@ -356,10 +356,10 @@ Disposition: resolves the account-disable portion of REM-002; role-only revocati
 
 - Commit: `f81210f2a7e99bcd21a32d5a4e288c0b530e68e0`
 - Files changed:
-  - `docs/05-product-requirements-document.md`
-  - `docs/06-prd-traceability-and-acceptance.md`
-  - `docs/07-information-architecture-and-screen-specification.md`
-  - `docs/08-interaction-and-form-behavior-specification.md`
+  - `docs/PRD/05-product-requirements-document.md`
+  - `docs/PRD/06-prd-traceability-and-acceptance.md`
+  - `docs/PRD/07-information-architecture-and-screen-specification.md`
+  - `docs/PRD/08-interaction-and-form-behavior-specification.md`
 
 ### Validation result
 
@@ -597,16 +597,16 @@ None.
 
 ### Files read
 
-- `docs/01-business-requirements-document.md`
-- `docs/02-workflows-and-state-model.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/04-requirements-traceability.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
-- `docs/09-prd-refinement-state-ledger.md`
-- `docs/10-prd-future-review-reminders.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/02-workflows-and-state-model.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/BRD/04-requirements-traceability.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
+- `docs/PRD/09-prd-refinement-state-ledger.md`
+- `docs/PRD/10-prd-future-review-reminders.md`
 
 ### Locked business conclusions confirmed
 
@@ -763,10 +763,10 @@ If the active Visit is reassigned before the pending request is decided, the cor
 
 - `b7db51edcd73f650a8e3f27bc7e98d21f4e3a438`
 - Files changed:
-  - `docs/05-product-requirements-document.md`
-  - `docs/06-prd-traceability-and-acceptance.md`
-  - `docs/07-information-architecture-and-screen-specification.md`
-  - `docs/08-interaction-and-form-behavior-specification.md`
+  - `docs/PRD/05-product-requirements-document.md`
+  - `docs/PRD/06-prd-traceability-and-acceptance.md`
+  - `docs/PRD/07-information-architecture-and-screen-specification.md`
+  - `docs/PRD/08-interaction-and-form-behavior-specification.md`
 
 ### Validation result
 
@@ -941,15 +941,15 @@ None.
 
 ### Files read
 
-- `docs/01-business-requirements-document.md`
-- `docs/02-workflows-and-state-model.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/04-requirements-traceability.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
-- `docs/10-prd-future-review-reminders.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/02-workflows-and-state-model.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/BRD/04-requirements-traceability.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
+- `docs/PRD/10-prd-future-review-reminders.md`
 
 ### Locked business conclusions confirmed
 
@@ -1195,10 +1195,10 @@ G5 must evaluate how an already-active queued Visit displays/handles a later fin
 
 - `38df611096205195a219abbaf498187563c10e90`
 - Files changed:
-  - `docs/05-product-requirements-document.md`
-  - `docs/06-prd-traceability-and-acceptance.md`
-  - `docs/07-information-architecture-and-screen-specification.md`
-  - `docs/08-interaction-and-form-behavior-specification.md`
+  - `docs/PRD/05-product-requirements-document.md`
+  - `docs/PRD/06-prd-traceability-and-acceptance.md`
+  - `docs/PRD/07-information-architecture-and-screen-specification.md`
+  - `docs/PRD/08-interaction-and-form-behavior-specification.md`
 
 ### Validation result
 
@@ -1372,15 +1372,15 @@ None.
 
 ### Files read
 
-- `docs/01-business-requirements-document.md`
-- `docs/02-workflows-and-state-model.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/04-requirements-traceability.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
-- `docs/10-prd-future-review-reminders.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/02-workflows-and-state-model.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/BRD/04-requirements-traceability.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
+- `docs/PRD/10-prd-future-review-reminders.md`
 
 ### Locked business conclusions confirmed
 
@@ -1452,10 +1452,10 @@ Future checks are required for G6 clinical concurrency, G8/G9 cancellation after
 
 - `eec1ae4e4b951456798eb008c710e0d305a1aa50`
 - Files changed:
-  - `docs/05-product-requirements-document.md`
-  - `docs/06-prd-traceability-and-acceptance.md`
-  - `docs/07-information-architecture-and-screen-specification.md`
-  - `docs/08-interaction-and-form-behavior-specification.md`
+  - `docs/PRD/05-product-requirements-document.md`
+  - `docs/PRD/06-prd-traceability-and-acceptance.md`
+  - `docs/PRD/07-information-architecture-and-screen-specification.md`
+  - `docs/PRD/08-interaction-and-form-behavior-specification.md`
 
 ### Validation result
 
@@ -1606,15 +1606,15 @@ None.
 
 ### Files read
 
-- `docs/01-business-requirements-document.md`
-- `docs/02-workflows-and-state-model.md`
-- `docs/03-open-decisions-and-edge-cases.md`
-- `docs/04-requirements-traceability.md`
-- `docs/05-product-requirements-document.md`
-- `docs/06-prd-traceability-and-acceptance.md`
-- `docs/07-information-architecture-and-screen-specification.md`
-- `docs/08-interaction-and-form-behavior-specification.md`
-- `docs/10-prd-future-review-reminders.md`
+- `docs/BRD/01-business-requirements-document.md`
+- `docs/BRD/02-workflows-and-state-model.md`
+- `docs/BRD/03-open-decisions-and-edge-cases.md`
+- `docs/BRD/04-requirements-traceability.md`
+- `docs/PRD/05-product-requirements-document.md`
+- `docs/PRD/06-prd-traceability-and-acceptance.md`
+- `docs/PRD/07-information-architecture-and-screen-specification.md`
+- `docs/PRD/08-interaction-and-form-behavior-specification.md`
+- `docs/PRD/10-prd-future-review-reminders.md`
 
 ### Locked business conclusions confirmed
 
