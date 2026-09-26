@@ -2,7 +2,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | ACCEPTED WHEN MERGED TO `main` |
+| Status | ACCEPTED — effective when present on `main` |
 | Date | 2026-09-26 |
 | Decision owner | Agent 3 |
 | Product baseline | IB-001 |
