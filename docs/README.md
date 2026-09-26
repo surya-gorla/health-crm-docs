@@ -127,7 +127,7 @@ Its immutable product-source reference is:
 
 Engineering documentation begins at **[ENGINEERING/README.md](ENGINEERING/README.md)**.
 
-The proposed cross-cutting bootstrap is **[ENGINEERING/01-minimum-engineering-bootstrap.md](ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006 under `ENGINEERING/ADR/`.
+The cross-cutting bootstrap is **[ENGINEERING/01-minimum-engineering-bootstrap.md](ENGINEERING/01-minimum-engineering-bootstrap.md)** with ADR-001 through ADR-006 under `ENGINEERING/ADR/`.
 
 The executable application repository is `surya-gorla/health-crm`.
 
